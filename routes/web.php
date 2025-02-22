@@ -1,18 +1,14 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\IndexController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+    return Inertia::render('Welcome');
+})->name('home');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -23,5 +19,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/about', [IndexController::class, 'about'])->name('about');
+Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
+Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');
+Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('networth');
+Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
+Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
 
 require __DIR__.'/auth.php';

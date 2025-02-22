@@ -7,13 +7,14 @@
             <div class="flex items-center justify-between h-24">
                 <!-- Logo -->
                 <div class="flex-shrink-0 py-2">
-                    <Link to="/"><img src="../../assets/images/zurit.png" class="w-36" alt="Zurit Logo" /></Link>
+                    <Link :href="route('home')"><img src="/images/home/zurit.png" class="w-36" alt="Zurit Logo" />
+                    </Link>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#" class="text-yellow-500 hover:text-yellow-400">Home</a>
-                    <a href="#" class="text-gray-300 hover:text-gray-100">About us</a>
+                    <Link :href="route('home')" class="text-yellow-500 hover:text-yellow-400">Home</Link>
+                    <Link :href="route('about')" class="text-gray-300 hover:text-gray-100">About us</Link>
 
                     <!-- Updated Prosperity Tools Dropdown -->
                     <div class="relative group" @mouseenter="isDropdownOpen = true" @mouseleave="hideDropdown">
@@ -27,12 +28,12 @@
                         <div v-show="isDropdownOpen"
                             class="absolute left-0 mt-2 w-48 bg-purple-900 shadow-lg rounded-md overflow-hidden"
                             @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
-                            <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal Setting</a>
-                            <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget Planner</a>
-                            <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net Worth
-                                Calculator</a>
-                            <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt Manager</a>
-                            <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</a>
+                            <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal Setting</Link>
+                            <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget Planner</Link>
+                            <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net Worth
+                                Calculator</Link>
+                            <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt Manager</Link>
+                            <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</Link>
                         </div>
                     </div>
 
@@ -63,8 +64,8 @@
         <!-- Mobile menu -->
         <div v-if="isMobileMenuOpen" class="md:hidden bg-[#0B1A24] float-right">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="#" class="text-yellow-500 block px-3 py-2">Home</a>
-                <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">About us</a>
+                <Link :href="route('home')" class="text-yellow-500 block px-3 py-2">Home</Link>
+                <Link :href="route('about')" class="text-gray-300 hover:text-white block px-3 py-2">About us</Link>
                 <div class="relative">
                     <button @click="toggleDropdown" class="text-gray-300 hover:text-white block px-3 py-2">
                         Prosperity Tools
@@ -73,11 +74,11 @@
                         </svg>
                     </button>
                     <div v-if="isDropdownOpen" class="bg-purple-900 shadow-lg rounded-md overflow-hidden mt-2">
-                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal Setting</a>
-                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget Planner</a>
-                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net Worth Calculator</a>
-                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt Manager</a>
-                        <a href="#" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</a>
+                        <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal Setting</Link>
+                        <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget Planner</Link>
+                        <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net Worth Calculator</Link>
+                        <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt Manager</Link>
+                        <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</Link>
                     </div>
                 </div>
                 <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Services</a>
@@ -91,27 +92,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { usePage, Link } from '@inertiajs/vue3'
 
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 
+const page = usePage()
+
+const isHomePage = computed(() => page.url === '/')
+
 const handleScroll = () => {
-    isScrolled.value = window.scrollY > 50
+    if (isHomePage.value) {
+        isScrolled.value = window.scrollY > 50
+    } else {
+        isScrolled.value = true // Force solid color on other pages
+    }
 }
 
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
-
-const openDropdown = () => {
-    isDropdownOpen.value = true
-}
-
-const closeDropdown = () => {
-    isDropdownOpen.value = false
 }
 
 const toggleDropdown = () => {
@@ -119,6 +120,7 @@ const toggleDropdown = () => {
 }
 
 onMounted(() => {
+    handleScroll() // Apply initial state based on page
     window.addEventListener('scroll', handleScroll)
 })
 

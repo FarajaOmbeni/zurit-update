@@ -5,7 +5,7 @@ import GoldButton from '../Components/Shared/GoldButton.vue';
     <div class="relative w-full h-screen flex items-center justify-center">
 
         <!-- Background Image -->
-        <img src="../../assets/images/hero_bg.webp" alt="Background"
+        <img src="/images/home/hero_bg.webp" alt="Background"
             class="absolute inset-0 w-full h-full object-cover rounded-br-[10rem]" />
 
         <!-- Gradient Overlay -->

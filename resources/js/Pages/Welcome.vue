@@ -18,10 +18,11 @@ import ContactUs from '@/Components/ContactUs.vue';
     <Events />
     <!--Circles-->
     <div class="absolute -top-60 -left-60">
-        <img class="w-[35rem]" src="../../assets/images/circles.svg" alt="Circles">
+        <img class="w-[35rem]" src="/images/home/circles.svg" alt="Circles">
     </div>
-    <div class="absolute top-0 left-0">
-        <img src="../../assets/images/dots.svg" alt="">
+    <!--Dots-->
+    <div class="absolute top-[90%] left-[30%]">
+        <img src="/images/home/dots.svg" alt="">
     </div>
     <Partners/>
     <WhyChooseUs />

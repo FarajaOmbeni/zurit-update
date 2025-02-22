@@ -5,23 +5,16 @@ const testimonials = ref([
     {
         id: 1,
         name: "Ombeni Faraja",
-        image: "/images/testimonials/person1.webp",
+        image: "/images/team/davis.webp",
         review:
             "A review is an evaluation of a publication, product, service, or company or a critical take on current affairs in literature, politics, or culture...",
     },
     {
         id: 2,
-        name: "Jane Doe",
-        image: "/images/testimonials/person2.webp",
+        name: "Davis Otao",
+        image: "/images/team/faraja.webp",
         review:
             "I had a fantastic experience! The service was outstanding, and I highly recommend it to anyone looking for quality and reliability.",
-    },
-    {
-        id: 3,
-        name: "John Smith",
-        image: "/images/testimonials/person3.webp",
-        review:
-            "Professional and efficient. This service exceeded my expectations, and I will definitely use it again in the future.",
     },
 ]);
 
