@@ -38,7 +38,7 @@
                     </div>
 
 
-                    <a href="#" class="text-gray-300 hover:text-gray-100">Services</a>
+                    <a :href="route('training')" class="text-gray-300 hover:text-gray-100">Services</a>
                     <a href="#" class="text-gray-300 hover:text-gray-100">Buy Book</a>
                     <a href="#" class="text-gray-300 hover:text-gray-100">Blogs</a>
                     <a href="#" class="text-gray-300 hover:text-gray-100">Feedback</a>
@@ -81,7 +81,7 @@
                         <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</Link>
                     </div>
                 </div>
-                <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Services</a>
+                <a :href="route('training')" class="text-gray-300 hover:text-white block px-3 py-2">Services</a>
                 <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</a>
                 <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</a>
                 <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</a>

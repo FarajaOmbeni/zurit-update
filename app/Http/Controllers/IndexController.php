@@ -31,4 +31,8 @@ class IndexController extends Controller
     {
         return Inertia::render('InvestmentPlanner');
     }
+    public function training()
+    {
+        return Inertia::render('Training');
+    }
 }

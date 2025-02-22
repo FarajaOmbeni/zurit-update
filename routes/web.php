@@ -26,5 +26,6 @@ Route::get('/investment-planner', [IndexController::class, 'investment'])->name(
 Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('networth');
 Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
 Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
+Route::get('/training', [IndexController::class, 'training'])->name('training');
 
 require __DIR__.'/auth.php';

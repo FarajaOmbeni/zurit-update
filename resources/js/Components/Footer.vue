@@ -16,18 +16,19 @@
                 <!-- Prosperity Tools -->
                 <div class="space-y-3">
                     <h2 class="text-lg font-semibold text-yellow-500">Prosperity Tools</h2>
-                    <a href="{{ url('budgetplanner') }}" class="block hover:text-yellow-400">Budget Planner</a>
-                    <a href="{{ url('networthcalculator') }}" class="block hover:text-yellow-400">Networth
-                        Calculator</a>
-                    <a href="{{ url('debtmanager') }}" class="block hover:text-yellow-400">Debt Manager</a>
-                    <a href="{{ url('investmentplanner') }}" class="block hover:text-yellow-400">Investment Planner</a>
+                    <Link :href="route('budget')" class="block hover:text-yellow-400">Budget Planner</Link>
+                    <Link :href="route('networth')" class="block hover:text-yellow-400">Networth
+                    Calculator</Link>
+                    <Link :href="route('debt')" class="block hover:text-yellow-400">Debt Manager</Link>
+                    <Link :href="route('investment')" class="block hover:text-yellow-400">Investment Planner
+                    </Link>
                 </div>
 
                 <!-- Quick Links -->
                 <div class="space-y-3">
                     <h2 class="text-lg font-semibold text-yellow-500">Quick Links</h2>
                     <a href="{{ url('/') }}" class="block hover:text-yellow-400">Home</a>
-                    <a href="{{ url('training') }}" class="block hover:text-yellow-400">Training</a>
+                    <Link :href="route('training')" class="block hover:text-yellow-400">Training</Link>
                     <a href="{{ url('about') }}" class="block hover:text-yellow-400">About Us</a>
                     <a href="/#contact-us" class="block hover:text-yellow-400">Contact Us</a>
                 </div>
@@ -57,4 +58,6 @@
 </template>
  
 <script setup>
+import { Link } from '@inertiajs/vue3';
+
 </script>
