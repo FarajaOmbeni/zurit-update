@@ -35,4 +35,16 @@ class IndexController extends Controller
     {
         return Inertia::render('Training');
     }
+    public function books()
+    {
+        return Inertia::render('Books');
+    }
+    public function feedback()
+    {
+        return Inertia::render('Feedback');
+    }
+    public function blogs()
+    {
+        return Inertia::render('blogs');
+    }
 }

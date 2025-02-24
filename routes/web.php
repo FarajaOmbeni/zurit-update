@@ -27,5 +27,8 @@ Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('
 Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
 Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
 Route::get('/training', [IndexController::class, 'training'])->name('training');
+Route::get('/books', [IndexController::class, 'books'])->name('books');
+Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
+Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 
 require __DIR__.'/auth.php';

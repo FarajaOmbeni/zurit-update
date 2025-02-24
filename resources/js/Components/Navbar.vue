@@ -39,9 +39,9 @@
 
 
                     <a :href="route('training')" class="text-gray-300 hover:text-gray-100">Services</a>
-                    <a href="#" class="text-gray-300 hover:text-gray-100">Buy Book</a>
-                    <a href="#" class="text-gray-300 hover:text-gray-100">Blogs</a>
-                    <a href="#" class="text-gray-300 hover:text-gray-100">Feedback</a>
+                    <Link :href="route('books')" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
+                    <a :href="route('blogs')" class="text-gray-300 hover:text-gray-100">Blogs</a>
+                    <Link :href="route('feedback')" class="text-gray-300 hover:text-gray-100">Feedback</Link>
                     <Link :href="route('login')" class="bg-white text-gray-900 px-4 py-2 rounded-md hover:bg-gray-300">
                     Join Us
                     </Link>
@@ -82,9 +82,9 @@
                     </div>
                 </div>
                 <a :href="route('training')" class="text-gray-300 hover:text-white block px-3 py-2">Services</a>
-                <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</a>
-                <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</a>
-                <a href="#" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</a>
+                <Link :href="route('books')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
+                <a :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</a>
+                <Link :href="route('feedback')" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</Link>
                 <a href="#" class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</a>
             </div>
         </div>

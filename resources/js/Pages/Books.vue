@@ -1,0 +1,30 @@
+<template>
+
+    <Head title="Books" />
+    <Navbar />
+    <div class="mt-12 p-16">
+        <h2 class="text-3xl mb-4 lg:text-4xl font-bold text-yellow-600">Books</h2>
+        <div class="flex flex-col md:flex-row justify-center gap-12">
+            <BookCard :book="{
+                title: 'Thrive',
+                description: 'Your ultimate guide to financial freedom. Clear, concise steps to wealth creation.',
+                price: 1500,
+                image: '/images/books/thrive.webp'
+            }" />
+            <BookCard :book="{
+                title: 'Fininancial Goal Setting',
+                description: 'Unlock the path to realizing your financial deams with this insightful guide. Delce into the crucial art of goal setting, guided by the wheel of life, to pinpoint your aspirations',
+                price: 200,
+                image: '/images/books/goal_setting.webp'
+            }" />
+        </div>
+    </div>
+    <Footer />
+</template>
+
+<script setup>
+import Navbar from '@/Components/Navbar.vue';
+import Footer from '@/Components/Footer.vue';
+import BookCard from '@/Components/Shared/BookCard.vue';
+import { Head } from '@inertiajs/vue3';
+</script>

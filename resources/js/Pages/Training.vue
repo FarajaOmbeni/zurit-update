@@ -1,4 +1,5 @@
 <template>
+    <Head title="Training"/>
     <Navbar />
     <div class="mt-36 mb-24">
         <div class="text-2xl md:ml-8 md:text-4xl lg:text-7xl md:text-left text-center font-bold lg:mb-6">Our
@@ -13,7 +14,7 @@
 
 
             <!-- Training Cards Flexbox -->
-            <div class="flex flex-col items-center 
+            <div class="flex justify-center flex-col items-center 
             lg:flex-row gap-6 max-w-7xl">
                 <TrainingCard v-for="training in filteredTrainings" :key="training.id" :imageUrl="training.imageUrl"
                     :title="training.title" :description="training.description" :price="training.price"
@@ -42,6 +43,7 @@ import TrainingModal from '@/Components/Shared/TrainingModal.vue'
 import EnrollModal from '@/Components/Shared/EnrollModal.vue'
 import Footer from '@/Components/Footer.vue'
 import Navbar from '@/Components/Navbar.vue'
+import { Head } from '@inertiajs/vue3'
 
 // Sample data structure with more details
 const trainings = [
