@@ -119,9 +119,31 @@
             </div>
 
             <!-- Textarea Questions -->
-            <div v-for="(question, index) in openQuestions" :key="index" class="mb-4">
-                <label class="block text-gray-700 font-medium">{{ question.label }}</label>
-                <textarea rows="3" class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500"
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">What aspects of our training sessions did you find most
+                    valuable?</label>
+                <textarea name="most_valuable" rows="3"
+                    class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500"
+                    placeholder="Write your response..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Is there anything specific that you feel could be
+                    improved about our training programs?</label>
+                <textarea name="area_of_improvement" rows="3"
+                    class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500"
+                    placeholder="Write your response..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Are there any additional topics or areas of interest you
+                    would like to see covered in future training sessions?</label>
+                <textarea name="topic_suggestion" rows="3"
+                    class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500"
+                    placeholder="Write your response..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Who was your favorite trainer/speaker?</label>
+                <textarea name="favorite_speaker" rows="3"
+                    class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500"
                     placeholder="Write your response..."></textarea>
             </div>
 
@@ -141,11 +163,4 @@
 import { Head } from '@inertiajs/vue3';
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
-
-const openQuestions = [
-    { label: "What aspects of our training sessions did you find most valuable?" },
-    { label: "Is there anything specific that you feel could be improved about our training programs?" },
-    { label: "Are there any additional topics or areas of interest you would like to see covered in future training sessions?" },
-    { label: "Who was your favorite trainer/speaker?" }
-];
 </script>

@@ -45,6 +45,6 @@ class IndexController extends Controller
     }
     public function blogs()
     {
-        return Inertia::render('blogs');
+        return Inertia::render('Blogs');
     }
 }

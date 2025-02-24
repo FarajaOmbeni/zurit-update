@@ -6,7 +6,7 @@
 
         <!-- Overlay Content -->
         <div class="absolute h-[10rem] bottom-0 left-0 right-0 p-4 bg-gray-900 rounded-b-lg">
-            <h3 class="text-xl font-bold text-white mb-2">{{ title }}</h3>
+            <h3 class="text-xl text-yellow-500 font-bold text-white mb-2">{{ title }}</h3>
             <p class="text-gray-200 text-sm mb-4 line-clamp-2">
                 {{ description }}
             </p>

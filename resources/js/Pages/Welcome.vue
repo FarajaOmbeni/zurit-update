@@ -14,18 +14,18 @@ import ContactUs from '@/Components/ContactUs.vue';
 
     <Head title="Home" />
     <Navbar />
-    <Hero />
-    <Events />
-    <!--Circles-->
-    <div class="absolute -top-60 -left-60">
-        <img class="w-[35rem]" src="/images/home/circles.svg" alt="Circles">
-    </div>
-    <!--Dots-->
-    <div class="absolute top-[90%] left-[30%]">
-        <img src="/images/home/dots.svg" alt="">
-    </div>
-    <!-- <Partners/> -->
-    <WhyChooseUs />
-    <ContactUs/>
-    <Footer/>
+        <Hero />
+        <Events />
+        <!--Circles-->
+        <div class="absolute -top-60 -left-60">
+            <img class="w-[35rem]" src="/images/home/circles.svg" alt="Circles">
+        </div>
+        <!--Dots-->
+        <div class="absolute top-[90%] left-[30%]">
+            <img src="/images/home/dots.svg" alt="">
+        </div>
+        <!-- <Partners/> -->
+        <WhyChooseUs />
+        <ContactUs />
+    <Footer />
 </template>
