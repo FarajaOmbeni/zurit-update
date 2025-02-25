@@ -4,7 +4,7 @@
     <Navbar />
     <div class="mt-12 p-16">
         <h2 class="text-3xl mb-4 lg:text-4xl font-bold text-yellow-600">Books</h2>
-        <div class="flex flex-col md:flex-row justify-center gap-12">
+        <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-12">
             <BookCard :book="{
                 title: 'Thrive',
                 description: 'Your ultimate guide to financial freedom. Clear, concise steps to wealth creation.',

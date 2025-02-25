@@ -28,12 +28,17 @@
                         <div v-show="isDropdownOpen"
                             class="absolute left-0 mt-2 w-48 bg-purple-900 shadow-lg rounded-md overflow-hidden"
                             @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
-                            <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal Setting</Link>
-                            <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget Planner</Link>
-                            <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net Worth
-                                Calculator</Link>
-                            <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt Manager</Link>
-                            <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</Link>
+                            <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal
+                            Setting</Link>
+                            <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
+                            Budget Planner</Link>
+                            <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
+                            Net Worth
+                            Calculator</Link>
+                            <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt
+                            Manager</Link>
+                            <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
+                            Investment Planner</Link>
                         </div>
                     </div>
 
@@ -74,18 +79,23 @@
                         </svg>
                     </button>
                     <div v-if="isDropdownOpen" class="bg-purple-900 shadow-lg rounded-md overflow-hidden mt-2">
-                        <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal Setting</Link>
-                        <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget Planner</Link>
-                        <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net Worth Calculator</Link>
-                        <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt Manager</Link>
-                        <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Investment Planner</Link>
+                        <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal
+                        Setting</Link>
+                        <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget
+                        Planner</Link>
+                        <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net
+                        Worth Calculator</Link>
+                        <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt
+                        Manager</Link>
+                        <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
+                        Investment Planner</Link>
                     </div>
                 </div>
                 <a :href="route('training')" class="text-gray-300 hover:text-white block px-3 py-2">Services</a>
                 <Link :href="route('books')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
                 <a :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</a>
                 <Link :href="route('feedback')" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</Link>
-                <a href="#" class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</a>
+                <Link :href="route('login')" class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
             </div>
         </div>
     </nav>
@@ -120,9 +130,10 @@ const toggleDropdown = () => {
 }
 
 onMounted(() => {
-    handleScroll() // Apply initial state based on page
-    window.addEventListener('scroll', handleScroll)
+    handleScroll()
+    window.route('user.budget', ('scroll', handleScroll))
 })
+
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)

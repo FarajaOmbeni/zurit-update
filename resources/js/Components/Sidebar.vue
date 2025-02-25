@@ -124,7 +124,7 @@ const closeDropdown = (e) => {
 
 // Add event listener when component is mounted
 onMounted(() => {
-  document.addEventListener('click', closeDropdown);
+  document.route('user.budget', ('click', closeDropdown));
 });
 
 // Clean up event listener when component is unmounted
