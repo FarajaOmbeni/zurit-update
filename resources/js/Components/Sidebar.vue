@@ -1,14 +1,20 @@
 <template>
   <div class="flex h-screen">
-    <!-- Sidebar -->
+    <!-- Sidebar - Note the positioning changes and responsive classes -->
     <div :class="[
-      'transition-all duration-300 bg-purple-800 text-white',
+      'transition-all duration-300 bg-purple-800 text-white fixed h-full z-10',
       sidebarOpen ? 'w-64' : 'w-16',
-      'fixed h-full z-10'
+      'md:left-0',  // On medium screens and up, position left
+      'left-auto right-0' // On small screens, position right
     ]">
-      <!-- Toggle Button -->
-      <button @click="toggleSidebar"
-        class="absolute -right-3 top-5 bg-yellow-400 hover:bg-yellow-500 rounded-full p-1 shadow-lg">
+      <!-- Toggle Button - Note the position change for small screens -->
+      <button @click="toggleSidebar" :class="[
+        'absolute top-5 bg-yellow-400 hover:bg-yellow-500 rounded-full p-1 shadow-lg',
+        'hidden',
+        'md:block',
+        'transition-transform',
+        'md:-right-3',
+      ]">
         <svg :class="[
           'h-5 w-5 text-purple-800 transition-transform',
           !sidebarOpen ? 'transform rotate-180' : ''
@@ -22,7 +28,16 @@
         <div v-if="sidebarOpen" class="text-xl font-bold text-yellow-400">
           <img class="object-cover w-40 h-14" src="/images/home/zurit.png" alt="">
         </div>
-        <div v-else class="text-xs font-bold text-yellow-400">Zurit</div>
+        <div v-else class="text-xs font-bold text-yellow-400 hidden md:block">Zurit</div>
+
+        <div @click="toggleSidebar" class="md:hidden cursor-pointer absolute right-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-6 text-yellow-400">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+          </svg>
+        </div>
+
       </div>
 
       <!-- Navigation Links -->
@@ -66,10 +81,15 @@
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content - Adjust padding based on sidebar position -->
     <div :class="[
       'flex-1 transition-all duration-300',
-      sidebarOpen ? 'ml-64' : 'ml-16'
+      // Medium screens and up (sidebar on left)
+      'md:ml-16 md:mr-0',
+      sidebarOpen ? 'md:ml-64' : 'md:ml-16',
+      // Small screens (sidebar on right)
+      'ml-0 mr-16',
+      sidebarOpen ? 'mr-64' : 'mr-16'
     ]">
       <div class="p-6 rounded-lg bg-gray-100 overflow-auto">
         <h1 class="text-2xl font-semibold text-purple-800">{{ title }}</h1>
@@ -151,8 +171,8 @@ const menuItems = [
     link: 'user.calculators'
   }]
 
-// Sidebar state
-const sidebarOpen = ref(true);
+// Sidebar state - set to false by default
+const sidebarOpen = ref(false);
 
 // Toggle sidebar function
 const toggleSidebar = () => {
