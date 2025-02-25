@@ -19,8 +19,10 @@
 
       <!-- Logo -->
       <div class="flex items-center justify-center h-16 border-b border-purple-700">
-        <div v-if="sidebarOpen" class="text-xl font-bold text-yellow-400">Dashboard</div>
-        <div v-else class="text-xl font-bold text-yellow-400">D</div>
+        <div v-if="sidebarOpen" class="text-xl font-bold text-yellow-400">
+          <img class="object-cover w-40 h-14" src="/images/home/zurit.png" alt="">
+        </div>
+        <div v-else class="text-xs font-bold text-yellow-400">Zurit</div>
       </div>
 
       <!-- Navigation Links -->
@@ -40,9 +42,8 @@
       <!-- User Profile -->
       <div class="absolute bottom-0 w-full border-t border-purple-700 p-2">
         <div class="flex items-center px-2 py-3">
-          <div class="flex-shrink-0 h-8 w-8 rounded-full bg-white border-2 border-yellow-400">
-
-          </div>
+          <div @click.stop="toggleDropdown"
+            class="flex-shrink-0 h-8 w-8 rounded-full bg-white border-2 border-yellow-400"></div>
           <div v-if="sidebarOpen" class="ml-3 relative">
             <div @click.stop="toggleDropdown" class="cursor-pointer group">
               <p class="text-sm font-medium group-hover:text-yellow-500">{{ $page.props.auth.user.name }}</p>
