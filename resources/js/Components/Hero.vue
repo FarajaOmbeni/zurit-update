@@ -35,10 +35,10 @@ import GoldButton from '../Components/Shared/GoldButton.vue';
 
                 <!-- Buttons Section -->
                 <div class="mt-6 grid grid-cols-2 gap-4 w-full max-w-md text-center mx-auto xl:mx-0">
-                    <GoldButton url="/" button_name="Individual Training" />
-                    <GoldButton button_name="Corporate Training" url="/" />
-                    <GoldButton button_name="Wealth Management" url="/" />
-                    <GoldButton button_name="Financial Advisory" url="/" />
+                    <GoldButton url="training" button_name="Individual Training" />
+                    <GoldButton button_name="Corporate Training" url="training" />
+                    <GoldButton button_name="Wealth Management" url="training" />
+                    <GoldButton button_name="Financial Advisory" url="training" />
                 </div>
 
             </div>
