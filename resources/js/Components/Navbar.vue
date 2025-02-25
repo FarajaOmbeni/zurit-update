@@ -91,9 +91,9 @@
                         Investment Planner</Link>
                     </div>
                 </div>
-                <a :href="route('training')" class="text-gray-300 hover:text-white block px-3 py-2">Services</a>
+                <Link :href="route('training')" class="text-gray-300 hover:text-white block px-3 py-2">Services</Link>
                 <Link :href="route('books')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
-                <a :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</a>
+                <Link :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</Link>
                 <Link :href="route('feedback')" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</Link>
                 <Link :href="route('login')" class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
             </div>
@@ -130,10 +130,9 @@ const toggleDropdown = () => {
 }
 
 onMounted(() => {
-    handleScroll()
-    window.route('user.budget', ('scroll', handleScroll))
+    handleScroll() 
+    window.addEventListener('scroll', handleScroll)
 })
-
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)

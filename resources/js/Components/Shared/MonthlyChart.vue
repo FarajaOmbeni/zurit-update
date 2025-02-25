@@ -7,7 +7,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import Chart from 'chart.js/auto';
+import {Chart} from 'chart.js';
 
 const props = defineProps({
     monthlyIncomes: {
