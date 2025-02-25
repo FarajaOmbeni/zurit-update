@@ -19,7 +19,8 @@ class ContactController extends Controller
             'g-recaptcha-response' => 'required',
         ]);
     
-        $url = 'https://recaptchaenterprise.googleapis.com/v1/projects/zuritrecaptcha-1710402514343/assessments?key=AIzaSyCgeBzw4Ek7DBpt9WTuxEuBQ8qfLIZe738';
+        // $url = 'https://recaptchaenterprise.googleapis.com/v1/projects/zuritrecaptcha-1710402514343/assessments?key=AIzaSyCgeBzw4Ek7DBpt9WTuxEuBQ8qfLIZe738';
+        $url = '';
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',])
