@@ -2,6 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+
+const props = defineProps({
+    netIncome: Number,
+})
 </script>
 
 <template>
@@ -11,7 +15,7 @@ import Sidebar from '@/Components/Sidebar.vue';
         <div class="w-full text-gray-900">
             <Sidebar>
                 <div>
-                    Fanya solo
+                    {{ props.netIncome }}
                 </div>
             </Sidebar>
         </div>

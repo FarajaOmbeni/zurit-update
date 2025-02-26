@@ -9,56 +9,11 @@ use Illuminate\Http\Request;
 use App\Mail\FinancialAssistance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class NetworthController extends Controller
 {
-    //
-    public function storeAsset(Request $request)
-    {
-        $userId = Auth::id();
-        // Validate the form data
-        $validatedData = $request->validate([
-            'assetDescription' => 'required',
-            'assetValue' => 'required|numeric',
-        ]);
-
-        // Store the asset in the database
-        $asset = Asset::create([
-            'user_id' => $userId,
-            'asset_description' => $validatedData['assetDescription'],
-            'asset_value' => $validatedData['assetValue'],
-        ]);
-
-        // Redirect or perform any other action after storing
-        return redirect('user_networthcalc')->with('success', [
-            'message' => 'Assest Added Succesfully',
-            'duration' => 3000,
-        ]);
-    }
-
-    public function storeLiability(Request $request)
-    {
-        $userId = Auth::id();
-        // Validate the form data
-        $validatedData = $request->validate([
-            'liabilityDescription' => 'required',
-            'liabilityValue' => 'required|numeric',
-        ]);
-
-        // Store the liability in the database
-        $liability = Debt::create([
-            'user_id' => $userId,
-            'debt_name' => $validatedData['liabilityDescription'],
-            'current_balance' => $validatedData['liabilityValue'],
-        ]);
-
-        return redirect('user_networthcalc')->with('success', [
-            'message' => 'Liability Added Succesfully',
-            'duration' => 3000,
-        ]);
-    }
-
-    public function showNetWorth()
+    public function index()
     {
         $assets = Asset::where('user_id', auth()->id())->get();
         $liabilities = Debt::where('user_id', auth()->id())->get();
@@ -116,7 +71,7 @@ class NetworthController extends Controller
             ->whereColumn('current_balance', '!=', 'minimum_payment')
             ->get();
 
-        return view('user_networthcalc', [
+        return Inertia::render('UserDashboard/NetworthCalculator', [
             'assets' => $assets,
             'debts' => $debts,
             'liabilities' => $liabilities,
@@ -127,6 +82,53 @@ class NetworthController extends Controller
             'currentMonthLiabilities' => $currentMonthLiabilities - $currentMonthMinPayments,
         ]);
     }
+
+    public function storeAsset(Request $request)
+    {
+        $userId = Auth::id();
+        // Validate the form data
+        $validatedData = $request->validate([
+            'assetDescription' => 'required',
+            'assetValue' => 'required|numeric',
+        ]);
+
+        // Store the asset in the database
+        $asset = Asset::create([
+            'user_id' => $userId,
+            'asset_description' => $validatedData['assetDescription'],
+            'asset_value' => $validatedData['assetValue'],
+        ]);
+
+        // Redirect or perform any other action after storing
+        return redirect('user_networthcalc')->with('success', [
+            'message' => 'Assest Added Succesfully',
+            'duration' => 3000,
+        ]);
+    }
+
+    public function storeLiability(Request $request)
+    {
+        $userId = Auth::id();
+        // Validate the form data
+        $validatedData = $request->validate([
+            'liabilityDescription' => 'required',
+            'liabilityValue' => 'required|numeric',
+        ]);
+
+        // Store the liability in the database
+        $liability = Debt::create([
+            'user_id' => $userId,
+            'debt_name' => $validatedData['liabilityDescription'],
+            'current_balance' => $validatedData['liabilityValue'],
+        ]);
+
+        return redirect('user_networthcalc')->with('success', [
+            'message' => 'Liability Added Succesfully',
+            'duration' => 3000,
+        ]);
+    }
+
+
 
     public function sendEmail(Request $request)
     {

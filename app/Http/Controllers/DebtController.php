@@ -10,52 +10,13 @@ use Illuminate\Http\Request;
 use App\Models\MonthlyPayment;
 use App\Traits\NetIncomeCalculator;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class DebtController extends Controller
 {
     use NetIncomeCalculator;
 
-    private function calculateEndPeriod($current_balance, $interest_rate, $minimum_payment)
-    {
-        $monthly_interest_rate = $interest_rate / 12 / 100;
-        $end_period = log($minimum_payment / ($minimum_payment - $current_balance * $monthly_interest_rate)) / log(1 + $monthly_interest_rate);
-        return ceil($end_period);
-    }
-
-    public function store(Request $request)
-    {
-        $debt = new Debt;
-        $debt->user_id = Auth::id();
-        $debt->category = $request->debt['category']['name'] == 'other-category' ? $request->debt['other-category']['name'] : $request->debt['category']['name'];
-        $debt->debt_name = $request->debt['debt_name']['name'];
-        $debt->current_balance = $request->debt['current_balance']['value'];
-        $debt->interest_rate = $request->debt['interest_rate']['value'];
-        $debt->minimum_payment = $request->debt['minimum_payment']['value'];
-        $start_period = Carbon::parse($request->input('start_date'));
-        $end_period = Carbon::parse($request->input('end_date'));
-        $debt->start_period = $start_period;
-        $debt->end_period = $end_period;
-
-        // Calculate months between start_date and end_date
-        $num_months = $start_period->diffInMonths($end_period);
-        $debt->number_of_months = $num_months;
-        $debt->minimum_monthly_payment = $debt->current_balance / $num_months;
-        $debt->save();
-
-        $expense = new Expense;
-        $expense->expense_type = $request->debt['debt_name']['name'];
-        $expense->actual_expense = $request->debt['minimum_payment']['value']; //this is a field to keep track of expenses and if the user wants to contrubute as they record the loan
-        $expense->user_id = Auth::id();
-        $expense->is_loan = 1;
-        $expense->save();
-
-        return redirect('user_debtcalc')->with('success', [
-            'message' => 'Debt Added Succesfully',
-            'duration' => 3000,
-        ]);;
-    }
-
-    public function showDebtFreeCountdown()
+    public function index()
     {
         $debts = Debt::where('user_id', auth()->id())->orderBy('current_balance', 'desc')->get();
 
@@ -98,7 +59,7 @@ class DebtController extends Controller
         // **Calculate total monthly payments**
         $totalMonthlyPayments = Debt::where('user_id', auth()->id())->sum('minimum_monthly_payment');
 
-        return view('user_debtcalc', [
+        return Inertia::render('UserDashboard/DebtManager', [
             'end_period' => $end_period,
             'remaining_time' => $remaining_time,
             'totalDebt' => $totalDebt,
@@ -108,6 +69,46 @@ class DebtController extends Controller
             'totalPaid' => $totalPaid,
             'totalMonthlyPayments' => $totalMonthlyPayments, // Pass total monthly payments to view
         ]);
+    }
+
+    private function calculateEndPeriod($current_balance, $interest_rate, $minimum_payment)
+    {
+        $monthly_interest_rate = $interest_rate / 12 / 100;
+        $end_period = log($minimum_payment / ($minimum_payment - $current_balance * $monthly_interest_rate)) / log(1 + $monthly_interest_rate);
+        return ceil($end_period);
+    }
+
+    public function store(Request $request)
+    {
+        $debt = new Debt;
+        $debt->user_id = Auth::id();
+        $debt->category = $request->debt['category']['name'] == 'other-category' ? $request->debt['other-category']['name'] : $request->debt['category']['name'];
+        $debt->debt_name = $request->debt['debt_name']['name'];
+        $debt->current_balance = $request->debt['current_balance']['value'];
+        $debt->interest_rate = $request->debt['interest_rate']['value'];
+        $debt->minimum_payment = $request->debt['minimum_payment']['value'];
+        $start_period = Carbon::parse($request->input('start_date'));
+        $end_period = Carbon::parse($request->input('end_date'));
+        $debt->start_period = $start_period;
+        $debt->end_period = $end_period;
+
+        // Calculate months between start_date and end_date
+        $num_months = $start_period->diffInMonths($end_period);
+        $debt->number_of_months = $num_months;
+        $debt->minimum_monthly_payment = $debt->current_balance / $num_months;
+        $debt->save();
+
+        $expense = new Expense;
+        $expense->expense_type = $request->debt['debt_name']['name'];
+        $expense->actual_expense = $request->debt['minimum_payment']['value']; //this is a field to keep track of expenses and if the user wants to contrubute as they record the loan
+        $expense->user_id = Auth::id();
+        $expense->is_loan = 1;
+        $expense->save();
+
+        return redirect('user_debtcalc')->with('success', [
+            'message' => 'Debt Added Succesfully',
+            'duration' => 3000,
+        ]);;
     }
 
 

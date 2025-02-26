@@ -11,13 +11,13 @@ use App\Traits\NetIncomeCalculator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use DateTime;
-
+use Inertia\Inertia;
 
 class GoalController extends Controller
 {
     use NetIncomeCalculator;
 
-    public function showGoalData()
+    public function index()
     {
         $goals = Goal::where('user_id', auth()->id())->get();
         $this->classifyGoals($goals);
@@ -55,7 +55,7 @@ class GoalController extends Controller
             ];
         })->sortByDesc('created_at')->values();
 
-        return view('user_goalsetting', [
+        return Inertia::render('UserDashboard/GoalSetting', [
             'goals' => $goals,
             'netIncome' => $netIncome,
             'totalGoals' => $totalGoals,

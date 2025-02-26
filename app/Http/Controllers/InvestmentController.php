@@ -11,10 +11,60 @@ use App\Models\InvestmentPlanner;
 use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class InvestmentController extends Controller
 {
     use NetIncomeCalculator;
+
+    public function index()
+    {
+        $investments = InvestmentPlanner::where('user_id', auth()
+            ->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $existing_investments = WithholdingTax::all();
+        $netIncome = $this->calculateNetIncome(auth()->id());
+        $t_bills = InvestmentPlanner::where('investment_type', 'Treasury Bills')->orderBy('created_at', 'desc')->get();
+        $gov_bonds = InvestmentPlanner::where('investment_type', 'Government Bonds')->orderBy('created_at', 'desc')->get();
+        $infra_bonds = InvestmentPlanner::where('investment_type', 'Infrastructure Bonds')->orderBy('created_at', 'desc')->get();
+        $saccos = InvestmentPlanner::where('investment_type', 'Sacco Investments')->orderBy('created_at', 'desc')->get();
+        $mmfs = InvestmentPlanner::where('investment_type', 'Money Market Fund')->orderBy('created_at', 'desc')->get();
+        $investments_chart = InvestmentPlanner::where('user_id', auth()
+            ->id())
+            ->orderBy('total_investment', 'desc')
+            ->get();
+        $investment_values = [];
+        $investment_names = [];
+        $investment_months = [];
+
+        $totalInvestments = InvestmentPlanner::where('user_id', auth()->id())->sum('total_investment');
+
+        foreach ($investments_chart as $monthly_investment) {
+            $investment_values[] = $monthly_investment->total_investment;
+            $investment_names[] = $monthly_investment->investment_type;
+            $investment_months[] = $monthly_investment->created_at->format('m');
+        }
+
+        return Inertia::render('UserDashboard/InvestmentPlanner', [
+
+            'netIncome' => $netIncome,
+            'investments' => $investments,
+            'existing_investments' => $existing_investments,
+            't_bills' => $t_bills,
+            'gov_bonds' => $gov_bonds,
+            'infra_bonds' => $infra_bonds,
+            'saccos' => $saccos,
+            'mmfs' => $mmfs,
+            'investment_values' => $investment_values,
+            'investment_names' => $investment_names,
+            'investment_months' => $investment_months,
+            'investments_chart' => $investments_chart,
+            'totalInvestments' => $totalInvestments
+
+        ]);
+    }
 
     public function storemonthlyInvestment(Request $request)
     {
@@ -54,54 +104,7 @@ class InvestmentController extends Controller
     }
 
 
-    public function showinvestmentData(Request $request)
-    {
-        $investments = InvestmentPlanner::where('user_id', auth()
-            ->id())
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $existing_investments = WithholdingTax::all();
-        $netIncome = $this->calculateNetIncome(auth()->id());
-        $t_bills = InvestmentPlanner::where('investment_type', 'Treasury Bills')->orderBy('created_at', 'desc')->get();
-        $gov_bonds = InvestmentPlanner::where('investment_type', 'Government Bonds')->orderBy('created_at', 'desc')->get();
-        $infra_bonds = InvestmentPlanner::where('investment_type', 'Infrastructure Bonds')->orderBy('created_at', 'desc')->get();
-        $saccos = InvestmentPlanner::where('investment_type', 'Sacco Investments')->orderBy('created_at', 'desc')->get();
-        $mmfs = InvestmentPlanner::where('investment_type', 'Money Market Fund')->orderBy('created_at', 'desc')->get();
-        $investments_chart = InvestmentPlanner::where('user_id', auth()
-            ->id())
-            ->orderBy('total_investment', 'desc')
-            ->get();
-        $investment_values = [];
-        $investment_names = [];
-        $investment_months = [];
-
-        $totalInvestments = InvestmentPlanner::where('user_id', auth()->id())->sum('total_investment');
-
-        foreach ($investments_chart as $monthly_investment) {
-            $investment_values[] = $monthly_investment->total_investment;
-            $investment_names[] = $monthly_investment->investment_type;
-            $investment_months[] = $monthly_investment->created_at->format('m');
-        }
-
-        return view('user_investmentplanner', [
-
-            'netIncome' => $netIncome,
-            'investments' => $investments,
-            'existing_investments' => $existing_investments,
-            't_bills' => $t_bills,
-            'gov_bonds' => $gov_bonds,
-            'infra_bonds' => $infra_bonds,
-            'saccos' => $saccos,
-            'mmfs' => $mmfs,
-            'investment_values' => $investment_values,
-            'investment_names' => $investment_names,
-            'investment_months' => $investment_months,
-            'investments_chart' => $investments_chart,
-            'totalInvestments' => $totalInvestments
-
-        ]);
-    }
+    
 
 
     public function destroy($id)
