@@ -18,56 +18,10 @@ class DebtController extends Controller
 
     public function index()
     {
-        $debts = Debt::where('user_id', auth()->id())->orderBy('current_balance', 'desc')->get();
-
-        $end_period = null;
-        $remaining_time = null;
-
-        if (!$debts->isEmpty()) {
-            $end_periods = $debts->map(function ($debt) {
-                return Carbon::parse($debt->end_period);
-            });
-
-            $end_period = $end_periods->max();
-            $remaining_time = Carbon::now()->diffInMonths($end_period);
-        }
-
-        // Progress circle
-        $monthlyPayments = MonthlyPayment::where('user_id', Auth::id())->get();
-
-        // Calculate net income
-        $netIncome = $this->calculateNetIncome(auth()->id());
-
         $debts = Debt::where('user_id', Auth::id())->get();
 
-        $principalPaid = $monthlyPayments->sum('current_balance');
-
-        $totalDebt = $debts->filter(function ($goal) {
-            return $goal->current_balance != $goal->minimum_payment;
-        })->sum('current_balance');
-
-        $totalPaid = Debt::where('user_id', auth()->id())
-            ->whereRaw('current_balance != minimum_payment')
-            ->sum('minimum_payment');
-
-        $remainingBalance = $debts->sum(function ($debt) {
-            return $debt->current_balance - $debt->minimum_payment;
-        });
-
-        $principalPaid = $debts->sum('current_balance') - $remainingBalance;
-
-        // **Calculate total monthly payments**
-        $totalMonthlyPayments = Debt::where('user_id', auth()->id())->sum('minimum_monthly_payment');
-
         return Inertia::render('UserDashboard/DebtManager', [
-            'end_period' => $end_period,
-            'remaining_time' => $remaining_time,
-            'totalDebt' => $totalDebt,
-            'netIncome' => $netIncome,
-            'principalPaid' => $principalPaid,
-            'remainingBalance' => $remainingBalance,
-            'totalPaid' => $totalPaid,
-            'totalMonthlyPayments' => $totalMonthlyPayments, // Pass total monthly payments to view
+            'debts' => $debts,
         ]);
     }
 

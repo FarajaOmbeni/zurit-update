@@ -17,9 +17,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->string('source');
             $table->decimal('amount', 15, 2);
-            $table->enum('frequency',['one-time', 'weekly', 'monthly', 'yearly']);
             $table->date('income_date');
-            $table->boolean('is_recurring')->default(false);
             $table->timestamps();
         });
     }

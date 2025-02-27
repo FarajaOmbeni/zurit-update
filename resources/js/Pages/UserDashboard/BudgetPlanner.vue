@@ -6,6 +6,7 @@ import { ref, computed } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
+import { formatDate } from '@/Components/Composables/useDateFormat';
 
 //ALERT USAGE LOGIC, FROM COMPOSABLE
 const { alertState, openAlert, clearAlert } = useAlert();
@@ -288,7 +289,7 @@ const submitExpense = () => {
                                                 <p class="text-sm font-medium text-gray-900">
                                                     {{ transaction.description }}
                                                 </p>
-                                                <p class="text-sm text-gray-500">{{ transaction.created_at }}</p>
+                                                <p class="text-sm text-gray-500">{{ formatDate(transaction.transaction_date) }}</p>
                                             </div>
                                             <div
                                                 class="flex flex-col  gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">

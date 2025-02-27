@@ -53,8 +53,20 @@ class BudgetController extends Controller
             },
         ]);
 
-        $incomeCategories = Category::where('type', 'income')->get();
-        $expenseCategories = Category::where('type', 'expense')->get();
+        $incomeCategories = Category::where('type', 'income')
+        ->where(function ($query) {
+            $query->where('user_id', auth()->id())
+                ->orWhereNull('user_id');
+        })
+            ->get();
+
+        $expenseCategories = Category::where('type', 'expense')
+        ->where(function ($query) {
+            $query->where('user_id', auth()->id())
+                ->orWhereNull('user_id');
+        })
+            ->get();
+
 
         $data = [
             'incomes'     => $user->incomes,

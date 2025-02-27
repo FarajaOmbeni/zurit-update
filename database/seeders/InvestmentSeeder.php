@@ -80,7 +80,6 @@ class InvestmentSeeder extends Seeder
                             'amount' => $contributionAmount,
                             'transaction_date' => $contributionDate,
                             'description' => 'Contribution to ' . $investmentType['name'],
-                            'status' => 'completed',
                         ]);
 
                         InvestmentContribution::create([

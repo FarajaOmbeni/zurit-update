@@ -35,7 +35,6 @@ class TransactionSeeder extends Seeder
                     'amount' => rand(3000, 5000),
                     'transaction_date' => $date->copy()->startOfMonth()->addDays(rand(1, 5)),
                     'description' => 'Monthly salary',
-                    'status' => 'completed',
                 ]);
 
                 Income::create([
@@ -43,9 +42,7 @@ class TransactionSeeder extends Seeder
                     'category_id' => $incomeCategories->where('name', 'Salary')->first()->id,
                     'source' => 'Employer',
                     'amount' => $incomeTransaction->amount,
-                    'frequency' => 'monthly',
                     'income_date' => $incomeTransaction->transaction_date,
-                    'is_recurring' => true,
                 ]);
 
                 // Create an additional random income for some months
@@ -57,7 +54,6 @@ class TransactionSeeder extends Seeder
                         'amount' => rand(500, 1500),
                         'transaction_date' => $date->copy()->startOfMonth()->addDays(rand(10, 20)),
                         'description' => 'Salary payment',
-                        'status' => 'completed',
                     ]);
 
                     Income::create([
@@ -65,9 +61,7 @@ class TransactionSeeder extends Seeder
                         'category_id' => $incomeCategories->where('name', 'Salary')->first()->id,
                         'source' => 'Client ' . chr(rand(65, 90)),
                         'amount' => $incomeTransaction->amount,
-                        'frequency' => 'one-time',
                         'income_date' => $incomeTransaction->transaction_date,
-                        'is_recurring' => false,
                     ]);
                 }
 
@@ -105,7 +99,6 @@ class TransactionSeeder extends Seeder
                         'amount' => $amount,
                         'transaction_date' => $date->copy()->startOfMonth()->addDays(rand(1, 28)),
                         'description' => $expenseCategory->name . ' expense',
-                        'status' => 'completed',
                     ]);
 
                     Expense::create([
@@ -113,9 +106,7 @@ class TransactionSeeder extends Seeder
                         'category_id' => $expenseCategory->id,
                         'description' => $expenseCategory->name . ' expense',
                         'amount' => $expenseTransaction->amount,
-                        'frequency' => rand(0, 2) ? 'one-time' : 'monthly',
                         'expense_date' => $expenseTransaction->transaction_date,
-                        'is_recurring' => rand(0, 2) ? false : true,
                     ]);
                 }
             }

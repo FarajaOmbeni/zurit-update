@@ -44,6 +44,8 @@ class DebtSeeder extends Seeder
                 $progressPercentage = rand(5, 50) / 100;
                 $currentAmount = round($initialAmount * (1 - $progressPercentage), 2);
                 $interestRate = rand($debtType['rate'][0] * 100, $debtType['rate'][1] * 100) / 100;
+                $monthsLeft = max(1, $startDate->diffInMonths($dueDate)); // Ensure at least 1 month
+                $minimumPayment = round($initialAmount*$interestRate / $monthsLeft, 2);
 
                 $debt = Debt::create([
                     'user_id' => $user->id,
@@ -51,6 +53,7 @@ class DebtSeeder extends Seeder
                     'type' => $debtType['type'],
                     'description' => $debtType['name'] . ' from ' . ['Bank of America', 'Chase', 'Wells Fargo', 'Citibank', 'Local Credit Union'][rand(0, 4)],
                     'initial_amount' => $initialAmount,
+                    'minimum_payment' => $minimumPayment,
                     'current_amount' => $currentAmount,
                     'interest_rate' => $interestRate,
                     'start_date' => $startDate,
@@ -84,7 +87,6 @@ class DebtSeeder extends Seeder
                         'amount' => $paymentAmount,
                         'transaction_date' => $paymentDate,
                         'description' => 'Payment for ' . $debtType['name'],
-                        'status' => 'completed',
                     ]);
 
                     DebtPayment::create([

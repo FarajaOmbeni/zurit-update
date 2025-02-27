@@ -16,7 +16,6 @@ class Expense extends Model
         'amount',
         'frequency',
         'expense_date',
-        'is_recurring',
     ];
 
     protected $casts = [

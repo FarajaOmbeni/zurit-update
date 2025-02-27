@@ -77,7 +77,6 @@ class GoalSeeder extends Seeder
                         'amount' => $contributionAmount,
                         'transaction_date' => $contributionDate,
                         'description' => 'Contribution to ' . $goalType['name'] . ' goal',
-                        'status' => 'completed',
                     ]);
 
                     GoalContribution::create([

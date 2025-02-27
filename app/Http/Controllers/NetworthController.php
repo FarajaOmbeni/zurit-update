@@ -16,70 +16,11 @@ class NetworthController extends Controller
     public function index()
     {
         $assets = Asset::where('user_id', auth()->id())->get();
-        $liabilities = Debt::where('user_id', auth()->id())->get();
-        $liabilities2 = Liability::where('user_id', auth()->id())->get();
-
-        // Calculate current month's totals
-        $currentMonth = now();
-        $currentMonthAssets = Asset::where('user_id', auth()->id())
-            ->whereMonth('created_at', $currentMonth->month)
-            ->whereYear('created_at', $currentMonth->year)
-            ->sum('asset_value');
-
-        $currentMonthLiabilities = Debt::where('user_id', auth()->id())
-            ->whereMonth('created_at', $currentMonth->month)
-            ->whereYear('created_at', $currentMonth->year)
-            ->sum('current_balance');
-
-        $currentMonthMinPayments = Debt::where('user_id', auth()->id())
-            ->whereMonth('created_at', $currentMonth->month)
-            ->whereYear('created_at', $currentMonth->year)
-            ->sum('minimum_payment');
-
-        // Get historical net worth data for the last 6 months
-        $historicalNetWorthData = [];
-        $historicalMonths = [];
-        $currentMonth = now()->startOfMonth();
-
-        for ($i = 5; $i >= 0; $i--) {
-            $month = $currentMonth->copy()->subMonths($i);
-
-            // Get assets created in this specific month
-            $totalAssets = Asset::where('user_id', auth()->id())
-                ->whereMonth('created_at', $month->month)
-                ->whereYear('created_at', $month->year)
-                ->sum('asset_value');
-
-            // Get liabilities created in this specific month
-            $totalLiabilities = Debt::where('user_id', auth()->id())
-                ->whereMonth('created_at', $month->month)
-                ->whereYear('created_at', $month->year)
-                ->sum('current_balance');
-
-            $totalMinPayments = Debt::where('user_id', auth()->id())
-                ->whereMonth('created_at', $month->month)
-                ->whereYear('created_at', $month->year)
-                ->sum('minimum_payment');
-
-            // Calculate net worth for this month
-            $netWorth = $totalAssets - ($totalLiabilities - $totalMinPayments);
-
-            $historicalNetWorthData[] = $netWorth;
-            $historicalMonths[] = $month->format('M Y');
-        }
-        $debts = Debt::where('user_id', auth()->id())
-            ->whereColumn('current_balance', '!=', 'minimum_payment')
-            ->get();
+        $liabilities = Liability::where('user_id', auth()->id())->get();
 
         return Inertia::render('UserDashboard/NetworthCalculator', [
             'assets' => $assets,
-            'debts' => $debts,
             'liabilities' => $liabilities,
-            'liabilities2' => $liabilities2,
-            'historicalNetWorthData' => $historicalNetWorthData,
-            'historicalMonths' => $historicalMonths,
-            'currentMonthAssets' => $currentMonthAssets,
-            'currentMonthLiabilities' => $currentMonthLiabilities - $currentMonthMinPayments,
         ]);
     }
 

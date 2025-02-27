@@ -19,51 +19,10 @@ class GoalController extends Controller
 
     public function index()
     {
-        $goals = Goal::where('user_id', auth()->id())->get();
-        $this->classifyGoals($goals);
-
-        $totalGoals = $goals->count();
-        $totalAmount = $goals->filter(function ($goal) {
-            return $goal->current_amount < $goal->goal_amount;
-        })->sum('goal_amount');
-        $totalCompleted = $goals->filter(function ($goal) {
-            return $goal->current_amount == $goal->goal_amount;
-        })->sum('goal_amount');
-
-        $totalBalance = $goals->filter(function ($goal) {
-            return $goal->current_amount < $goal->goal_amount;
-        })->sum(function ($goal) {
-            return $goal->goal_amount - $goal->current_amount;
-        });
-
-        $completedGoals = $goals->filter(function ($goal) {
-            return $goal->current_amount >= $goal->goal_amount;
-        })->count();
-
-        $completionPercentages = $goals->map(function ($goal) {
-            return ($goal->current_amount / $goal->goal_amount) * 100;
-        });
-
-        $netIncome = $this->calculateNetIncome(auth()->id());
-
-        // Format goals data with titles and creation dates
-        $goalsData = $goals->map(function ($goal) {
-            return [
-                'title' => $goal->title,
-                'completion' => ($goal->current_amount / $goal->goal_amount) * 100,
-                'created_at' => Carbon::parse($goal->created_at)->format('M Y')
-            ];
-        })->sortByDesc('created_at')->values();
+        $goals = Goal::where('user_id', Auth::id())->get();
 
         return Inertia::render('UserDashboard/GoalSetting', [
             'goals' => $goals,
-            'netIncome' => $netIncome,
-            'totalGoals' => $totalGoals,
-            'completedGoals' => $completedGoals,
-            'goalsData' => $goalsData,
-            'totalAmount' => $totalAmount,
-            'totalCompleted' => $totalCompleted,
-            'totalBalance' => $totalBalance
         ]);
     }
 

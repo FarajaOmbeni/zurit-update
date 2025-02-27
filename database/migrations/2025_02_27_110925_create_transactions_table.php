@@ -19,7 +19,6 @@ return new class extends Migration
             $table->decimal('amount', 15, 2);
             $table->date('transaction_date');
             $table->string('description')->nullable();
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('completed');
             $table->timestamps();
         });
     }

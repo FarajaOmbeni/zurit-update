@@ -14,9 +14,7 @@ class Income extends Model
         'category_id',
         'source',
         'amount',
-        'frequency',
         'income_date',
-        'is_recurring',
     ];
 
     protected $casts = [
