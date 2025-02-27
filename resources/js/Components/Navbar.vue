@@ -47,11 +47,38 @@
                     <Link :href="route('books')" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
                     <a :href="route('blogs')" class="text-gray-300 hover:text-gray-100">Blogs</a>
                     <Link :href="route('feedback')" class="text-gray-300 hover:text-gray-100">Feedback</Link>
-                    <Link :href="route('login')" class="bg-white text-gray-900 px-4 py-2 rounded-md hover:bg-gray-300">
-                    Join Us
-                    </Link>
-                </div>
+                    <Dropdown v-if="$page.props.auth.user" align="right" width="48">
+                        <template #trigger>
+                            <span class="inline-flex rounded-md">
+                                <button type="button"
+                                    class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
+                                    {{ $page.props.auth.user.name }}
 
+                                    <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </span>
+                        </template>
+
+                        <template #content>
+                            <DropdownLink :href="route('budget.index')">
+                                Dashboard
+                            </DropdownLink>
+                            <DropdownLink :href="route('profile.edit')">
+                                Profile
+                            </DropdownLink>
+                            <DropdownLink :href="route('logout')" method="post" as="button">
+                                Log Out
+                            </DropdownLink>
+                        </template>
+                    </Dropdown>
+                    <Link v-if="!$page.props.auth.user" :href="route('login')"
+                        class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
+                </div>
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
                     <button @click="toggleMobileMenu" class="text-gray-300 hover:text-white">
@@ -95,7 +122,37 @@
                 <Link :href="route('books')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
                 <Link :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</Link>
                 <Link :href="route('feedback')" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</Link>
-                <Link :href="route('login')" class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
+                <Dropdown v-if="$page.props.auth.user" align="right" width="48">
+                    <template #trigger>
+                        <span class="inline-flex rounded-md">
+                            <button type="button"
+                                class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
+                                {{ $page.props.auth.user.name }}
+
+                                <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </span>
+                    </template>
+
+                    <template #content>
+                        <DropdownLink :href="route('budget.index')">
+                            Dashboard
+                        </DropdownLink>
+                        <DropdownLink :href="route('profile.edit')">
+                            Profile
+                        </DropdownLink>
+                        <DropdownLink :href="route('logout')" method="post" as="button">
+                            Log Out
+                        </DropdownLink>
+                    </template>
+                </Dropdown>
+                <Link v-if="!$page.props.auth.user" :href="route('login')"
+                    class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
             </div>
         </div>
     </nav>
@@ -104,6 +161,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { usePage, Link } from '@inertiajs/vue3'
+import Dropdown from '@/Components/Dropdown.vue'
+import DropdownLink from '@/Components/DropdownLink.vue'
 
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)

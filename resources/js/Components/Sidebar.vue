@@ -1,13 +1,13 @@
 <template>
   <div class="flex h-screen">
-    <!-- Sidebar - Note the positioning changes and responsive classes -->
+    <!-- Sidebar -->
     <div :class="[
       'transition-all duration-300 bg-purple-800 text-white fixed h-full z-10',
       sidebarOpen ? 'w-64' : 'w-16',
-      'md:left-0',  // On medium screens and up, position left
-      'left-auto right-0' // On small screens, position right
+      'md:left-0',  
+      'left-auto right-0' 
     ]">
-      <!-- Toggle Button - Note the position change for small screens -->
+      <!-- Toggle Button -->
       <button @click="toggleSidebar" :class="[
         'absolute top-5 bg-yellow-400 hover:bg-yellow-500 rounded-full p-1 shadow-lg',
         'hidden',
@@ -26,9 +26,11 @@
       <!-- Logo -->
       <div class="flex items-center justify-center h-16 border-b border-purple-700">
         <div v-if="sidebarOpen" class="text-xl font-bold text-yellow-400">
-          <img class="object-cover w-40 h-14" src="/images/home/zurit.png" alt="">
+          <Link :href="route('home')"><img class="object-cover w-40 h-14" src="/images/home/zurit.png" alt=""></Link>
         </div>
-        <div v-else class="text-xs font-bold text-yellow-400 hidden md:block">Zurit</div>
+        <div v-else class="text-xs font-bold text-yellow-400 hidden md:block">
+          <Link :href="route('home')">Zurit</Link>
+        </div>
 
         <div @click="toggleSidebar" class="md:hidden cursor-pointer absolute right-4">
           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
@@ -91,9 +93,10 @@
       'ml-0 mr-16',
       sidebarOpen ? 'mr-64' : 'mr-16'
     ]">
+
       <div class="p-6 rounded-lg bg-gray-100 overflow-auto">
         <h1 class="text-2xl font-semibold text-purple-800">{{ title }}</h1>
-        <div class="h-screen rounded-lg p-6 bg-white text-gray-600 overflow-auto">
+        <div class="rounded-lg p-6 bg-white text-gray-600">
           <slot />
         </div>
       </div>
@@ -104,6 +107,7 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
+import Alert from '@/Components/Shared/Alert.vue';
 
 defineProps({
   title: String,
@@ -138,37 +142,37 @@ const menuItems = [
     title: 'Budget Planner',
     icon: 'HomeIcon',
     active: currentRoute.startsWith('/user/budget'),
-    link: 'user.budget',
+    link: 'budget.index',
   },
   {
     title: 'Debt Manager',
     icon: 'ChartBarIcon',
     active: currentRoute.startsWith('/user/debt'),
-    link: 'user.debt'
+    link: 'debt.index'
   },
   {
     title: 'Goal Setting',
     icon: 'DocumentTextIcon',
     active: currentRoute.startsWith('/user/goal'),
-    link: 'user.goal'
+    link: 'goal.index'
   },
   {
     title: 'Investment Planner',
     icon: 'CogIcon',
     active: currentRoute.startsWith('/user/invest'),
-    link: 'user.invest'
+    link: 'invest.index'
   },
   {
     title: 'Networth Calculator',
     icon: 'UserGroupIcon',
     active: currentRoute.startsWith('/user/networth'),
-    link: 'user.networth'
+    link: 'networth.index'
   },
   {
     title: 'Calculators',
     icon: 'UserGroupIcon',
     active: currentRoute.startsWith('/user/calculators'),
-    link: 'user.calculators'
+    link: 'calculator.index'
   }]
 
 // Sidebar state - set to false by default

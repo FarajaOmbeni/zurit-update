@@ -5,13 +5,10 @@ namespace App\Http\Controllers;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Debt;
-use App\Models\Goal;
 use App\Models\Income;
 use App\Models\Expense;
 use Illuminate\Http\Request;
-use App\Models\BudgetPlanner;
 use App\Traits\NetIncomeCalculator;
-use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 
 class BudgetController extends Controller
@@ -20,113 +17,120 @@ class BudgetController extends Controller
 
     public function index()
     {
-        // Get current month and year using Carbon
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        $userId = auth()->id();
+        $currentYear = now()->year;
+        $currentMonth = now()->month;
+        $currentMonthString = Carbon::now()->format('F');
 
-        // Check if there is data for the current month
-        $hasDataForCurrentMonth = isset($monthlyIncomes[$currentMonth]) && isset($monthlyExpenses[$currentMonth]);
+        // Fetch income and expenses for the current user for this month
+        $income = Income::where('user_id', $userId)
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->get();
 
-        // Fetch all incomes for the currently logged-in user
-        $income = Income::where('user_id', auth()->id())->get();
+        $expenses = Expense::where('user_id', $userId)
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->get();
 
-        // Fetch all expenses for the currently logged-in user
-        $expenses = Expense::where('user_id', auth()->id())->get();
-        // Find the expense that matches the debt name for the current user
+        $budget = $income->concat($expenses)
+            ->sortByDesc(function ($transaction) {
+                // Parse created_at to a timestamp for consistent comparison
+                return Carbon::parse($transaction->created_at)->timestamp;
+            })
+            ->values(); // Re-index the collection
 
-        // Combine the incomes and expenses into the budget data
-        $budget = $income->concat($expenses);
+        $recentTransactions = $budget->map(function ($transaction) {
+            return [
+                'id'          => $transaction->id,
+                'type'        => $transaction instanceof Income ? 'income' : 'expense',
+                'category'    => $transaction instanceof Income ? $transaction->income_type : $transaction->expense_type,
+                'description' => $transaction->description, // taken as is, may be null for incomes
+                'amount'      => intval($transaction instanceof Income ? $transaction->actual_income : $transaction->actual_expense),
+                'date'        => Carbon::parse($transaction->created_at)->toDateString(),
+            ];
+        });
 
-        // Calculate net income
-        $actualIncome = Income::where('user_id', auth()->id())->sum('actual_income');
-        $actualExpenses = Expense::where('user_id', auth()->id())->sum('actual_expense');
 
-        // Calculate net income
-        $netIncome = $this->calculateNetIncome(auth()->id());
 
-        // Calculate monthly incomes and expenses
-        $monthlyIncomes = Income::where('user_id', auth()->id())
-            ->selectRaw('SUM(actual_income) as total, MONTH(created_at) as month')
-            ->groupBy('month')
-            ->pluck('total', 'month')
-            ->all();
+        // Format income data for BudgetBarChart
+        $incomeData = $income->groupBy('income_type')->map(function ($items, $incomeType) {
+            $totalAmount = $items->sum(function ($item) {
+                return intval($item->actual_income);
+            });
 
-        $monthlyExpenses = Expense::where('user_id', auth()->id())
-            ->selectRaw('SUM(actual_expense) as total, MONTH(created_at) as month')
-            ->groupBy('month')
-            ->pluck('total', 'month')
-            ->all();
+            return [
+                'amount' => $totalAmount,
+                'label' => $incomeType,
+                'currency' => 'KES',
+            ];
+        })->values();
 
-        // Get current month
-        $currentMonth = date('m');
+        // Format expense data for BudgetBarChart
+        $expenseData = $expenses->groupBy('expense_type')->map(function ($items, $expenseType) {
+            $totalAmount = $items->sum(function ($item) {
+                return intval($item->actual_expense);
+            });
+            return [
+                'amount' => $totalAmount,
+                'label' => $expenseType,
+                'currency' => 'KES',
+            ];
+        })->filter(function ($item) {
+            return $item['amount'] > 0;
+        })->values()->all();
 
-        // Check if there is data for the current month
-        $hasDataForCurrentMonth = isset($monthlyIncomes[$currentMonth]) && isset($monthlyExpenses[$currentMonth]);
-
+        // Calculate totals (optional, you can do this in Vue too)
+        $actualIncome = intval($income->sum('actual_income'));
+        $actualExpenses = intval($expenses->sum('actual_expense'));
+        $netIncome = intval($actualIncome - $actualExpenses);
+        $hasAnyData = $income->isNotEmpty() || $expenses->isNotEmpty();
 
         return Inertia::render('UserDashboard/BudgetPlanner', [
-            'budget' => $budget,
-            'income' => $income,
-            'expenses' => $expenses,
+            'incomeData' => $incomeData,
+            'expenseData' => $expenseData,
+            'recentTransactions' => $recentTransactions,
             'actualIncome' => $actualIncome,
             'actualExpenses' => $actualExpenses,
             'netIncome' => $netIncome,
-            'monthlyIncomes' => $monthlyIncomes,
-            'monthlyExpenses' => $monthlyExpenses,
-            'hasDataForCurrentMonth' => $hasDataForCurrentMonth,
-            'currentMonth' => $currentMonth,
-            'currentYear' => $currentYear,
+            'hasAnyData' => $hasAnyData,
+            'currentMonthString' => $currentMonthString,
         ]);
     }
 
     public function storeIncome(Request $request)
     {
         $request->validate([
-            'income_type' => 'required|string|max:255',
-            'income' => 'required|numeric',
+            'type' => 'required|string|max:255',
+            'amount' => 'required|numeric',
         ]);
-
-        // Calculate net income
-        $actualIncome = Income::where('user_id', auth()->id())->sum('actual_income');
-        $actualExpenses = Expense::where('user_id', auth()->id())->sum('actual_expense');
-        $netIncome = $actualIncome - $actualExpenses;
 
         $income = new Income();
         $income->user_id = auth()->id();
-        $income->income_type = $request->income_type;
-        $income->actual_income = $request->income;
-
+        $income->income_type = $request->type;
+        $income->actual_income = $request->amount;
         $income->save();
-
-        return redirect('user_budgetplanner')->with('success', [
-            'message' => 'Income added Successfully!',
-            'duration' => 3000,
-        ]);
+        
+        return to_route('budget.index');
     }
-
-
-
 
 
     public function storeExpense(Request $request)
     {
         $request->validate([
-            'expense_type' => 'required|string|max:255',
-            'expense' => 'required|numeric',
+            'type' => 'required|string|max:255',
+            'amount' => 'required|numeric',
+            'description' => 'required|string|max:255',
         ]);
 
         $expense = new Expense();
         $expense->user_id = auth()->id();
-        $expense->expense_type = $request->expense_type;
-        $expense->actual_expense = $request->expense;
+        $expense->expense_type = $request->type;
+        $expense->actual_expense = $request->amount;
         $expense->description = $request->description;
-
         $expense->save();
 
-        return redirect('user_budgetplanner')->with('success', [
-            'message' => 'Expense added Successfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('budget.index');
     }
 
     public function destroyIncome($id)
@@ -135,68 +139,51 @@ class BudgetController extends Controller
 
         if ($income) {
             $income->delete();
-            return redirect()->route('user_budgetplanner')->with('success', [
-                'message' => 'Income deleted Successfully!',
-                'duration' => 3000,
-            ]);
+            return to_route('budget.index');
         }
-
-        return redirect()->route('user_budgetplanner')->with('error', [
-            'message' => 'Error Deleting Income ',
-            'duration' => 3000,
-        ]);
+        return to_route('budget.index');
     }
 
     public function updateExpense(Request $request, $id)
     {
         $request->validate([
-            'expense_type' => 'required|string|max:255',
-            'actual_expense' => 'required|numeric',
+            'category' => 'required|string|max:255',
+            'amount' => 'required|numeric',
+            'description' => 'required|string|max:255',
         ]);
 
         $expense = Expense::find($id);
 
         if ($expense) {
-            $expense->expense_type = $request->expense_type;
-            $expense->actual_expense = $request->actual_expense;
-            $expense->save();
+            $expense->expense_type = $request->category;
+            $expense->actual_expense = $request->amount;
+            $expense->description = $request->description;
+            $expense->update();
 
-            return redirect()->route('user_budgetplanner')->with('success', [
-                'message' => 'Expense updated successfully!',
-                'duration' => 3000,
-            ]);
+            return to_route('budget.index');
         }
 
-        return redirect()->route('user_budgetplanner')->with('error', [
-            'message' => 'Error updating expense',
-            'duration' => 3000,
-        ]);
+        return to_route('budget.index');
     }
+
     public function updateIncome(Request $request, $id)
     {
         $request->validate([
-            'income_type' => 'required|string|max:255',
-            'actual_income' => 'required|numeric',
+            'category' => 'required|string|max:255',
+            'amount' => 'required|numeric',
         ]);
 
         $income = Income::find($id);
 
         if ($income) {
-            $income->income_type = $request->income_type;
-            $income->actual_income = $request->actual_income;
+            $income->income_type = $request->category;
+            $income->actual_income = $request->amount;
+            $income->update();
 
-            $income->save();
-
-            return redirect()->route('user_budgetplanner')->with('success', [
-                'message' => 'Income updated successfully!',
-                'duration' => 3000,
-            ]);
+            return to_route('budget.index');    
         }
 
-        return redirect()->route('user_budgetplanner')->with('error', [
-            'message' => 'Error updating expense',
-            'duration' => 3000,
-        ]);
+        return to_route('budget.index');
     }
 
     public function destroyExpense($id)
@@ -211,7 +198,7 @@ class BudgetController extends Controller
                     ->where('debt_name', 'Loan from Budget')
                     ->first();
 
-                $debtCalc = DebtCalc::where('user_id', auth()->id())
+                $debtCalc = Debt::where('user_id', auth()->id())
                     ->where('debt', $expense->actual_expense)
                     ->where('debt_name', 'Loan from Budget')
                     ->first();
@@ -226,15 +213,11 @@ class BudgetController extends Controller
             }
 
             $expense->delete();
-            return redirect()->route('user_budgetplanner')->with('success', [
-                'message' => 'Expense Deleted Successfully!',
-                'duration' => 3000,
-            ]);
+            // Use Inertia::location for redirect
+            return to_route('budget.index');
         }
 
-        return redirect()->route('user_budgetplanner')->with('error', [
-            'message' => 'Error Deleting Expense ',
-            'duration' => 3000,
-        ]);
+        // Use Inertia::location for redirect - Handle error case as needed
+        return to_route('budget.index');
     }
 }

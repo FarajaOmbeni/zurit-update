@@ -23,14 +23,44 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/user/budget', [BudgetController::class, 'index'])->name('user.budget');
-    Route::get('/user/debt', [DebtController::class, 'index'])->name('user.debt');
-    Route::get('/user/goal', [GoalController::class, 'index'])->name('user.goal');
-    Route::get('/user/invest', [InvestmentController::class, 'index'])->name('user.invest');
-    Route::get('/user/networth', [NetworthController::class, 'index'])->name('user.networth');
+    /////////////////////////////////////////////////////////
+    //////////////////  BUDGET ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/user/budget', [BudgetController::class, 'index'])->name('budget.index');
+    Route::post('addIncome', [BudgetController::class, 'storeIncome'])->name('income.store');
+    Route::put('/income/{id}', [BudgetController::class, 'updateIncome'])->name('income.edit');
+    Route::delete('/income/{id}', [BudgetController::class, 'destroyIncome'])->name('income.destroy');
+    Route::post('addExpense', [BudgetController::class, 'storeExpense'])->name('expense.store');
+    Route::put('/expense/{id}', [BudgetController::class, 'updateExpense'])->name('expense.edit');
+    Route::delete('/expense/{id}', [BudgetController::class, 'destroyExpense'])->name('expense.destroy');
+
+    /////////////////////////////////////////////////////////
+    //////////////////  DEBT ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/user/debt', [DebtController::class, 'index'])->name('debt.index');
+
+    /////////////////////////////////////////////////////////
+    //////////////////  GOAL ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/user/goal', [GoalController::class, 'index'])->name('goal.index');
+
+    /////////////////////////////////////////////////////////
+    //////////////////  INVESTMENT ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/user/invest', [InvestmentController::class, 'index'])->name('invest.index');
+
+    /////////////////////////////////////////////////////////
+    //////////////////  NETWORTH ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/user/networth', [NetworthController::class, 'index'])->name('networth.index');
+
+
+    /////////////////////////////////////////////////////////
+    //////////////////  OTHER ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
     Route::get('/user/calculators', function () {
         return Inertia::render('UserDashboard/Calculators');
-    })->name('user.calculators');
+    })->name('calculator.index');
 });
 
 Route::get('/about', [IndexController::class, 'about'])->name('about');
