@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('withholding_tax_rates', function (Blueprint $table) {
+        Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            $table->string('investment_type');
-            $table->decimal('tax_rate', 5, 2);
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->string('type');
+            $table->text('description')->nullable();
+            $table->decimal('value', 15, 2);
+            $table->date('acquisition_date')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('withholding_tax_rates');
+        Schema::dropIfExists('assets');
     }
 };

@@ -2,36 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Expense extends Model
 {
     use HasFactory;
 
-    protected $table = 'expenses';
-
     protected $fillable = [
         'user_id',
-        'expense_type',
-        'expected_expense',
-        'actual_expense',
+        'category_id',
         'description',
-        'year_month',
-        'is_loan',
-        'is_goal',
-        'is_investment',
+        'amount',
+        'frequency',
+        'expense_date',
+        'is_recurring',
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
+    protected $casts = [
+        'expense_date' => 'date',
+        'is_recurring' => 'boolean',
+        'amount' => 'decimal:2',
+    ];
 
-        static::deleting(function ($expense) {
-            // Delete the corresponding Debt instance
-            Debt::where('user_id', $expense->user_id)
-                ->where('current_balance', $expense->actual_expense)
-                ->delete();
-        });
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function transaction()
+    {
+        return $this->morphOne(Transaction::class, 'transactionable');
     }
 }

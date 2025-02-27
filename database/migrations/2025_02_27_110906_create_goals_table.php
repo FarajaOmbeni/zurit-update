@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('goals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('category');
-            $table->string('title');
-            $table->decimal('goal_amount', 10, 2); 
-            $table->decimal('current_amount', 10, 2)->nullable();
-            $table->text('description');
-            $table->date('deadline');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->decimal('target_amount', 15, 2);
+            $table->decimal('current_amount', 15, 2)->default(0);
+            $table->date('start_date');
+            $table->date('target_date');
+            $table->enum('status', ['in_progress', 'achieved', 'abandoned'])->default('in_progress');
             $table->timestamps();
         });
     }

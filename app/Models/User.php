@@ -23,8 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
-        'google_id',
-        'phone',
+        'phone_number',
         'role',
         'password',
     ];
@@ -49,70 +48,58 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-/**
- * Determine if the user has the given permission.
- *
- * @param  string  $permission
- * @return bool
- */
-public function hasPermission(string $permission): bool
-{
-    // Hard-coded permissions for each user role
-    $permissions = [
-        '2' => ['book-list', 'book-create', 'book-edit', 'book-delete'],
-        '1' => ['book-list', 'book-edit'],
-        '0' => ['book-list'],
-    ];
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
 
-    // Get the user's role
-    $role = $this->role;
-
-    // Check if the user's role has the given permission
-    return in_array($permission, $permissions[$role] ?? []);
-}
-
-/**
- * fetch user's assets before deleting the user
- *
- * 
- */
-    public function incomes(){
+    public function incomes()
+    {
         return $this->hasMany(Income::class);
     }
 
-    public function expenses(){
+    public function expenses()
+    {
         return $this->hasMany(Expense::class);
     }
 
-    public function assets(){
-        return $this->hasMany(Asset::class);
-    }
-
-    public function liabilities(){
-        return $this->hasMany(Liability::class);
-    }
-
-    public function debts(){
-        return $this->hasMany(Debt::class);
-    }
-
-    public function goals(){
+    public function goals()
+    {
         return $this->hasMany(Goal::class);
     }
 
     public function investments()
     {
-        return $this->hasMany(InvestmentPlanner::class);
+        return $this->hasMany(Investment::class);
     }
-    
-    // public function marketingMessages()
-    // {
-    //     return $this->hasMany(MarketingMessage::class);
-    // }
 
-    public function extraPayments()
+    public function debts()
     {
-        return $this->hasMany(ExtraPayment::class);
+        return $this->hasMany(Debt::class);
+    }
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
+
+    public function liabilities()
+    {
+        return $this->hasMany(Liability::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function calculateNetWorth()
+    {
+        $assetsTotal = $this->assets()->sum('value');
+        $liabilitiesTotal = $this->liabilities()->sum('amount');
+        $debtsTotal = $this->debts()->sum('current_amount');
+
+        return $assetsTotal - ($liabilitiesTotal + $debtsTotal);
     }
 
 }

@@ -16,11 +16,14 @@ const showDeleteModal = ref(false);
 
 // Store the transaction selected for editing or deleting
 const selectedTransaction = ref(null);
+const incomes = ref(null);
+const expenses = ref(null);
 
 // Methods to open modals
 const openEditModal = (transaction) => {
-    // Create a shallow copy if you plan on editing the values
     selectedTransaction.value = { ...transaction };
+    incomes.value = props.data.incomeCategories 
+    expenses.value = props.data.expenseCategories 
     showEditModal.value = true;
 };
 
@@ -29,7 +32,7 @@ const openDeleteModal = (transaction) => {
     showDeleteModal.value = true;
 };
 
-const form = useForm({
+const updateTrans = useForm({
     category: '',
     description: '',
     amount: ''
@@ -39,13 +42,13 @@ const form = useForm({
 const saveEdit = () => {
     const transaction = selectedTransaction.value
 
-    form.category = transaction.category
-    form.description = transaction.description
-    form.amount = transaction.amount
+    updateTrans.category = transaction.category
+    updateTrans.description = transaction.description
+    updateTrans.amount = transaction.amount
 
     const routeName = transaction.type == 'income' ? 'income.edit' : 'expense.edit'
 
-    form.put(route(routeName, transaction.id), {
+    updateTrans.put(route(routeName, transaction.id), {
         onSuccess: () => {
             showEditModal.value = false
             openAlert('success', 'Transaction Updated Succesfully', 5000)
@@ -62,7 +65,7 @@ const confirmDelete = () => {
 
     const routeName = transaction.type == 'income' ? 'income.destroy' : 'expense.destroy'
 
-    form.delete(route(routeName, transaction.id), {
+    updateTrans.delete(route(routeName, transaction.id), {
         onSuccess: () => {
             openAlert('warning', 'Transaction Deleted Succesfully', 5000)
             showDeleteModal.value = false
@@ -77,51 +80,63 @@ const confirmDelete = () => {
 
 //GETTING PROPS FROM CONTROLLER LOGIC
 const props = defineProps({
-    incomeData: {
-        type: Array,
-    },
-    expenseData: {
-        type: Array,
-    },
-    recentTransactions: {
-        type: Array,
-    },
-    currentMonthString: String,
-    alert: Object,
+    data: Object,
+    currentMonth: String,
 });
-console.log(props.recentTransactions)
+console.log("ALL DATA", props.data)
 
 //GETTING THE TOP INCOME AND EXPENSES
-function getTopNItems(data, n) {
-    return data
-        .slice() // Create a shallow copy to avoid mutating the original array
-        .sort((a, b) => b.amount - a.amount) // Sort in descending order
-        .slice(0, n); // Get the first N items
-}
+const TOP_N = 3;
 
-// Get the top 2 income and expense items
-const topIncomeData = getTopNItems(props.incomeData, 3);
-const topExpenseData = getTopNItems(props.expenseData, 3);
+const topIncomes = computed(() => {
+    if (!props.data.incomes) return [];
+    return [...props.data.incomes]
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, TOP_N)
+        .map(income => ({
+            amount: Math.round(income.amount),
+            label: income.source,
+            currency: income.currency || 'KES'
+        }));
+});
+
+const topExpenses = computed(() => {
+    if (!props.data.expenses) return [];
+    return [...props.data.expenses]
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, TOP_N)
+        .map(expense => ({
+            amount: Math.round(expense.amount),
+            label: expense.description,
+            currency: expense.currency || 'KES'
+        }));
+});
 
 
-//LOGIC TO MAKE THE BAR GRAPHS, ALSO SEE BAR GRAPH COMPONENT
-const totalIncome = computed(() =>
-    props.incomeData.reduce((sum, item) => sum + item.amount, 0)
-);
+//LOGIC TO GET TOTALS, ALSO SEE BAR GRAPH COMPONENT
+// Compute total income by summing up all income amounts
+const totalIncome = computed(() => {
+    return props.data.incomes?.reduce((acc, income) => acc + parseFloat(income.amount), 0) || 0;
+});
 
-const totalExpenses = computed(() =>
-    props.expenseData.reduce((sum, item) => sum + item.amount, 0)
-);
+// Compute total expenses by summing up all expense amounts
+const totalExpenses = computed(() => {
+    return props.data.expenses?.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
+});
 
 const balance = computed(() =>
     totalIncome.value - totalExpenses.value
 );
 
-// Check if there is no data
-const noData = computed(() => {
-    return props.incomeData.length === 0 &&
-        props.expenseData.length === 0 &&
-        props.recentTransactions.length === 0;
+//CHECK IF THERE IS DATA
+const hasData = computed(() => {
+    return props.data && (
+        (props.data.incomes && props.data.incomes.length) ||
+        (props.data.expenses && props.data.expenses.length) ||
+        (props.data.goals && props.data.goals.length) ||
+        (props.data.debts && props.data.debts.length) ||
+        (props.data.investments && props.data.investments.length)
+    );
 });
 
 
@@ -129,11 +144,20 @@ const noData = computed(() => {
 // Modal states
 const showIncomeModal = ref(false);
 const showExpenseModal = ref(false);
+const showContributeModal = ref(false);
+
+const newContribution = useForm({
+    type: '',
+    description: '',
+    amount: '',
+})
+
 
 // Form data
 const newIncome = useForm({
     type: '',
-    amount: ''
+    amount: '',
+    description: '',
 });
 
 const newExpense = useForm({
@@ -152,8 +176,8 @@ const submitIncome = () => {
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
-                .flat() 
-                .join(' '); 
+                .flat()
+                .join(' ');
 
             openAlert('danger', errorMessages, 5000);
         }
@@ -186,11 +210,11 @@ const submitExpense = () => {
             <Sidebar>
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonthString }}'s Budget</h1>
+                        <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonth }}'s Budget</h1>
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                             :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
 
-                        <div v-if="!noData" class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <div v-if="hasData" class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                             <div class="bg-white overflow-hidden shadow rounded-lg">
                                 <div class="px-4 py-5 sm:p-6">
                                     <dt class="text-sm font-medium text-gray-500 truncate">Total Income</dt>
@@ -231,7 +255,7 @@ const submitExpense = () => {
                             </div>
                         </div>
 
-                        <div v-if="noData" class="mt-6 text-center">
+                        <div v-if="!hasData" class="mt-6 text-center">
                             <p class="text-lg text-gray-600">You have no data available for this month.</p>
                             <div class="mt-4 flex justify-center space-x-2">
                                 <button @click="showIncomeModal = true"
@@ -245,36 +269,37 @@ const submitExpense = () => {
                             </div>
                         </div>
 
-                        <div v-if="!noData" class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-                            <BudgetBarChart title="Top Income Sources" :items="topIncomeData" type="income"
+                        <div v-if="hasData" class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+                            <BudgetBarChart title="Top Income Sources" :items="topIncomes" type="income"
                                 class="bg-white shadow rounded-lg" />
 
-                            <BudgetBarChart title="Top Expenses" :items="topExpenseData" type="expense"
+                            <BudgetBarChart title="Top Expenses" :items="topExpenses" type="expense"
                                 class="bg-white shadow rounded-lg" />
                         </div>
 
-                        <div v-if="!noData" class="mt-8">
+                        <div class="mt-8">
                             <h2 class="text-lg font-medium text-gray-900">All Transactions</h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
                                 <ul class="divide-y divide-gray-200">
-                                    <li v-for="(transaction, index) in recentTransactions" :key="index"
+                                    <li v-for="transaction in data.transactions" :key="transaction.id"
                                         class="px-4 py-3">
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <p class="text-sm font-medium text-gray-900">
-                                                    {{ transaction.description || transaction.category }}
+                                                    {{ transaction.description }}
                                                 </p>
-                                                <p class="text-sm text-gray-500">{{ transaction.date }}</p>
+                                                <p class="text-sm text-gray-500">{{ transaction.created_at }}</p>
                                             </div>
                                             <div
                                                 class="flex flex-col  gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    transaction.amount }}
+                                                    Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
-                                                <button @click="openEditModal(transaction)"
+                                                <button @click="openEditModal(
+                                                    transaction)"
                                                     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
                                                     Edit
                                                 </button>
@@ -293,6 +318,7 @@ const submitExpense = () => {
                     </div>
                 </div>
 
+                <!-- ADD INCOME MODAL -->
                 <div v-if="showIncomeModal" class="fixed inset-0 overflow-y-auto z-10 flex items-center justify-center">
                     <div class="fixed inset-0 bg-black bg-opacity-50" @click="showIncomeModal = false"></div>
                     <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
@@ -338,6 +364,7 @@ const submitExpense = () => {
                     </div>
                 </div>
 
+                <!-- ADD EXPENSE MODAL -->
                 <div v-if="showExpenseModal"
                     class="fixed mr-16 sm:mr-0 inset-0 overflow-y-auto z-10 flex items-center justify-center">
                     <div class="fixed inset-0 bg-black bg-opacity-50" @click="showExpenseModal = false"></div>
@@ -381,6 +408,10 @@ const submitExpense = () => {
                             </div>
 
                             <div class="flex justify-end space-x-3">
+                                <button type="button" @click="showContributeModal = true"
+                                    class="px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Contribute
+                                </button>
                                 <button type="button" @click="showExpenseModal = false"
                                     class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     Cancel
@@ -394,7 +425,72 @@ const submitExpense = () => {
                     </div>
                 </div>
 
+                <!-- CONTRIBUTE MODAL  -->
+                <div v-if="showContributeModal"
+                    class="fixed mr-16 sm:mr-0 inset-0 overflow-y-auto z-10 flex items-center justify-center">
+                    <div class="fixed inset-0 bg-black bg-opacity-50" @click="showContributeModal = false"></div>
+                    <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Contrubute</h3>
+                        <form @submit.prevent="submitContribute">
+                            <div class="mb-4">
+                                <label for="contributeType"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Contribute
+                                    to</label>
+                                <select id="contributeType"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option value="goal">Goal</option>
+                                    <option value="debt">Debt</option>
+                                    <option value="investment">Investment</option>
+                                </select>
+                            </div>
 
+                            <div class="mb-4">
+                                <label for="expenseType" class="block text-sm font-medium text-gray-700 mb-1">Specify
+                                    the contribution</label>
+                                <select id="expenseType" v-model="newContribution.type"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option value="goal">Goal</option>
+                                    <option value="debt">Debt</option>
+                                    <option value="investment">Investment</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="contribution_amount"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Amount
+                                    (KES)</label>
+                                <input type="number" id="expenseAmount" v-model="newContribution.amount"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    min="0" step="0.01" required />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="expenseDescription"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="expenseDescription" v-model="newContribution.description" rows="2"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required></textarea>
+                            </div>
+
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" @click="showContributeModal = false"
+                                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Cancel
+                                </button>
+                                <button type="submit"
+                                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    Contribute
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- EDIT TRANSACTION MODAL -->
                 <template v-if="showEditModal">
                     <div class="fixed mr-16 sm:mr-0 inset-0 flex items-center justify-center bg-black bg-opacity-50">
                         <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md">
@@ -403,35 +499,22 @@ const submitExpense = () => {
                                 <div class="mb-4">
                                     <label for="transactionType"
                                         class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                    <select v-if="selectedTransaction.type=='expense'" id="transactionType"
-                                        name="category" v-model="selectedTransaction.category"
+                                    <select v-show="selectedTransaction.type === 'expense'"
+                                        v-model="selectedTransaction.category.name"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         required>
-                                        <option value="">Select Expense Type</option>
-                                        <option value="Rent">Rent/Mortgage</option>
-                                        <option value="Groceries">Groceries</option>
-                                        <option value="Transportation">Transportation</option>
-                                        <option value="Utilities">Utilities</option>
-                                        <option value="Entertainment">Entertainment</option>
-                                        <option value="Healthcare">Healthcare</option>
-                                        <option value="Insurance">Insurance</option>
-                                        <option value="Investment">Investment</option>
-                                        <option value="Savings">Savings</option>
-                                        <option value="Other">Other</option>
+                                        <option value=""></option>
+                                        <option v-for="category in expenses" :key="category.id"
+                                            :value="category.name">{{ category.name }}</option>
                                     </select>
 
-                                    <select v-else id="incomeType" v-model="selectedTransaction.category"
+                                    <select v-show="selectedTransaction.type === 'income'" id="incomeType"
+                                        v-model="selectedTransaction.category.name"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         name="category" required>
-                                        <option value="">Select Income Type</option>
-                                        <option value="Salary">Salary</option>
-                                        <option value="Freelance">Freelance</option>
-                                        <option value="Business">Business</option>
-                                        <option value="Bonuses">Bonuses</option>
-                                        <option value="Investment">Investment</option>
-                                        <option value="Rental Income">Rental Income</option>
-                                        <option value="Pension Income">Pension Income</option>
-                                        <option value="Other">Other</option>
+                                        <option value=""></option>
+                                        <option v-for="category in incomes" :key="category.id"
+                                            :value="category.name">{{ category.name }}</option>
                                     </select>
                                 </div>
 
@@ -445,7 +528,7 @@ const submitExpense = () => {
                                         min="0" step="0.01" required />
                                 </div>
 
-                                <div v-if="selectedTransaction.description" class="mb-4">
+                                <div class="mb-4">
                                     <label for="transactionAmount"
                                         class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                     <input type="text" id="transactionAmount" name="description"
@@ -465,6 +548,8 @@ const submitExpense = () => {
                     </div>
                 </template>
 
+
+                <!-- DELETE TRANSACTION MODAL -->
                 <template v-if="showDeleteModal">
                     <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                         <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md">
@@ -479,9 +564,6 @@ const submitExpense = () => {
                         </div>
                     </div>
                 </template>
-
-
-
             </Sidebar>
         </div>
     </AuthenticatedLayout>

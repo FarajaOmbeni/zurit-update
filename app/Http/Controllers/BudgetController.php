@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Debt;
 use App\Models\Income;
 use App\Models\Expense;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Traits\NetIncomeCalculator;
 use Inertia\Inertia;
@@ -17,84 +19,57 @@ class BudgetController extends Controller
 
     public function index()
     {
-        $userId = auth()->id();
-        $currentYear = now()->year;
+        $user = auth()->user();
         $currentMonth = now()->month;
-        $currentMonthString = Carbon::now()->format('F');
+        $currentYear  = now()->year;
+        $currentMonthString = now()->format('F');
 
-        // Fetch income and expenses for the current user for this month
-        $income = Income::where('user_id', $userId)
-            ->whereYear('created_at', $currentYear)
-            ->whereMonth('created_at', $currentMonth)
-            ->get();
+        // Eager load relationships with current month constraints
+        $user->load([
+            'incomes' => function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('income_date', $currentMonth)
+                    ->whereYear('income_date', $currentYear);
+            },
+            'transactions' => function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('transaction_date', $currentMonth)
+                    ->with('category')
+                    ->whereYear('transaction_date', $currentYear);
+            },
+            'expenses' => function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('expense_date', $currentMonth)
+                    ->whereYear('expense_date', $currentYear);
+            },
+            'goals' => function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('created_at', $currentMonth)
+                    ->whereYear('created_at', $currentYear);
+            },
+            'debts' => function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('created_at', $currentMonth)
+                    ->whereYear('created_at', $currentYear);
+            },
+            'investments' => function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('created_at', $currentMonth)
+                    ->whereYear('created_at', $currentYear);
+            },
+        ]);
 
-        $expenses = Expense::where('user_id', $userId)
-            ->whereYear('created_at', $currentYear)
-            ->whereMonth('created_at', $currentMonth)
-            ->get();
+        $incomeCategories = Category::where('type', 'income')->get();
+        $expenseCategories = Category::where('type', 'expense')->get();
 
-        $budget = $income->concat($expenses)
-            ->sortByDesc(function ($transaction) {
-                // Parse created_at to a timestamp for consistent comparison
-                return Carbon::parse($transaction->created_at)->timestamp;
-            })
-            ->values(); // Re-index the collection
-
-        $recentTransactions = $budget->map(function ($transaction) {
-            return [
-                'id'          => $transaction->id,
-                'type'        => $transaction instanceof Income ? 'income' : 'expense',
-                'category'    => $transaction instanceof Income ? $transaction->income_type : $transaction->expense_type,
-                'description' => $transaction->description, // taken as is, may be null for incomes
-                'amount'      => intval($transaction instanceof Income ? $transaction->actual_income : $transaction->actual_expense),
-                'date'        => Carbon::parse($transaction->created_at)->toDateString(),
-            ];
-        });
-
-
-
-        // Format income data for BudgetBarChart
-        $incomeData = $income->groupBy('income_type')->map(function ($items, $incomeType) {
-            $totalAmount = $items->sum(function ($item) {
-                return intval($item->actual_income);
-            });
-
-            return [
-                'amount' => $totalAmount,
-                'label' => $incomeType,
-                'currency' => 'KES',
-            ];
-        })->values();
-
-        // Format expense data for BudgetBarChart
-        $expenseData = $expenses->groupBy('expense_type')->map(function ($items, $expenseType) {
-            $totalAmount = $items->sum(function ($item) {
-                return intval($item->actual_expense);
-            });
-            return [
-                'amount' => $totalAmount,
-                'label' => $expenseType,
-                'currency' => 'KES',
-            ];
-        })->filter(function ($item) {
-            return $item['amount'] > 0;
-        })->values()->all();
-
-        // Calculate totals (optional, you can do this in Vue too)
-        $actualIncome = intval($income->sum('actual_income'));
-        $actualExpenses = intval($expenses->sum('actual_expense'));
-        $netIncome = intval($actualIncome - $actualExpenses);
-        $hasAnyData = $income->isNotEmpty() || $expenses->isNotEmpty();
+        $data = [
+            'incomes'     => $user->incomes,
+            'expenses'    => $user->expenses,
+            'goals'       => $user->goals,
+            'debts'       => $user->debts,
+            'investments' => $user->investments,
+            'transactions' => $user->transactions,
+            'incomeCategories' => $incomeCategories,
+            'expenseCategories' => $expenseCategories,
+        ];
 
         return Inertia::render('UserDashboard/BudgetPlanner', [
-            'incomeData' => $incomeData,
-            'expenseData' => $expenseData,
-            'recentTransactions' => $recentTransactions,
-            'actualIncome' => $actualIncome,
-            'actualExpenses' => $actualExpenses,
-            'netIncome' => $netIncome,
-            'hasAnyData' => $hasAnyData,
-            'currentMonthString' => $currentMonthString,
+            'data' => $data,
+            'currentMonth' => $currentMonthString,
         ]);
     }
 
@@ -110,7 +85,7 @@ class BudgetController extends Controller
         $income->income_type = $request->type;
         $income->actual_income = $request->amount;
         $income->save();
-        
+
         return to_route('budget.index');
     }
 
@@ -180,7 +155,7 @@ class BudgetController extends Controller
             $income->actual_income = $request->amount;
             $income->update();
 
-            return to_route('budget.index');    
+            return to_route('budget.index');
         }
 
         return to_route('budget.index');

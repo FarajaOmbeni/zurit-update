@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('expense_type', 15, 2);
-            $table->decimal('actual_expense', 15, 2);
-            $table->text('description')->default('No description');
-            $table->integer('is_loan'); 
-            $table->integer('is_goal'); 
-            $table->integer('is_investment'); 
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->restrictOnDelete();
+            $table->string('description');
+            $table->decimal('amount', 15, 2);
+            $table->enum('frequency', ['one-time', 'weekly', 'monthly', 'yearly']);
+            $table->date('expense_date');
+            $table->boolean('is_recurring')->default(false);
             $table->timestamps();
         });
     }
@@ -32,5 +32,3 @@ return new class extends Migration
         Schema::dropIfExists('expenses');
     }
 };
-
-

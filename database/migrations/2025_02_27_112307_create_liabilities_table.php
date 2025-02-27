@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('liabilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->string('liability_description');
-            $table->integer('liability_value');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->string('type');
+            $table->text('description')->nullable();
+            $table->decimal('amount', 15, 2);
+            $table->date('due_date')->nullable();
             $table->timestamps();
         });
     }
