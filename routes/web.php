@@ -38,6 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  DEBT ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/debt', [DebtController::class, 'index'])->name('debt.index');
+    Route::post('/user/debt', [DebtController::class, 'store'])->name('debt.store');
+    Route::put('/user/debt/{id}', [DebtController::class, 'update'])->name('debt.update');
+    Route::put('/user/contribute/{id}', [DebtController::class, 'contribute'])->name('debt.contribute');
 
     /////////////////////////////////////////////////////////
     //////////////////  GOAL ROUTES ///////////////////////

@@ -16,8 +16,6 @@ return new class extends Migration
             $table->foreignId('debt_id')->constrained()->cascadeOnDelete();
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 15, 2);
-            $table->decimal('principal_amount', 15, 2);
-            $table->decimal('interest_amount', 15, 2);
             $table->date('payment_date');
             $table->text('notes')->nullable();
             $table->timestamps();

@@ -84,7 +84,7 @@ const props = defineProps({
     data: Object,
     currentMonth: String,
 });
-console.log("ALL DATA", props.data)
+console.log("DEBT", props.data.debts)
 
 //GETTING THE TOP INCOME AND EXPENSES
 const TOP_N = 3;
@@ -147,11 +147,35 @@ const showIncomeModal = ref(false);
 const showExpenseModal = ref(false);
 const showContributeModal = ref(false);
 
+const selectedDebtDescription = computed(() => {
+    if (newContribution.category === 'debt' && newContribution.debtId) {
+        const selectedDebt = props.data.debts.find(debt => debt.id == newContribution.debtId);
+        return selectedDebt ? selectedDebt.description : '';
+    }
+    return '';
+});
+
+
 const newContribution = useForm({
-    type: '',
-    description: '',
     amount: '',
 })
+
+const submitContribution = () => {
+    newContribution.put(route('debt.contribute', newContribution.debtId), {
+        onSuccess: () => {
+            showContributeModal.value = false;
+            newContribution.reset();
+            openAlert('success', 'Contribution Made Succesfully.', 5000)
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+
+            openAlert('danger', errorMessages, 5000);
+        }
+    });
+}
 
 
 // Form data
@@ -289,7 +313,8 @@ const submitExpense = () => {
                                                 <p class="text-sm font-medium text-gray-900">
                                                     {{ transaction.description }}
                                                 </p>
-                                                <p class="text-sm text-gray-500">{{ formatDate(transaction.transaction_date) }}</p>
+                                                <p class="text-sm text-gray-500">{{
+                                                    formatDate(transaction.transaction_date) }}</p>
                                             </div>
                                             <div
                                                 class="flex flex-col  gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
@@ -431,15 +456,15 @@ const submitExpense = () => {
                     class="fixed mr-16 sm:mr-0 inset-0 overflow-y-auto z-10 flex items-center justify-center">
                     <div class="fixed inset-0 bg-black bg-opacity-50" @click="showContributeModal = false"></div>
                     <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Contrubute</h3>
-                        <form @submit.prevent="submitContribute">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Contribute</h3>
+                        <form @submit.prevent="submitContribution">
                             <div class="mb-4">
                                 <label for="contributeType"
                                     class="block text-sm font-medium text-gray-700 mb-1">Contribute
                                     to</label>
                                 <select id="contributeType"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    required>
+                                    v-model="newContribution.category" required>
                                     <option value="">Select Contribution</option>
                                     <option value="goal">Goal</option>
                                     <option value="debt">Debt</option>
@@ -448,15 +473,17 @@ const submitExpense = () => {
                             </div>
 
                             <div class="mb-4">
-                                <label for="expenseType" class="block text-sm font-medium text-gray-700 mb-1">Specify
+                                <label for="contributionType"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Specify
                                     the contribution</label>
-                                <select id="expenseType" v-model="newContribution.type"
+                                <select v-if="newContribution.category === 'debt'" id="contributionType"
+                                    v-model="newContribution.debtId"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Contribution</option>
-                                    <option value="goal">Goal</option>
-                                    <option value="debt">Debt</option>
-                                    <option value="investment">Investment</option>
+                                    <option v-for="debt in data.debts" :key="debt.id" :value="debt.id">
+                                        {{ debt.name }}
+                                    </option>
                                 </select>
                             </div>
 
@@ -464,7 +491,7 @@ const submitExpense = () => {
                                 <label for="contribution_amount"
                                     class="block text-sm font-medium text-gray-700 mb-1">Amount
                                     (KES)</label>
-                                <input type="number" id="expenseAmount" v-model="newContribution.amount"
+                                <input type="number" id="contribution_amount" v-model="newContribution.amount"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     min="0" step="0.01" required />
                             </div>
@@ -472,9 +499,9 @@ const submitExpense = () => {
                             <div class="mb-4">
                                 <label for="expenseDescription"
                                     class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea id="expenseDescription" v-model="newContribution.description" rows="2"
+                                <textarea id="expenseDescription" rows="2"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    required></textarea>
+                                    readonly :value="selectedDebtDescription"></textarea>
                             </div>
 
                             <div class="flex justify-end space-x-3">
@@ -484,7 +511,7 @@ const submitExpense = () => {
                                 </button>
                                 <button type="submit"
                                     class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                    Contribute
+                                    {{ newContribution.processing ? 'Saving...' : 'Contribute' }}
                                 </button>
                             </div>
                         </form>
@@ -505,8 +532,8 @@ const submitExpense = () => {
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         required>
                                         <option value=""></option>
-                                        <option v-for="category in expenses" :key="category.id"
-                                            :value="category.name">{{ category.name }}</option>
+                                        <option v-for="category in expenses" :key="category.id" :value="category.name">
+                                            {{ category.name }}</option>
                                     </select>
 
                                     <select v-show="selectedTransaction.type === 'income'" id="incomeType"
@@ -514,8 +541,8 @@ const submitExpense = () => {
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         name="category" required>
                                         <option value=""></option>
-                                        <option v-for="category in incomes" :key="category.id"
-                                            :value="category.name">{{ category.name }}</option>
+                                        <option v-for="category in incomes" :key="category.id" :value="category.name">{{
+                                            category.name }}</option>
                                     </select>
                                 </div>
 

@@ -13,8 +13,6 @@ class DebtPayment extends Model
         'debt_id',
         'transaction_id',
         'amount',
-        'principal_amount',
-        'interest_amount',
         'payment_date',
         'notes',
     ];
@@ -22,8 +20,6 @@ class DebtPayment extends Model
     protected $casts = [
         'payment_date' => 'date',
         'amount' => 'decimal:2',
-        'principal_amount' => 'decimal:2',
-        'interest_amount' => 'decimal:2',
     ];
 
     public function debt()

@@ -75,10 +75,6 @@ class DebtSeeder extends Seeder
 
                     if ($paymentAmount <= 0) continue;
 
-                    // Split payment into principal and interest
-                    $interestAmount = round($paymentAmount * $interestRate / 100, 2);
-                    $principalAmount = $paymentAmount - $interestAmount;
-
                     $paymentDate = $startDate->copy()->addDays(rand(30, (Carbon::now()->diffInDays($startDate))));
 
                     $transaction = Transaction::create([
@@ -93,8 +89,6 @@ class DebtSeeder extends Seeder
                         'debt_id' => $debt->id,
                         'transaction_id' => $transaction->id,
                         'amount' => $paymentAmount,
-                        'principal_amount' => $principalAmount,
-                        'interest_amount' => $interestAmount,
                         'payment_date' => $paymentDate,
                         'notes' => rand(0, 1) ? 'Regular payment' : 'Extra payment',
                     ]);

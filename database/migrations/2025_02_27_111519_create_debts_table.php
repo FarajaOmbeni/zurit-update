@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('type');
             $table->text('description')->nullable();
             $table->decimal('initial_amount', 15, 2);
-            $table->decimal('current_amount', 15, 2);
+            $table->decimal('current_amount', 15, 2)->default(0);
             $table->decimal('minimum_payment', 15, 2);
             $table->decimal('interest_rate', 8, 4);
             $table->date('start_date');

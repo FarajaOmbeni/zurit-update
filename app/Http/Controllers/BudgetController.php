@@ -39,18 +39,9 @@ class BudgetController extends Controller
                 $query->whereMonth('expense_date', $currentMonth)
                     ->whereYear('expense_date', $currentYear);
             },
-            'goals' => function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('created_at', $currentMonth)
-                    ->whereYear('created_at', $currentYear);
-            },
-            'debts' => function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('created_at', $currentMonth)
-                    ->whereYear('created_at', $currentYear);
-            },
-            'investments' => function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('created_at', $currentMonth)
-                    ->whereYear('created_at', $currentYear);
-            },
+            'goals',
+            'debts',
+            'investments',
         ]);
 
         $incomeCategories = Category::where('type', 'income')
