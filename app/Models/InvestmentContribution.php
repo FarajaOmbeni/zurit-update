@@ -14,7 +14,6 @@ class InvestmentContribution extends Model
         'transaction_id',
         'amount',
         'contribution_date',
-        'notes',
     ];
 
     protected $casts = [
@@ -22,11 +21,13 @@ class InvestmentContribution extends Model
         'amount' => 'decimal:2',
     ];
 
+    // An investment contribution belongs to an investment
     public function investment()
     {
         return $this->belongsTo(Investment::class);
     }
 
+    // An investment contribution belongs to a transaction
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);

@@ -11,8 +11,8 @@ class Investment extends Model
 
     protected $fillable = [
         'user_id',
-        'name',
         'type',
+        'details_of_investment',
         'description',
         'initial_amount',
         'current_amount',
@@ -32,33 +32,15 @@ class Investment extends Model
         'expected_return_rate' => 'decimal:4',
     ];
 
+    // An investment belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // An investment has many contributions
     public function contributions()
     {
         return $this->hasMany(InvestmentContribution::class);
-    }
-
-    public function getProgressPercentageAttribute()
-    {
-        if ($this->target_amount <= 0) {
-            return 0;
-        }
-
-        return min(100, ($this->current_amount / $this->target_amount) * 100);
-    }
-
-    public function getReturnOnInvestmentAttribute()
-    {
-        $totalContributed = $this->initial_amount + $this->contributions()->sum('amount');
-
-        if ($totalContributed <= 0) {
-            return 0;
-        }
-
-        return (($this->current_amount - $totalContributed) / $totalContributed) * 100;
     }
 }

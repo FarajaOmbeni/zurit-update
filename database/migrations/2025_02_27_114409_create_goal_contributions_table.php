@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 15, 2);
             $table->date('contribution_date');
-            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

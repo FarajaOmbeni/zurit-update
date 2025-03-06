@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expenses', function (Blueprint $table) {
+        Schema::create('incomes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id')->constrained()->restrictOnDelete();
+            $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
+            $table->string('type')->default('income');
+            $table->string('category');
             $table->string('description');
             $table->decimal('amount', 15, 2);
-            $table->enum('frequency', ['one-time', 'weekly', 'monthly', 'yearly']);
-            $table->date('expense_date');
-            $table->boolean('is_recurring')->default(false);
+            $table->date('income_date');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('expenses');
+        Schema::dropIfExists('incomes');
     }
 };

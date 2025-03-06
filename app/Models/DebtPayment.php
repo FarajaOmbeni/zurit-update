@@ -14,7 +14,6 @@ class DebtPayment extends Model
         'transaction_id',
         'amount',
         'payment_date',
-        'notes',
     ];
 
     protected $casts = [
@@ -22,11 +21,13 @@ class DebtPayment extends Model
         'amount' => 'decimal:2',
     ];
 
+    // A debt payment belongs to a debt
     public function debt()
     {
         return $this->belongsTo(Debt::class);
     }
 
+    // A debt payment belongs to a transaction
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);

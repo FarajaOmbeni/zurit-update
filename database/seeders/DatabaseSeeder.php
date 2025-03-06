@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            CategorySeeder::class,
+            // Removed CategorySeeder since your ERD no longer includes a categories table.
             TransactionSeeder::class, // This will seed incomes and expenses
             GoalSeeder::class,
             InvestmentSeeder::class,

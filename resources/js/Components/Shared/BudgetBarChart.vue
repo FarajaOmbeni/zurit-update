@@ -14,7 +14,7 @@
                         :class="type === 'income' ? 'bg-green-500' : 'bg-red-500'"
                         :style="`height: ${calculateHeight(item.amount)}px`"></div>
                 </div>
-                <div class="mt-2 text-sm font-medium text-gray-700">{{ item.label }}</div>
+                <div class="mt-2 line-clamp-1 text-sm font-medium text-gray-700">{{ item.label }}</div>
             </div>
         </div>
     </div>

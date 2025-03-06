@@ -27,22 +27,15 @@ class Goal extends Model
         'current_amount' => 'decimal:2',
     ];
 
+    // A goal belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // A goal has many contributions
     public function contributions()
     {
         return $this->hasMany(GoalContribution::class);
-    }
-
-    public function getProgressPercentageAttribute()
-    {
-        if ($this->target_amount <= 0) {
-            return 0;
-        }
-
-        return min(100, ($this->current_amount / $this->target_amount) * 100);
     }
 }

@@ -12,7 +12,7 @@ class Liability extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'type',
+        'category',
         'description',
         'amount',
         'due_date',
@@ -23,6 +23,7 @@ class Liability extends Model
         'amount' => 'decimal:2',
     ];
 
+    // A liability belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);

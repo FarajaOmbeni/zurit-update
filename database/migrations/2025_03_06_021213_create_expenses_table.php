@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('incomes', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id')->constrained()->restrictOnDelete();
-            $table->string('source');
+            $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
+            $table->string('type')->default('expense');
+            $table->string('category');
+            $table->string('description');
             $table->decimal('amount', 15, 2);
-            $table->date('income_date');
+            $table->date('expense_date');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('incomes');
+        Schema::dropIfExists('expenses');
     }
 };

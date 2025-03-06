@@ -48,58 +48,52 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
-    public function categories()
-    {
-        return $this->hasMany(Category::class);
-    }
-
+    // A user has many incomes
     public function incomes()
     {
         return $this->hasMany(Income::class);
     }
 
+    // A user has many expenses
     public function expenses()
     {
         return $this->hasMany(Expense::class);
     }
 
+    // A user has many goals
     public function goals()
     {
         return $this->hasMany(Goal::class);
     }
 
+    // A user has many investments
     public function investments()
     {
         return $this->hasMany(Investment::class);
     }
 
+    // A user has many debts
     public function debts()
     {
         return $this->hasMany(Debt::class);
     }
 
+    // A user has many assets
     public function assets()
     {
         return $this->hasMany(Asset::class);
     }
 
+    // A user has many liabilities
     public function liabilities()
     {
         return $this->hasMany(Liability::class);
     }
 
+    // A user has many transactions
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
-    }
-
-    public function calculateNetWorth()
-    {
-        $assetsTotal = $this->assets()->sum('value');
-        $liabilitiesTotal = $this->liabilities()->sum('amount');
-        $debtsTotal = $this->debts()->sum('current_amount');
-
-        return $assetsTotal - ($liabilitiesTotal + $debtsTotal);
     }
 
 }

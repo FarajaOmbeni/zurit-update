@@ -23,6 +23,7 @@ class Asset extends Model
         'value' => 'decimal:2',
     ];
 
+    // An asset belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);

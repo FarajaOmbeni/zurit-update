@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('investments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
             $table->string('type');
+            $table->string('details_of_investment');
             $table->text('description')->nullable();
             $table->decimal('initial_amount', 15, 2);
             $table->decimal('current_amount', 15, 2);
-            $table->decimal('target_amount', 15, 2)->nullable();
             $table->date('start_date');
             $table->date('target_date')->nullable();
             $table->decimal('expected_return_rate', 8, 4)->nullable();

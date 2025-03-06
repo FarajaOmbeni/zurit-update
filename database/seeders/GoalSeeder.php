@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Database\Seeder;
 use App\Models\GoalContribution;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class GoalSeeder extends Seeder
 {
@@ -46,14 +45,14 @@ class GoalSeeder extends Seeder
                 $currentAmount = round($targetAmount * $progressPercentage, 2);
 
                 $goal = Goal::create([
-                    'user_id' => $user->id,
-                    'name' => $goalType['name'],
-                    'description' => 'Saving for ' . strtolower($goalType['name']),
-                    'target_amount' => $targetAmount,
+                    'user_id'        => $user->id,
+                    'name'           => $goalType['name'],
+                    'description'    => 'Saving for ' . strtolower($goalType['name']),
+                    'target_amount'  => $targetAmount,
                     'current_amount' => $currentAmount,
-                    'start_date' => $startDate,
-                    'target_date' => $targetDate,
-                    'status' => 'in_progress',
+                    'start_date'     => $startDate,
+                    'target_date'    => $targetDate,
+                    'status'         => 'in_progress',
                 ]);
 
                 // Create several contributions to this goal
@@ -61,30 +60,30 @@ class GoalSeeder extends Seeder
                 $remainingAmount = $currentAmount;
 
                 for ($j = 0; $j < $numberOfContributions; $j++) {
-                    $contributionAmount = $j == $numberOfContributions - 1 ?
-                        $remainingAmount :
-                        round(min($remainingAmount, $currentAmount / $numberOfContributions * rand(8, 12) / 10), 2);
+                    $contributionAmount = $j == $numberOfContributions - 1
+                        ? $remainingAmount
+                        : round(min($remainingAmount, $currentAmount / $numberOfContributions * rand(8, 12) / 10), 2);
 
                     $remainingAmount -= $contributionAmount;
 
                     if ($contributionAmount <= 0) continue;
 
-                    $contributionDate = $startDate->copy()->addDays(rand(1, (Carbon::now()->diffInDays($startDate))));
+                    $contributionDate = $startDate->copy()->addDays(rand(1, Carbon::now()->diffInDays($startDate)));
 
                     $transaction = Transaction::create([
-                        'user_id' => $user->id,
-                        'type' => 'goal',
-                        'amount' => $contributionAmount,
+                        'user_id'          => $user->id,
+                        'type'             => 'goal',
+                        'category'         => $goalType['name'],
+                        'amount'           => $contributionAmount,
                         'transaction_date' => $contributionDate,
-                        'description' => 'Contribution to ' . $goalType['name'] . ' goal',
+                        'description'      => 'Contribution to ' . $goalType['name'] . ' goal',
                     ]);
 
                     GoalContribution::create([
-                        'goal_id' => $goal->id,
-                        'transaction_id' => $transaction->id,
-                        'amount' => $contributionAmount,
+                        'goal_id'         => $goal->id,
+                        'transaction_id'  => $transaction->id,
+                        'amount'          => $contributionAmount,
                         'contribution_date' => $contributionDate,
-                        'notes' => rand(0, 1) ? 'Regular contribution' : 'Extra contribution',
                     ]);
                 }
             }

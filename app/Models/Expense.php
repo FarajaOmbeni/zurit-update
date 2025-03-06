@@ -11,29 +11,20 @@ class Expense extends Model
 
     protected $fillable = [
         'user_id',
-        'category_id',
-        'description',
+        'type',
+        'category',
         'amount',
-        'frequency',
+        'description',
         'expense_date',
     ];
 
-    protected $casts = [
-        'expense_date' => 'date',
-        'is_recurring' => 'boolean',
-        'amount' => 'decimal:2',
-    ];
-
+    // Expense belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
+    // Expense is a transaction
     public function transaction()
     {
         return $this->morphOne(Transaction::class, 'transactionable');

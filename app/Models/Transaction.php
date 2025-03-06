@@ -23,28 +23,27 @@ class Transaction extends Model
         'amount' => 'decimal:2',
     ];
 
+    // A transaction belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // A transaction can be a goal contribution
     public function goalContribution()
     {
         return $this->hasOne(GoalContribution::class);
     }
 
+    // A transaction can be an investment contribution
     public function investmentContribution()
     {
         return $this->hasOne(InvestmentContribution::class);
     }
 
+    // A transaction can be an expense
     public function debtPayment()
     {
         return $this->hasOne(DebtPayment::class);
-    }
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
     }
 }

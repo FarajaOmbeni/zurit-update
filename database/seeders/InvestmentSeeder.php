@@ -8,7 +8,6 @@ use App\Models\Investment;
 use App\Models\Transaction;
 use Illuminate\Database\Seeder;
 use App\Models\InvestmentContribution;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class InvestmentSeeder extends Seeder
 {
@@ -50,44 +49,42 @@ class InvestmentSeeder extends Seeder
                 $appreciationFactor = pow(1 + ($returnRate / 100), $yearFraction);
                 $currentAmount = round($initialAmount * $appreciationFactor, 2);
 
-                $targetAmount = $targetDate ? round($initialAmount * pow(1 + ($returnRate / 100), Carbon::now()->diffInYears($targetDate) + $yearFraction), 2) : null;
 
                 $investment = Investment::create([
-                    'user_id' => $user->id,
-                    'name' => $investmentType['name'],
-                    'type' => $investmentType['type'],
-                    'description' => 'Investment in ' . $investmentType['name'],
-                    'initial_amount' => $initialAmount,
-                    'current_amount' => $currentAmount,
-                    'target_amount' => $targetAmount,
-                    'start_date' => $startDate,
-                    'target_date' => $targetDate,
-                    'expected_return_rate' => $returnRate,
-                    'status' => 'active',
+                    'user_id'               => $user->id,
+                    'type'                  => $investmentType['type'],
+                    'details_of_investment' => $investmentType['name'],
+                    'description'           => 'Investment in ' . $investmentType['name'],
+                    'initial_amount'        => $initialAmount,
+                    'current_amount'        => $currentAmount,
+                    'start_date'            => $startDate,
+                    'target_date'           => $targetDate,
+                    'expected_return_rate'  => $returnRate,
+                    'status'                => 'active',
                 ]);
 
-                // Create several contributions to this investment
-                if (rand(0, 1)) {  // 50% chance of additional contributions
+                // Create several contributions to this investment (50% chance)
+                if (rand(0, 1)) {
                     $numberOfContributions = rand(2, 6);
 
                     for ($j = 0; $j < $numberOfContributions; $j++) {
                         $contributionAmount = rand(500, 3000);
-                        $contributionDate = $startDate->copy()->addDays(rand(1, (Carbon::now()->diffInDays($startDate))));
+                        $contributionDate = $startDate->copy()->addDays(rand(1, Carbon::now()->diffInDays($startDate)));
 
                         $transaction = Transaction::create([
-                            'user_id' => $user->id,
-                            'type' => 'investment',
-                            'amount' => $contributionAmount,
+                            'user_id'          => $user->id,
+                            'type'             => 'investment',
+                            'category'         => $investmentType['name'],
+                            'amount'           => $contributionAmount,
                             'transaction_date' => $contributionDate,
-                            'description' => 'Contribution to ' . $investmentType['name'],
+                            'description'      => 'Contribution to ' . $investmentType['name'],
                         ]);
 
                         InvestmentContribution::create([
-                            'investment_id' => $investment->id,
-                            'transaction_id' => $transaction->id,
-                            'amount' => $contributionAmount,
+                            'investment_id'    => $investment->id,
+                            'transaction_id'   => $transaction->id,
+                            'amount'           => $contributionAmount,
                             'contribution_date' => $contributionDate,
-                            'notes' => rand(0, 1) ? 'Regular contribution' : 'Extra contribution',
                         ]);
                     }
                 }

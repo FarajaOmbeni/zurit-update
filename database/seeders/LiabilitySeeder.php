@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Liability;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class LiabilitySeeder extends Seeder
 {
@@ -36,12 +35,12 @@ class LiabilitySeeder extends Seeder
                 $dueDate = Carbon::now()->addDays(rand(15, 365));
 
                 Liability::create([
-                    'user_id' => $user->id,
-                    'name' => $liabilityType['name'],
-                    'type' => $liabilityType['type'],
+                    'user_id'    => $user->id,
+                    'name'       => $liabilityType['name'],
+                    'category'   => $liabilityType['type'],  // Updated from 'type' to 'category'
                     'description' => 'User\'s ' . strtolower($liabilityType['name']),
-                    'amount' => $amount,
-                    'due_date' => $dueDate,
+                    'amount'     => $amount,
+                    'due_date'   => $dueDate,
                 ]);
             }
         }

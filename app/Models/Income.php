@@ -11,28 +11,20 @@ class Income extends Model
 
     protected $fillable = [
         'user_id',
-        'category_id',
-        'source',
+        'type',
+        'category',
         'amount',
+        'description',
         'income_date',
     ];
 
-    protected $casts = [
-        'income_date' => 'date',
-        'is_recurring' => 'boolean',
-        'amount' => 'decimal:2',
-    ];
-
+    // Income belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
+    // Income is a transaction
     public function transaction()
     {
         return $this->morphOne(Transaction::class, 'transactionable');

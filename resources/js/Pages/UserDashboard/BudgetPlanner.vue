@@ -7,6 +7,8 @@ import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
 import { formatDate } from '@/Components/Composables/useDateFormat';
+import { expenseCategories } from '@/Components/Variables/expenseCategories';
+import { incomeCategories } from '@/Components/Variables/incomeCategories';
 
 //ALERT USAGE LOGIC, FROM COMPOSABLE
 const { alertState, openAlert, clearAlert } = useAlert();
@@ -33,23 +35,25 @@ const openDeleteModal = (transaction) => {
     showDeleteModal.value = true;
 };
 
-const updateTrans = useForm({
+const updateTransaction = useForm({
     category: '',
     description: '',
-    amount: ''
+    amount: '',
+    transaction_date: '',
 })
 
 // Methods to handle the modal actions
 const saveEdit = () => {
     const transaction = selectedTransaction.value
 
-    updateTrans.category = transaction.category
-    updateTrans.description = transaction.description
-    updateTrans.amount = transaction.amount
+    updateTransaction.category = transaction.category
+    updateTransaction.description = transaction.description
+    updateTransaction.amount = transaction.amount
+    updateTransaction.transaction_date = transaction.transaction_date
 
     const routeName = transaction.type == 'income' ? 'income.edit' : 'expense.edit'
 
-    updateTrans.put(route(routeName, transaction.id), {
+    updateTransaction.put(route(routeName, transaction.id), {
         onSuccess: () => {
             showEditModal.value = false
             openAlert('success', 'Transaction Updated Succesfully', 5000)
@@ -66,7 +70,7 @@ const confirmDelete = () => {
 
     const routeName = transaction.type == 'income' ? 'income.destroy' : 'expense.destroy'
 
-    updateTrans.delete(route(routeName, transaction.id), {
+    updateTransaction.delete(route(routeName, transaction.id), {
         onSuccess: () => {
             openAlert('warning', 'Transaction Deleted Succesfully', 5000)
             showDeleteModal.value = false
@@ -84,7 +88,7 @@ const props = defineProps({
     data: Object,
     currentMonth: String,
 });
-console.log("DEBT", props.data.debts)
+console.log("DATA", props.data)
 
 //GETTING THE TOP INCOME AND EXPENSES
 const TOP_N = 3;
@@ -96,7 +100,7 @@ const topIncomes = computed(() => {
         .slice(0, TOP_N)
         .map(income => ({
             amount: Math.round(income.amount),
-            label: income.source,
+            label: income.category,
             currency: income.currency || 'KES'
         }));
 });
@@ -108,7 +112,7 @@ const topExpenses = computed(() => {
         .slice(0, TOP_N)
         .map(expense => ({
             amount: Math.round(expense.amount),
-            label: expense.description,
+            label: expense.category,
             currency: expense.currency || 'KES'
         }));
 });
@@ -119,11 +123,11 @@ const topExpenses = computed(() => {
 const totalIncome = computed(() => {
     return props.data.incomes?.reduce((acc, income) => acc + parseFloat(income.amount), 0) || 0;
 });
-
 // Compute total expenses by summing up all expense amounts
 const totalExpenses = computed(() => {
     return props.data.expenses?.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
 });
+
 
 const balance = computed(() =>
     totalIncome.value - totalExpenses.value
@@ -180,15 +184,17 @@ const submitContribution = () => {
 
 // Form data
 const newIncome = useForm({
-    type: '',
+    category: '',
     amount: '',
     description: '',
+    income_date: '',
 });
 
 const newExpense = useForm({
-    type: '',
+    category: '',
     amount: '',
-    description: ''
+    description: '',
+    expense_date: '',
 });
 
 // Form submission handlers
@@ -351,27 +357,34 @@ const submitExpense = () => {
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Add Income</h3>
                         <form @submit.prevent="submitIncome">
                             <div class="mb-4">
-                                <label for="incomeType" class="block text-sm font-medium text-gray-700 mb-1">Income
+                                <label for="incomeCategory" class="block text-sm font-medium text-gray-700 mb-1">Income
                                     Type</label>
-                                <select id="incomeType" v-model="newIncome.type"
+                                <select id="incomeCategory" v-model="newIncome.category"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
-                                    <option value="">Select Income Type</option>
-                                    <option value="Salary">Salary</option>
-                                    <option value="Freelance">Freelance</option>
-                                    <option value="Business">Business</option>
-                                    <option value="Bonuses">Bonuses</option>
-                                    <option value="Investment">Investment</option>
-                                    <option value="Rental Income">Rental Income</option>
-                                    <option value="Pension Income">Pension Income</option>
-                                    <option value="Other">Other</option>
+                                    <option value="">Select Income Category</option>
+                                    <option v-for="category in incomeCategories" :key="category.value" :value="category.label" >{{ category.label }}</option>
                                 </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="incomeDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea type="text" id="incomeDescription" v-model="newIncome.description"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    min="0" step="0.01" required></textarea>
                             </div>
 
                             <div class="mb-4">
                                 <label for="incomeAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount
                                     (KES)</label>
                                 <input type="number" id="incomeAmount" v-model="newIncome.amount"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    min="0" step="0.01" required />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="incomeDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <input type="date" id="incomeDate" v-model="newIncome.income_date"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     min="0" step="0.01" required />
                             </div>
@@ -383,7 +396,7 @@ const submitExpense = () => {
                                 </button>
                                 <button type="submit"
                                     class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                    Save Income
+                                    {{ newIncome.processing ? 'Saving...':'Save Income' }}
                                 </button>
                             </div>
                         </form>
@@ -398,22 +411,13 @@ const submitExpense = () => {
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Add Expense</h3>
                         <form @submit.prevent="submitExpense">
                             <div class="mb-4">
-                                <label for="expenseType" class="block text-sm font-medium text-gray-700 mb-1">Expense
+                                <label for="expenseCategory" class="block text-sm font-medium text-gray-700 mb-1">Expense
                                     Type</label>
-                                <select id="expenseType" v-model="newExpense.type"
+                                <select id="expenseCategory" v-model="newExpense.category"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Expense Type</option>
-                                    <option value="Rent">Rent/Mortgage</option>
-                                    <option value="Groceries">Groceries</option>
-                                    <option value="Transportation">Transportation</option>
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Entertainment">Entertainment</option>
-                                    <option value="Healthcare">Healthcare</option>
-                                    <option value="Insurance">Insurance</option>
-                                    <option value="Investment">Investment</option>
-                                    <option value="Savings">Savings</option>
-                                    <option value="Other">Other</option>
+                                    <option v-for="category in expenseCategories" :value="category.label" :key="category.value">{{ category.label }}</option>
                                 </select>
                             </div>
 
@@ -433,6 +437,14 @@ const submitExpense = () => {
                                     required></textarea>
                             </div>
 
+                            <div class="mb-4">
+                                <label for="expenseDate"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <input type="date" id="expenseDate" v-model="newExpense.expense_date" rows="2"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required />
+                            </div>
+
                             <div class="flex justify-end space-x-3">
                                 <button type="button" @click="showContributeModal = true"
                                     class="px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -444,7 +456,7 @@ const submitExpense = () => {
                                 </button>
                                 <button type="submit"
                                     class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                    Save Expense
+                                    {{ newExpense.processing ? 'Saving...':'Save Expense' }}
                                 </button>
                             </div>
                         </form>
@@ -523,26 +535,32 @@ const submitExpense = () => {
                     <div class="fixed mr-16 sm:mr-0 inset-0 flex items-center justify-center bg-black bg-opacity-50">
                         <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md">
                             <h3 class="text-lg font-bold mb-4">Edit Transaction</h3>
-                            <form @submit.prevent="updateTransaction">
+                            <form @submit.prevent="saveEdit">
                                 <div class="mb-4">
                                     <label for="transactionType"
                                         class="block text-sm font-medium text-gray-700 mb-1">Category</label>
                                     <select v-show="selectedTransaction.type === 'expense'"
-                                        v-model="selectedTransaction.category.name"
+                                        v-model="selectedTransaction.category"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         required>
-                                        <option value=""></option>
-                                        <option v-for="category in expenses" :key="category.id" :value="category.name">
-                                            {{ category.name }}</option>
+                                        <option :value="selectedTransaction.category">{{ selectedTransaction.category }}
+                                        </option>
+                                        <option v-for="category in expenseCategories" :key="category.value"
+                                            :value="category.label">
+                                            {{ category.label }}
+                                        </option>
                                     </select>
 
-                                    <select v-show="selectedTransaction.type === 'income'" id="incomeType"
-                                        v-model="selectedTransaction.category.name"
+                                    <select v-show="selectedTransaction.type === 'income'"
+                                        v-model="selectedTransaction.category"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        name="category" required>
-                                        <option value=""></option>
-                                        <option v-for="category in incomes" :key="category.id" :value="category.name">{{
-                                            category.name }}</option>
+                                        required>
+                                        <option :value="selectedTransaction.category">{{ selectedTransaction.category }}
+                                        </option>
+                                        <option v-for="category in incomeCategories" :key="category.value"
+                                            :value="category">
+                                            {{ category.label }}
+                                        </option>
                                     </select>
                                 </div>
 
@@ -565,9 +583,18 @@ const submitExpense = () => {
                                         required />
                                 </div>
 
+                                <div class="mb-4">
+                                    <label for="transactionDate"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                    <input type="date" id="transactionDate" name="transaction_date"
+                                        v-model="selectedTransaction.transaction_date"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        required />
+                                </div>
+
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
-                                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Save</button>
+                                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{ updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -585,7 +612,7 @@ const submitExpense = () => {
                             <p class="mb-4">Are you sure you want to delete this transaction?</p>
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Delete</button>
+                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{ confirmDelete.processing ? 'Deleting...':'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>

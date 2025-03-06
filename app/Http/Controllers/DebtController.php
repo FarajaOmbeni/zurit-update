@@ -114,7 +114,7 @@ class DebtController extends Controller
             'expense_date' => Carbon::now(),
         ]);
 
-        Transaction::create([
+        $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'category_id' => 9,
             'type' => 'expense',

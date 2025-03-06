@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Debt;
+use Inertia\Inertia;
 use App\Models\Income;
 use App\Models\Expense;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
-use Inertia\Inertia;
 
 class BudgetController extends Controller
 {
@@ -32,7 +32,6 @@ class BudgetController extends Controller
             },
             'transactions' => function ($query) use ($currentMonth, $currentYear) {
                 $query->whereMonth('transaction_date', $currentMonth)
-                    ->with('category')
                     ->whereYear('transaction_date', $currentYear);
             },
             'expenses' => function ($query) use ($currentMonth, $currentYear) {
@@ -40,34 +39,20 @@ class BudgetController extends Controller
                     ->whereYear('expense_date', $currentYear);
             },
             'goals',
+            'goals.contributions.transaction',
             'debts',
+            'debts.payments.transaction',
             'investments',
+            'investments.contributions.transaction',
         ]);
-
-        $incomeCategories = Category::where('type', 'income')
-        ->where(function ($query) {
-            $query->where('user_id', auth()->id())
-                ->orWhereNull('user_id');
-        })
-            ->get();
-
-        $expenseCategories = Category::where('type', 'expense')
-        ->where(function ($query) {
-            $query->where('user_id', auth()->id())
-                ->orWhereNull('user_id');
-        })
-            ->get();
-
 
         $data = [
             'incomes'     => $user->incomes,
             'expenses'    => $user->expenses,
+            'transactions' => $user->transactions,
             'goals'       => $user->goals,
             'debts'       => $user->debts,
             'investments' => $user->investments,
-            'transactions' => $user->transactions,
-            'incomeCategories' => $incomeCategories,
-            'expenseCategories' => $expenseCategories,
         ];
 
         return Inertia::render('UserDashboard/BudgetPlanner', [
@@ -79,15 +64,33 @@ class BudgetController extends Controller
     public function storeIncome(Request $request)
     {
         $request->validate([
-            'type' => 'required|string|max:255',
-            'amount' => 'required|numeric',
+            'amount'       => 'required|numeric',
+            'category'     => 'required|string',
+            'description'  => 'required|string',
+            'income_date'  => 'required|date',
         ]);
 
-        $income = new Income();
-        $income->user_id = auth()->id();
-        $income->income_type = $request->type;
-        $income->actual_income = $request->amount;
-        $income->save();
+        DB::transaction(function () use ($request) {
+            // Create the transaction first
+            $transaction = new Transaction();
+            $transaction->user_id = auth()->id();
+            $transaction->type = 'income';
+            $transaction->category = $request->category;
+            $transaction->amount = $request->amount;
+            $transaction->transaction_date = $request->income_date;
+            $transaction->description = $request->description;
+            $transaction->save();
+
+            // Now create the income and assign the transaction id as a foreign key
+            $income = new Income();
+            $income->user_id = auth()->id();
+            $income->category = $request->category;
+            $income->amount = $request->amount;
+            $income->description = $request->description;
+            $income->income_date = $request->income_date;
+            $income->transaction_id = $transaction->id;
+            $income->save();
+        });
 
         return to_route('budget.index');
     }
@@ -96,50 +99,78 @@ class BudgetController extends Controller
     public function storeExpense(Request $request)
     {
         $request->validate([
-            'type' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
             'amount' => 'required|numeric',
             'description' => 'required|string|max:255',
+            'expense_date' => 'required|date|max:255',
         ]);
 
-        $expense = new Expense();
-        $expense->user_id = auth()->id();
-        $expense->expense_type = $request->type;
-        $expense->actual_expense = $request->amount;
-        $expense->description = $request->description;
-        $expense->save();
+        DB::transaction(function () use ($request) {
+            // Create the transaction first
+            $transaction = new Transaction();
+            $transaction->user_id = auth()->id();
+            $transaction->type = 'expense';
+            $transaction->category = $request->category;
+            $transaction->amount = $request->amount;
+            $transaction->transaction_date = $request->expense_date;
+            $transaction->description = $request->description;
+            $transaction->save();
+
+            // Now create the expense and assign the transaction id as a foreign key
+            $expense = new Expense();
+            $expense->user_id = auth()->id();
+            $expense->category = $request->category;
+            $expense->amount = $request->amount;
+            $expense->description = $request->description;
+            $expense->expense_date = $request->expense_date;
+            $expense->transaction_id = $transaction->id;
+            $expense->save();
+        });
 
         return to_route('budget.index');
     }
 
     public function destroyIncome($id)
     {
-        $income = Income::find($id);
+        $transaction = Transaction::find($id);
 
-        if ($income) {
-            $income->delete();
-            return to_route('budget.index');
+        if ($transaction) {
+            $transaction->delete();
         }
+
         return to_route('budget.index');
     }
 
     public function updateExpense(Request $request, $id)
     {
         $request->validate([
-            'category' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'description' => 'required|string|max:255',
+            'category'         => 'required|string|max:255',
+            'amount'           => 'required|numeric',
+            'description'      => 'required|string|max:255',
+            'transaction_date' => 'required|date', // used as the income_date
         ]);
 
-        $expense = Expense::find($id);
+        DB::transaction(function () use ($request, $id) {
+            // Use the transaction ID (passed from the front end) to update the Transaction.
+            $transaction = Transaction::findOrFail($id);
 
-        if ($expense) {
-            $expense->expense_type = $request->category;
-            $expense->actual_expense = $request->amount;
+            // Retrieve the related Income record by matching its transaction_id
+            $expense = Expense::where('transaction_id', $transaction->id)->firstOrFail();
+
+            // Update the Transaction first
+            $transaction->category         = $request->category;
+            $transaction->amount           = $request->amount;
+            $transaction->description      = $request->description;
+            $transaction->transaction_date = $request->transaction_date;
+            $transaction->save();
+
+            // Now update the related Income record
+            $expense->category    = $request->category;
+            $expense->amount      = $request->amount;
             $expense->description = $request->description;
-            $expense->update();
-
-            return to_route('budget.index');
-        }
+            $expense->expense_date = $request->transaction_date;
+            $expense->save();
+        });
 
         return to_route('budget.index');
     }
@@ -147,52 +178,42 @@ class BudgetController extends Controller
     public function updateIncome(Request $request, $id)
     {
         $request->validate([
-            'category' => 'required|string|max:255',
-            'amount' => 'required|numeric',
+            'category'         => 'required|string|max:255',
+            'amount'           => 'required|numeric',
+            'description'      => 'required|string|max:255',
+            'transaction_date' => 'required|date', // used as the income_date
         ]);
 
-        $income = Income::find($id);
+        DB::transaction(function () use ($request, $id) {
+            // Use the transaction ID (passed from the front end) to update the Transaction.
+            $transaction = Transaction::findOrFail($id);
 
-        if ($income) {
-            $income->income_type = $request->category;
-            $income->actual_income = $request->amount;
-            $income->update();
+            // Retrieve the related Income record by matching its transaction_id
+            $income = Income::where('transaction_id', $transaction->id)->firstOrFail();
 
-            return to_route('budget.index');
-        }
+            // Update the Transaction first
+            $transaction->category         = $request->category;
+            $transaction->amount           = $request->amount;
+            $transaction->description      = $request->description;
+            $transaction->transaction_date = $request->transaction_date;
+            $transaction->save();
+
+            // Now update the related Income record
+            $income->category    = $request->category;
+            $income->amount      = $request->amount;
+            $income->description = $request->description;
+            $income->income_date = $request->transaction_date;
+            $income->save();
+        });
 
         return to_route('budget.index');
     }
 
     public function destroyExpense($id)
     {
-        $expense = Expense::find($id);
-
-        if ($expense) {
-            // If the expense category is "Loans", delete from debt manager and debt_calc
-            if ($expense->category == 'Loans') {
-                $debt = Debt::where('user_id', auth()->id())
-                    ->where('debt', $expense->actual_expense)
-                    ->where('debt_name', 'Loan from Budget')
-                    ->first();
-
-                $debtCalc = Debt::where('user_id', auth()->id())
-                    ->where('debt', $expense->actual_expense)
-                    ->where('debt_name', 'Loan from Budget')
-                    ->first();
-
-                if ($debt) {
-                    $debt->delete();
-                }
-
-                if ($debtCalc) {
-                    $debtCalc->delete();
-                }
-            }
-
-            $expense->delete();
-            // Use Inertia::location for redirect
-            return to_route('budget.index');
+        $transaction = Transaction::find($id);
+        if ($transaction) {
+            $transaction->delete();
         }
 
         // Use Inertia::location for redirect - Handle error case as needed

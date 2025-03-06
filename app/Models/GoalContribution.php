@@ -14,7 +14,6 @@ class GoalContribution extends Model
         'transaction_id',
         'amount',
         'contribution_date',
-        'notes',
     ];
 
     protected $casts = [
@@ -22,11 +21,13 @@ class GoalContribution extends Model
         'amount' => 'decimal:2',
     ];
 
+    // A goal contribution belongs to a goal
     public function goal()
     {
         return $this->belongsTo(Goal::class);
     }
 
+    // A goal contribution belongs to a transaction
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);
