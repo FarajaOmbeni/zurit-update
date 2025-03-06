@@ -8,6 +8,7 @@ use App\Models\Debt;
 use Inertia\Inertia;
 use App\Models\Income;
 use App\Models\Expense;
+use App\Models\DebtPayment;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -162,14 +163,14 @@ class BudgetController extends Controller
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;
             $transaction->transaction_date = $request->transaction_date;
-            $transaction->save();
+            $transaction->update();
 
-            // Now update the related Income record
+            // Now update the related Expense record
             $expense->category    = $request->category;
             $expense->amount      = $request->amount;
             $expense->description = $request->description;
             $expense->expense_date = $request->transaction_date;
-            $expense->save();
+            $expense->update();
         });
 
         return to_route('budget.index');
@@ -211,12 +212,29 @@ class BudgetController extends Controller
 
     public function destroyExpense($id)
     {
-        $transaction = Transaction::find($id);
-        if ($transaction) {
-            $transaction->delete();
-        }
+        DB::transaction(function () use ($id) {
+            $transaction = Transaction::find($id);
+            if ($transaction) {
+                // If this is a Debt Payment, update the related debt record.
+                if ($transaction->category === 'Debt Payment') {
+                    // Find the debt payment record linked to this transaction.
+                    $debtPayment = DebtPayment::where('transaction_id', $transaction->id)->first();
+                    if ($debtPayment) {
+                        // Retrieve the associated debt.
+                        $debt = Debt::find($debtPayment->debt_id);
+                        if ($debt) {
+                            // Reduce the debt's current_amount by the transaction's amount.
+                            $debt->current_amount -= $transaction->amount;
+                            $debt->update();
+                        }
+                    }
+                }
 
-        // Use Inertia::location for redirect - Handle error case as needed
+                // Delete the transaction record.
+                $transaction->delete();
+            }
+        });
+
         return to_route('budget.index');
     }
 }
