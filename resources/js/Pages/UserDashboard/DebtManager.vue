@@ -14,8 +14,14 @@ const { alertState, openAlert, clearAlert } = useAlert();
 const props = defineProps({
     debts: Array,
 });
-const activeDebts = computed(() => props.debts.filter(debt => debt.status === 'active'));
-const paidOffDebts = computed(() => props.debts.filter(debt => debt.status === 'paid_off'));
+
+const debts = ref([...props.debts])
+const activeDebts = computed(() => debts.value.filter(debt => debt.status === 'active'));
+const paidOffDebts = computed(() => debts.value.filter(debt => debt.status === 'paid_off'));
+
+const removeDebtFromList = (debtId) => {
+    debts.value = debts.value.filter(debt => debt.id !== debtId);
+};
 
 // Modal state
 const isModalOpen = ref(false);
@@ -57,13 +63,6 @@ const resetForm = () => {
     };
 };
 
-// Handle form submission
-// const submitForm = () => {
-//     Inertia.post('/debts', newDebt.value);
-//     console.log('Submitting new debt:', newDebt.value);
-//     // Close the modal after submission
-//     closeModal();
-// };
 const submitForm = () => {
     newDebt.post(route('debt.store'), {
         onSuccess: () => {
@@ -116,7 +115,8 @@ const closeModalOnOutsideClick = (event) => {
                             :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                         <h2 class="text-xl font-semibold text-purple-700 mb-4">Active Debts</h2>
                         <div v-if="activeDebts.length" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                            <DebtCard v-for="debt in activeDebts" :key="debt.debt_id" :debt="debt" />
+                            <DebtCard v-for="debt in activeDebts" :key="debt.debt_id" :debt="debt"
+                            @delete="removeDebtFromList" />
                         </div>
                         <div v-else class="text-gray-600">
                             No active debts found.

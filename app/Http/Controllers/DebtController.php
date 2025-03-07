@@ -146,4 +146,17 @@ class DebtController extends Controller
 
         return to_route('budget.index');
     }
+
+    public function destroy($id)
+    {
+        DB::transaction(function () use ($id) {
+            // First, delete the debt payment record.
+            DebtPayment::where('debt_id', $id)->delete();
+
+            // Then delete the debt record.
+            Debt::find($id)->delete();
+        });
+
+        return to_route('debt.index');
+    }
 }

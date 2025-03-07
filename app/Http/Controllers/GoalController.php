@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use DateTime;
 use Carbon\Carbon;
-use App\Models\Debt;
 use App\Models\Goal;
+use Inertia\Inertia;
 use App\Models\Expense;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\GoalContribution;
+use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use DateTime;
-use Inertia\Inertia;
 
 class GoalController extends Controller
 {
@@ -26,169 +28,125 @@ class GoalController extends Controller
         ]);
     }
 
-
-
-    public function storeGoal(Request $request)
+    public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string',
-            'goal_amount' => 'required|numeric',
-            'current_amount' => 'nullable|numeric',
-            'description' => 'nullable|string',
-            'otherDescription' => 'required_if:description,other|string|nullable',
-            'deadline' => 'required|date',
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'target_amount' => 'required|numeric',
+            'start_date' => 'required|date',
+            'target_date' => 'required|date',
         ]);
 
-        $validatedData['user_id'] = Auth::id();
-
-        // Handle the 'other' category
-        if ($validatedData['description'] == 'other') {
-            $validatedData['description'] = $validatedData['otherDescription'];
+        $start_date = Carbon::createFromDate($request->start_date);
+        $target_date = Carbon::createFromDate($request->target_date);
+        $months = round($start_date->diffInMonths($target_date));
+        if ($months == 0) {
+            $months = 1;
         }
 
-        $expense = new Expense;
-        $expense->user_id = Auth::id();
-        $expense->expense_type = $request->input('title');
-        $expense->actual_expense = $request->input('current_amount');
-        $expense->is_goal = 1;
-        $expense->save();
-
-        Goal::create($validatedData);
-
-        return redirect('user_goalsetting')->with('success', [
-            'message' => 'Goal Added Succesfully',
-            'duration' => 3000,
-        ]);
-    }
-
-    public function addcurrentamount(Request $request, $id)
-    {
-        $goal = Goal::find($id);
-        $addedAmount = $request->input('addedAmount');
-        $goal->current_amount += $addedAmount;
+        $goal = new Goal();
+        $goal->user_id = auth()->id();
+        $goal->name = $request->name;
+        $goal->description = $request->description;
+        $goal->target_amount = $request->target_amount;
+        $goal->start_date = $request->start_date;
+        $goal->target_date = $request->target_date;
+        $goal->minimum_payment = round($request->target_amount / $months);
         $goal->save();
 
-        // Find the expense that matches the debt name for the current user
-        $expense = Expense::where('expense_type', $goal->title)
-            ->where('user_id', auth()->id())
-            ->first();
+        return to_route('goal.index');
+    }
 
-        // Check if the expense exists before updating
-        if ($expense) {
-            $expense->actual_expense += $request->input('addedAmount');
+    //Update a goal in the Goal Setting View 
+    public function update(Request $request)
+    {
+        $request->validate([
+            'name'           => 'required|string|max:255',
+            'description'    => 'required|string|max:255',
+            'target_amount' => 'required|numeric',
+            'start_date'     => 'required|date',
+            'target_date'       => 'required|date',
+        ]);
+
+        $start_date = Carbon::createFromDate($request->start_date);
+        $target_date   = Carbon::createFromDate($request->target_date);
+        $months     = round($start_date->diffInMonths($target_date));
+        if ($months == 0) {
+            $months = 1;
+        }
+
+        DB::transaction(function () use ($request, $months) {
+            // Finally, update the Goal record.
+            $goal = Goal::find($request->id);
+            $goal->name = $request->name;
+            $goal->description = $request->description;
+            $goal->target_amount = $request->target_amount;
+            $goal->start_date = $request->start_date;
+            $goal->target_date = $request->target_date;
+            $goal->minimum_payment = round          ($request->target_amount / $months);
+            $goal->update();
+        });
+
+
+        return to_route('goal.index');
+    }
+
+    public function contribute(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            // Create the transaction record first.
+            $transaction = new Transaction();
+            $transaction->user_id = auth()->id();
+            $transaction->type = 'expense';
+            $transaction->category = 'Goal Contribution';
+            $transaction->amount = $request->amount;
+            $transaction->transaction_date = Carbon::now();
+            $transaction->description = 'Goal Contribution for ' . Goal::find($request->id)->name;
+            $transaction->save();
+
+            // Now create the expense record and assign the transaction id.
+            $expense = new Expense();
+            $expense->transaction_id = $transaction->id;
+            $expense->user_id = auth()->id();
+            $expense->category = 'Goal Contribution';
+            $expense->description = 'Goal Contribution for ' . Goal::find($request->id)->name;
+            $expense->amount = $request->amount;
+            $expense->expense_date = Carbon::now();
             $expense->save();
-        } else {
-            // If the expense doesn't exist, create a new one
-            Expense::create([
-                'user_id' => auth()->id(),
-                'expense_type' => $goal->title,
-                'actual_expense' => $request->input('addedAmount'),
-                'is_goal' => 1,
-                // Add any other necessary fields
-            ]);
-        }
-        // Compare expenses with goals and delete if they match
-        $goalExpenseComparison = Expense::where('expenses.user_id', auth()->id())
-            ->join('goals', function ($join) {
-                $join->on('expenses.expense_type', '=', 'goals.title')
-                    ->where(
-                        'goals.user_id',
-                        '=',
-                        auth()->id()
-                    );
-            })
-            ->select('expenses.id', 'expenses.actual_expense', 'goals.goal_amount', 'goals.title')
-            ->get();
 
-        foreach ($goalExpenseComparison as $comparison) {
-            if ($comparison->actual_expense == $comparison->goal_amount) {
-                // Find the specific expense by id and delete it
-                Expense::find($comparison->id)->delete();
-            }
-        }
+            // Then create the goal payment (goalContribution) record.
+            $goalContribution = new GoalContribution();
+            $goalContribution->goal_id = $request->id;
+            $goalContribution->transaction_id = $transaction->id;
+            $goalContribution->amount = $request->amount;
+            $goalContribution->contribution_date = Carbon::now();
+            $goalContribution->save();
 
-        try {
-            return redirect('user_goalsetting')->with('success', [
-                'message' => 'Amount updated Successfully',
-                'duration' => 3000,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Blog creation failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', [
-                'message' => 'Failed to create blog. Error: ' . $e->getMessage(),
-                'duration' => 5000,
-            ])->withInput();
-        };
+            // Finally, update the Goal record.
+            $goal = Goal::find($request->id);
+            $goal->current_amount += $request->amount;
+            $goal->update();
+        });
+
+
+        return to_route('budget.index');
     }
 
-    public function calculateProjectedDates($goals)
-    {
-        foreach ($goals as $goal) {
-            // Calculate the projected completion date
-            if ($goal->current_amount < $goal->goal_amount) {
-                $updatedAt = new DateTime($goal->updated_at);
-                $startDate = new DateTime($goal->start_date);
-                $daysBetweenAdds = $updatedAt->diff($startDate)->days;
-                $remainingAmount = $goal->goal_amount - $goal->current_amount;
-
-                // Check if last_added_amount is not zero
-                if ($goal->last_added_amount != 0) {
-                    $daysToComplete = $remainingAmount / $goal->last_added_amount * $daysBetweenAdds;
-                    $projectedCompleteDate = $updatedAt->modify('+' . $daysToComplete . ' days');
-                    $goal->projected_attainment_date = $projectedCompleteDate->format('Y-m-d');
-                } else {
-                    // Handle the case when last_added_amount is zero
-                    $goal->projected_attainment_date = null;
-                }
-            }
-        }
-    }
-
-
-    public function classifyGoals($goals)
-    {
-        foreach ($goals as $goal) {
-            $createdAt = Carbon::parse($goal->created_at);
-            $deadline = Carbon::parse($goal->deadline);
-            $durationInDays = $createdAt->diffInDays($deadline);
-
-            $shortTermThreshold = 30;
-            $middleTermThreshold = 180;
-
-            if ($durationInDays <= $shortTermThreshold) {
-                $goal->period = 'short-term';
-            } elseif ($durationInDays <= $middleTermThreshold) {
-                $goal->period = 'medium-term';
-            } else {
-                $goal->period = 'long-term';
-            }
-
-            $goal->save();
-        }
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $goal = Goal::findOrFail($id);
-        $goal->delete();
+        DB::transaction(function () use ($id) {
+            // First, delete the goal payment record.
+            GoalContribution::where('goal_id', $id)->delete();
 
-        // Find the expense that matches the debt name for the current user
-        $expense = Expense::where('expense_type', $goal->title)
-            ->where('user_id', auth()->id())
-            ->where('actual_expense', $goal->current_amount)
-            ->first();
-        $expense->delete();
+            // Then delete the goal record.
+            Goal::find($id)->delete();
+        });
 
-        return redirect()->route('user_goalsetting')->with('success', [
-            'message' => 'Goal Deleted Successfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('goal.index');
     }
 }

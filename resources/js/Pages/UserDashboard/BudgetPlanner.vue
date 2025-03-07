@@ -159,26 +159,69 @@ const selectedDebtDescription = computed(() => {
     return '';
 });
 
+const selectedGoalDescription = computed(() => {
+    if (newContribution.category === 'goal' && newContribution.goalId) {
+        const selectedGoal = props.data.goals.find(goal => goal.id == newContribution.goalId);
+        return selectedGoal ? selectedGoal.description : '';
+    }
+    return '';
+});
+
 
 const newContribution = useForm({
     amount: '',
 })
 
 const submitContribution = () => {
-    newContribution.put(route('debt.contribute', newContribution.debtId), {
-        onSuccess: () => {
-            showContributeModal.value = false;
-            newContribution.reset();
-            openAlert('success', 'Contribution Made Succesfully.', 5000)
-        },
-        onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
+    if (newContribution.category == 'debt'){
+        newContribution.put(route('debt.contribute', newContribution.debtId), {
+            onSuccess: () => {
+                showContributeModal.value = false;
+                showExpenseModal.value = false;
+                newContribution.reset();
+                openAlert('success', 'Contribution Made Succesfully.', 5000)
+            },
+            onError: (errors) => {
+                const errorMessages = Object.values(errors)
+                    .flat()
+                    .join(' ');
+    
+                openAlert('danger', errorMessages, 5000);
+            }
+        });
+    } else if (newContribution.category == 'goal') {
+        newContribution.put(route('goal.contribute', newContribution.goalId), {
+            onSuccess: () => {
+                showContributeModal.value = false;
+                showExpenseModal.value = false;
+                newContribution.reset();
+                openAlert('success', 'Contribution Made Succesfully.', 5000)
+            },
+            onError: (errors) => {
+                const errorMessages = Object.values(errors)
+                    .flat()
+                    .join(' ');
 
-            openAlert('danger', errorMessages, 5000);
-        }
-    });
+                openAlert('danger', errorMessages, 5000);
+            }
+        }); 
+    } else {
+        newContribution.put(route('invest.contribute', newContribution.investmentId), {
+            onSuccess: () => {
+                showContributeModal.value = false;
+                showExpenseModal.value = false;
+                newContribution.reset();
+                openAlert('success', 'Contribution Made Succesfully.', 5000)
+            },
+            onError: (errors) => {
+                const errorMessages = Object.values(errors)
+                    .flat()
+                    .join(' ');
+
+                openAlert('danger', errorMessages, 5000);
+            }
+        });
+    }
 }
 
 
@@ -363,12 +406,14 @@ const submitExpense = () => {
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Income Category</option>
-                                    <option v-for="category in incomeCategories" :key="category.value" :value="category.label" >{{ category.label }}</option>
+                                    <option v-for="category in incomeCategories" :key="category.value"
+                                        :value="category.label">{{ category.label }}</option>
                                 </select>
                             </div>
 
                             <div class="mb-4">
-                                <label for="incomeDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <label for="incomeDescription"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <textarea type="text" id="incomeDescription" v-model="newIncome.description"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     min="0" step="0.01" required></textarea>
@@ -383,7 +428,8 @@ const submitExpense = () => {
                             </div>
 
                             <div class="mb-4">
-                                <label for="incomeDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <label for="incomeDate"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                 <input type="date" id="incomeDate" v-model="newIncome.income_date"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     min="0" step="0.01" required />
@@ -411,13 +457,15 @@ const submitExpense = () => {
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Add Expense</h3>
                         <form @submit.prevent="submitExpense">
                             <div class="mb-4">
-                                <label for="expenseCategory" class="block text-sm font-medium text-gray-700 mb-1">Expense
+                                <label for="expenseCategory"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Expense
                                     Type</label>
                                 <select id="expenseCategory" v-model="newExpense.category"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Expense Type</option>
-                                    <option v-for="category in expenseCategories" :value="category.label" :key="category.value">{{ category.label }}</option>
+                                    <option v-for="category in expenseCategories" :value="category.label"
+                                        :key="category.value">{{ category.label }}</option>
                                 </select>
                             </div>
 
@@ -497,6 +545,16 @@ const submitExpense = () => {
                                         {{ debt.name }}
                                     </option>
                                 </select>
+
+                                <select v-if="newContribution.category === 'goal'" id="contributionType"
+                                    v-model="newContribution.goalId"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option v-for="goal in data.goals" :key="goal.id" :value="goal.id">
+                                        {{ goal.name }}
+                                    </option>
+                                </select>
                             </div>
 
                             <div class="mb-4">
@@ -513,7 +571,7 @@ const submitExpense = () => {
                                     class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <textarea id="expenseDescription" rows="2"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    readonly :value="selectedDebtDescription"></textarea>
+                                    readonly :value="selectedDebtDescription || selectedGoalDescription"></textarea>
                             </div>
 
                             <div class="flex justify-end space-x-3">
@@ -594,7 +652,8 @@ const submitExpense = () => {
 
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
-                                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{ updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
+                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -612,7 +671,8 @@ const submitExpense = () => {
                             <p class="mb-4">Are you sure you want to delete this transaction?</p>
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{ confirmDelete.processing ? 'Deleting...':'Delete' }}</button>
+                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
+                                    confirmDelete.processing ? 'Deleting...':'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>

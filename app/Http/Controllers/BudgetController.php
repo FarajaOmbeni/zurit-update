@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Debt;
+use App\Models\Goal;
 use Inertia\Inertia;
 use App\Models\Income;
 use App\Models\Expense;
 use App\Models\DebtPayment;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\GoalContribution;
 use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
 
@@ -226,6 +228,18 @@ class BudgetController extends Controller
                             // Reduce the debt's current_amount by the transaction's amount.
                             $debt->current_amount -= $transaction->amount;
                             $debt->update();
+                        }
+                    }
+                } else if ($transaction->category === 'Goal Contribution') {
+                    // Find the debt payment record linked to this transaction.
+                    $goalContribution = GoalContribution::where('transaction_id', $transaction->id)->first();
+                    if ($goalContribution) {
+                        // Retrieve the associated debt.
+                        $goal = Goal::find($goalContribution->goal_id);
+                        if ($goal) {
+                            // Reduce the debt's current_amount by the transaction's amount.
+                            $goal->current_amount -= $transaction->amount;
+                            $goal->update();
                         }
                     }
                 }

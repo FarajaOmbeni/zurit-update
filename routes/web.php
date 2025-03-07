@@ -39,14 +39,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ////////////////////////////////////////////////////////
     Route::get('/user/debt', [DebtController::class, 'index'])->name('debt.index');
     Route::post('/user/debt', [DebtController::class, 'store'])->name('debt.store');
+    Route::post('/user/debt/{id}', [DebtController::class, 'destroy'])->name('debt.destroy');
     Route::put('/user/debt/{id}', [DebtController::class, 'update'])->name('debt.update');
-    Route::put('/user/contribute/{id}', [DebtController::class, 'contribute'])->name('debt.contribute');
+    Route::put('/user/debt/contribute/{id}', [DebtController::class, 'contribute'])->name('debt.contribute');
 
     /////////////////////////////////////////////////////////
     //////////////////  GOAL ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/goal', [GoalController::class, 'index'])->name('goal.index');
-
+    Route::post('/user/goal', [GoalController::class, 'store'])->name('goal.store');
+    Route::post('/user/goal/{id}', [GoalController::class, 'destroy'])->name('goal.destroy');
+    Route::put('/user/goal/{id}', [GoalController::class, 'update'])->name('goal.update');
+    Route::put('/user/goal/contribute/{id}', [GoalController::class, 'contribute'])->name('goal.contribute');
     /////////////////////////////////////////////////////////
     //////////////////  INVESTMENT ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
