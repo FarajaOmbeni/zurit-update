@@ -59,7 +59,9 @@ class DebtController extends Controller
         $debt->minimum_payment = round(($request->initial_amount + $request->initial_amount * ($request->interest_rate / 100)) / $months);
         $debt->save();
 
-        return to_route('debt.index');
+        return to_route('debt.index', [
+            'newDebt' => $debt,
+        ]);
     }
 
     //Update a debt in the Debt Manager View 

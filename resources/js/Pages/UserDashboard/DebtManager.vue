@@ -13,7 +13,10 @@ const { alertState, openAlert, clearAlert } = useAlert();
 
 const props = defineProps({
     debts: Array,
+    newDebt: Object,
 });
+
+console.log(props.newDebt)
 
 const debts = ref([...props.debts]);
 const activeDebts = computed(() => debts.value.filter(debt => debt.status === 'active'));
@@ -60,24 +63,21 @@ const submitForm = () => {
         preserveScroll: true,
         onSuccess: (response) => {
             // Add the new debt to the local state
-            if (response?.props?.debt) {
+            if (response?.props?.newDebt) {
                 // If the server returns the created debt
-                debts.value.push(response.props.debt);
+                debts.value.push(response.props.newDebt);
             } else {
-                // Fallback if the server doesn't return the created debt
-                // Create a temporary debt object with values from the form
-                // Note: This assumes the server will assign an ID, so you might need to update this
                 const tempDebt = {
-                    id: Date.now(), // Temporary ID until page refresh
+                    id: Date.now(),
                     name: newDebt.name,
                     type: newDebt.type,
                     description: newDebt.description,
                     initial_amount: parseFloat(newDebt.initial_amount),
                     interest_rate: parseFloat(newDebt.interest_rate),
+                    current_amount: 0,
                     start_date: newDebt.start_date,
                     due_date: newDebt.due_date,
-                    status: 'active', // Default status for new debts
-                    // Add other required fields with default values
+                    status: 'active', 
                 };
                 debts.value.push(tempDebt);
             }
