@@ -2,48 +2,48 @@
     <Alert v-if="alertState" :type="alertState.type" :message="alertState.message" :duration="alertState.duration"
         :auto-close="alertState.autoClose" @close="clearAlert" />
     <div class="bg-white shadow rounded-lg p-4 border-2 border-purple-500" :class="{
-        'border-green-500': debt.status === 'paid_off',
-        'text-green-500': debt.status === 'paid_off'
+        'border-green-500': debtData.status === 'paid_off',
+        'text-green-500': debtData.status === 'paid_off'
     }">
         <div class="flex justify-between items-center border-b pb-2 mb-2">
             <h3 class="text-lg font-semibold text-purple-700" :class="{
-                'text-green-500': debt.status === 'paid_off'
-            }">{{ debt.name }}</h3>
+                'text-green-500': debtData.status === 'paid_off'
+            }">{{ debtData.name }}</h3>
             <div class="flex items-center space-x-2">
                 <span class="px-2 py-1 text-xs font-bold uppercase rounded-full" :class="{
-                    'bg-yellow-400 text-black': debt.status === 'active',
-                    'bg-green-500 text-gray-100': debt.status === 'paid_off'
+                    'bg-yellow-400 text-black': debtData.status === 'active',
+                    'bg-green-500 text-gray-100': debtData.status === 'paid_off'
                 }">
-                    {{ debt.status }}
+                    {{ debtData.status }}
                 </span>
                 <button @click="showEditModal = true"
                     class="p-1 text-purple-600 hover:text-purple-800 transition-colors"
-                    :class="{ 'hidden': debt.status === 'paid_off' }">
+                    :class="{ 'hidden': debtData.status === 'paid_off' }">
                     <PencilIcon class=" h-4 w-4" />
                 </button>
-                <button @click="showDeleteModal = true" 
-                    class="p-1 text-red-600 hover:text-red-800 transition-colors"
-                    :class="{ 'hidden': debt.status === 'paid_off' }">
+                <button @click="showDeleteModal = true" class="p-1 text-red-600 hover:text-red-800 transition-colors"
+                    :class="{ 'hidden': debtData.status === 'paid_off' }">
                     <TrashIcon class=" h-4 w-4" />
                 </button>
             </div>
         </div>
         <div class="mb-2">
             <p class="text-gray-600" :class="{
-                'text-green-500': debt.status === 'paid_off'
-            }">{{ debt.description }}</p>
-            <p class="mt-1"><strong>Due:</strong> {{ formatCurrency(debt.initial_amount) }}
+                'text-green-500': debtData.status === 'paid_off'
+            }">{{ debtData.description }}</p>
+            <p class="mt-1"><strong>Due:</strong> {{ formatCurrency(debtData.initial_amount) }}
             </p>
-            <p class="mt-1"><strong>Paid:</strong> {{ formatCurrency(debt.current_amount) }}
+            <p class="mt-1"><strong>Paid:</strong> {{ formatCurrency(debtData.current_amount) }}
             </p>
-            <p class="mt-1"><strong>Balance:</strong> {{ formatCurrency(debt.initial_amount - debt.current_amount) }}
+            <p class="mt-1"><strong>Balance:</strong> {{ formatCurrency(debtData.initial_amount -
+                debtData.current_amount) }}
             </p>
             <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
                 <div class="h-2.5 rounded-full bg-green-400" :style="{ width: progressPercentage + '%' }"></div>
             </div>
         </div>
-        <div class="text-right text-red-500 font-bold text-sm" :class="{ 'hidden': debt.status === 'paid_off' }">
-            Due: {{ formatDate(debt.due_date) }}
+        <div class="text-right text-red-500 font-bold text-sm" :class="{ 'hidden': debtData.status === 'paid_off' }">
+            Due: {{ formatDate(debtData.due_date) }}
         </div>
 
         <!-- Edit Modal -->
@@ -171,12 +171,20 @@ const props = defineProps({
 
 const emit = defineEmits(['update', 'delete']);
 
+// Create a reactive copy of the debt prop to allow local updates
+const debtData = ref({ ...props.debt });
+
+// Update local data when prop changes
+watch(() => props.debt, (newDebt) => {
+    debtData.value = { ...newDebt };
+}, { deep: true });
+
 // Compute the repayment progress percentage based on initial and current amounts
 const progressPercentage = computed(() => {
-    if (props.debt.current_amount === props.debt.initial_amount) return 100;
+    if (debtData.value.current_amount === debtData.value.initial_amount) return 100;
     return Math.min(
         100,
-        ((props.debt.current_amount * 100) / props.debt.initial_amount)
+        ((debtData.value.current_amount * 100) / debtData.value.initial_amount)
     );
 });
 
@@ -201,13 +209,13 @@ const editDebt = useForm({
 
 // Populate form when modal is opened
 const populateForm = () => {
-    editDebt.name = props.debt.name;
-    editDebt.type = props.debt.type || '';
-    editDebt.description = props.debt.description;
-    editDebt.initial_amount = props.debt.initial_amount;
-    editDebt.interest_rate = props.debt.interest_rate || '';
-    editDebt.start_date = props.debt.start_date || '';
-    editDebt.due_date = props.debt.due_date;
+    editDebt.name = debtData.value.name;
+    editDebt.type = debtData.value.type || '';
+    editDebt.description = debtData.value.description;
+    editDebt.initial_amount = debtData.value.initial_amount;
+    editDebt.interest_rate = debtData.value.interest_rate || '';
+    editDebt.start_date = debtData.value.start_date || '';
+    editDebt.due_date = debtData.value.due_date;
 };
 
 // Close modal when clicking outside
@@ -224,18 +232,29 @@ watch(showEditModal, (newValue) => {
 
 // Submit edit form
 const submitEdit = () => {
-    editDebt.put(route('debt.update', props.debt.id), {
+    editDebt.put(route('debt.update', debtData.value.id), {
         preserveScroll: true,
-        onSuccess: () => {
+        onSuccess: (response) => {
+            // Update the local debt data with response data
+            if (response?.props?.debt) {
+                debtData.value = response.props.debt;
+            } else if (response?.props?.flash?.data) {
+                // Alternative data location, depending on your Inertia setup
+                debtData.value = { ...debtData.value, ...response.props.flash.data };
+            } else {
+                // Fallback to updating with form data
+                Object.assign(debtData.value, editDebt);
+            }
+
             showEditModal.value = false;
-            openAlert('success', 'Debt Updated Succesfully', 5000)
+            openAlert('success', 'Debt Updated Successfully', 5000);
             emit('update');
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
                 .flat()
-                .join(' ')
-            openAlert('danger', errorMessages, 5000)
+                .join(' ');
+            openAlert('danger', errorMessages, 5000);
         }
     });
 };
@@ -252,16 +271,19 @@ const isDeleting = ref(false);
 
 // Confirm delete action
 const confirmDelete = () => {
-    isDeleting.value = true
-    axios.post(route('debt.destroy', props.debt.id))
+    isDeleting.value = true;
+    axios.post(route('debt.destroy', debtData.value.id))
         .then(() => {
             showDeleteModal.value = false;
             openAlert('success', 'Debt deleted successfully.');
-            emit('delete', props.debt.id);
+            emit('delete', debtData.value.id);
         })
         .catch((error) => {
             openAlert('danger', 'Failed to delete debt. Please try again.', 5000);
             console.error('Error deleting debt:', error);
+        })
+        .finally(() => {
+            isDeleting.value = false;
         });
 };
 </script>

@@ -15,7 +15,7 @@ const props = defineProps({
     debts: Array,
 });
 
-const debts = ref([...props.debts])
+const debts = ref([...props.debts]);
 const activeDebts = computed(() => debts.value.filter(debt => debt.status === 'active'));
 const paidOffDebts = computed(() => debts.value.filter(debt => debt.status === 'paid_off'));
 
@@ -37,8 +37,6 @@ const newDebt = useForm({
     due_date: ''
 });
 
-
-
 // Open modal
 const openModal = () => {
     isModalOpen.value = true;
@@ -52,23 +50,41 @@ const closeModal = () => {
 
 // Reset form fields
 const resetForm = () => {
-    newDebt.value = {
-        name: '',
-        type: '',
-        description: '',
-        initial_amount: '',
-        interest_rate: '',
-        start_date: '',
-        due_date: ''
-    };
+    newDebt.reset();
 };
 
 const submitForm = () => {
+    // Using Inertia's post method with preserveState and preserveScroll options
     newDebt.post(route('debt.store'), {
-        onSuccess: () => {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: (response) => {
+            // Add the new debt to the local state
+            if (response?.props?.debt) {
+                // If the server returns the created debt
+                debts.value.push(response.props.debt);
+            } else {
+                // Fallback if the server doesn't return the created debt
+                // Create a temporary debt object with values from the form
+                // Note: This assumes the server will assign an ID, so you might need to update this
+                const tempDebt = {
+                    id: Date.now(), // Temporary ID until page refresh
+                    name: newDebt.name,
+                    type: newDebt.type,
+                    description: newDebt.description,
+                    initial_amount: parseFloat(newDebt.initial_amount),
+                    interest_rate: parseFloat(newDebt.interest_rate),
+                    start_date: newDebt.start_date,
+                    due_date: newDebt.due_date,
+                    status: 'active', // Default status for new debts
+                    // Add other required fields with default values
+                };
+                debts.value.push(tempDebt);
+            }
+
             newDebt.reset();
             closeModal();
-            openAlert('success', 'Debt added successfully', 5000)
+            openAlert('success', 'Debt added successfully', 5000);
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
@@ -115,8 +131,8 @@ const closeModalOnOutsideClick = (event) => {
                             :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                         <h2 class="text-xl font-semibold text-purple-700 mb-4">Active Debts</h2>
                         <div v-if="activeDebts.length" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                            <DebtCard v-for="debt in activeDebts" :key="debt.debt_id" :debt="debt"
-                            @delete="removeDebtFromList" />
+                            <DebtCard v-for="debt in activeDebts" :key="debt.id || debt.debt_id" :debt="debt"
+                                @delete="removeDebtFromList" />
                         </div>
                         <div v-else class="text-gray-600">
                             No active debts found.
@@ -127,7 +143,7 @@ const closeModalOnOutsideClick = (event) => {
                     <section>
                         <h2 class="text-xl font-bold text-green-700 mb-4">Paid Off Debts</h2>
                         <div v-if="paidOffDebts.length" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                            <DebtCard v-for="debt in paidOffDebts" :key="debt.debt_id" :debt="debt" />
+                            <DebtCard v-for="debt in paidOffDebts" :key="debt.id || debt.debt_id" :debt="debt" />
                         </div>
                         <div v-else class="text-gray-600">
                             You have no paid off debts.
@@ -241,7 +257,8 @@ const closeModalOnOutsideClick = (event) => {
                             Cancel
                         </button>
                         <button type="submit"
-                            class="px-3 py-1.5 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            class="px-3 py-1.5 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            :disabled="newDebt.processing">
                             {{ newDebt.processing ? 'Saving...' : 'Add Debt' }}
                         </button>
                     </div>

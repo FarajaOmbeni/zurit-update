@@ -54,9 +54,27 @@ const resetForm = () => {
 const submitForm = () => {
     newGoal.post(route('goal.store'), {
         onSuccess: (response) => {
+            // Add the new goal to the local goals array
             if (response?.props?.goal) {
+                // If the response includes the newly created goal
                 goals.value.push(response.props.goal);
+            } else {
+                // Fallback: use form data to create a temporary goal object
+                // with default values until next full page load
+                const tempGoal = {
+                    id: Date.now(), // temporary id
+                    name: newGoal.name,
+                    description: newGoal.description,
+                    target_amount: newGoal.target_amount,
+                    start_date: newGoal.start_date,
+                    target_date: newGoal.target_date,
+                    status: 'active', // default status for new goals
+                    current_amount: 0, // default for new goals
+                    progress_percentage: 0 // default for new goals
+                };
+                goals.value.push(tempGoal);
             }
+
             newGoal.reset();
             closeModal();
             openAlert('success', 'Goal added successfully', 5000);
@@ -102,8 +120,8 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                         <section class="mb-8">
                             <h2 class="text-xl font-semibold text-purple-700 mb-4">Active Goals</h2>
                             <div v-if="activeGoals.length" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                                <GoalCard v-for="goal in activeGoals" :key="goal.goal_id" :goal="goal"
-                                    @update="refreshGoals" @delete="removeGoalFromList" />
+                                <GoalCard v-for="goal in activeGoals" :key="goal.id || goal.goal_id" :goal="goal"
+                                    @update="goals.value = [...props.goals]" @delete="removeGoalFromList" />
                             </div>
                             <div v-else class="text-gray-600">
                                 No active goals found.
@@ -115,7 +133,7 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                             <h2 class="text-xl font-semibold text-purple-700 mb-4">Completed Goals</h2>
                             <div v-if="completedGoals.length"
                                 class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                                <GoalCard v-for="goal in completedGoals" :key="goal.goal_id" :goal="goal" />
+                                <GoalCard v-for="goal in completedGoals" :key="goal.id || goal.goal_id" :goal="goal" />
                             </div>
                             <div v-else class="text-gray-600">
                                 No completed goals found.

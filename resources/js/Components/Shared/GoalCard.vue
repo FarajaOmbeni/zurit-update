@@ -3,39 +3,39 @@
         :auto-close="alertState.autoClose" @close="clearAlert" />
     <div class="bg-white shadow rounded-lg p-4 border-2 border-purple-500">
         <div class="flex justify-between items-center border-b pb-2 mb-2">
-            <h3 class="text-lg font-semibold text-purple-700">{{ goal.name }}</h3>
+            <h3 class="text-lg font-semibold text-purple-700">{{ localGoal.name }}</h3>
             <div class="flex items-center space-x-2">
                 <span class="px-2 py-1 text-xs font-bold uppercase rounded-full" :class="{
-                    'bg-yellow-400 text-black': goal.status === 'in_progress',
-                    'bg-purple-400 text-white': goal.status === 'achieved',
-                    'bg-gray-400 text-black': goal.status === 'abandoned'
+                    'bg-yellow-400 text-black': localGoal.status === 'in_progress',
+                    'bg-purple-400 text-white': localGoal.status === 'achieved',
+                    'bg-gray-400 text-black': localGoal.status === 'abandoned'
                 }">
-                    {{ goal.status }}
+                    {{ localGoal.status }}
                 </span>
                 <button @click="showEditModal = true"
                     class="p-1 text-purple-600 hover:text-purple-800 transition-colors"
-                    :class="{ 'hidden': goal.status === 'achieved' }">
+                    :class="{ 'hidden': localGoal.status === 'achieved' }">
                     <PencilIcon class=" h-4 w-4" />
                 </button>
-                <button @click="showDeleteModal = true" 
-                    class="p-1 text-red-600 hover:text-red-800 transition-colors"
-                    :class="{ 'hidden': goal.status === 'achieved' }">
+                <button @click="showDeleteModal = true" class="p-1 text-red-600 hover:text-red-800 transition-colors"
+                    :class="{ 'hidden': localGoal.status === 'achieved' }">
                     <TrashIcon class="h-4 w-4" />
                 </button>
             </div>
         </div>
         <div class="mb-2">
-            <p class="text-gray-600">{{ goal.description }}</p>
-            <p class="mt-1"><strong>Goal:</strong> {{ formatCurrency(goal.target_amount) }}</p>
-            <p class="mt-1"><strong>Saved:</strong> {{ formatCurrency(goal.current_amount) }}</p>
-            <p class="mt-1"><strong>Remaining:</strong> {{ formatCurrency(goal.target_amount - goal.current_amount) }}
+            <p class="text-gray-600">{{ localGoal.description }}</p>
+            <p class="mt-1"><strong>Goal:</strong> {{ formatCurrency(localGoal.target_amount) }}</p>
+            <p class="mt-1"><strong>Saved:</strong> {{ formatCurrency(localGoal.current_amount) }}</p>
+            <p class="mt-1"><strong>Remaining:</strong> {{ formatCurrency(localGoal.target_amount -
+                localGoal.current_amount) }}
             </p>
             <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                 <div class="h-2.5 rounded-full bg-yellow-400" :style="{ width: progressPercentage + '%' }"></div>
             </div>
         </div>
         <div class="text-right text-sm text-gray-500">
-            Target Date: {{ formatDate(goal.target_date) }}
+            Target Date: {{ formatDate(localGoal.target_date) }}
         </div>
 
         <!-- Edit Modal -->
@@ -145,10 +145,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update', 'delete']);
 
+// Create a local copy of the goal to modify
+const localGoal = ref({ ...props.goal });
+
+// Watch for external goal changes
+watch(() => props.goal, (newGoal) => {
+    localGoal.value = { ...newGoal };
+}, { deep: true });
+
 // Compute the progress percentage based on current_amount vs. target_amount
 const progressPercentage = computed(() => {
-    if (props.goal.target_amount === 0) return 0;
-    return Math.min(100, (props.goal.current_amount / props.goal.target_amount) * 100);
+    if (localGoal.value.target_amount === 0) return 0;
+    return Math.min(100, (localGoal.value.current_amount / localGoal.value.target_amount) * 100);
 });
 
 // Simple currency formatter
@@ -170,11 +178,11 @@ const editGoal = useForm({
 
 // Populate form when modal is opened
 const populateForm = () => {
-    editGoal.name = props.goal.name;
-    editGoal.description = props.goal.description;
-    editGoal.target_amount = props.goal.target_amount;
-    editGoal.start_date = props.goal.start_date || '';
-    editGoal.target_date = props.goal.target_date;
+    editGoal.name = localGoal.value.name;
+    editGoal.description = localGoal.value.description;
+    editGoal.target_amount = localGoal.value.target_amount;
+    editGoal.start_date = localGoal.value.start_date || '';
+    editGoal.target_date = localGoal.value.target_date;
 };
 
 // Close modal when clicking outside
@@ -191,19 +199,36 @@ watch(showEditModal, (newValue) => {
 
 // Submit edit form
 const submitEdit = () => {
-    editGoal.put(route('goal.update', props.goal.id), {
+    editGoal.put(route('goal.update', localGoal.value.id), {
         preserveScroll: true,
-        onSuccess: () => {
-            showEditModal.value = false;
-            openAlert('success', 'Goal Updated Succesfully.')
-            emit('update');
-        },
+        onSuccess: (response) => {
+            // Update local goal with form data to show changes immediately
+            if (response?.props?.goal) {
+                // If server returns the updated goal, use that
+                localGoal.value = response.props.goal;
+            } else {
+                // Otherwise, update with form data
+                localGoal.value = {
+                    ...localGoal.value,
+                    name: editGoal.name,
+                    description: editGoal.description,
+                    target_amount: editGoal.target_amount,
+                    start_date: editGoal.start_date,
+                    target_date: editGoal.target_date
+                };
+            }
 
+            showEditModal.value = false;
+            openAlert('success', 'Goal Updated Successfully.');
+
+            // Still emit update event for parent components that might need to know
+            emit('update', localGoal.value);
+        },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
                 .flat()
-                .join(' ')
-            openAlert('danger', errorMessages, 5000)
+                .join(' ');
+            openAlert('danger', errorMessages, 5000);
         }
     });
 };
@@ -216,18 +241,19 @@ const closeDeleteModal = () => {
     showDeleteModal.value = false;
 };
 
-const isDeleting = ref(false)
+const isDeleting = ref(false);
 
 // Confirm delete action
 const confirmDelete = () => {
-    isDeleting.value = true
-    axios.post(route('goal.destroy', props.goal.id))
+    isDeleting.value = true;
+    axios.post(route('goal.destroy', localGoal.value.id))
         .then(() => {
             showDeleteModal.value = false;
             openAlert('success', 'Goal deleted successfully.');
-            emit('delete', props.goal.id);
+            emit('delete', localGoal.value.id);
         })
         .catch((error) => {
+            isDeleting.value = false;
             openAlert('danger', 'Failed to delete goal. Please try again.', 5000);
             console.error('Error deleting goal:', error);
         });
