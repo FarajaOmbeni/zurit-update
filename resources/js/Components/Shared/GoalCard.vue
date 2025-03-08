@@ -41,55 +41,60 @@
         <!-- Edit Modal -->
         <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             @click="closeModal">
-            <div class="bg-white rounded-lg p-5 w-full max-w-sm mx-4" @click.stop>
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-purple-700">Edit Goal</h3>
+            <div class="bg-white rounded-lg p-3 w-full max-w-sm mx-4" @click.stop>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-base font-medium text-purple-700">Edit Goal</h3>
                     <button @click="showEditModal = false" class="text-gray-500 hover:text-gray-700">
-                        <XIcon class="h-5 w-5" />
+                        <XIcon class="h-4 w-4" />
                     </button>
                 </div>
 
                 <form @submit.prevent="submitEdit">
-                    <div class="space-y-3">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-2">
+                        <!-- Name Field -->
+                        <div class="col-span-2">
+                            <label for="name" class="block text-xs font-medium text-gray-700">Name</label>
                             <input type="text" id="name" v-model="editGoal.name"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm" />
+                                class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2" />
                         </div>
 
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="description" v-model="editGoal.description" rows="2"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm"></textarea>
-                        </div>
-
-                        <div>
-                            <label for="target_amount" class="block text-sm font-medium text-gray-700">Target
+                        <!-- Target Amount Field -->
+                        <div class="col-span-2">
+                            <label for="target_amount" class="block text-xs font-medium text-gray-700">Target
                                 Amount</label>
                             <input type="number" id="target_amount" v-model="editGoal.target_amount"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm" />
+                                class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2" />
                         </div>
 
-                        <div>
-                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <!-- Start Date Field -->
+                        <div class="col-span-1">
+                            <label for="start_date" class="block text-xs font-medium text-gray-700">Start Date</label>
                             <input type="date" id="start_date" v-model="editGoal.start_date"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm" />
+                                class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2" />
                         </div>
 
-                        <div>
-                            <label for="target_date" class="block text-sm font-medium text-gray-700">Target Date</label>
+                        <!-- Target Date Field -->
+                        <div class="col-span-1">
+                            <label for="target_date" class="block text-xs font-medium text-gray-700">Target Date</label>
                             <input type="date" id="target_date" v-model="editGoal.target_date"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-sm" />
+                                class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2" />
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="col-span-2">
+                            <label for="description" class="block text-xs font-medium text-gray-700">Description</label>
+                            <textarea id="description" v-model="editGoal.description" rows="2"
+                                class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2"></textarea>
                         </div>
                     </div>
 
-                    <div class="mt-5 flex justify-end space-x-3">
+                    <div class="mt-3 flex justify-end space-x-2">
                         <button type="button" @click="showEditModal = false"
-                            class="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            class="px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50">
                             Cancel
                         </button>
                         <button type="submit" :disabled="editGoal.processing"
-                            class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                            class="px-2 py-1 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
                             {{ editGoal.processing ? 'Saving...' : 'Save Changes' }}
                         </button>
                     </div>

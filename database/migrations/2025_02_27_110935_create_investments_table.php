@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('target_date')->nullable();
             $table->decimal('expected_return_rate', 8, 4)->nullable();
+            $table->enum('frequency_of_return', ['monthly', 'yearly'])->nullable();
             $table->enum('status', ['active', 'sold', 'abandoned'])->default('active');
             $table->timestamps();
         });

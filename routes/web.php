@@ -55,6 +55,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  INVESTMENT ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/invest', [InvestmentController::class, 'index'])->name('invest.index');
+    Route::post('/user/invest', [InvestmentController::class, 'store'])->name('invest.store');
+    Route::post('/user/invest/{id}', [InvestmentController::class, 'destroy'])->name('invest.destroy');
+    Route::put('/user/invest/{id}', [InvestmentController::class, 'update'])->name('invest.update');
+    Route::put('/user/invest/contribute/{id}', [InvestmentController::class, 'contribute'])->name('invest.contribute');
 
     /////////////////////////////////////////////////////////
     //////////////////  NETWORTH ROUTES ///////////////////////

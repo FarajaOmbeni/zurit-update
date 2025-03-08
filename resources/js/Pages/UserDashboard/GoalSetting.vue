@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Sidebar from '@/Components/Sidebar.vue';
 import GoalCard from '@/Components/Shared/GoalCard.vue';
@@ -148,11 +148,11 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
         <!-- Add Goal Modal -->
         <div v-if="isModalOpen" @click="closeModalOnOutsideClick"
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
-                <div class="bg-purple-600 text-white px-4 py-3 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Add New Goal</h3>
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Add New Goal</h3>
                     <button @click="closeModal" class="text-white hover:text-gray-200 focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                 clip-rule="evenodd" />
@@ -160,64 +160,66 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                     </button>
                 </div>
 
-                <form @submit.prevent="submitForm" class="p-4">
-                    <!-- Name Field -->
-                    <div class="mb-3">
-                        <label for="name" class="block text-gray-700 text-sm font-medium mb-1">Name</label>
-                        <input type="text" id="name" v-model="newGoal.name"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                            required>
-                    </div>
+                <form @submit.prevent="submitForm" class="p-3">
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-2">
+                        <!-- Name Field -->
+                        <div class="col-span-2">
+                            <label for="name" class="block text-gray-700 text-xs font-medium mb-1">Name</label>
+                            <input type="text" id="name" v-model="newGoal.name"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                        </div>
 
-                    <!-- Description Field -->
-                    <div class="mb-3">
-                        <label for="description"
-                            class="block text-gray-700 text-sm font-medium mb-1">Description</label>
-                        <textarea id="description" v-model="newGoal.description"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                            rows="2"></textarea>
-                    </div>
-
-                    <!-- Target Amount Field -->
-                    <div class="mb-3">
-                        <label for="initial_amount" class="block text-gray-700 text-sm font-medium mb-1">Target
-                            Amount</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 text-sm">KES</span>
+                        <!-- Target Amount Field -->
+                        <div class="col-span-2">
+                            <label for="target_amount" class="block text-gray-700 text-xs font-medium mb-1">Target
+                                Amount</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input type="number" id="target_amount" v-model="newGoal.target_amount"
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    step="0.01" min="0" required>
                             </div>
-                            <input type="number" id="target_amount" v-model="newGoal.target_amount"
-                                class="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                step="0.01" min="0" required>
+                        </div>
+
+                        <!-- Start Date Field -->
+                        <div class="col-span-1">
+                            <label for="start_date" class="block text-gray-700 text-xs font-medium mb-1">Start
+                                Date</label>
+                            <input type="date" id="start_date" v-model="newGoal.start_date"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                        </div>
+
+                        <!-- Target Date Field -->
+                        <div class="col-span-1">
+                            <label for="target_date" class="block text-gray-700 text-xs font-medium mb-1">Target
+                                Date</label>
+                            <input type="date" id="target_date" v-model="newGoal.target_date"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="col-span-2">
+                            <label for="description"
+                                class="block text-gray-700 text-xs font-medium mb-1">Description</label>
+                            <textarea id="description" v-model="newGoal.description"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                rows="2"></textarea>
                         </div>
                     </div>
 
-                    <!-- Initial Date Field -->
-                    <div class="mb-3">
-                        <label for="start_date" class="block text-gray-700 text-sm font-medium mb-1">Start
-                            Date</label>
-                        <input type="date" id="start_date" v-model="newGoal.start_date"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                            required>
-                    </div>
-
-                    <!-- Target Date Field -->
-                    <div class="mb-4">
-                        <label for="target_date" class="block text-gray-700 text-sm font-medium mb-1">Target
-                            Date</label>
-                        <input type="date" id="target_date" v-model="newGoal.target_date"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                            required>
-                    </div>
-
                     <!-- Form Buttons -->
-                    <div class="flex justify-end space-x-2">
+                    <div class="flex justify-end space-x-2 mt-3">
                         <button type="button" @click="closeModal"
-                            class="px-3 py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
                             Cancel
                         </button>
                         <button type="submit"
-                            class="px-3 py-1.5 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
                             {{ newGoal.processing ? 'Saving...' : 'Add Goal' }}
                         </button>
                     </div>

@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
-use App\Models\Asset;
+use Inertia\Inertia;
 use App\Models\Expense;
 use App\Models\Investment;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
-use App\Models\WithholdingTax;
-use App\Models\InvestmentPlanner;
 use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
-use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
+use App\Models\InvestmentContribution;
 
 class InvestmentController extends Controller
 {
@@ -27,178 +25,136 @@ class InvestmentController extends Controller
         ]);
     }
 
-    public function storemonthlyInvestment(Request $request)
+    public function store(Request $request)
     {
-        // Retrieve only the specified fields from the request
-        $investment = new InvestmentPlanner;
-        $investment->investment_type = $request->investment_type;
-        $investment->details_of_investment = $request->details_of_investment;
-        $investment->initial_investment = $request->initial_investment;
-        $investment->total_investment = $request->initial_investment + $request->total_investment + $request->monthly_contribution + $request->real_estate_price;
-        $investment->number_of_months = $request->number_of_months;
-        $investment->number_of_years = $request->number_of_years;
-        $investment->number_of_days = $request->number_of_days;
-        $investment->mmf_name = $request->mmf_name;
-        $investment->rate_of_return = $request->rate_of_return;
-        $investment->user_id = auth()->id();
-
-        $expense = new Expense;
-        $expense->user_id = auth()->id();
-        $expense->expense_type = $request->investment_type;
-        $expense->actual_expense = $request->initial_investment + $request->total_investment + $request->monthly_contribution + $request->real_estate_price;
-        $expense->is_investment = 1;
-
-        $asset = new Asset;
-        $asset->user_id = auth()->id();
-        $asset->asset_description = $request->investment_type;
-        $asset->asset_value = $request->initial_investment + $request->total_investment + $request->monthly_contribution + $request->monthly_income;
-
-        // Create a new Investment Planner record
-        $investment->save();
-        $expense->save();
-        $asset->save();
-
-        return redirect()->route('user_investmentplanner')->with('success', [
-            'message' => 'Investment Created Successfully',
-            'duration' => 3000,
+        $request->validate([
+            'type' => 'required|string|max:255',
+            'details_of_investment' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'initial_amount' => 'required|numeric',
+            'expected_return_rate' => 'required|numeric',
         ]);
+
+        // $start_date = Carbon::createFromDate($request->start_date);
+        // $target_date = Carbon::createFromDate($request->target_date);
+        // $months = round($start_date->diffInMonths($target_date));
+        // if ($months == 0) {
+        //     $months = 1;
+        // }
+
+        $investment = new Investment();
+        $investment->user_id = auth()->id();
+        $investment->type = $request->type;
+        $investment->details_of_investment = $request->details_of_investment;
+        $investment->description = $request->description;
+        $investment->initial_amount = $request->initial_amount;
+        $investment->current_amount = $request->initial_amount;
+        $investment->frequency_of_return = $request->frequency_of_return;
+        if ($request->details_of_investment == '91-Day Treasury Bill') {
+            $investment->start_date = Carbon::now();
+            $investment->target_date = Carbon::now()->addDays(91);
+        }
+        else if ($request->details_of_investment == '182-Day Treasury Bill') {
+            $investment->start_date = Carbon::now();
+            $investment->target_date = Carbon::now()->addDays(182);
+        }
+        else if ($request->details_of_investment == '364-Day Treasury Bill') {
+            $investment->start_date = Carbon::now();
+            $investment->target_date = Carbon::now()->addDays(364);
+        }
+        else {
+            $investment->start_date = $request->start_date;
+            $investment->target_date = $request->target_date;
+        }
+        $investment->save();
+
+        return to_route('invest.index');
     }
 
+    //Update a investment in the Investment Planner View 
+    public function update(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|string|max:255',
+            'details_of_investment' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'initial_amount' => 'required|numeric',
+            'start_date' => 'required|date',
+            'target_date' => 'required|date',
+            'expected_return_rate' => 'required|numeric',
+        ]);
 
-    
+        DB::transaction(function () use ($request) {
+            // Finally, update the Investment record.
+            $investment = Investment::find($request->id);
+            $investment->type = $request->type;
+            $investment->details_of_investment = $request->details_of_investment;
+            $investment->description = $request->description;
+            $investment->initial_amount = $request->initial_amount;
+            $investment->start_date = $request->start_date;
+            $investment->target_date = $request->target_date;
+            $investment->update();
+        });
 
+
+        return to_route('investment.index');
+    }
+
+    public function contribute(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            // Create the transaction record first.
+            $transaction = new Transaction();
+            $transaction->user_id = auth()->id();
+            $transaction->type = 'expense';
+            $transaction->category = 'Investment Contribution';
+            $transaction->amount = $request->amount;
+            $transaction->transaction_date = Carbon::now();
+            $transaction->description = 'Invesmtent Contribution for ' . Investment::find($request->id)->type;
+            $transaction->save();
+
+            // Now create the expense record and assign the transaction id.
+            $expense = new Expense();
+            $expense->transaction_id = $transaction->id;
+            $expense->user_id = auth()->id();
+            $expense->category = 'Investment Contribution';
+            $expense->description = 'Investment Contribution for ' . Investment::find($request->id)->type;
+            $expense->amount = $request->amount;
+            $expense->expense_date = Carbon::now();
+            $expense->save();
+
+            // Then create the investment payment (investmentContribution) record.
+            $investmentContribution = new InvestmentContribution();
+            $investmentContribution->investment_id = $request->id;
+            $investmentContribution->transaction_id = $transaction->id;
+            $investmentContribution->amount = $request->amount;
+            $investmentContribution->contribution_date = Carbon::now();
+            $investmentContribution->save();
+
+            // Finally, update the Investment record.
+            $investment = Investment::find($request->id);
+            $investment->current_amount += $request->amount;
+            $investment->update();
+        });
+
+
+        return to_route('investment.index');
+    }
 
     public function destroy($id)
     {
-        DB::beginTransaction();
-        try {
-            $investment = InvestmentPlanner::find($id);
+        DB::transaction(function () use ($id) {
+            // First, delete the investment contribution record.
+            InvestmentContribution::where('investment_id', $id)->delete();
 
-            // Ensure the investment exists and the user is authorized
-            if (!$investment || $investment->user_id != auth()->id()) {
-                return redirect()->route('user_investmentplanner')->with('error', [
-                    'message' => 'Error: Investment not found or unauthorized action',
-                    'duration' => 3000,
-                ]);
-            }
+            // Then delete the investmetn record.
+            Investment::find($id)->delete();
+        });
 
-            // Find and delete ONLY the specific asset
-            $asset = Asset::where('created_at', $investment->created_at)
-                ->where('asset_description', $investment->investment_type)
-                ->where('user_id', auth()->id())
-                ->first();
-
-            if ($asset) {
-                // Use direct query to avoid any model events
-                DB::table('assets')
-                    ->where('id', $asset->id)
-                    ->where('user_id', auth()->id())
-                    ->delete();
-            }
-
-            // Find and delete the specific expense
-            $expense = Expense::where('created_at', $investment->created_at)
-                ->where('expense_type', $investment->investment_type)
-                ->where('user_id', auth()->id())
-                ->first();
-
-            if ($expense) {
-                $expense->delete();
-            }
-
-            // Delete the investment using direct query to avoid cascade
-            DB::table('investments')->where('id', $investment->id)->delete();
-
-            DB::commit();
-
-            return redirect()->route('user_investmentplanner')->with('success', [
-                'message' => 'Investment Deleted Successfully',
-                'duration' => 3000,
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('user_investmentplanner')->with('error', [
-                'message' => 'Error occurred while deleting investment',
-                'duration' => 3000,
-            ]);
-        }
-    }
-
-    public function updateRate(Request $request, $id)
-    {
-        // Validate the request
-        $request->validate([
-            'update_rate' => 'required|numeric|min:0',
-        ]);
-
-        // Find the investment
-        $investment = InvestmentPlanner::findOrFail($id);
-
-        // Update rate of return
-        $investment->rate_of_return = $request->update_rate;
-        $investment->save();
-
-        return redirect()->route('user_investmentplanner')->with('success', [
-            'message' => 'Rate Updated Succesfully!',
-            'duration' => 3000,
-        ]);
-    }
-
-    public function contribute(Request $request, $id)
-    {
-        // Validate the request
-        $request->validate([
-            'contribution_amount' => 'required|numeric|min:0',
-        ]);
-
-        // Find the investment
-        $investment = InvestmentPlanner::findOrFail($id);
-
-        // Add the contribution to total_investment
-        $investment->total_investment += $request->contribution_amount;
-        $investment->save();
-
-        // Find the expense that matches the debt name for the current user
-        $expense = Expense::where('expense_type', $investment->title)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        // Check if the expense exists before updating
-        if ($expense) {
-            $expense->actual_expense += $request->input('contribution_amount');
-            $expense->save();
-        } else {
-            // If the expense doesn't exist, create a new one
-            Expense::create([
-                'user_id' => auth()->id(),
-                'expense_type' => $expense->title,
-                'actual_expense' => $request->input('current'),
-                'is_goal' => 1,
-                // Add any other necessary fields
-            ]);
-        }
-
-        // Find the expense that matches the debt name for the current user
-        $asset = Asset::where('asset_description', $investment->title)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        // Check if the asset exists before updating
-        if ($asset) {
-            $asset->asset_value += $request->input('contribution_amount');
-            $asset->save();
-        } else {
-            // If the asset doesn't exist, create a new one
-            asset::create([
-                'user_id' => auth()->id(),
-                'asset_description' => $asset->title,
-                'asset_value' => $request->input('contribution_amount'),
-            ]);
-        }
-
-        return redirect()->route('user_investmentplanner')->with('success', [
-            'message' => 'Amount contributed Succesfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('invest.index');
     }
 }
