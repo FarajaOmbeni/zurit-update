@@ -7,7 +7,7 @@
             <div class="flex items-center space-x-2">
                 <span class="px-2 py-1 text-xs font-bold uppercase rounded-full" :class="{
                     'bg-yellow-400 text-black': localGoal.status === 'in_progress',
-                    'bg-purple-400 text-white': localGoal.status === 'achieved',
+                    'bg-green-500 text-white': localGoal.status === 'achieved',
                     'bg-gray-400 text-black': localGoal.status === 'abandoned'
                 }">
                     {{ localGoal.status }}
@@ -23,18 +23,20 @@
                 </button>
             </div>
         </div>
-        <div class="mb-2">
-            <p class="text-gray-600">{{ localGoal.description }}</p>
+        <div class="mb-2" :class="localGoal.status === 'in_progress' ? 'text-gray-600' : 'text-green-500'">
+            <p>{{ localGoal.description
+                }}</p>
             <p class="mt-1"><strong>Goal:</strong> {{ formatCurrency(localGoal.target_amount) }}</p>
             <p class="mt-1"><strong>Saved:</strong> {{ formatCurrency(localGoal.current_amount) }}</p>
-            <p class="mt-1"><strong>Remaining:</strong> {{ formatCurrency(localGoal.target_amount -
+            <p v-show="localGoal.status === 'in_progress'" class="mt-1"><strong>Remaining:</strong> {{
+                formatCurrency(localGoal.target_amount -
                 localGoal.current_amount) }}
             </p>
             <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div class="h-2.5 rounded-full bg-yellow-400" :style="{ width: progressPercentage + '%' }"></div>
+                <div :class="localGoal.status === 'in_progress' ? 'bg-yellow-400' : 'bg-green-500'" class="h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
             </div>
         </div>
-        <div class="text-right text-sm text-gray-500">
+        <div v-show="localGoal.status === 'in_progress'" class="text-right text-sm text-gray-500">
             Target Date: {{ formatDate(localGoal.target_date) }}
         </div>
 

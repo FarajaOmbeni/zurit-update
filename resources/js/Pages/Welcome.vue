@@ -24,7 +24,7 @@ import ContactUs from '@/Components/ContactUs.vue';
         <div class="absolute top-[90%] left-[30%]">
             <img src="/images/home/dots.svg" alt="">
         </div>
-        <!-- <Partners/> -->
+        <Partners/>
         <WhyChooseUs />
         <ContactUs />
     <Footer />

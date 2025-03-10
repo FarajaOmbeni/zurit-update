@@ -142,6 +142,9 @@ class DebtController extends Controller
             // Finally, update the Debt record.
             $debt = Debt::find($request->id);
             $debt->current_amount += $request->amount;
+            if ($debt->current_amount >= $debt->initial_amount) {
+                $debt->status = 'paid_off';
+            }
             $debt->update();
         });
 

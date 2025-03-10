@@ -35,11 +35,13 @@
             </p>
             <p class="mt-1"><strong>Paid:</strong> {{ formatCurrency(debtData.current_amount) }}
             </p>
-            <p class="mt-1"><strong>Balance:</strong> {{ formatCurrency(debtData.initial_amount -
+            <p v-show="debtData.status === 'in_progress'" class="mt-1"><strong>Balance:</strong> {{
+                formatCurrency(debtData.initial_amount -
                 debtData.current_amount) }}
             </p>
             <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
-                <div class="h-2.5 rounded-full bg-green-400" :style="{ width: progressPercentage + '%' }"></div>
+                <div :class="debtData.status === 'active' ? 'bg-yellow-400' : 'bg-green-500'"
+                    class="h-2.5 rounded-full" :style="{ width: progressPercentage }"></div>
             </div>
         </div>
         <div class="text-right text-red-500 font-bold text-sm" :class="{ 'hidden': debtData.status === 'paid_off' }">

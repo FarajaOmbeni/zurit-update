@@ -130,6 +130,9 @@ class GoalController extends Controller
             // Finally, update the Goal record.
             $goal = Goal::find($request->id);
             $goal->current_amount += $request->amount;
+            if ($goal->current_amount >= $goal->target_amount) {
+                $goal->status = 'achieved';
+            }
             $goal->update();
         });
 

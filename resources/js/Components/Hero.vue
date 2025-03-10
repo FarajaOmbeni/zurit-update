@@ -2,7 +2,7 @@
 import GoldButton from '../Components/Shared/GoldButton.vue';
 </script>
 <template>
-    <div class="relative w-full h-screen flex items-center justify-center">
+    <div class="relative w-full h-screen flex items-center justify-center mb-12">
 
         <!-- Background Image -->
         <img src="/images/home/hero_bg.webp" alt="Background"
