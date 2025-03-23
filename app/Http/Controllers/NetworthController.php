@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Debt;
 use App\Models\Asset;
 use App\Models\Liability;
 use Illuminate\Http\Request;
 use App\Mail\FinancialAssistance;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
@@ -26,50 +27,58 @@ class NetworthController extends Controller
 
     public function storeAsset(Request $request)
     {
-        $userId = Auth::id();
-        // Validate the form data
-        $validatedData = $request->validate([
-            'assetDescription' => 'required',
-            'assetValue' => 'required|numeric',
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'value' => 'required|numeric',
+            'acquisition_date' => 'nullable|date',
         ]);
 
-        // Store the asset in the database
-        $asset = Asset::create([
-            'user_id' => $userId,
-            'asset_description' => $validatedData['assetDescription'],
-            'asset_value' => $validatedData['assetValue'],
-        ]);
+        $asset = new Asset();
+        $asset->user_id = auth()->id();
+        $asset->name = $request->name;
+        $asset->type = $request->type;
+        $asset->description = $request->description;
+        $asset->value = $request->value;
 
-        // Redirect or perform any other action after storing
-        return redirect('user_networthcalc')->with('success', [
-            'message' => 'Assest Added Succesfully',
-            'duration' => 3000,
-        ]);
+        // Set acquisition_date to today if not provided
+        if ($request->acquisition_date) {
+            $asset->acquisition_date = $request->acquisition_date;
+        } else {
+            $asset->acquisition_date = Carbon::now();
+        }
+
+        $asset->save();
+
+        return to_route('networth.index');
     }
 
     public function storeLiability(Request $request)
     {
-        $userId = Auth::id();
-        // Validate the form data
-        $validatedData = $request->validate([
-            'liabilityDescription' => 'required',
-            'liabilityValue' => 'required|numeric',
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'amount' => 'required|numeric',
+            'due_date' => 'nullable|date',
         ]);
 
-        // Store the liability in the database
-        $liability = Debt::create([
-            'user_id' => $userId,
-            'debt_name' => $validatedData['liabilityDescription'],
-            'current_balance' => $validatedData['liabilityValue'],
-        ]);
+        $liability = new Liability();
+        $liability->user_id = auth()->id();
+        $liability->name = $request->name;
+        $liability->category = $request->category;
+        $liability->description = $request->description;
+        $liability->amount = $request->amount;
 
-        return redirect('user_networthcalc')->with('success', [
-            'message' => 'Liability Added Succesfully',
-            'duration' => 3000,
-        ]);
+        if ($request->due_date) {
+            $liability->due_date = $request->due_date;
+        }
+
+        $liability->save();
+
+        return to_route('networth.index');
     }
-
-
 
     public function sendEmail(Request $request)
     {
@@ -79,12 +88,12 @@ class NetworthController extends Controller
         try {
             Mail::to('info@zuritconsulting.com')->send(new FinancialAssistance($user, $type));
             return response()->json(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    public function destroy_asset($id)
+    public function destroyAsset($id)
     {
         $asset = Asset::find($id);
 
@@ -102,7 +111,7 @@ class NetworthController extends Controller
         ]);
     }
 
-    public function destroy_liability($id)
+    public function destroyLiability($id)
     {
         $liability = Liability::find($id);
 

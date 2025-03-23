@@ -64,7 +64,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  NETWORTH ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/networth', [NetworthController::class, 'index'])->name('networth.index');
+    Route::post('/user/asset', [NetworthController::class, 'storeAsset'])->name('asset.store');
+    Route::post('/user/asset/{id}', [NetworthController::class, 'destroyAsset'])->name('asset.destroy');
+    Route::put('/user/asset/{id}', [NetworthController::class, 'updateAsset'])->name('asset.update');
 
+    Route::post('/user/liability', [NetworthController::class, 'storeLiability'])->name('liability.store');
+    Route::post('/user/liability/{id}', [NetworthController::class, 'destroyLiability'])->name('liability.destroy');
+    Route::put('/user/liability/{id}', [NetworthController::class, 'updateLiability'])->name('liability.update');
 
     /////////////////////////////////////////////////////////
     //////////////////  OTHER ROUTES ///////////////////////

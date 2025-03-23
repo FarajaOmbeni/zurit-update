@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            // Removed CategorySeeder since your ERD no longer includes a categories table.
             TransactionSeeder::class, // This will seed incomes and expenses
             GoalSeeder::class,
             InvestmentSeeder::class,

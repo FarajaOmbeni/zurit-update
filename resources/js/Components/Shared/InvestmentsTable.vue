@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { formatCurrency } from '@/Components/Composables/useFormatCurrency';
-import { formatDate } from '@/Components/Composables/useDateformat';
+import { formatDate } from '../Composables/useDateFormat';
 
 const props = defineProps({
     investments: {
@@ -9,6 +9,9 @@ const props = defineProps({
         default: () => [],
     },
 });
+
+// Add emit for the edit action
+const emit = defineEmits(['edit-investment']);
 
 // Create a reactive copy of investments from props
 const investmentList = ref([...props.investments]);
@@ -37,6 +40,11 @@ const totalCurrentAmount = computed(() => {
 const totalNetIncome = computed(() => {
     return activeInvestments.value.reduce((total, investment) => total + calculateNetIncome(investment), 0);
 });
+
+// Function to handle edit button click
+const handleEdit = (investment) => {
+    emit('edit-investment', investment);
+};
 </script>
 
 <template>
@@ -52,6 +60,7 @@ const totalNetIncome = computed(() => {
                     <th class="px-4 py-2 text-right">Rate of Return</th>
                     <th class="px-4 py-2 text-right">Date of Maturity</th>
                     <th class="px-4 py-2 text-right">Net Income</th>
+                    <th class="px-4 py-2 text-center">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-gray-700">
@@ -64,6 +73,12 @@ const totalNetIncome = computed(() => {
                     <td class="px-4 py-2 text-right">{{ investment.expected_return_rate }}%</td>
                     <td class="px-4 py-2 text-right">{{ formatDate(investment.target_date) }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment)) }}</td>
+                    <td class="px-4 py-2 text-center">
+                        <button @click="handleEdit(investment)"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md text-xs transition-colors duration-200">
+                            Edit
+                        </button>
+                    </td>
                 </tr>
             </tbody>
             <tfoot class="bg-gray-100 font-bold">
@@ -75,6 +90,7 @@ const totalNetIncome = computed(() => {
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalNetIncome) }}</td>
+                    <td class="px-4 py-2"></td>
                 </tr>
             </tfoot>
         </table>

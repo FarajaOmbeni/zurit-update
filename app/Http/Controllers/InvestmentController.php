@@ -50,6 +50,7 @@ class InvestmentController extends Controller
         $investment->initial_amount = $request->initial_amount;
         $investment->current_amount = $request->initial_amount;
         $investment->frequency_of_return = $request->frequency_of_return;
+        $investment->expected_return_rate = $request->expected_return_rate;
         if ($request->details_of_investment == '91-Day Treasury Bill') {
             $investment->start_date = Carbon::now();
             $investment->target_date = Carbon::now()->addDays(91);

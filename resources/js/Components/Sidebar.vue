@@ -27,10 +27,10 @@
       <div class="flex items-center justify-center h-16 border-b border-purple-700">
         <div v-if="sidebarOpen" class="text-xl font-bold text-yellow-400">
           <Link :href="route('home')"><img class="object-cover w-40 h-14" src="/images/home/zurit.png" alt=""></Link>
-        </div>
+    </div>
         <div v-else class="text-xs font-bold text-yellow-400 hidden md:block">
           <Link :href="route('home')">Zurit</Link>
-        </div>
+  </div>
 
         <div @click="toggleSidebar" class="md:hidden cursor-pointer absolute right-4">
           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
@@ -77,11 +77,11 @@
                 class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-200">
               Logout
               </Link>
-            </div>
-          </div>
-        </div>
+    </div>
       </div>
     </div>
+      </div>
+          </div>
 
     <!-- Main Content - Adjust padding based on sidebar position -->
     <div :class="[
