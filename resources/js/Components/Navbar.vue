@@ -16,36 +16,74 @@
                     <Link :href="route('home')" class="text-yellow-500 hover:text-yellow-400">Home</Link>
                     <Link :href="route('about')" class="text-gray-300 hover:text-gray-100">About us</Link>
 
-                    <!-- Updated Prosperity Tools Dropdown -->
-                    <div class="relative group" @mouseenter="isDropdownOpen = true" @mouseleave="hideDropdown">
-                        <button class="text-gray-300 hover:text-gray-100 flex items-center">
-                            Prosperity Tools
-                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        <div v-show="isDropdownOpen"
-                            class="absolute left-0 mt-2 w-48 bg-purple-900 shadow-lg rounded-md overflow-hidden"
-                            @mouseenter="isDropdownOpen = true" @mouseleave="isDropdownOpen = false">
-                            <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal
-                            Setting</Link>
-                            <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
-                            Budget Planner</Link>
-                            <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
-                            Net Worth
-                            Calculator</Link>
-                            <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt
-                            Manager</Link>
-                            <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
-                            Investment Planner</Link>
-                        </div>
-                    </div>
+                    <Dropdown>
+                        <template #trigger>
+                            <span class="inline-flex rounded-md">
+                                <button type="button"
+                                    class="inline-flex items-center rounded-md border border-transparent leading-4 transition duration-150 ease-in-out text-gray-300 hover:text-gray-100">
+                                    Prosperity tools
+
+                                    <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </span>
+                        </template>
+
+                        <template #content>
+                            <DropdownLink :href="route('goal')">
+                                Goal Setting
+                            </DropdownLink>
+                            <DropdownLink :href="route('budget')">
+                                Budget Planner
+                            </DropdownLink>
+                            <DropdownLink :href="route('networth')">
+                                Networth calculator
+                            </DropdownLink>
+                            <DropdownLink :href="route('debt')">
+                                Debt Manager
+                            </DropdownLink>
+                            <DropdownLink :href="route('investment')">
+                                Investment Planner
+                            </DropdownLink>
+                        </template>
+                    </Dropdown>
 
 
-                    <a :href="route('training')" class="text-gray-300 hover:text-gray-100">Services</a>
+                    <Dropdown>
+                        <template #trigger>
+                            <span class="inline-flex rounded-md">
+                                <button type="button"
+                                    class="inline-flex items-center rounded-md border border-transparent leading-4 transition duration-150 ease-in-out text-gray-300 hover:text-gray-100">
+                                    Services
+
+                                    <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </span>
+                        </template>
+
+                        <template #content>
+                            <DropdownLink :href="route('training')">
+                                Training
+                            </DropdownLink>
+                            <DropdownLink :href="route('advisory')">
+                                Advisory
+                            </DropdownLink>
+                            <DropdownLink :href="route('business.support')">
+                                Business Support
+                            </DropdownLink>
+                        </template>
+                    </Dropdown>
                     <Link :href="route('books')" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
-                    <a :href="route('blogs')" class="text-gray-300 hover:text-gray-100">Blogs</a>
+                    <Link :href="route('blogs')" class="text-gray-300 hover:text-gray-100">Blogs</Link>
                     <Link :href="route('feedback')" class="text-gray-300 hover:text-gray-100">Feedback</Link>
                     <Dropdown v-if="$page.props.auth.user" align="right" width="48">
                         <template #trigger>
@@ -98,27 +136,70 @@
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <Link :href="route('home')" class="text-yellow-500 block px-3 py-2">Home</Link>
                 <Link :href="route('about')" class="text-gray-300 hover:text-white block px-3 py-2">About us</Link>
-                <div class="relative">
-                    <button @click="toggleDropdown" class="text-gray-300 hover:text-white block px-3 py-2">
-                        Prosperity Tools
-                        <svg class="ml-1 h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div v-if="isDropdownOpen" class="bg-purple-900 shadow-lg rounded-md overflow-hidden mt-2">
-                        <Link :href="route('goal')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Goal
-                        Setting</Link>
-                        <Link :href="route('budget')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Budget
-                        Planner</Link>
-                        <Link :href="route('networth')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Net
-                        Worth Calculator</Link>
-                        <Link :href="route('debt')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">Debt
-                        Manager</Link>
-                        <Link :href="route('investment')" class="block px-4 py-2 text-gray-300 hover:bg-purple-700">
-                        Investment Planner</Link>
-                    </div>
-                </div>
-                <Link :href="route('training')" class="text-gray-300 hover:text-white block px-3 py-2">Services</Link>
+                <Dropdown>
+                    <template #trigger>
+                        <span class="inline-flex rounded-md">
+                            <button type="button"
+                                class="inline-flex items-center rounded-md border border-transparent leading-4 transition duration-150 ease-in-out text-gray-300 hover:text-gray-100">
+                                Prosperity tools
+
+                                <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </span>
+                    </template>
+
+                    <template #content>
+                        <DropdownLink :href="route('goal')">
+                            Goal Setting
+                        </DropdownLink>
+                        <DropdownLink :href="route('budget')">
+                            Budget Planner
+                        </DropdownLink>
+                        <DropdownLink :href="route('networth')">
+                            Networth calculator
+                        </DropdownLink>
+                        <DropdownLink :href="route('debt')">
+                            Debt Manager
+                        </DropdownLink>
+                        <DropdownLink :href="route('investment')">
+                            Investment Planner
+                        </DropdownLink>
+                    </template>
+                </Dropdown>
+                <Dropdown>
+                    <template #trigger>
+                        <span class="inline-flex rounded-md">
+                            <button type="button"
+                                class="inline-flex items-center rounded-md border border-transparent leading-4 transition duration-150 ease-in-out text-gray-300 hover:text-gray-100">
+                                Services
+
+                                <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </span>
+                    </template>
+
+                    <template #content>
+                        <DropdownLink :href="route('training')">
+                            Training
+                        </DropdownLink>
+                        <DropdownLink :href="route('advisory')">
+                            Advisory
+                        </DropdownLink>
+                        <DropdownLink :href="route('business-support')">
+                            Business Support
+                        </DropdownLink>
+                    </template>
+                </Dropdown>
                 <Link :href="route('books')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
                 <Link :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</Link>
                 <Link :href="route('feedback')" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</Link>
@@ -166,7 +247,6 @@ import DropdownLink from '@/Components/DropdownLink.vue'
 
 const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
-const isDropdownOpen = ref(false)
 
 const page = usePage()
 
@@ -182,10 +262,6 @@ const handleScroll = () => {
 
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
-
-const toggleDropdown = () => {
-    isDropdownOpen.value = !isDropdownOpen.value
 }
 
 onMounted(() => {

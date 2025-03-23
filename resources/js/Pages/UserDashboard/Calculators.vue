@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { moneyMarketFunds } from '@/Components/Variables/investmentTypes';
 
 // Investment type selector
@@ -34,18 +34,6 @@ const form = reactive({
     mmfRate: 0
 })
 
-watch(
-    () => form.mmfName,
-    (newValue) => {
-        const selectedMMF = moneyMarketFunds.value.find(mmf => mmf.value === newValue)
-        if (selectedMMF) {
-            form.mmfRate = selectedMMF.return
-        } else {
-            form.mmfRate = 0
-        }
-    }
-)
-
 // Store projected revenue
 const projectedRevenue = ref(0)
 
@@ -57,18 +45,18 @@ const calculateRevenue = () => {
             revenue = form.tbInitial * (1 + (form.tbRate / 100)) * (form.tbDays / 365)
             break
         case 'governmentBonds':
-            revenue = form.gbInitial * (1 + (form.gbRate / 100)) * form.gbYears
+            const gbTotalInvested = form.gbInitial * form.gbYears
+            revenue = (form.gbInitial * (1 + (form.gbRate / 100)) * form.gbYears) - gbTotalInvested
             break
         case 'infrastructureBonds':
-            revenue = form.ibInitial * (1 + (form.ibRate / 100)) * form.ibYears
+            const ibTotalInvested = form.ibInitial * form.ibYears
+            revenue = (form.ibInitial * (1 + (form.ibRate / 100)) * form.ibYears) - ibTotalInvested
             break
         case 'saccoInvestments':
-            const saccoTotalInvested = form.saccoMonthly * form.saccoMonths
-            revenue = saccoTotalInvested * (form.saccoRate / 100)
+            revenue = form.saccoMonthly * (1 + (form.saccoRate / 100)) ** form.saccoMonths / 12
             break
         case 'moneyMarketFunds':
-            const mmfTotalInvested = form.mmfInitial + (form.mmfMonthly * form.mmfMonths)
-            revenue = mmfTotalInvested * (form.mmfRate / 100)
+            revenue = form.mmfMonthly * (1 + (form.mmfRate / 100)) ** form.mmfMonths / 12
             break
         default:
             revenue = 0
@@ -96,7 +84,7 @@ const projectedRevenueDisplay = computed(() => {
                     <!-- Projected Revenue Display -->
                     <div class="text-center mb-8">
                         <h1 class="text-4xl font-bold text-green-600">
-                            Projected Revenue: {{ projectedRevenueDisplay }}
+                            Projected Profit: {{ projectedRevenueDisplay }}
                         </h1>
                     </div>
 
@@ -225,13 +213,13 @@ const projectedRevenueDisplay = computed(() => {
                                     </option>
                                 </select>
                             </div>
-                            <div class="mb-4">
+                            <!-- <div class="mb-4">
                                 <label for="mmfInitial" class="block text-sm font-semibold mb-1">Initial
                                     Investment</label>
                                 <input id="mmfInitial" type="number" v-model.number="form.mmfInitial"
                                     placeholder="Enter amount"
                                     class="w-full p-2 rounded border border-yellow-400 text-purple-900" />
-                            </div>
+                            </div> -->
                             <div class="mb-4">
                                 <label for="mmfMonthly" class="block text-sm font-semibold mb-1">Monthly
                                     Contribution</label>

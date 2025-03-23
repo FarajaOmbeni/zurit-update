@@ -90,5 +90,11 @@ Route::get('/training', [IndexController::class, 'training'])->name('training');
 Route::get('/books', [IndexController::class, 'books'])->name('books');
 Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
+Route::get('/advisory', function () {
+    return Inertia::render('Advisory');
+})->name('advisory');
+Route::get('/business-support', function() {
+    return Inertia::render('BusinessSupport');
+})->name('business.support');
 
 require __DIR__.'/auth.php';
