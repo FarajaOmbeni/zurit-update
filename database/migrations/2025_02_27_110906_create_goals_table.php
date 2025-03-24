@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('current_amount', 15, 2)->default(0);
             $table->date('start_date');
             $table->date('target_date');
-            $table->integer('minimum_payment');
+            $table->integer('minimum_payment')->default(0);
             $table->enum('status', ['in_progress', 'achieved', 'abandoned'])->default('in_progress');
             $table->timestamps();
         });
