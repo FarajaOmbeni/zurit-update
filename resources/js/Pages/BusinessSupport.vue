@@ -14,7 +14,7 @@
             </div>
 
             <!-- Training Cards Flexbox -->
-            <div class="flex justify-center flex-col items-center 
+            <div class="flex flex-wrap justify-center flex-col items-center 
             lg:flex-row gap-6 max-w-7xl">
                 <TrainingCard v-for="training in filteredTrainings" :key="training.id" :imageUrl="training.imageUrl"
                     :title="training.title" :description="training.description" :price="training.price"
