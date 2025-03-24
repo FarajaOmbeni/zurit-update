@@ -38,21 +38,21 @@ import EnrollModal from '@/Components/Shared/EnrollModal.vue'
 const advisoryServices = [
     {
         id: 1,
-        imageUrl: '/images/advisory/financial_planning.jpg',
+        imageUrl: '/images/training/advisory/advisory1.avif',
         title: 'Financial Planning Advisory',
         description: 'Expert guidance on managing your personal finances and investments for a secure future.',
         price: 'Free Consultation'
     },
     {
         id: 2,
-        imageUrl: '/images/advisory/business_strategy.jpg',
+        imageUrl: '/images/training/advisory/advisory2.avif',
         title: 'Business Strategy Advisory',
         description: 'Strategic insights to help your business grow, optimize operations, and achieve long-term success.',
         price: 'Starting at $500'
     },
     {
         id: 3,
-        imageUrl: '/images/advisory/retirement_planning.jpg',
+        imageUrl: '/images/training/advisory/advisory3.avif',
         title: 'Retirement Planning Advisory',
         description: 'Tailored advisory services to prepare for a financially stable and comfortable retirement.',
         price: 'Consultation at $300'

@@ -47,7 +47,7 @@ import GoldButton from '../Components/Shared/GoldButton.vue';
             <div class="relative flex justify-center">
                 <iframe
                     class="w-[350px] h-[200px] sm:w-[450px] sm:h-[250px] xl:w-[650px] xl:h-[350px] max-w-full max-h-full rounded-lg shadow-lg"
-                    src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen>
+                    src="https://www.youtube.com/embed/x_g-M07DjNg" frameborder="0" allowfullscreen>
                 </iframe>
             </div>
         </div>

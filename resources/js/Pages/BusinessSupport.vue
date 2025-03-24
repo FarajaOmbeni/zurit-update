@@ -38,21 +38,21 @@ import EnrollModal from '@/Components/Shared/EnrollModal.vue'
 const businessServices = [
     {
         id: 1,
-        imageUrl: '/images/business_support/consulting.jpg',
+        imageUrl: '/images/training/businessSupport/biz1.avif',
         title: 'Business Consulting',
         description: 'Expert advice to streamline your operations and boost efficiency.',
         price: 'Consultation from $250'
     },
     {
         id: 2,
-        imageUrl: '/images/business_support/strategy.jpg',
+        imageUrl: '/images/training/businessSupport/biz2.avif',
         title: 'Strategic Planning',
         description: 'Tailored business strategies to drive growth and long-term success.',
         price: 'Starting at $500'
     },
     {
         id: 3,
-        imageUrl: '/images/business_support/marketing.jpg',
+        imageUrl: '/images/training/businessSupport/biz3.avif',
         title: 'Marketing Support',
         description: 'Comprehensive marketing solutions designed to elevate your brand.',
         price: 'Custom pricing'
