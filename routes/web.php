@@ -80,6 +80,40 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('calculator.index');
 });
 
+/////////////////////////////////////////////////////////
+//////////////////  ADMIN ROUTES ///////////////////////
+////////////////////////////////////////////////////////
+Route::get('/admin/users', function () {
+    return Inertia::render('Admin/Users');
+})->name('users.index');
+Route::get('/admin/blogs', function () {
+    return Inertia::render('Admin/Blogs');
+})->name('blogs.index');
+Route::get('/admin/events', function () {
+    return Inertia::render('Admin/Events');
+})->name('events.index');
+Route::get('/admin/system', function () {
+    return Inertia::render('Admin/System');
+})->name('system.index');
+Route::get('/admin/messages', function () {
+    return Inertia::render('Admin/Messages');
+})->name('messages.index');
+Route::get('/admin/add-users', function () {
+    return Inertia::render('Admin/AddUsers');
+})->name('add-users.index');
+Route::get('/admin/users', function () {
+    return Inertia::render('Admin/Users');
+})->name('users.index');
+Route::get('/admin/marketing', function () {
+    return Inertia::render('Admin/Marketing');
+})->name('marketing.index');
+Route::get('/admin/testimonials', function () {
+    return Inertia::render('Admin/Testimonials');
+})->name('testimonials.index');
+Route::get('/admin/videos', function () {
+    return Inertia::render('Admin/Videos');
+})->name('videos.index');
+
 Route::get('/about', [IndexController::class, 'about'])->name('about');
 Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
 Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');

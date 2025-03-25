@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import AdminSidebar from '@/Components/AdminSidebar.vue';
 </script>
 
 <template>
@@ -9,11 +10,11 @@ import Sidebar from '@/Components/Sidebar.vue';
     <Head title="Dashboard" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
-            <Sidebar>
+            <AdminSidebar>
                 <div class="">
                     Contacts
                 </div>
-            </Sidebar>
+            </AdminSidebar>
         </div>
     </AuthenticatedLayout>
 </template>

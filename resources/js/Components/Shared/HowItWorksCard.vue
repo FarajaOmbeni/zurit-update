@@ -6,7 +6,7 @@
             <!-- Text content container with fixed height -->
             <div class="h-[200px] flex flex-col justify-center">
                 <h2 class="text-2xl md:text-xl font-bold text-center text-gray-800 mb-3">{{ title }}</h2>
-                <p class="text-lg text-center text-gray-600">{{ description }}</p>
+                <p class="text-lg px-8 sm:px-0 text-center text-gray-600">{{ description }}</p>
             </div>
 
             <!-- Image container with fixed height and centered content -->

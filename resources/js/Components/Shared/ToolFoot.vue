@@ -4,7 +4,7 @@
             class="w-[500px] h-[300px] bg-white rounded-3xl shadow-lg overflow-hidden py-12 flex flex-col justify-center">
             <!-- Text Content -->
             <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">{{ title }}</h1>
-            <p class="text-lg text-center text-gray-600 mb-6">{{ description }}</p>
+            <p class="text-lg  px-12 sm:px-0 text-center text-gray-600 mb-6">{{ description }}</p>
 
             <!-- Button with gradient -->
             <a :href="buttonLink"
