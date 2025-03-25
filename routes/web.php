@@ -1,15 +1,19 @@
 <?php
 
-use App\Http\Controllers\BudgetController;
-use App\Http\Controllers\DebtController;
-use App\Http\Controllers\GoalController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BlogController;
+use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\DebtController;
+use App\Http\Controllers\GoalController;
 use App\Http\Controllers\IndexController;
-use App\Http\Controllers\InvestmentController;
-use App\Http\Controllers\NetworthController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NetworthController;
+use App\Http\Controllers\InvestmentController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -83,27 +87,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 /////////////////////////////////////////////////////////
 //////////////////  ADMIN ROUTES ///////////////////////
 ////////////////////////////////////////////////////////
-Route::get('/admin/users', function () {
-    return Inertia::render('Admin/Users');
-})->name('users.index');
-Route::get('/admin/blogs', function () {
-    return Inertia::render('Admin/Blogs');
-})->name('blogs.index');
-Route::get('/admin/events', function () {
-    return Inertia::render('Admin/Events');
-})->name('events.index');
-Route::get('/admin/system', function () {
-    return Inertia::render('Admin/System');
-})->name('system.index');
-Route::get('/admin/messages', function () {
-    return Inertia::render('Admin/Messages');
-})->name('messages.index');
+Route::get('/admin/users', [AdminController::class, 'users'])->name('users.index');
+Route::get('/admin/system', [AdminController::class, 'system'])->name('system.index');
+Route::get('/admin/messages', [AdminController::class, 'messages'])->name('messages.index');
+Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
+Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
+
+
 Route::get('/admin/add-users', function () {
     return Inertia::render('Admin/AddUsers');
 })->name('add-users.index');
-Route::get('/admin/users', function () {
-    return Inertia::render('Admin/Users');
-})->name('users.index');
 Route::get('/admin/marketing', function () {
     return Inertia::render('Admin/Marketing');
 })->name('marketing.index');

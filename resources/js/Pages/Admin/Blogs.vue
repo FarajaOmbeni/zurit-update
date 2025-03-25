@@ -3,22 +3,22 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import AdminSidebar from '@/Components/AdminSidebar.vue';
 import AdminTable from '@/Components/AdminTable.vue';
-import { ref, defineProps } from 'vue';
+import { ref } from 'vue';
 
-const props = defineProps({
-    users: Array,
-})
-
-// Sample data received from the controller
-const usersData = ref([]);
-
-usersData.value = props.users
+const blogData = ref([])
 
 const tableHeaders = ref([
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'phone_number', label: 'Phone Number' }
-]);
+    { key: 'blog_title', label: 'Name' },
+    { key: 'blog_image', label: 'Image' },
+    { key: 'blog_message', label: 'Content' }
+])
+
+const props = defineProps({
+    blogs: Array
+})
+
+blogData.value = props.blogs
+
 </script>
 
 <template>
@@ -27,8 +27,10 @@ const tableHeaders = ref([
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <AdminSidebar>
-                <h1 class="text-2xl font-bold text-purple-900 mb-4">User Management</h1>
-                <AdminTable :data="usersData" :headers="tableHeaders" :editable="false"/>
+                <h1 class="text-2xl font-bold text-purple-900 mb-4">Blogs Management</h1>
+                <AdminTable 
+                    :data="blogData" :headers="tableHeaders" :editable="true" 
+                />
             </AdminSidebar>
         </div>
     </AuthenticatedLayout>

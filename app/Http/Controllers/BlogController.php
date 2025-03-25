@@ -10,14 +10,16 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
-
+use Inertia\Inertia;
 
 class BlogController extends Controller
 {
     public function index()
     {
-        $blogs = Blog::orderBy('created_at', 'desc')->paginate(5);
-        return view('blogs', compact('blogs'));
+        $blogs = Blog::all();
+        return Inertia::render('Admin/Blogs',[
+            'blogs' => $blogs
+        ]);
     }
 
     public function store(Request $request)

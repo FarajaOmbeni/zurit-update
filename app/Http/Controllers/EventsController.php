@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Event;
 use Illuminate\Http\Request;
-use App\Mail\EventFeedbackMail;
 use App\Models\EventsFeedback;
+use App\Mail\EventFeedbackMail;
 use Illuminate\Support\Facades\Mail;
 
 class EventsController extends Controller
@@ -15,7 +16,7 @@ class EventsController extends Controller
         $events = Event::all();
         $event_id = $events->pluck('id');
 
-        return view('events_admindash', ['events' => $events, 'event_id' => $event_id]);
+        return Inertia::render('Admin/Events', ['events' => $events, 'event_id' => $event_id]);
     }
 
     public function store(Request $request)

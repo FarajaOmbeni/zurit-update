@@ -11,9 +11,7 @@ import AdminSidebar from '@/Components/AdminSidebar.vue';
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <AdminSidebar>
-                <div class="">
-                    Contacts
-                </div>
+                <h1 class="text-2xl font-bold text-purple-900 mb-4">Messages from contact us</h1>
             </AdminSidebar>
         </div>
     </AuthenticatedLayout>

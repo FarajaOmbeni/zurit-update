@@ -11,9 +11,7 @@ import AdminSidebar from '@/Components/AdminSidebar.vue';
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <AdminSidebar>
-                <div class="">
-                    Videos
-                </div>
+                <h1 class="text-2xl font-bold text-purple-900 mb-4">Change Homepage Video</h1>
             </AdminSidebar>
         </div>
     </AuthenticatedLayout>
