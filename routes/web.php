@@ -14,6 +14,7 @@ use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\TestimonialsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -92,6 +93,8 @@ Route::get('/admin/system', [AdminController::class, 'system'])->name('system.in
 Route::get('/admin/messages', [AdminController::class, 'messages'])->name('messages.index');
 Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
 Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
+Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
+Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
 
 
 Route::get('/admin/add-users', function () {
@@ -100,9 +103,6 @@ Route::get('/admin/add-users', function () {
 Route::get('/admin/marketing', function () {
     return Inertia::render('Admin/Marketing');
 })->name('marketing.index');
-Route::get('/admin/testimonials', function () {
-    return Inertia::render('Admin/Testimonials');
-})->name('testimonials.index');
 Route::get('/admin/videos', function () {
     return Inertia::render('Admin/Videos');
 })->name('videos.index');

@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Testimonial;
+use Inertia\Inertia;
 
 class TestimonialsController extends Controller
 {
     public function index()
     {
         $testimonials = Testimonial::all();
-        return view('testimonials_admindash', ['testimonials' => $testimonials]);
+        return Inertia::render('Admin/Testimonials', ['testimonials' => $testimonials]);
     }
 
-    public function addTestimonial(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -22,17 +23,16 @@ class TestimonialsController extends Controller
             'content' => 'required|string',
         ]);
 
-        $imageName = time().'.'.$request->image->extension();  
-        $request->image->move(public_path('testimonial_images'), $imageName);
+        $imagePath = time().''. $request->file('image')->store('testimonials', 'public');
 
         // Assuming you have a Testimonial model
         $testimonial = new Testimonial;
         $testimonial->name = $request->name;
-        $testimonial->image = $imageName;
+        $testimonial->image = $imagePath;
         $testimonial->content = $request->content;
         $testimonial->save();
 
-        return redirect()->back()->with('success', ['message' => 'Testimonial added successfully!', 'duration' => 3000]);
+        return to_route('testimonials.index');
     }
 
     public function update(Request $request, $id)

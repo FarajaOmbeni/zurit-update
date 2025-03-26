@@ -6,6 +6,7 @@ use App\Models\Blog;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Contact;
+use App\Models\Testimonial;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
