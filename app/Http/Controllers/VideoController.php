@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class VideoController extends Controller
 {
     public function index(){        
-        return view('video_admindash');
+        return Inertia::render('Admin/Videos');
     }
 
     public function store(Request $request)
@@ -40,9 +41,6 @@ class VideoController extends Controller
 
         $video->save();
 
-        return redirect()->back()->with('success', [
-            'message' => 'Video Added Successfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('videos.index');
     }
 }

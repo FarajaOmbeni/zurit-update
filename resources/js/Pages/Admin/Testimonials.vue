@@ -9,6 +9,7 @@ import Input from '@/Components/Shared/Input.vue';
 import Button from '@/Components/Shared/Button.vue';
 import FileInput from '@/Components/Shared/FileInput.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
+import Alert from '@/Components/Shared/Alert.vue';
 
 //ALERT USAGE LOGIC, FROM COMPOSABLE
 const { alertState, openAlert, clearAlert } = useAlert();

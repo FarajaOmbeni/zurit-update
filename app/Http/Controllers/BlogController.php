@@ -24,41 +24,26 @@ class BlogController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'blog_tag' => 'required',
-                'blog_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'blog_title' => 'required',
-                'content' => 'required',
-            ]);
+        $request->validate([
+            'blog_title' => 'required|string|max:255',
+            'blog_tag' => 'required|string|max:255',
+            'blog_image' => 'required|image',
+            'content' => 'required',
+        ]);
 
-            $imageName = '';
-            if ($request->hasFile('blog_image')) {
-                $image = $request->file('blog_image');
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move('/home/zuriuhqx/public_html/blogs_res/img', $imageName);
-            }
+        $imagePath = time() . '' . $request->file('blog_image')->store('blogs', 'public');
 
-            $blog = Blog::create([
-                'blog_tag' => $request->input('blog_tag'),
-                'blog_image' => $imageName,
-                'blog_title' => $request->input('blog_title'),
-                'slug' => Str::slug($request->input('blog_title')),
-                'blog_message' => $request->input('content'),
-            ]);
+        $blog = new Blog();
+        $blog->blog_title = $request->blog_title;
+        $blog->blog_tag = $request->blog_tag;
+        $blog->blog_image = $imagePath;
+        $blog->blog_message = $request->content;
 
-            return redirect()->route('blogs_admindash')->with('success', [
-                'message' => 'Blog Created Successfully!',
-                'duration' => 3000,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Blog creation failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', [
-                'message' => 'Failed to create blog. Error: ' . $e->getMessage(),
-                'duration' => 5000,
-            ])->withInput();
-        }
+        $blog->save();
+
+        return to_route('blogs.index');
     }
+
     public function show($id)
     {
         return view('blogs');

@@ -21,35 +21,29 @@ class EventsController extends Controller
 
     public function store(Request $request)
     {
+        // dd("Validation passed");
+
         $request->validate([
-            'name' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'date' => 'required',
-            'price' => 'required',
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'price' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'registration_link' => 'required|url',
         ]);
 
-        $imageName = ''; // Initialize image name variable
+        $imagePath = time() . '' . $request->file('image')->store('blogs', 'public');
 
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('/home/zuriuhqx/public_html/events_res/img', $imageName);
-        }
+        $event = new Event();
+        $event->name = $request->name;
+        $event->date = $request->date;
+        $event->price = $request->price;
+        $event->price = $request->price;
+        $event->image = $imagePath;
+        $event->registration_link = $request->registration_link;
 
-        // Create blog with file path
-        Event::create([
-            'name' => $request->input('name'),
-            'image' => $imageName,
-            'date' => $request->input('date'),
-            'price' => $request->input('price'),
-            'registration_link' => $request->input('registration_link'),
-        ]);
-        return redirect()->route('events.index')->with('success', [
-            'message' => 'Event Created Successfully!',
-            'duration' => 3000,
-        ]);;
+        $event->save();
+
+        return to_route('events.index');
     }
 
     public function edit($id)

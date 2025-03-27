@@ -15,6 +15,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\TestimonialsController;
+use App\Http\Controllers\VideoController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -90,9 +91,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 ////////////////////////////////////////////////////////
 Route::get('/admin/users', [AdminController::class, 'users'])->name('users.index');
 Route::get('/admin/system', [AdminController::class, 'system'])->name('system.index');
-Route::get('/admin/messages', [AdminController::class, 'messages'])->name('messages.index');
+
+//////////BLOGS ROOUTES//////////
 Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
+Route::post('/admin/blogs', [BlogController::class, 'store'])->name('blogs.store');
+
+////////////EVENTS ROUTES/////////////
 Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
+Route::post('/admin/events', [EventsController::class, 'store'])->name('events.store');
+
+
 Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
 Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
 
@@ -100,12 +108,10 @@ Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->na
 Route::get('/admin/add-users', function () {
     return Inertia::render('Admin/AddUsers');
 })->name('add-users.index');
-Route::get('/admin/marketing', function () {
-    return Inertia::render('Admin/Marketing');
-})->name('marketing.index');
-Route::get('/admin/videos', function () {
-    return Inertia::render('Admin/Videos');
-})->name('videos.index');
+Route::get('/admin/marketing', [AdminController::class, 'marketing'])->name('marketing.index');
+
+Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
+Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 
 Route::get('/about', [IndexController::class, 'about'])->name('about');
 Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');

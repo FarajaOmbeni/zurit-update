@@ -167,12 +167,6 @@ const menuItems = [
         link: 'system.index',
     },
     {
-        title: 'Messages',
-        icon: 'HomeIcon',
-        active: currentRoute.startsWith('/admin/messages'),
-        link: 'messages.index',
-    },
-    {
         title: 'Add Users',
         icon: 'HomeIcon',
         active: currentRoute.startsWith('/admin/add-users'),

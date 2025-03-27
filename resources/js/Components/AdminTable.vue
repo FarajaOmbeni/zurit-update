@@ -21,11 +21,12 @@
                     <tr v-for="(item, index) in paginatedData" :key="index"
                         class="border-b border-gray-200 hover:text-black hover:bg-slate-100 hover:text-black">
                         <!-- Loop over headers to display each data field -->
-                        <td v-for="(header, index) in headers" :key="index" class="px-6 py-4">
+                        <td v-for="(header, index) in headers" :key="index"
+                            class="px-6 py-4">
                             {{ item[header.key] }}
                         </td>
                         <!-- Conditionally show actions -->
-                        <td v-if="editable" class="px-6 py-4">
+                        <td v-if="editable" class="px-6 py-4 w-[12rem]">
                             <button @click="$emit('edit', item)"
                                 class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 mr-2">
                                 Edit
