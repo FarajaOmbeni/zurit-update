@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AdminSidebar from '@/Components/AdminSidebar.vue';
+import Input from '@/Components/Shared/Input.vue';
 import Editor from '@/Components/Shared/Editor.vue';
 import Button from '@/Components/Shared/Button.vue';
 import Alert from '@/Components/Shared/Alert.vue';
@@ -17,6 +18,7 @@ console.log(props.emails)
 
 const form = useForm({
     content: '',
+    subject: ''
 })
 
 const handleSubmit = () => {
@@ -47,6 +49,7 @@ const handleSubmit = () => {
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <h1 class="text-2xl font-bold text-purple-900 mb-4">Send Marketing Emails</h1>
                 <form @submit.prevent="handleSubmit">
+                    <Input placeholder="Enter the subject" label="Subject" v-model="form.subject"/>
                     <Editor label="Write the Email" v-model="form.content" />
                     <Button type="submit">{{ form.processing ? 'Sending...' : 'Send' }}</Button>
                 </form>

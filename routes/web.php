@@ -14,6 +14,7 @@ use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
 
@@ -104,11 +105,13 @@ Route::post('/admin/events', [EventsController::class, 'store'])->name('events.s
 Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
 Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
 
+Route::get('/admin/marketing', [MarketingController::class, 'index'])->name('marketing.index');
+Route::post('/admin/marketing', [MarketingController::class, 'sendEmails'])->name('marketing.send');
+
 
 Route::get('/admin/add-users', function () {
     return Inertia::render('Admin/AddUsers');
 })->name('add-users.index');
-Route::get('/admin/marketing', [AdminController::class, 'marketing'])->name('marketing.index');
 
 Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
 Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');

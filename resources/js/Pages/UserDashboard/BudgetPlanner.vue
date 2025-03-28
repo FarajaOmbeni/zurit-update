@@ -24,9 +24,17 @@ const expenses = ref(null);
 
 // Methods to open modals
 const openEditModal = (transaction) => {
-    selectedTransaction.value = { ...transaction };
-    incomes.value = props.data.incomeCategories 
-    expenses.value = props.data.expenseCategories 
+    // Create a deep copy of the transaction
+    selectedTransaction.value = {
+        ...transaction,
+        // Ensure the date is in the correct format for date input (YYYY-MM-DD)
+        transaction_date: transaction.transaction_date
+            ? new Date(transaction.transaction_date).toISOString().split('T')[0]
+            : ''
+    };
+    console.log(selectedTransaction.value)
+    incomes.value = props.data.incomeCategories
+    expenses.value = props.data.expenseCategories
     showEditModal.value = true;
 };
 
@@ -95,26 +103,70 @@ const TOP_N = 3;
 
 const topIncomes = computed(() => {
     if (!props.data.incomes) return [];
-    return [...props.data.incomes]
+
+    // Group incomes by label and aggregate amounts
+    const groupedIncomes = [...props.data.incomes]
+        .filter(income => income.isRecurrent === 'yes')
+        .reduce((acc, income) => {
+            const existingIncome = acc.find(item => item.label === income.category);
+
+            if (existingIncome) {
+                // If label already exists, add to its amount
+                existingIncome.amount += parseFloat(income.amount);
+            } else {
+                // If label doesn't exist, create new entry
+                acc.push({
+                    amount: parseFloat(income.amount),
+                    label: income.category,
+                    currency: income.currency || 'KES'
+                });
+            }
+
+            return acc;
+        }, [])
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_N)
         .map(income => ({
             amount: Math.round(income.amount),
-            label: income.category,
-            currency: income.currency || 'KES'
+            label: income.label,
+            currency: income.currency
         }));
+
+    return groupedIncomes;
 });
 
 const topExpenses = computed(() => {
     if (!props.data.expenses) return [];
-    return [...props.data.expenses]
+
+    // Group expenses by label and aggregate amounts
+    const groupedExpenses = [...props.data.expenses]
+        .filter(expense => expense.isRecurrent === 'yes')
+        .reduce((acc, expense) => {
+            const existingExpense = acc.find(item => item.label === expense.category);
+
+            if (existingExpense) {
+                // If label already exists, add to its amount
+                existingExpense.amount += parseFloat(expense.amount);
+            } else {
+                // If label doesn't exist, create new entry
+                acc.push({
+                    amount: parseFloat(expense.amount),
+                    label: expense.category,
+                    currency: expense.currency || 'KES'
+                });
+            }
+
+            return acc;
+        }, [])
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_N)
         .map(expense => ({
             amount: Math.round(expense.amount),
-            label: expense.category,
-            currency: expense.currency || 'KES'
+            label: expense.label,
+            currency: expense.currency
         }));
+
+    return groupedExpenses;
 });
 
 
@@ -133,6 +185,22 @@ const balance = computed(() =>
     totalIncome.value - totalExpenses.value
 );
 
+const categorizedExpenses = computed(() => {
+    if (!props.data.expenses) return {};
+
+    return props.data.expenses.reduce((acc, expense) => {
+        const category = expense.category;
+
+        if (!acc[category]) {
+            acc[category] = 0;
+        }
+
+        acc[category] += parseFloat(expense.amount);
+
+        return acc;
+    }, {});
+});
+
 //CHECK IF THERE IS DATA
 const hasData = computed(() => {
     return props.data && (
@@ -150,6 +218,7 @@ const hasData = computed(() => {
 const showIncomeModal = ref(false);
 const showExpenseModal = ref(false);
 const showContributeModal = ref(false);
+const showBudgetModal = ref(false);
 
 const selectedDebtDescription = computed(() => {
     if (newContribution.category === 'debt' && newContribution.debtId) {
@@ -231,6 +300,7 @@ const newIncome = useForm({
     amount: '',
     description: '',
     income_date: '',
+    isRecurrent: 'yes'
 });
 
 const newExpense = useForm({
@@ -238,6 +308,7 @@ const newExpense = useForm({
     amount: '',
     description: '',
     expense_date: '',
+    isRecurrent: 'yes',
 });
 
 // Form submission handlers
@@ -284,7 +355,17 @@ const submitExpense = () => {
             <Sidebar>
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonth }}'s Budget</h1>
+                        <div class="flex justify-between">
+                            <div>
+                                <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonth }}'s Budget</h1>
+                            </div>
+                            <div class="px-6">
+                                <button @click="showBudgetModal = true"
+                                    class="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition duration-150">
+                                    View Budget
+                                </button>
+                            </div>
+                        </div>
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                             :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
 
@@ -412,6 +493,21 @@ const submitExpense = () => {
                             </div>
 
                             <div class="mb-4">
+                                <label for="isRecurrent" class="block text-sm font-medium text-gray-700 mb-1">Is
+                                    Recurrent?</label>
+                                <div>
+                                    <input checked type="radio" id="yes" name="isRecurrent" value="yes"
+                                        v-model="newIncome.isRecurrent">
+                                    <label for="yes" class="ml-2">Yes</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="no" name="isRecurrent" value="no"
+                                        v-model="newIncome.isRecurrent">
+                                    <label for="no" class="ml-2">No</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
                                 <label for="incomeDescription"
                                     class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <textarea type="text" id="incomeDescription" v-model="newIncome.description"
@@ -467,6 +563,21 @@ const submitExpense = () => {
                                     <option v-for="category in expenseCategories" :value="category.label"
                                         :key="category.value">{{ category.label }}</option>
                                 </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="isRecurrent" class="block text-sm font-medium text-gray-700 mb-1">Is
+                                    Recurrent?</label>
+                                <div>
+                                    <input checked type="radio" id="yes" name="isRecurrent" value="yes"
+                                        v-model="newExpense.isRecurrent">
+                                    <label for="yes" class="ml-2">Yes</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="no" name="isRecurrent" value="no"
+                                        v-model="newExpense.isRecurrent">
+                                    <label for="no" class="ml-2">No</label>
+                                </div>
                             </div>
 
                             <div class="mb-4">
@@ -679,6 +790,49 @@ const submitExpense = () => {
                         </div>
                     </div>
                 </template>
+
+                <!-- BUDGET MODAL -->
+                <div v-if="showBudgetModal" class="fixed inset-0 overflow-y-auto z-10 flex items-center justify-center">
+                    <div class="fixed inset-0 bg-black bg-opacity-50" @click="showBudgetModal = false"></div>
+                    <div
+                        class="relative bg-purple-900 text-white rounded-lg max-w-md w-full mx-4 p-4 shadow-xl border-2 border-yellow-500">
+                        <h3 class="text-base font-semibold text-yellow-500 mb-3">Monthly Budget Overview</h3>
+
+                        <!-- Categorized Expenses -->
+                        <div class="space-y-2">
+                            <div v-for="(amount, category) in categorizedExpenses" :key="category"
+                                class="bg-purple-900 border border-purple-700 rounded-lg p-2 hover:bg-purple-800 transition-colors">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="text-xs font-medium text-white">{{ category }}</h4>
+                                    <span class="text-xs font-semibold text-yellow-500">
+                                        KES {{ amount.toLocaleString() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-900 border border-yellow-500 rounded-lg p-2 mt-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-sm font-medium text-white">TOTAL: </h4>
+                                <span class="text-sm font-semibold text-yellow-500">
+                                    KES {{ totalExpenses.toLocaleString() }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-3 flex justify-end space-x-2">
+                            <button @click="downloadBudget"
+                                class="px-3 py-1 border border-white rounded-md shadow-sm text-xs font-medium text-purple-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-900">
+                                Download
+                            </button>
+                            <button @click="showBudgetModal = false"
+                                class="px-3 py-1 border border-yellow-500 rounded-md shadow-sm text-xs font-medium text-purple-900 bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-900">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </Sidebar>
         </div>
     </AuthenticatedLayout>

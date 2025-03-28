@@ -2,20 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\ExcelImport;
 use App\Models\User;
+use Inertia\Inertia;
+use App\Imports\ExcelImport;
+use App\Mail\MarketingMessage;
 use Illuminate\Http\Request;
 use App\Models\Marketing_Contact;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MarketingController extends Controller
 {
     public function index()
     {
-        $contacts = Marketing_Contact::paginate(10);
+        return Inertia::render('Admin/Marketing');
+    }
 
-        return view('upload_contacts', ['contacts' => $contacts]);
+    public function sendEmails(Request $request) {
+        $emails = User::all()->pluck('email')->toArray();
+        set_time_limit(0);
+        $request->validate([
+            'subject' => 'required|string',
+            'content' => 'required|string',
+        ]);
+
+        $subject = $request->subject;
+        $content = $request->content;
+
+        // foreach ($emails as $email) {
+        //     Mail::to($email)->queue(new MarketingMessage($subject, $content));
+        // }
+        Mail::to('ombenifaraja2000@gmail.com')->send(new MarketingMessage($subject, $content));
+
+        return to_route('marketing.index');
     }
 
 

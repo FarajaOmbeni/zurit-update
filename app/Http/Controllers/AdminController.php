@@ -39,12 +39,4 @@ class AdminController extends Controller
             'messages' => $messages,
         ]);
     }
-
-    public function marketing() {
-        $emails = User::all()->pluck('email');
-
-        return Inertia::render('Admin/Marketing', [
-            'emails' => $emails,
-        ]);
-    }   
 }

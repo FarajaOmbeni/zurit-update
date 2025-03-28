@@ -91,6 +91,7 @@ class BudgetController extends Controller
             $income->amount = $request->amount;
             $income->description = $request->description;
             $income->income_date = $request->income_date;
+            $income->isRecurrent = $request->isRecurrent ?? 'yes';
             $income->transaction_id = $transaction->id;
             $income->save();
         });
@@ -124,6 +125,7 @@ class BudgetController extends Controller
             $expense->user_id = auth()->id();
             $expense->category = $request->category;
             $expense->amount = $request->amount;
+            $expense->isRecurrent = $request->isRecurrent ?? 'yes';
             $expense->description = $request->description;
             $expense->expense_date = $request->expense_date;
             $expense->transaction_id = $transaction->id;
