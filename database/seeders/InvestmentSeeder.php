@@ -18,20 +18,20 @@ class InvestmentSeeder extends Seeder
     {
         $users = User::all();
         $investmentTypes = [
-            ['name' => 'Cytonn Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 12.0],
-            ['name' => 'Sanlam Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 11.5],
-            ['name' => 'Zimele Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 10.5],
-            ['name' => 'Britam Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 10.2],
-            ['name' => 'Madison Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 10.0],
-            ['name' => 'NCBA Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 9.8],
-            ['name' => 'Nabo Capital Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 9.5],
-            ['name' => 'ICEA Lion Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 9.2],
-            ['name' => 'Infrastructure Bond', 'type' => 'Bonds', 'returnRate' => 14.0],
-            ['name' => 'Government Bond', 'type' => 'Bonds', 'returnRate' => 13.5],
-            ['name' => 'Corporate Bond', 'type' => 'Bonds', 'returnRate' => 12.0],
-            ['name' => '91-Day Treasury Bill', 'type' => 'Treasury Bills', 'returnRate' => 12.8],
-            ['name' => '182-Day Treasury Bill', 'type' => 'Treasury Bills', 'returnRate' => 13.2],
-            ['name' => '364-Day Treasury Bill', 'type' => 'Treasury Bills', 'returnRate' => 13.5],
+            ['name' => 'Cytonn Money Market Fund', 'type' => 'mmf', 'returnRate' => 12.0],
+            ['name' => 'Sanlam Money Market Fund', 'type' => 'mmf', 'returnRate' => 11.5],
+            ['name' => 'Zimele Money Market Fund', 'type' => 'mmf', 'returnRate' => 10.5],
+            ['name' => 'Britam Money Market Fund', 'type' => 'mmf', 'returnRate' => 10.2],
+            ['name' => 'Madison Money Market Fund', 'type' => 'mmf', 'returnRate' => 10.0],
+            ['name' => 'NCBA Money Market Fund', 'type' => 'mmf', 'returnRate' => 9.8],
+            ['name' => 'Nabo Capital Money Market Fund', 'type' => 'mmf', 'returnRate' => 9.5],
+            ['name' => 'ICEA Lion Money Market Fund', 'type' => 'mmf', 'returnRate' => 9.2],
+            ['name' => 'Infrastructure Bond', 'type' => 'bonds', 'returnRate' => 14.0],
+            ['name' => 'Government Bond', 'type' => 'bonds', 'returnRate' => 13.5],
+            ['name' => 'Corporate Bond', 'type' => 'bonds', 'returnRate' => 12.0],
+            ['name' => '91-Day Treasury Bill', 'type' => 'bills', 'returnRate' => 12.8],
+            ['name' => '182-Day Treasury Bill', 'type' => 'bills', 'returnRate' => 13.2],
+            ['name' => '364-Day Treasury Bill', 'type' => 'bills', 'returnRate' => 13.5],
         ];
 
         foreach ($users as $user) {
