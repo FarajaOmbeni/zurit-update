@@ -18,112 +18,101 @@ class TransactionSeeder extends Seeder
     {
         $users = User::all();
 
-        // Instead of using a Category model, define static arrays for categories.
-        $incomeCategories = collect([
-            ['name' => 'Salary'],
-        ]);
-
-        $expenseCategories = collect([
-            ['name' => 'Housing'],
-            ['name' => 'Transportation'],
-            ['name' => 'Food'],
-            ['name' => 'Utilities'],
-            ['name' => 'Entertainment'],
-            ['name' => 'Other'],
-        ]);
+        // Static categories
+        $incomeCategories = ['Salary'];
+        $expenseCategories = [
+            'Housing',
+            'Transportation',
+            'Food',
+            'Utilities',
+            'Entertainment',
+            'Other'
+        ];
 
         foreach ($users as $user) {
-            // Create income and expense transactions for the past 3 months
-            for ($i = 0; $i < 3; $i++) {
+            for ($i = 0; $i < 3; $i++) { // Loop for past 3 months
                 $date = Carbon::now()->subMonths($i);
 
-                // Create monthly salary income
-                $incomeCategory = $incomeCategories->first();
-                $incomeTransaction = Transaction::create([
+                // Create main salary income
+                $salaryAmount = rand(3000, 5000);
+                $salaryDate = $date->copy()->startOfMonth()->addDays(rand(1, 5));
+
+                $salaryTransaction = Transaction::create([
                     'user_id'          => $user->id,
                     'type'             => 'income',
-                    'category'         => $incomeCategory['name'],
-                    'amount'           => rand(3000, 5000),
-                    'transaction_date' => $date->copy()->startOfMonth()->addDays(rand(1, 5)),
+                    'category'         => 'Salary',
+                    'amount'           => $salaryAmount,
+                    'transaction_date' => $salaryDate,
                     'description'      => 'Monthly salary',
                 ]);
 
                 Income::create([
                     'user_id'        => $user->id,
-                    'transaction_id' => $incomeTransaction->id, // Storing the transaction foreign key
+                    'transaction_id' => $salaryTransaction->id,
                     'type'           => 'Salary',
                     'category'       => 'Salary',
-                    'amount'         => $incomeTransaction->amount,
+                    'amount'         => $salaryAmount,
                     'description'    => 'Monthly salary',
-                    'income_date'    => $incomeTransaction->transaction_date,
+                    'income_date'    => $salaryDate,
                 ]);
 
-                // Create an additional income transaction randomly
+                // Occasionally add a bonus salary
                 if (rand(0, 1)) {
-                    $incomeTransaction = Transaction::create([
+                    $bonusAmount = rand(500, 1500);
+                    $bonusDate = $date->copy()->startOfMonth()->addDays(rand(10, 20));
+
+                    $bonusTransaction = Transaction::create([
                         'user_id'          => $user->id,
                         'type'             => 'income',
                         'category'         => 'Salary',
-                        'amount'           => rand(500, 1500),
-                        'transaction_date' => $date->copy()->startOfMonth()->addDays(rand(10, 20)),
+                        'amount'           => $bonusAmount,
+                        'transaction_date' => $bonusDate,
                         'description'      => 'Additional salary payment',
                     ]);
 
                     Income::create([
                         'user_id'        => $user->id,
-                        'transaction_id' => $incomeTransaction->id, // Storing the transaction foreign key
+                        'transaction_id' => $bonusTransaction->id,
                         'type'           => 'Salary',
                         'category'       => 'Salary',
-                        'amount'         => $incomeTransaction->amount,
+                        'amount'         => $bonusAmount,
                         'description'    => 'Additional salary payment',
-                        'income_date'    => $incomeTransaction->transaction_date,
+                        'income_date'    => $bonusDate,
                     ]);
                 }
 
-                // Create multiple expenses for each month
-                $numberOfExpenses = rand(8, 15);
-                for ($j = 0; $j < $numberOfExpenses; $j++) {
-                    $expenseCategory = $expenseCategories->random();
-                    $amount = 0;
+                // Generate expenses
+                $numExpenses = rand(8, 15);
+                for ($j = 0; $j < $numExpenses; $j++) {
+                    $category = collect($expenseCategories)->random();
+                    $expenseDate = $date->copy()->startOfMonth()->addDays(rand(1, 28));
 
-                    // Set realistic amounts based on category
-                    switch ($expenseCategory['name']) {
-                        case 'Housing':
-                            $amount = rand(800, 2000);
-                            break;
-                        case 'Transportation':
-                            $amount = rand(100, 500);
-                            break;
-                        case 'Food':
-                            $amount = rand(50, 300);
-                            break;
-                        case 'Utilities':
-                            $amount = rand(80, 250);
-                            break;
-                        case 'Entertainment':
-                            $amount = rand(20, 150);
-                            break;
-                        default:
-                            $amount = rand(10, 200);
-                    }
+                    $amount = match ($category) {
+                        'Housing' => rand(800, 2000),
+                        'Transportation' => rand(100, 500),
+                        'Food' => rand(50, 300),
+                        'Utilities' => rand(80, 250),
+                        'Entertainment' => rand(20, 150),
+                        default => rand(10, 200),
+                    };
 
                     $expenseTransaction = Transaction::create([
                         'user_id'          => $user->id,
                         'type'             => 'expense',
-                        'category'         => $expenseCategory['name'],
+                        'category'         => $category,
                         'amount'           => $amount,
-                        'transaction_date' => $date->copy()->startOfMonth()->addDays(rand(1, 28)),
-                        'description'      => $expenseCategory['name'] . ' expense',
+                        'transaction_date' => $expenseDate,
+                        'description'      => "$category expense",
                     ]);
 
                     Expense::create([
                         'user_id'        => $user->id,
-                        'transaction_id' => $expenseTransaction->id, // Storing the transaction foreign key
+                        'transaction_id' => $expenseTransaction->id,
                         'type'           => 'expense',
-                        'category'       => $expenseCategory['name'],
-                        'amount'         => $expenseTransaction->amount,
-                        'description'    => $expenseCategory['name'] . ' expense',
-                        'expense_date'   => $expenseTransaction->transaction_date,
+                        'category'       => $category,
+                        'amount'         => $amount,
+                        'description'    => "$category expense",
+                        'expense_date'   => $expenseDate,
                     ]);
                 }
             }

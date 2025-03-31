@@ -188,8 +188,8 @@ const populateForm = () => {
     editGoal.name = localGoal.value.name;
     editGoal.description = localGoal.value.description;
     editGoal.target_amount = localGoal.value.target_amount;
-    editGoal.start_date = localGoal.value.start_date || '';
-    editGoal.target_date = localGoal.value.target_date;
+    editGoal.start_date = new Date(localGoal.value.start_date).toISOString().split('T')[0] || '';
+    editGoal.target_date = new Date(localGoal.value.target_date).toISOString().split('T')[0] || '';
 };
 
 // Close modal when clicking outside

@@ -91,8 +91,8 @@ watch(editingInvestment, (investment) => {
         editInvestmentForm.description = investment.description;
         editInvestmentForm.initial_amount = investment.initial_amount;
         editInvestmentForm.current_amount = investment.current_amount;
-        editInvestmentForm.start_date = investment.start_date;
-        editInvestmentForm.target_date = investment.target_date;
+        editInvestmentForm.start_date = new Date(investment.start_date).toISOString().split('T')[0] || '';
+        editInvestmentForm.target_date = new Date(investment.target_date).toISOString().split('T')[0] || '';
         editInvestmentForm.expected_return_rate = investment.expected_return_rate;
         editInvestmentForm.frequency_of_return = investment.frequency_of_return;
         editInvestmentForm.status = investment.status;
@@ -478,7 +478,7 @@ const confirmDelete = () => {
                                 class="block text-gray-700 text-xs font-medium mb-1">
                                 Details
                             </label>
-                            <select v-show="editInvestmentForm.type !== 'other'" type="text"
+                            <select v-show="editInvestmentForm.type !== 'other'"
                                 id="edit_details_of_investment" v-model="editInvestmentForm.details_of_investment"
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 :required="editInvestmentForm.type !== 'other'">

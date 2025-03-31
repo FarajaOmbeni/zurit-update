@@ -185,10 +185,10 @@ const totalRecurringExpenses = computed(() => {
         .reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
 });
 
-
 const balance = computed(() =>
     totalIncome.value - totalExpenses.value
 );
+
 
 const categorizedExpenses = computed(() => {
     if (!props.data.expenses) return {};

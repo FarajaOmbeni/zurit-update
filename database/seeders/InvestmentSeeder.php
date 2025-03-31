@@ -18,17 +18,23 @@ class InvestmentSeeder extends Seeder
     {
         $users = User::all();
         $investmentTypes = [
-            ['name' => 'S&P 500 Index Fund', 'type' => 'mutual_funds', 'returnRate' => [5, 12]],
-            ['name' => 'Tech Growth ETF', 'type' => 'stocks', 'returnRate' => [8, 15]],
-            ['name' => 'Bond Portfolio', 'type' => 'bonds', 'returnRate' => [2, 5]],
-            ['name' => 'Real Estate Investment Trust', 'type' => 'real_estate', 'returnRate' => [6, 10]],
-            ['name' => 'Dividend Stock Portfolio', 'type' => 'stocks', 'returnRate' => [4, 8]],
-            ['name' => 'High-Yield Savings', 'type' => 'cash', 'returnRate' => [1, 3]],
-            ['name' => 'Cryptocurrency', 'type' => 'alternative', 'returnRate' => [-10, 30]],
+            ['name' => 'Cytonn Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 12.0],
+            ['name' => 'Sanlam Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 11.5],
+            ['name' => 'Zimele Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 10.5],
+            ['name' => 'Britam Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 10.2],
+            ['name' => 'Madison Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 10.0],
+            ['name' => 'NCBA Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 9.8],
+            ['name' => 'Nabo Capital Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 9.5],
+            ['name' => 'ICEA Lion Money Market Fund', 'type' => 'Money Market Fund', 'returnRate' => 9.2],
+            ['name' => 'Infrastructure Bond', 'type' => 'Bonds', 'returnRate' => 14.0],
+            ['name' => 'Government Bond', 'type' => 'Bonds', 'returnRate' => 13.5],
+            ['name' => 'Corporate Bond', 'type' => 'Bonds', 'returnRate' => 12.0],
+            ['name' => '91-Day Treasury Bill', 'type' => 'Treasury Bills', 'returnRate' => 12.8],
+            ['name' => '182-Day Treasury Bill', 'type' => 'Treasury Bills', 'returnRate' => 13.2],
+            ['name' => '364-Day Treasury Bill', 'type' => 'Treasury Bills', 'returnRate' => 13.5],
         ];
 
         foreach ($users as $user) {
-            // Create 2-5 investments for each user
             $numberOfInvestments = rand(2, 5);
             $shuffledInvestments = collect($investmentTypes)->shuffle();
 
@@ -40,15 +46,11 @@ class InvestmentSeeder extends Seeder
                 $startDate = Carbon::now()->subMonths(rand(3, 18));
                 $targetDate = rand(0, 1) ? Carbon::now()->addYears(rand(2, 10)) : null;
 
-                // Calculate return rate and current value
-                $returnRate = rand($investmentType['returnRate'][0] * 100, $investmentType['returnRate'][1] * 100) / 100;
+                $returnRate = $investmentType['returnRate'];
                 $monthsActive = Carbon::now()->diffInMonths($startDate);
                 $yearFraction = $monthsActive / 12;
-
-                // Simple compound interest calculation
                 $appreciationFactor = pow(1 + ($returnRate / 100), $yearFraction);
                 $currentAmount = round($initialAmount * $appreciationFactor, 2);
-
 
                 $investment = Investment::create([
                     'user_id'               => $user->id,
@@ -63,7 +65,6 @@ class InvestmentSeeder extends Seeder
                     'status'                => 'active',
                 ]);
 
-                // Create several contributions to this investment (50% chance)
                 if (rand(0, 1)) {
                     $numberOfContributions = rand(2, 6);
 

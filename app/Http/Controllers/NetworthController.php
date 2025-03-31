@@ -2,26 +2,39 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Carbon\Carbon;
+use App\Models\Debt;
+use Inertia\Inertia;
 use App\Models\Asset;
 use App\Models\Liability;
 use Illuminate\Http\Request;
 use App\Mail\FinancialAssistance;
-use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Inertia\Inertia;
 
 class NetworthController extends Controller
 {
     public function index()
     {
         $assets = Asset::where('user_id', auth()->id())->get();
-        $liabilities = Liability::where('user_id', auth()->id())->get();
+
+        // Get liabilities with selected columns
+        $liabilities = Liability::where('user_id', auth()->id())
+            ->select('name', 'amount', 'created_at', 'updated_at')
+            ->get();
+
+        // Get debts with selected columns, renaming current_amount to amount
+        $debts = Debt::where('user_id', auth()->id())
+            ->select('name', 'current_amount as amount', 'created_at', 'updated_at')
+            ->get();
+
+        // Combine the collections
+        $combinedLiabilitiesAndDebts = $liabilities->concat($debts);
 
         return Inertia::render('UserDashboard/NetworthCalculator', [
             'assets' => $assets,
-            'liabilities' => $liabilities,
+            'liabilities' => $combinedLiabilitiesAndDebts,
         ]);
     }
 
