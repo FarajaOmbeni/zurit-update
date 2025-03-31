@@ -294,7 +294,7 @@ const confirmDelete = () => {
                     <!-- Investment Chart -->
                     <InvestmentChart :investments="investments" />
                 </div>
-                <div>
+                <div v-show="investments.length > 0">
                     <h1 class="text-2xl font-bold text-purple-700">Your Investments</h1>
                     <InvestmentsTable :investments="investments" @edit-investment="openEditModal"
                         @delete-investment="openDeleteModal" />

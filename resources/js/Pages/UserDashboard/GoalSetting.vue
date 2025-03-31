@@ -129,7 +129,7 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                         </section>
 
                         <!-- Completed Goals Section -->
-                        <section>
+                        <section v-show="completedGoals.length > 0">
                             <h2 class="text-xl font-semibold text-purple-700 mb-4">Completed Goals</h2>
                             <div v-if="completedGoals.length"
                                 class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

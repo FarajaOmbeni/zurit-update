@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
@@ -179,6 +179,11 @@ const totalIncome = computed(() => {
 const totalExpenses = computed(() => {
     return props.data.expenses?.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
 });
+const totalRecurringExpenses = computed(() => {
+    return props.data.expenses
+        ?.filter(expense => expense.isRecurrent === 'yes')
+        .reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
+});
 
 
 const balance = computed(() =>
@@ -188,17 +193,19 @@ const balance = computed(() =>
 const categorizedExpenses = computed(() => {
     if (!props.data.expenses) return {};
 
-    return props.data.expenses.reduce((acc, expense) => {
-        const category = expense.category;
+    return props.data.expenses
+        .filter(expense => expense.isRecurrent === 'yes')
+        .reduce((acc, expense) => {
+            const category = expense.category;
 
-        if (!acc[category]) {
-            acc[category] = 0;
-        }
+            if (!acc[category]) {
+                acc[category] = 0;
+            }
 
-        acc[category] += parseFloat(expense.amount);
+            acc[category] += parseFloat(expense.amount);
 
-        return acc;
-    }, {});
+            return acc;
+        }, {});
 });
 
 //CHECK IF THERE IS DATA
@@ -242,7 +249,7 @@ const newContribution = useForm({
 })
 
 const submitContribution = () => {
-    if (newContribution.category == 'debt'){
+    if (newContribution.category == 'debt') {
         newContribution.put(route('debt.contribute', newContribution.debtId), {
             onSuccess: () => {
                 showContributeModal.value = false;
@@ -254,7 +261,7 @@ const submitContribution = () => {
                 const errorMessages = Object.values(errors)
                     .flat()
                     .join(' ');
-    
+
                 openAlert('danger', errorMessages, 5000);
             }
         });
@@ -273,7 +280,7 @@ const submitContribution = () => {
 
                 openAlert('danger', errorMessages, 5000);
             }
-        }); 
+        });
     } else {
         newContribution.put(route('invest.contribute', newContribution.investmentId), {
             onSuccess: () => {
@@ -345,6 +352,83 @@ const submitExpense = () => {
         }
     });
 };
+
+
+// State
+const currentMonth = ref(null);
+const availableMonths = ref([]);
+const monthlyIncome = ref(0);
+const monthlyExpenses = ref(0);
+const monthlyBalance = ref(0);
+
+// Computed
+const filteredTransactions = computed(() => {
+    if (!currentMonth.value) return props.data.transactions;
+
+    return props.data.transactions.filter(transaction => {
+        const transactionDate = new Date(transaction.transaction_date);
+        const monthYear = formatMonthYear(transactionDate);
+        return monthYear === currentMonth.value;
+    });
+});
+
+// Lifecycle hooks
+onMounted(() => {
+    initializeMonths();
+});
+
+// Methods
+function initializeMonths() {
+    const months = {};
+
+    // Extract all unique month-year combinations from transactions
+    props.data.transactions.forEach(transaction => {
+        const date = new Date(transaction.transaction_date);
+        const monthYear = formatMonthYear(date);
+        months[monthYear] = true;
+    });
+
+    // Convert to array and sort (most recent first)
+    availableMonths.value = Object.keys(months).sort((a, b) => {
+        const [monthA, yearA] = a.split(' ');
+        const [monthB, yearB] = b.split(' ');
+        return yearB - yearA || getMonthIndex(monthB) - getMonthIndex(monthA);
+    });
+
+    // Set default to most recent month
+    if (availableMonths.value.length > 0) {
+        selectMonth(availableMonths.value[0]);
+    }
+}
+
+function formatMonthYear(date) {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function getMonthIndex(monthName) {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+    return months.indexOf(monthName.split(' ')[0]);
+}
+
+function selectMonth(monthName) {
+    currentMonth.value = monthName;
+    calculateMonthlySummary();
+}
+
+function calculateMonthlySummary() {
+    monthlyIncome.value = filteredTransactions.value
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+    monthlyExpenses.value = filteredTransactions.value
+        .filter(t => t.type !== 'income')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+    monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
+}
 </script>
 
 <template>
@@ -355,7 +439,7 @@ const submitExpense = () => {
             <Sidebar>
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="flex justify-between">
+                        <div v-show="hasData" class="flex justify-between">
                             <div>
                                 <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonth }}'s Budget</h1>
                             </div>
@@ -432,30 +516,111 @@ const submitExpense = () => {
                                 class="bg-white shadow rounded-lg" />
                         </div>
 
-                        <div class="mt-8">
-                            <h2 class="text-lg font-medium text-gray-900">All Transactions</h2>
+                        <!--Show Monthly Budget-->
+                        <div v-show="hasData" class="mt-12">
+                            <h2 class="text-xl font-bold text-gray-900 text-center">Your Monthly Budget</h2>
+                            <p class="italic text-center text-xs"><span class="font-bold">NOTE: </span>The monthly
+                                budget is only editable if you edit the transactions</p>
                             <div class="mt-4 bg-white shadow rounded-lg">
                                 <ul class="divide-y divide-gray-200">
-                                    <li v-for="transaction in data.transactions" :key="transaction.id"
+                                    <li v-for="(amount, category) in categorizedExpenses" :key="category"
+                                        class="px-4 py-3">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    {{ category }}
+                                                </p>
+                                                <p class="text-sm text-gray-500">Monthly recurring expense</p>
+                                            </div>
+                                            <div
+                                                class="flex flex-col gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
+                                                <div class="text-red-600 font-medium">
+                                                    - KES {{ Math.round(amount).toLocaleString() }}
+                                                </div>
+                                                <!-- Edit Button -->
+                                                <!-- <button @click="editBudgetCategory(category, amount)"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                                                    Edit
+                                                </button> -->
+                                                <!-- Delete Button -->
+                                                <!-- <button @click="deleteBudgetCategory(category)"
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                                                    Delete
+                                                </button> -->
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <!-- Total Row -->
+                                    <li class="px-4 py-3 bg-gray-50">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-900">
+                                                    TOTAL MONTHLY BUDGET
+                                                </p>
+                                            </div>
+                                            <div class="text-sm font-bold text-red-600">
+                                                KES {{ totalRecurringExpenses.toLocaleString() }}
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div v-show="hasData" class="mt-12">
+                            <h2 class="text-xl font-bold text-center text-gray-900">All Transactions</h2>
+
+                            <!-- Month Tabs -->
+                            <div class="mt-4 flex overflow-x-auto pb-1">
+                                <button v-for="(monthName, index) in availableMonths" :key="index"
+                                    @click="selectMonth(monthName)" :class="[
+                                        'px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap',
+                                        currentMonth === monthName
+                                            ? 'border-blue-500 text-blue-600'
+                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ]">
+                                    {{ monthName }}
+                                </button>
+                            </div>
+
+                            <div class="mt-4 bg-white shadow rounded-lg">
+                                <!-- Month selector for mobile (dropdown alternative) -->
+                                <div class="p-4 md:hidden">
+                                    <select v-model="currentMonth" @change="selectMonth(currentMonth)"
+                                        class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                        <option v-for="(monthName, index) in availableMonths" :key="index"
+                                            :value="monthName">
+                                            {{ monthName }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Transaction List -->
+                                <ul class="divide-y divide-gray-200">
+                                    <li v-if="filteredTransactions.length === 0"
+                                        class="px-4 py-6 text-center text-gray-500">
+                                        No transactions right now. Add the first transaction.
+                                    </li>
+                                    <li v-for="transaction in filteredTransactions" :key="transaction.id"
                                         class="px-4 py-3">
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <p class="text-sm font-medium text-gray-900">
                                                     {{ transaction.description }}
                                                 </p>
-                                                <p class="text-sm text-gray-500">{{
-                                                    formatDate(transaction.transaction_date) }}</p>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ formatDate(transaction.transaction_date) }}
+                                                </p>
                                             </div>
                                             <div
-                                                class="flex flex-col  gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
+                                                class="flex flex-col gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    Math.round(transaction.amount).toLocaleString() }}
+                                                        Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
-                                                <button @click="openEditModal(
-                                                    transaction)"
+                                                <button @click="openEditModal(transaction)"
                                                     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
                                                     Edit
                                                 </button>
@@ -468,9 +633,26 @@ const submitExpense = () => {
                                         </div>
                                     </li>
                                 </ul>
+
+                                <!-- Monthly Summary -->
+                                <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-medium text-gray-700">{{ currentMonth }}
+                                            Summary:</span>
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium text-green-600">Income: KES {{
+                                                totalIncome.toLocaleString() }}</p>
+                                            <p class="text-sm font-medium text-red-600">Expenses: KES {{
+                                                totalExpenses.toLocaleString() }}</p>
+                                            <p class="text-sm font-bold"
+                                                :class="balance >= 0 ? 'text-green-600' : 'text-red-600'">
+                                                Balance: KES {{ balance.toLocaleString() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -538,7 +720,7 @@ const submitExpense = () => {
                                 </button>
                                 <button type="submit"
                                     class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                    {{ newIncome.processing ? 'Saving...':'Save Income' }}
+                                    {{ newIncome.processing ? 'Saving...' : 'Save Income' }}
                                 </button>
                             </div>
                         </form>
@@ -615,7 +797,7 @@ const submitExpense = () => {
                                 </button>
                                 <button type="submit"
                                     class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                    {{ newExpense.processing ? 'Saving...':'Save Expense' }}
+                                    {{ newExpense.processing ? 'Saving...' : 'Save Expense' }}
                                 </button>
                             </div>
                         </form>
@@ -783,7 +965,7 @@ const submitExpense = () => {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                    confirmDelete.processing ? 'Deleting...':'Delete' }}</button>
+                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
@@ -815,17 +997,17 @@ const submitExpense = () => {
                             <div class="flex justify-between items-center">
                                 <h4 class="text-sm font-medium text-white">TOTAL: </h4>
                                 <span class="text-sm font-semibold text-yellow-500">
-                                    KES {{ totalExpenses.toLocaleString() }}
+                                    KES {{ totalRecurringExpenses.toLocaleString() }}
                                 </span>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="mt-3 flex justify-end space-x-2">
-                            <button @click="downloadBudget"
+                            <!-- <button @click="downloadBudget"
                                 class="px-3 py-1 border border-white rounded-md shadow-sm text-xs font-medium text-purple-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-900">
                                 Download
-                            </button>
+                            </button> -->
                             <button @click="showBudgetModal = false"
                                 class="px-3 py-1 border border-yellow-500 rounded-md shadow-sm text-xs font-medium text-purple-900 bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-900">
                                 Close

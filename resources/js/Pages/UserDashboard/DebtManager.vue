@@ -140,7 +140,7 @@ const closeModalOnOutsideClick = (event) => {
                     </section>
 
                     <!-- Paid Off Debts Section -->
-                    <section>
+                    <section v-show="paidOffDebts.length > 0">
                         <h2 class="text-xl font-bold text-green-700 mb-4">Paid Off Debts</h2>
                         <div v-if="paidOffDebts.length" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                             <DebtCard v-for="debt in paidOffDebts" :key="debt.id || debt.debt_id" :debt="debt" />
@@ -151,7 +151,7 @@ const closeModalOnOutsideClick = (event) => {
                     </section>
                 </div>
 
-                <div class="mt-4">
+                <div v-show="paidOffDebts.length > 0" class="mt-4">
                     <h3 class="text-lg font-bold mb-4">Debt Full Details</h3>
                     <!-- Debt Table -->
                     <DebtsTable :debts="debts" />
