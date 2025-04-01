@@ -42,7 +42,7 @@ class DebtSeeder extends Seeder
 
                 $interestRate = rand($debtType['rate'][0] * 100, $debtType['rate'][1] * 100) / 100;
                 $monthsBetween = max(1, $startDate->diffInMonths($dueDate));
-                $minimumPayment = (int) round($initialAmount * ($interestRate / 100) / $monthsBetween);
+                $minimumPayment = round(($initialAmount + $initialAmount * ($interestRate / 100)) / $monthsBetween);
 
                 $progressPercentage = rand(5, 50) / 100;
                 $currentAmount = round($initialAmount * (1 - $progressPercentage), 2);
