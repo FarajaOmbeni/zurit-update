@@ -151,7 +151,7 @@ const closeModalOnOutsideClick = (event) => {
                     </section>
                 </div>
 
-                <div v-show="paidOffDebts.length > 0" class="mt-4">
+                <div v-show="debts.length > 0" class="mt-4">
                     <h3 class="text-lg font-bold mb-4">Debt Full Details</h3>
                     <!-- Debt Table -->
                     <DebtsTable :debts="debts" />

@@ -35,6 +35,8 @@
             </p>
             <p class="mt-1"><strong>Paid:</strong> {{ formatCurrency(debtData.current_amount) }}
             </p>
+            <p class="mt-1"><strong>Minimum:</strong> {{ formatCurrency(debtData.minimum_payment) }}
+            </p>
             <p v-show="debtData.status === 'in_progress'" class="mt-1"><strong>Balance:</strong> {{
                 formatCurrency(debtData.initial_amount -
                 debtData.current_amount) }}
