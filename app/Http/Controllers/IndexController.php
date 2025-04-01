@@ -67,10 +67,21 @@ class IndexController extends Controller
     {
         return Inertia::render('Feedback');
     }
+
     public function blogs()
     {
         $blogs = Blog::all();
         return Inertia::render('Blogs', [
+            'blogs' => $blogs
+        ]);
+    }
+
+    public function blog($id)
+    {
+        $blog = Blog::find($id);
+        $blogs = Blog::all();
+        return Inertia::render('Blog', [
+            'blog' => $blog,
             'blogs' => $blogs
         ]);
     }

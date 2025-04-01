@@ -126,6 +126,7 @@ Route::get('/training', [IndexController::class, 'training'])->name('training');
 Route::get('/books', [IndexController::class, 'books'])->name('books');
 Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
+Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');
