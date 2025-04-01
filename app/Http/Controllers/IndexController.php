@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
 use Inertia\Inertia;
 use App\Models\Event;
 use App\Models\Video;
@@ -68,6 +69,9 @@ class IndexController extends Controller
     }
     public function blogs()
     {
-        return Inertia::render('Blogs');
+        $blogs = Blog::all();
+        return Inertia::render('Blogs', [
+            'blogs' => $blogs
+        ]);
     }
 }

@@ -1,7 +1,9 @@
 <template>
     <div class="bg-white rounded-2xl shadow-lg p-4 border border-purple-200 text-center md:text-start">
-        <img :src="image" alt="Blog Image" class="object-cover rounded-lg">
-        <p class="text-gray-500 text-sm mt-2">Posted On: {{ formattedDate }}</p>
+        <div class="flex justify-center">
+            <img :src="image" alt="Blog Image" class="object-cover rounded-lg w-[25rem] h-[16rem]">
+        </div>
+        <p class="text-gray-500 text-sm mt-2">Posted On: {{ date }}</p>
         <h2 class="text-xl font-semibold text-gray-800 mt-1 line-clamp-2">{{ title }}</h2>
         <p class="text-gray-600 mt-1 line-clamp-3">{{ content }}</p>
         <a :href="link" class="inline-block mt-3">
