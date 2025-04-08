@@ -30,7 +30,7 @@
         <div class="flex justify-center mb-12">
             <ToolFoot title="Net Worth Calculating Made Simple"
                 description="At Zurit, we believe in simplifying the process of calculating your net worth. Our tool is designed for easy navigation and user-friendly interfaces."
-                buttonText="Go to Net Worth Calculator" buttonLink="#" />
+                buttonText="Go to Net Worth Calculator" buttonLink="/user/networth" />
         </div>
 
     </div>

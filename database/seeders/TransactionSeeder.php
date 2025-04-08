@@ -8,6 +8,7 @@ use App\Models\Income;
 use App\Models\Expense;
 use App\Models\Transaction;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 class TransactionSeeder extends Seeder
 {
@@ -65,6 +66,7 @@ class TransactionSeeder extends Seeder
                         'user_id'          => $user->id,
                         'type'             => 'income',
                         'category'         => 'Salary',
+                        'isRecurrent'         => Arr::random(['yes', 'no']),
                         'amount'           => $bonusAmount,
                         'transaction_date' => $bonusDate,
                         'description'      => 'Additional salary payment',
@@ -100,6 +102,7 @@ class TransactionSeeder extends Seeder
                         'user_id'          => $user->id,
                         'type'             => 'expense',
                         'category'         => $category,
+                        'isRecurrent'         => Arr::random(['yes', 'no']),
                         'amount'           => $amount,
                         'transaction_date' => $expenseDate,
                         'description'      => "$category expense",
@@ -110,6 +113,7 @@ class TransactionSeeder extends Seeder
                         'transaction_id' => $expenseTransaction->id,
                         'type'           => 'expense',
                         'category'       => $category,
+                        'isRecurrent'         => Arr::random(['yes', 'no']),
                         'amount'         => $amount,
                         'description'    => "$category expense",
                         'expense_date'   => $expenseDate,

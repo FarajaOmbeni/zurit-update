@@ -29,7 +29,7 @@
         </div>
 
         <div class="flex justify-center mb-12">
-            <ToolFoot title="Investment Planning Made Simple" description="At Zurit, we aim to simplify investment planning. Our tool provides:Personalized investment strategies,  Streamlined portfolio management, Clear insights into market trends, User-friendly interfaces for a seamless experience" buttonText="Go to Investment Planner" buttonLink="#" />
+            <ToolFoot title="Investment Planning Made Simple" description="At Zurit, we aim to simplify investment planning. Our tool provides:Personalized investment strategies,  Streamlined portfolio management, Clear insights into market trends, User-friendly interfaces for a seamless experience" buttonText="Go to Investment Planner" buttonLink="/user/invest" />
         </div>
 
     </div>

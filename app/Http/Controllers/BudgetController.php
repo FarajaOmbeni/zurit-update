@@ -23,24 +23,13 @@ class BudgetController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $currentMonth = now()->month;
-        $currentYear  = now()->year;
         $currentMonthString = now()->format('F');
 
         // Eager load relationships with current month constraints
         $user->load([
-            'incomes' => function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('income_date', $currentMonth)
-                    ->whereYear('income_date', $currentYear);
-            },
-            'transactions' => function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('transaction_date', $currentMonth)
-                    ->whereYear('transaction_date', $currentYear);
-            },
-            'expenses' => function ($query) use ($currentMonth, $currentYear) {
-                $query->whereMonth('expense_date', $currentMonth)
-                    ->whereYear('expense_date', $currentYear);
-            },
+            'incomes',
+            'transactions',
+            'expenses',
             'goals',
             'goals.contributions.transaction',
             'debts',
@@ -67,10 +56,10 @@ class BudgetController extends Controller
     public function storeIncome(Request $request)
     {
         $request->validate([
-            'amount'       => 'required|numeric',
-            'category'     => 'required|string',
-            'description'  => 'required|string',
-            'income_date'  => 'required|date',
+            'amount'      => 'required|numeric',
+            'category'    => 'required|string',
+            'description' => 'required|string',
+            'income_date' => 'required|date',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -78,7 +67,12 @@ class BudgetController extends Controller
             $transaction = new Transaction();
             $transaction->user_id = auth()->id();
             $transaction->type = 'income';
-            $transaction->category = $request->category;
+            if ($request->category === 'Other') {
+                $transaction->category = $request->otherCategory;
+            } else {
+                $transaction->category = $request->category;
+            }
+            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
             $transaction->amount = $request->amount;
             $transaction->transaction_date = $request->income_date;
             $transaction->description = $request->description;
@@ -87,11 +81,15 @@ class BudgetController extends Controller
             // Now create the income and assign the transaction id as a foreign key
             $income = new Income();
             $income->user_id = auth()->id();
-            $income->category = $request->category;
+            if ($request->category === 'Other') {
+                $income->category = $request->otherCategory;
+            } else {
+                $income->category = $request->category;
+            }
             $income->amount = $request->amount;
             $income->description = $request->description;
             $income->income_date = $request->income_date;
-            $income->isRecurrent = $request->isRecurrent ?? 'yes';
+            $income->isRecurrent = $request->isRecurrent ?? 'no';
             $income->transaction_id = $transaction->id;
             $income->save();
         });
@@ -103,9 +101,9 @@ class BudgetController extends Controller
     public function storeExpense(Request $request)
     {
         $request->validate([
-            'category' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'description' => 'required|string|max:255',
+            'category'     => 'required|string|max:255',
+            'amount'       => 'required|numeric',
+            'description'  => 'required|string|max:255',
             'expense_date' => 'required|date|max:255',
         ]);
 
@@ -114,7 +112,12 @@ class BudgetController extends Controller
             $transaction = new Transaction();
             $transaction->user_id = auth()->id();
             $transaction->type = 'expense';
-            $transaction->category = $request->category;
+            if ($request->category === 'Other') {
+                $transaction->category = $request->otherCategory;
+            } else {
+                $transaction->category = $request->category;
+            }
+            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
             $transaction->amount = $request->amount;
             $transaction->transaction_date = $request->expense_date;
             $transaction->description = $request->description;
@@ -123,9 +126,13 @@ class BudgetController extends Controller
             // Now create the expense and assign the transaction id as a foreign key
             $expense = new Expense();
             $expense->user_id = auth()->id();
-            $expense->category = $request->category;
+            if ($request->category === 'Other') {
+                $expense->category = $request->otherCategory;
+            } else {
+                $expense->category = $request->category;
+            }
             $expense->amount = $request->amount;
-            $expense->isRecurrent = $request->isRecurrent ?? 'yes';
+            $expense->isRecurrent = $request->isRecurrent ?? 'no';
             $expense->description = $request->description;
             $expense->expense_date = $request->expense_date;
             $expense->transaction_id = $transaction->id;
@@ -153,28 +160,39 @@ class BudgetController extends Controller
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
             'transaction_date' => 'required|date', // used as the income_date
+            'isRecurrent'      => 'nullable|string|in:yes,no',
         ]);
 
         DB::transaction(function () use ($request, $id) {
             // Use the transaction ID (passed from the front end) to update the Transaction.
             $transaction = Transaction::findOrFail($id);
 
-            // Retrieve the related Income record by matching its transaction_id
+            // Retrieve the related Expense record by matching its transaction_id
             $expense = Expense::where('transaction_id', $transaction->id)->firstOrFail();
 
             // Update the Transaction first
-            $transaction->category         = $request->category;
+            if ($request->category === 'Other') {
+                $transaction->category = $request->otherCategory;
+            } else {
+                $transaction->category = $request->category;
+            }
+            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;
             $transaction->transaction_date = $request->transaction_date;
-            $transaction->update();
+            $transaction->save();
 
             // Now update the related Expense record
-            $expense->category    = $request->category;
+            if ($request->category === 'Other') {
+                $expense->category = $request->otherCategory;
+            } else {
+                $expense->category = $request->category;
+            }
             $expense->amount      = $request->amount;
             $expense->description = $request->description;
             $expense->expense_date = $request->transaction_date;
-            $expense->update();
+            $expense->isRecurrent = $request->isRecurrent ?? 'no';
+            $expense->save();
         });
 
         return to_route('budget.index');
@@ -186,7 +204,8 @@ class BudgetController extends Controller
             'category'         => 'required|string|max:255',
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
-            'transaction_date' => 'required|date', // used as the income_date
+            'transaction_date' => 'required|date',
+            'isRecurrent'      => 'nullable|string|in:yes,no',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -197,17 +216,27 @@ class BudgetController extends Controller
             $income = Income::where('transaction_id', $transaction->id)->firstOrFail();
 
             // Update the Transaction first
-            $transaction->category         = $request->category;
+            if ($request->category === 'Other') {
+                $transaction->category = $request->otherCategory;
+            } else {
+                $transaction->category = $request->category;
+            }
+            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;
             $transaction->transaction_date = $request->transaction_date;
             $transaction->save();
 
             // Now update the related Income record
-            $income->category    = $request->category;
+            if ($request->category === 'Other') {
+                $income->category = $request->otherCategory;
+            } else {
+                $income->category = $request->category;
+            }
             $income->amount      = $request->amount;
             $income->description = $request->description;
             $income->income_date = $request->transaction_date;
+            $income->isRecurrent = $request->isRecurrent ?? 'no';
             $income->save();
         });
 

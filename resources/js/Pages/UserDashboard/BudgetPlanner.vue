@@ -22,6 +22,56 @@ const selectedTransaction = ref(null);
 const incomes = ref(null);
 const expenses = ref(null);
 
+const recurrentIncomes = computed(() => {
+    return props.data.transactions.filter(transaction => {
+        return transaction.isRecurrent === 'yes' && transaction.type === 'income';
+    });
+})
+
+const totalRecurringIncomes = computed(() => {
+    return recurrentIncomes.value.reduce((acc, income) => acc + parseFloat(income.amount), 0) || 0;
+});
+
+const categorizedExpenses = computed(() => {
+    // Get all recurrent expenses
+    const allRecurringExpenses = props.data.transactions
+        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent === 'yes');
+
+    // Get all non-recurrent expenses for the current month
+    const currentMonthNonRecurringExpenses = filteredTransactions.value
+        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent !== 'yes');
+
+    // Combine the expenses
+    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
+
+    if (!combinedExpenses || combinedExpenses.length === 0) return {};
+
+    return combinedExpenses.reduce((acc, expense) => {
+        const category = expense.category;
+
+        if (!acc[category]) {
+            acc[category] = 0;
+        }
+
+        acc[category] += parseFloat(expense.amount);
+
+        return acc;
+    }, {});
+});
+
+const monthlyBudgetExpenses = computed(() => {
+    // Get all recurrent expenses
+    const allRecurringExpenses = props.data.transactions
+        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent === 'yes');
+
+    // Get all non-recurrent expenses for the current month
+    const currentMonthNonRecurringExpenses = filteredTransactions.value
+        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent !== 'yes');
+
+    // Combine the expenses
+    return [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
+});
+
 // Methods to open modals
 const openEditModal = (transaction) => {
     // Create a deep copy of the transaction
@@ -84,7 +134,7 @@ const confirmDelete = () => {
             showDeleteModal.value = false
         },
         onError: (errors) => {
-            openAlert('success', 'Error Deleting Transaction', 5000)
+            openAlert('danger', 'Error Deleting Transaction', 5000)
         }
     })
     showDeleteModal.value = false;
@@ -102,110 +152,111 @@ console.log("DATA", props.data)
 const TOP_N = 3;
 
 const topIncomes = computed(() => {
-    if (!props.data.incomes) return [];
+    const TOP_N = 3;
 
-    // Group incomes by label and aggregate amounts
-    const groupedIncomes = [...props.data.incomes]
-        .filter(income => income.isRecurrent === 'yes')
-        .reduce((acc, income) => {
-            const existingIncome = acc.find(item => item.label === income.category);
+    // 1. Get all recurrent income transactions
+    const allRecurringIncomes = props.data.transactions
+        ?.filter(t => t.type === 'income' && t.isRecurrent === 'yes');
 
-            if (existingIncome) {
-                // If label already exists, add to its amount
-                existingIncome.amount += parseFloat(income.amount);
-            } else {
-                // If label doesn't exist, create new entry
-                acc.push({
-                    amount: parseFloat(income.amount),
-                    label: income.category,
-                    currency: income.currency || 'KES'
-                });
-            }
+    // 2. Get all non-recurrent income transactions for the current month
+    const currentMonthNonRecurringIncomes = filteredTransactions.value
+        ?.filter(t => t.type === 'income' && t.isRecurrent !== 'yes');
 
-            return acc;
-        }, [])
+    // 3. Combine the incomes
+    const combinedIncomes = [...(allRecurringIncomes || []), ...(currentMonthNonRecurringIncomes || [])];
+
+    if (!combinedIncomes || combinedIncomes.length === 0) return [];
+
+    // 4. Group by category, sum amounts
+    const groupedIncomes = combinedIncomes.reduce((acc, income) => {
+        const category = income.category;
+        const amount = parseFloat(income.amount);
+        const currency = income.currency || 'KES';
+
+        const existingIncome = acc.find(item => item.label === category);
+
+        if (existingIncome) {
+            existingIncome.amount += amount;
+        } else {
+            acc.push({
+                amount: amount,
+                label: category,
+                currency: currency
+            });
+        }
+        return acc;
+    }, []);
+
+    // 5. Sort, slice, and format
+    return groupedIncomes
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_N)
         .map(income => ({
-            amount: Math.round(income.amount),
-            label: income.label,
-            currency: income.currency
+            ...income,
+            amount: Math.round(income.amount)
         }));
-
-    return groupedIncomes;
 });
 
 const topExpenses = computed(() => {
-    if (!props.data.expenses) return [];
+    const TOP_N = 3;
 
-    // Group expenses by label and aggregate amounts
-    const groupedExpenses = [...props.data.expenses]
-        .filter(expense => expense.isRecurrent === 'yes')
-        .reduce((acc, expense) => {
-            const existingExpense = acc.find(item => item.label === expense.category);
+    // 1. Get all recurrent expense transactions
+    const allRecurringExpenses = props.data.transactions
+        ?.filter(t => t.type !== 'income' && t.isRecurrent === 'yes');
 
-            if (existingExpense) {
-                // If label already exists, add to its amount
-                existingExpense.amount += parseFloat(expense.amount);
-            } else {
-                // If label doesn't exist, create new entry
-                acc.push({
-                    amount: parseFloat(expense.amount),
-                    label: expense.category,
-                    currency: expense.currency || 'KES'
-                });
-            }
+    // 2. Get all non-recurrent expense transactions for the current month
+    const currentMonthNonRecurringExpenses = filteredTransactions.value
+        ?.filter(t => t.type !== 'income' && t.isRecurrent !== 'yes');
 
-            return acc;
-        }, [])
+    // 3. Combine the expenses
+    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
+
+    if (!combinedExpenses || combinedExpenses.length === 0) return [];
+
+    // 4. Group by category, sum amounts
+    const groupedExpenses = combinedExpenses.reduce((acc, expense) => {
+        const category = expense.category;
+        const amount = parseFloat(expense.amount);
+        const currency = expense.currency || 'KES';
+
+        const existingExpense = acc.find(item => item.label === category);
+
+        if (existingExpense) {
+            existingExpense.amount += amount;
+        } else {
+            acc.push({
+                amount: amount,
+                label: category,
+                currency: currency
+            });
+        }
+        return acc;
+    }, []);
+
+    // 5. Sort, slice, and format
+    return groupedExpenses
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_N)
         .map(expense => ({
-            amount: Math.round(expense.amount),
-            label: expense.label,
-            currency: expense.currency
+            ...expense,
+            amount: Math.round(expense.amount)
         }));
-
-    return groupedExpenses;
 });
-
 
 //LOGIC TO GET TOTALS, ALSO SEE BAR GRAPH COMPONENT
-// Compute total income by summing up all income amounts
-const totalIncome = computed(() => {
-    return props.data.incomes?.reduce((acc, income) => acc + parseFloat(income.amount), 0) || 0;
-});
-// Compute total expenses by summing up all expense amounts
-const totalExpenses = computed(() => {
-    return props.data.expenses?.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
-});
 const totalRecurringExpenses = computed(() => {
-    return props.data.expenses
-        ?.filter(expense => expense.isRecurrent === 'yes')
-        .reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
-});
+    // Get all recurrent expenses
+    const allRecurringExpenses = props.data.transactions
+        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent === 'yes');
 
-const balance = computed(() =>
-    totalIncome.value - totalExpenses.value
-);
+    // Get all non-recurrent expenses for the current month
+    const currentMonthNonRecurringExpenses = filteredTransactions.value
+        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent !== 'yes');
 
+    // Combine and calculate the total
+    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
 
-const categorizedExpenses = computed(() => {
-    if (!props.data.expenses) return {};
-
-    return props.data.expenses
-        .filter(expense => expense.isRecurrent === 'yes')
-        .reduce((acc, expense) => {
-            const category = expense.category;
-
-            if (!acc[category]) {
-                acc[category] = 0;
-            }
-
-            acc[category] += parseFloat(expense.amount);
-
-            return acc;
-        }, {});
+    return combinedExpenses.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
 });
 
 //CHECK IF THERE IS DATA
@@ -304,18 +355,20 @@ const submitContribution = () => {
 // Form data
 const newIncome = useForm({
     category: '',
+    otherCategory: '',
     amount: '',
     description: '',
     income_date: '',
-    isRecurrent: 'yes'
+    isRecurrent: 'no'
 });
 
 const newExpense = useForm({
     category: '',
+    otherCategory: '',
     amount: '',
     description: '',
     expense_date: '',
-    isRecurrent: 'yes',
+    isRecurrent: 'no',
 });
 
 // Form submission handlers
@@ -419,14 +472,23 @@ function selectMonth(monthName) {
 }
 
 function calculateMonthlySummary() {
-    monthlyIncome.value = filteredTransactions.value
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    // Calculate Monthly Income
+    const allRecurringIncomes = props.data.transactions
+        ?.filter(t => t.type === 'income' && t.isRecurrent === 'yes');
+    const currentMonthNonRecurringIncomes = filteredTransactions.value
+        ?.filter(t => t.type === 'income' && t.isRecurrent !== 'yes');
+    const combinedIncomes = [...(allRecurringIncomes || []), ...(currentMonthNonRecurringIncomes || [])];
+    monthlyIncome.value = combinedIncomes.reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
 
-    monthlyExpenses.value = filteredTransactions.value
-        .filter(t => t.type !== 'income')
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    // Calculate Monthly Expenses
+    const allRecurringExpenses = props.data.transactions
+        ?.filter(t => t.type !== 'income' && t.isRecurrent === 'yes');
+    const currentMonthNonRecurringExpenses = filteredTransactions.value
+        ?.filter(t => t.type !== 'income' && t.isRecurrent !== 'yes');
+    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
+    monthlyExpenses.value = combinedExpenses.reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
 
+    // Calculate Monthly Balance
     monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
 }
 </script>
@@ -458,7 +520,7 @@ function calculateMonthlySummary() {
                                 <div class="px-4 py-5 sm:p-6">
                                     <dt class="text-sm font-medium text-gray-500 truncate">Total Income</dt>
                                     <dd class="mt-1 text-3xl font-semibold text-green-600">KES {{
-                                        totalIncome.toLocaleString() }}</dd>
+                                        monthlyIncome.toLocaleString() }}</dd>
                                 </div>
                             </div>
 
@@ -466,7 +528,7 @@ function calculateMonthlySummary() {
                                 <div class="px-4 py-5 sm:p-6">
                                     <dt class="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
                                     <dd class="mt-1 text-3xl font-semibold text-red-500">KES {{
-                                        totalExpenses.toLocaleString() }}</dd>
+                                        monthlyExpenses.toLocaleString() }}</dd>
                                 </div>
                             </div>
 
@@ -474,8 +536,8 @@ function calculateMonthlySummary() {
                                 <div class="px-4 py-5 sm:p-6">
                                     <dt class="text-sm font-medium text-gray-500 truncate">Balance</dt>
                                     <dd class="mt-1 text-3xl font-semibold"
-                                        :class="balance >= 0 ? 'text-green-600' : 'text-red-600'">
-                                        KES {{ balance.toLocaleString() }}
+                                        :class="monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'">
+                                        KES {{ monthlyBalance.toLocaleString() }}
                                     </dd>
                                 </div>
                             </div>
@@ -508,6 +570,17 @@ function calculateMonthlySummary() {
                             </div>
                         </div>
 
+                        <div class="my-4 w-[50%] flex flex-col items-center justify-center mx-auto">
+                            <label for="monthSelect" class="block text-sm font-medium text-gray-700 mb-1">Select
+                                Month</label>
+                            <select id="monthSelect" v-model="currentMonth" @change="selectMonth(currentMonth)"
+                                class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option v-for="(monthName, index) in availableMonths" :key="index" :value="monthName">
+                                    {{ monthName }}
+                                </option>
+                            </select>
+                        </div>
+
                         <div v-if="hasData" class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
                             <BudgetBarChart title="Top Income Sources" :items="topIncomes" type="income"
                                 class="bg-white shadow rounded-lg" />
@@ -516,41 +589,84 @@ function calculateMonthlySummary() {
                                 class="bg-white shadow rounded-lg" />
                         </div>
 
-                        <!--Show Monthly Budget-->
                         <div v-show="hasData" class="mt-12">
-                            <h2 class="text-xl font-bold text-gray-900 text-center">Your Monthly Budget</h2>
-                            <p class="italic text-center text-xs"><span class="font-bold">NOTE: </span>The monthly
-                                budget is only editable if you edit the transactions</p>
+                            <h2 class="text-xl font-bold text-gray-900 text-center">Your Recurrent Income</h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
                                 <ul class="divide-y divide-gray-200">
-                                    <li v-for="(amount, category) in categorizedExpenses" :key="category"
+                                    <li v-for="transaction in recurrentIncomes" :key="transaction.id"
                                         class="px-4 py-3">
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <p class="text-sm font-medium text-gray-900">
-                                                    {{ category }}
+                                                    {{ transaction.category }}
                                                 </p>
-                                                <p class="text-sm text-gray-500">Monthly recurring expense</p>
+                                            </div>
+                                            <div
+                                                class="flex flex-col gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
+                                                <div class="text-green-600 font-medium">
+                                                    + KES {{ Math.round(parseFloat(transaction.amount)).toLocaleString()
+                                                    }}
+                                                </div>
+                                                <button @click="openEditModal(transaction)"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+                                                    Edit
+                                                </button>
+                                                <button @click="openDeleteModal(transaction)"
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="px-4 py-3 bg-gray-50">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-sm font-bold text-gray-900">
+                                                    TOTAL RECURRENT INCOME
+                                                </p>
+                                            </div>
+                                            <div class="text-sm font-bold text-green-600">
+                                                KES {{ totalRecurringIncomes.toLocaleString() }}
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Montly Budget Section -->
+                        <div v-show="hasData" class="mt-12">
+                            <h2 class="text-xl font-bold text-gray-900 text-center">Your Monthly Budget - {{
+                                currentMonth }}</h2>
+                            <div class="mt-4 bg-white shadow rounded-lg">
+                                <ul class="divide-y divide-gray-200">
+                                    <li v-for="transaction in monthlyBudgetExpenses" :key="transaction.id"
+                                        class="px-4 py-3">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    {{ transaction.category }}
+                                                </p>
+                                                <p v-if="transaction.isRecurrent === 'yes'"
+                                                    class="text-sm text-gray-500">Monthly recurring expense</p>
                                             </div>
                                             <div
                                                 class="flex flex-col gap-2 md:flex-row md:gap-0 text-sm items-center space-x-2">
                                                 <div class="text-red-600 font-medium">
-                                                    - KES {{ Math.round(amount).toLocaleString() }}
+                                                    - KES {{ Math.round(parseFloat(transaction.amount)).toLocaleString()
+                                                    }}
                                                 </div>
-                                                <!-- Edit Button -->
-                                                <!-- <button @click="editBudgetCategory(category, amount)"
+                                                <button @click="openEditModal(transaction)"
                                                     class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
                                                     Edit
-                                                </button> -->
-                                                <!-- Delete Button -->
-                                                <!-- <button @click="deleteBudgetCategory(category)"
+                                                </button>
+                                                <button @click="openDeleteModal(transaction)"
                                                     class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
                                                     Delete
-                                                </button> -->
+                                                </button>
                                             </div>
                                         </div>
                                     </li>
-                                    <!-- Total Row -->
                                     <li class="px-4 py-3 bg-gray-50">
                                         <div class="flex items-center justify-between">
                                             <div>
@@ -569,32 +685,7 @@ function calculateMonthlySummary() {
 
                         <div v-show="hasData" class="mt-12">
                             <h2 class="text-xl font-bold text-center text-gray-900">All Transactions</h2>
-
-                            <!-- Month Tabs -->
-                            <div class="mt-4 flex overflow-x-auto pb-1">
-                                <button v-for="(monthName, index) in availableMonths" :key="index"
-                                    @click="selectMonth(monthName)" :class="[
-                                        'px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap',
-                                        currentMonth === monthName
-                                            ? 'border-blue-500 text-blue-600'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                    ]">
-                                    {{ monthName }}
-                                </button>
-                            </div>
-
                             <div class="mt-4 bg-white shadow rounded-lg">
-                                <!-- Month selector for mobile (dropdown alternative) -->
-                                <div class="p-4 md:hidden">
-                                    <select v-model="currentMonth" @change="selectMonth(currentMonth)"
-                                        class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                        <option v-for="(monthName, index) in availableMonths" :key="index"
-                                            :value="monthName">
-                                            {{ monthName }}
-                                        </option>
-                                    </select>
-                                </div>
-
                                 <!-- Transaction List -->
                                 <ul class="divide-y divide-gray-200">
                                     <li v-if="filteredTransactions.length === 0"
@@ -641,13 +732,12 @@ function calculateMonthlySummary() {
                                             Summary:</span>
                                         <div class="text-right">
                                             <p class="text-sm font-medium text-green-600">Income: KES {{
-                                                totalIncome.toLocaleString() }}</p>
+                                                monthlyIncome.toLocaleString() }}</p>
                                             <p class="text-sm font-medium text-red-600">Expenses: KES {{
-                                                totalExpenses.toLocaleString() }}</p>
+                                                monthlyExpenses.toLocaleString() }}</p>
                                             <p class="text-sm font-bold"
-                                                :class="balance >= 0 ? 'text-green-600' : 'text-red-600'">
-                                                Balance: KES {{ balance.toLocaleString() }}
-                                            </p>
+                                                :class="monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'">
+                                                Balance: KES {{ monthlyBalance.toLocaleString() }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -659,49 +749,60 @@ function calculateMonthlySummary() {
                 <!-- ADD INCOME MODAL -->
                 <div v-if="showIncomeModal" class="fixed inset-0 overflow-y-auto z-10 flex items-center justify-center">
                     <div class="fixed inset-0 bg-black bg-opacity-50" @click="showIncomeModal = false"></div>
-                    <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Income</h3>
+                    <div class="relative bg-white rounded-lg max-w-sm w-full mx-2 p-4 shadow-lg">
+                        <h3 class="text-base font-semibold text-gray-900 mb-3">Add Income</h3>
                         <form @submit.prevent="submitIncome">
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="incomeCategory" class="block text-sm font-medium text-gray-700 mb-1">Income
                                     Type</label>
                                 <select id="incomeCategory" v-model="newIncome.category"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Income Category</option>
                                     <option v-for="category in incomeCategories" :key="category.value"
-                                        :value="category.label">{{ category.label }}</option>
+                                        :value="category.label">
+                                        {{ category.label }}
+                                    </option>
                                 </select>
                             </div>
 
-                            <div class="mb-4">
-                                <label for="isRecurrent" class="block text-sm font-medium text-gray-700 mb-1">Is
-                                    Recurrent?</label>
-                                <div>
-                                    <input checked type="radio" id="yes" name="isRecurrent" value="yes"
-                                        v-model="newIncome.isRecurrent">
-                                    <label for="yes" class="ml-2">Yes</label>
-                                </div>
-                                <div>
-                                    <input type="radio" id="no" name="isRecurrent" value="no"
-                                        v-model="newIncome.isRecurrent">
-                                    <label for="no" class="ml-2">No</label>
+                            <div v-show="newIncome.category === 'Other'" class="mb-3">
+                                <label for="incomeCategory" class="block text-sm font-medium text-gray-700 mb-1">Specify
+                                    Income</label>
+                                <input type="text" id="incomeCategory" v-model="newIncome.otherCategory"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    :required="newIncome.value === 'other'" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center text-sm">
+                                        <input type="radio" id="yes" name="isRecurrent" value="yes"
+                                            v-model="newIncome.isRecurrent" />
+                                        <span class="ml-1">Yes</span>
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="radio" id="no" name="isRecurrent" value="no"
+                                            v-model="newIncome.isRecurrent" />
+                                        <span class="ml-1">No</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="incomeDescription"
                                     class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea type="text" id="incomeDescription" v-model="newIncome.description"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    min="0" step="0.01" required></textarea>
+                                <textarea id="incomeDescription" v-model="newIncome.description"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required></textarea>
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="incomeAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount
                                     (KES)</label>
                                 <input type="number" id="incomeAmount" v-model="newIncome.amount"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     min="0" step="0.01" required />
                             </div>
 
@@ -709,17 +810,17 @@ function calculateMonthlySummary() {
                                 <label for="incomeDate"
                                     class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                 <input type="date" id="incomeDate" v-model="newIncome.income_date"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    min="0" step="0.01" required />
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required />
                             </div>
 
-                            <div class="flex justify-end space-x-3">
+                            <div class="flex justify-end space-x-2">
                                 <button type="button" @click="showIncomeModal = false"
-                                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    class="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     Cancel
                                 </button>
                                 <button type="submit"
-                                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                     {{ newIncome.processing ? 'Saving...' : 'Save Income' }}
                                 </button>
                             </div>
@@ -727,82 +828,94 @@ function calculateMonthlySummary() {
                     </div>
                 </div>
 
+
                 <!-- ADD EXPENSE MODAL -->
                 <div v-if="showExpenseModal"
-                    class="fixed mr-16 sm:mr-0 inset-0 overflow-y-auto z-10 flex items-center justify-center">
+                    class="fixed inset-0 overflow-y-auto z-10 flex items-center justify-center">
                     <div class="fixed inset-0 bg-black bg-opacity-50" @click="showExpenseModal = false"></div>
-                    <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Expense</h3>
+                    <div class="relative bg-white rounded-lg max-w-sm w-full mx-2 p-4 shadow-lg">
+                        <h3 class="text-base font-semibold text-gray-900 mb-3">Add Expense</h3>
                         <form @submit.prevent="submitExpense">
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="expenseCategory"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Expense
-                                    Type</label>
+                                    class="block text-sm font-medium text-gray-700 mb-1">Expense Type</label>
                                 <select id="expenseCategory" v-model="newExpense.category"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Expense Type</option>
                                     <option v-for="category in expenseCategories" :value="category.label"
-                                        :key="category.value">{{ category.label }}</option>
+                                        :key="category.value">
+                                        {{ category.label }}
+                                    </option>
                                 </select>
                             </div>
 
-                            <div class="mb-4">
-                                <label for="isRecurrent" class="block text-sm font-medium text-gray-700 mb-1">Is
-                                    Recurrent?</label>
-                                <div>
-                                    <input checked type="radio" id="yes" name="isRecurrent" value="yes"
-                                        v-model="newExpense.isRecurrent">
-                                    <label for="yes" class="ml-2">Yes</label>
-                                </div>
-                                <div>
-                                    <input type="radio" id="no" name="isRecurrent" value="no"
-                                        v-model="newExpense.isRecurrent">
-                                    <label for="no" class="ml-2">No</label>
+                            <div v-show="newExpense.category === 'Other'" class="mb-3">
+                                <label for="incomeCategory" class="block text-sm font-medium text-gray-700 mb-1">Specify
+                                    Expense</label>
+                                <input type="text" id="incomeCategory" v-model="newExpense.otherCategory"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    :required="newExpense.value === 'other'" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center text-sm">
+                                        <input type="radio" id="yes" name="isRecurrent" value="yes"
+                                            v-model="newExpense.isRecurrent" />
+                                        <span class="ml-1">Yes</span>
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="radio" id="no" name="isRecurrent" value="no"
+                                            v-model="newExpense.isRecurrent" />
+                                        <span class="ml-1">No</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="expenseAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount
                                     (KES)</label>
                                 <input type="number" id="expenseAmount" v-model="newExpense.amount"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     min="0" step="0.01" required />
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="expenseDescription"
                                     class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                                 <textarea id="expenseDescription" v-model="newExpense.description" rows="2"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required></textarea>
                             </div>
 
                             <div class="mb-4">
                                 <label for="expenseDate"
                                     class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                                <input type="date" id="expenseDate" v-model="newExpense.expense_date" rows="2"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                <input type="date" id="expenseDate" v-model="newExpense.expense_date"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required />
                             </div>
 
-                            <div class="flex justify-end space-x-3">
+                            <div class="flex justify-end space-x-2">
                                 <button type="button" @click="showContributeModal = true"
-                                    class="px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    class="px-3 py-1.5 border border-yellow-300 rounded-md shadow-sm text-sm text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">
                                     Contribute
                                 </button>
                                 <button type="button" @click="showExpenseModal = false"
-                                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    class="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     Cancel
                                 </button>
                                 <button type="submit"
-                                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                    class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                     {{ newExpense.processing ? 'Saving...' : 'Save Expense' }}
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
+
 
                 <!-- CONTRIBUTE MODAL  -->
                 <div v-if="showContributeModal"
@@ -909,7 +1022,7 @@ function calculateMonthlySummary() {
                                         <option :value="selectedTransaction.category">{{ selectedTransaction.category }}
                                         </option>
                                         <option v-for="category in incomeCategories" :key="category.value"
-                                            :value="category">
+                                            :value="category.label">
                                             {{ category.label }}
                                         </option>
                                     </select>
@@ -946,7 +1059,7 @@ function calculateMonthlySummary() {
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                            updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -965,7 +1078,7 @@ function calculateMonthlySummary() {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>

@@ -30,7 +30,7 @@
         <div class="flex justify-center mb-12">
             <ToolFoot title="Budget Planning Made Simple"
                 description="At Zurit, we believe in simplifying budgeting. Our tool is designed for easy navigation and user-friendly interfaces."
-                buttonText="Go to Budget Planning" buttonLink="#" />
+                buttonText="Go to Budget Planning" buttonLink="/user/budget" />
         </div>
 
     </div>

@@ -28,7 +28,7 @@
         </div>
 
         <div class="flex justify-center mb-12">
-            <ToolFoot title="Debt Management Made Simple" description="At Zurit, we simplify debt management. Our tool provides: Clear overview of your debts, Customized repayment strategies, and Real-time tracking of debt reduction" buttonText="Go to Debt Manager" buttonLink="#" />
+            <ToolFoot title="Debt Management Made Simple" description="At Zurit, we simplify debt management. Our tool provides: Clear overview of your debts, Customized repayment strategies, and Real-time tracking of debt reduction" buttonText="Go to Debt Manager" buttonLink="/user/debt" />
         </div>
 
     </div>

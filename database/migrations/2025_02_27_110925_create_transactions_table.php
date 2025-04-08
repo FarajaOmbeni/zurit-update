@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('type', ['income', 'expense', 'goal', 'investment', 'debt']);
             $table->string('category');
             $table->decimal('amount', 15, 2);
+            $table->enum('isRecurrent', ['yes', 'no'])->default('yes')->nullable();
             $table->date('transaction_date');
             $table->string('description')->nullable();
             $table->timestamps();

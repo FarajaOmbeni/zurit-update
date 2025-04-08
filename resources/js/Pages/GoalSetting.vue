@@ -28,7 +28,7 @@
         </div>
 
         <div class="flex justify-center mb-12">
-            <ToolFoot title="Goal Setting Made Simple" description="At Zurit, we believe in goal setting. Our tool is designed for easy navigation and user-friendly interfaces." buttonText="Go to Goal Setting" buttonLink="#"/>
+            <ToolFoot title="Goal Setting Made Simple" description="At Zurit, we believe in goal setting. Our tool is designed for easy navigation and user-friendly interfaces." buttonText="Go to Goal Setting" buttonLink="/user/goal"/>
         </div>
 
     </div>
