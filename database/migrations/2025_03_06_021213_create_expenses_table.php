@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
             $table->string('type')->default('expense');
             $table->string('category');
-            $table->enum('isRecurrent', ['yes', 'no'])->default('yes')->nullable();
             $table->string('description');
             $table->decimal('amount', 15, 2);
             $table->date('expense_date');

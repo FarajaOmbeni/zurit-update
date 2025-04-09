@@ -98,6 +98,8 @@ const updateTransaction = useForm({
     description: '',
     amount: '',
     transaction_date: '',
+    isRecurrent: '',
+    recurrencePattern: ''
 })
 
 // Methods to handle the modal actions
@@ -107,6 +109,8 @@ const saveEdit = () => {
     updateTransaction.category = transaction.category
     updateTransaction.description = transaction.description
     updateTransaction.amount = transaction.amount
+    updateTransaction.isRecurrent = transaction.isRecurrent
+    updateTransaction.recurrencePattern = transaction.recurrencePattern
     updateTransaction.transaction_date = transaction.transaction_date
 
     const routeName = transaction.type == 'income' ? 'income.edit' : 'expense.edit'
@@ -359,7 +363,8 @@ const newIncome = useForm({
     amount: '',
     description: '',
     income_date: '',
-    isRecurrent: 'no'
+    isRecurrent: 'no',
+    recurrencePattern: ''
 });
 
 const newExpense = useForm({
@@ -369,6 +374,7 @@ const newExpense = useForm({
     description: '',
     expense_date: '',
     isRecurrent: 'no',
+    recurrencePattern: ''
 });
 
 // Form submission handlers
@@ -593,8 +599,7 @@ function calculateMonthlySummary() {
                             <h2 class="text-xl font-bold text-gray-900 text-center">Your Recurrent Income</h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
                                 <ul class="divide-y divide-gray-200">
-                                    <li v-for="transaction in recurrentIncomes" :key="transaction.id"
-                                        class="px-4 py-3">
+                                    <li v-for="transaction in recurrentIncomes" :key="transaction.id" class="px-4 py-3">
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <p class="text-sm font-medium text-gray-900">
@@ -708,7 +713,7 @@ function calculateMonthlySummary() {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                        Math.round(transaction.amount).toLocaleString() }}
+                                                    Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -788,6 +793,20 @@ function calculateMonthlySummary() {
                                         <span class="ml-1">No</span>
                                     </label>
                                 </div>
+                            </div>
+
+                            <div v-show="newIncome.isRecurrent === 'yes'" class="mb-3">
+                                <label for="incomeCategory"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Recurrence
+                                    Pattern</label>
+                                <select type="text" id="incomeCategory" v-model="newIncome.recurrencePattern"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    :required="newIncome.isRecurrent === 'yes'">
+                                    <option value="daily">Daily</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quaterly">Quaterly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
                             </div>
 
                             <div class="mb-3">
@@ -872,6 +891,20 @@ function calculateMonthlySummary() {
                                         <span class="ml-1">No</span>
                                     </label>
                                 </div>
+                            </div>
+
+                            <div v-show="newExpense.isRecurrent === 'yes'" class="mb-3">
+                                <label for="incomeCategory"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Recurrence
+                                    Pattern</label>
+                                <select type="text" id="incomeCategory" v-model="newExpense.recurrencePattern"
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    :required="newExpense.isRecurrent === 'yes'">
+                                    <option value="daily">Daily</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quaterly">Quaterly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
                             </div>
 
                             <div class="mb-3">
@@ -1028,6 +1061,36 @@ function calculateMonthlySummary() {
                                     </select>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
+                                    <div class="flex space-x-4">
+                                        <label class="flex items-center text-sm">
+                                            <input type="radio" id="yes" name="isRecurrent" value="yes"
+                                                v-model="selectedTransaction.isRecurrent" />
+                                            <span class="ml-1">Yes</span>
+                                        </label>
+                                        <label class="flex items-center text-sm">
+                                            <input type="radio" id="no" name="isRecurrent" value="no"
+                                                v-model="selectedTransaction.isRecurrent" />
+                                            <span class="ml-1">No</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-show="selectedTransaction.isRecurrent === 'yes'" class="mb-3">
+                                    <label for="incomeCategory"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Recurrence
+                                        Pattern</label>
+                                    <select type="text" id="incomeCategory" v-model="selectedTransaction.recurrencePattern"
+                                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        :required="selectedTransaction.isRecurrent === 'yes'">
+                                        <option value="daily">Daily</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quaterly">Quaterly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+
                                 <div class="mb-4">
                                     <label for="incomeAmount"
                                         class="block text-sm font-medium text-gray-700 mb-1">Amount
@@ -1059,7 +1122,7 @@ function calculateMonthlySummary() {
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                            updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -1078,7 +1141,7 @@ function calculateMonthlySummary() {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>

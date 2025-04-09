@@ -25,6 +25,7 @@ class TransactionSeeder extends Seeder
             'Housing',
             'Transportation',
             'Food',
+            'Groceries',
             'Utilities',
             'Entertainment',
             'Other'
@@ -66,7 +67,6 @@ class TransactionSeeder extends Seeder
                         'user_id'          => $user->id,
                         'type'             => 'income',
                         'category'         => 'Salary',
-                        'isRecurrent'         => Arr::random(['yes', 'no']),
                         'amount'           => $bonusAmount,
                         'transaction_date' => $bonusDate,
                         'description'      => 'Additional salary payment',
@@ -98,11 +98,13 @@ class TransactionSeeder extends Seeder
                         default => rand(10, 200),
                     };
 
+                    $isRecurring = Arr::random(['yes', 'no']);
                     $expenseTransaction = Transaction::create([
                         'user_id'          => $user->id,
                         'type'             => 'expense',
                         'category'         => $category,
-                        'isRecurrent'         => Arr::random(['yes', 'no']),
+                        'is_recurring'     => $isRecurring,
+                        'recurrence_pattern' => $isRecurring === 'yes' ? Arr::random(['daily', 'weekly', 'monthly', 'quarterly', 'yearly']) : null,
                         'amount'           => $amount,
                         'transaction_date' => $expenseDate,
                         'description'      => "$category expense",
@@ -113,7 +115,6 @@ class TransactionSeeder extends Seeder
                         'transaction_id' => $expenseTransaction->id,
                         'type'           => 'expense',
                         'category'       => $category,
-                        'isRecurrent'         => Arr::random(['yes', 'no']),
                         'amount'         => $amount,
                         'description'    => "$category expense",
                         'expense_date'   => $expenseDate,
