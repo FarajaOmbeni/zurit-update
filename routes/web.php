@@ -85,36 +85,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/calculators', function () {
         return Inertia::render('UserDashboard/Calculators');
     })->name('calculator.index');
+
+
+    /////////////////////////////////////////////////////////
+    //////////////////  ADMIN ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('users.index');
+    Route::get('/admin/system', [AdminController::class, 'system'])->name('system.index');
+
+    //////////BLOGS ROOUTES//////////
+    Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
+    Route::post('/admin/blogs', [BlogController::class, 'store'])->name('blogs.store');
+
+    ////////////EVENTS ROUTES/////////////
+    Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
+    Route::post('/admin/events', [EventsController::class, 'store'])->name('events.store');
+
+
+    Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
+    Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
+
+    Route::get('/admin/marketing', [MarketingController::class, 'index'])->name('marketing.index');
+    Route::post('/admin/marketing', [MarketingController::class, 'sendEmails'])->name('marketing.send');
+
+
+    Route::get('/admin/add-users', function () {
+        return Inertia::render('Admin/AddUsers');
+    })->name('add-users.index');
+
+    Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
+    Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 });
-
-/////////////////////////////////////////////////////////
-//////////////////  ADMIN ROUTES ///////////////////////
-////////////////////////////////////////////////////////
-Route::get('/admin/users', [AdminController::class, 'users'])->name('users.index');
-Route::get('/admin/system', [AdminController::class, 'system'])->name('system.index');
-
-//////////BLOGS ROOUTES//////////
-Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
-Route::post('/admin/blogs', [BlogController::class, 'store'])->name('blogs.store');
-
-////////////EVENTS ROUTES/////////////
-Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
-Route::post('/admin/events', [EventsController::class, 'store'])->name('events.store');
-
-
-Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
-Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
-
-Route::get('/admin/marketing', [MarketingController::class, 'index'])->name('marketing.index');
-Route::post('/admin/marketing', [MarketingController::class, 'sendEmails'])->name('marketing.send');
-
-
-Route::get('/admin/add-users', function () {
-    return Inertia::render('Admin/AddUsers');
-})->name('add-users.index');
-
-Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
-Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 
 Route::get('/about', [IndexController::class, 'about'])->name('about');
 Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
