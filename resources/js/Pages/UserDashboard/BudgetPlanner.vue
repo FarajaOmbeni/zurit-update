@@ -33,30 +33,21 @@ const totalRecurringIncomes = computed(() => {
 });
 
 const categorizedExpenses = computed(() => {
-    // Get all recurrent expenses
-    const allRecurringExpenses = props.data.transactions
-        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent === 'yes');
+    if (!props.data.expenses) return {};
 
-    // Get all non-recurrent expenses for the current month
-    const currentMonthNonRecurringExpenses = filteredTransactions.value
-        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent !== 'yes');
+    return props.data.expenses
+        .filter(expense => expense.isRecurrent === 'yes')
+        .reduce((acc, expense) => {
+            const category = expense.category;
 
-    // Combine the expenses
-    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
+            if (!acc[category]) {
+                acc[category] = 0;
+            }
 
-    if (!combinedExpenses || combinedExpenses.length === 0) return {};
+            acc[category] += parseFloat(expense.amount);
 
-    return combinedExpenses.reduce((acc, expense) => {
-        const category = expense.category;
-
-        if (!acc[category]) {
-            acc[category] = 0;
-        }
-
-        acc[category] += parseFloat(expense.amount);
-
-        return acc;
-    }, {});
+            return acc;
+        }, {});
 });
 
 const monthlyBudgetExpenses = computed(() => {
@@ -156,111 +147,71 @@ console.log("DATA", props.data)
 const TOP_N = 3;
 
 const topIncomes = computed(() => {
-    const TOP_N = 3;
+    if (!props.data.incomes) return [];
 
-    // 1. Get all recurrent income transactions
-    const allRecurringIncomes = props.data.transactions
-        ?.filter(t => t.type === 'income' && t.isRecurrent === 'yes');
+    // Group incomes by label and aggregate amounts
+    const groupedIncomes = [...props.data.incomes]
+        .filter(income => income.isRecurrent === 'yes')
+        .reduce((acc, income) => {
+            const existingIncome = acc.find(item => item.label === income.category);
 
-    // 2. Get all non-recurrent income transactions for the current month
-    const currentMonthNonRecurringIncomes = filteredTransactions.value
-        ?.filter(t => t.type === 'income' && t.isRecurrent !== 'yes');
+            if (existingIncome) {
+                // If label already exists, add to its amount
+                existingIncome.amount += parseFloat(income.amount);
+            } else {
+                // If label doesn't exist, create new entry
+                acc.push({
+                    amount: parseFloat(income.amount),
+                    label: income.category,
+                    currency: income.currency || 'KES'
+                });
+            }
 
-    // 3. Combine the incomes
-    const combinedIncomes = [...(allRecurringIncomes || []), ...(currentMonthNonRecurringIncomes || [])];
-
-    if (!combinedIncomes || combinedIncomes.length === 0) return [];
-
-    // 4. Group by category, sum amounts
-    const groupedIncomes = combinedIncomes.reduce((acc, income) => {
-        const category = income.category;
-        const amount = parseFloat(income.amount);
-        const currency = income.currency || 'KES';
-
-        const existingIncome = acc.find(item => item.label === category);
-
-        if (existingIncome) {
-            existingIncome.amount += amount;
-        } else {
-            acc.push({
-                amount: amount,
-                label: category,
-                currency: currency
-            });
-        }
-        return acc;
-    }, []);
-
-    // 5. Sort, slice, and format
-    return groupedIncomes
+            return acc;
+        }, [])
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_N)
         .map(income => ({
-            ...income,
-            amount: Math.round(income.amount)
+            amount: Math.round(income.amount),
+            label: income.label,
+            currency: income.currency
         }));
+
+    return groupedIncomes;
 });
 
 const topExpenses = computed(() => {
-    const TOP_N = 3;
+    if (!props.data.expenses) return [];
 
-    // 1. Get all recurrent expense transactions
-    const allRecurringExpenses = props.data.transactions
-        ?.filter(t => t.type !== 'income' && t.isRecurrent === 'yes');
+    // Group expenses by label and aggregate amounts
+    const groupedExpenses = [...props.data.expenses]
+        .filter(expense => expense.isRecurrent === 'yes')
+        .reduce((acc, expense) => {
+            const existingExpense = acc.find(item => item.label === expense.category);
 
-    // 2. Get all non-recurrent expense transactions for the current month
-    const currentMonthNonRecurringExpenses = filteredTransactions.value
-        ?.filter(t => t.type !== 'income' && t.isRecurrent !== 'yes');
+            if (existingExpense) {
+                // If label already exists, add to its amount
+                existingExpense.amount += parseFloat(expense.amount);
+            } else {
+                // If label doesn't exist, create new entry
+                acc.push({
+                    amount: parseFloat(expense.amount),
+                    label: expense.category,
+                    currency: expense.currency || 'KES'
+                });
+            }
 
-    // 3. Combine the expenses
-    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
-
-    if (!combinedExpenses || combinedExpenses.length === 0) return [];
-
-    // 4. Group by category, sum amounts
-    const groupedExpenses = combinedExpenses.reduce((acc, expense) => {
-        const category = expense.category;
-        const amount = parseFloat(expense.amount);
-        const currency = expense.currency || 'KES';
-
-        const existingExpense = acc.find(item => item.label === category);
-
-        if (existingExpense) {
-            existingExpense.amount += amount;
-        } else {
-            acc.push({
-                amount: amount,
-                label: category,
-                currency: currency
-            });
-        }
-        return acc;
-    }, []);
-
-    // 5. Sort, slice, and format
-    return groupedExpenses
+            return acc;
+        }, [])
         .sort((a, b) => b.amount - a.amount)
         .slice(0, TOP_N)
         .map(expense => ({
-            ...expense,
-            amount: Math.round(expense.amount)
+            amount: Math.round(expense.amount),
+            label: expense.label,
+            currency: expense.currency
         }));
-});
 
-//LOGIC TO GET TOTALS, ALSO SEE BAR GRAPH COMPONENT
-const totalRecurringExpenses = computed(() => {
-    // Get all recurrent expenses
-    const allRecurringExpenses = props.data.transactions
-        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent === 'yes');
-
-    // Get all non-recurrent expenses for the current month
-    const currentMonthNonRecurringExpenses = filteredTransactions.value
-        ?.filter(transaction => transaction.type !== 'income' && transaction.isRecurrent !== 'yes');
-
-    // Combine and calculate the total
-    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
-
-    return combinedExpenses.reduce((acc, expense) => acc + parseFloat(expense.amount), 0) || 0;
+    return groupedExpenses;
 });
 
 //CHECK IF THERE IS DATA
@@ -478,23 +429,14 @@ function selectMonth(monthName) {
 }
 
 function calculateMonthlySummary() {
-    // Calculate Monthly Income
-    const allRecurringIncomes = props.data.transactions
-        ?.filter(t => t.type === 'income' && t.isRecurrent === 'yes');
-    const currentMonthNonRecurringIncomes = filteredTransactions.value
-        ?.filter(t => t.type === 'income' && t.isRecurrent !== 'yes');
-    const combinedIncomes = [...(allRecurringIncomes || []), ...(currentMonthNonRecurringIncomes || [])];
-    monthlyIncome.value = combinedIncomes.reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+    monthlyIncome.value = filteredTransactions.value
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-    // Calculate Monthly Expenses
-    const allRecurringExpenses = props.data.transactions
-        ?.filter(t => t.type !== 'income' && t.isRecurrent === 'yes');
-    const currentMonthNonRecurringExpenses = filteredTransactions.value
-        ?.filter(t => t.type !== 'income' && t.isRecurrent !== 'yes');
-    const combinedExpenses = [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
-    monthlyExpenses.value = combinedExpenses.reduce((sum, t) => sum + parseFloat(t.amount), 0) || 0;
+    monthlyExpenses.value = filteredTransactions.value
+        .filter(t => t.type !== 'income')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-    // Calculate Monthly Balance
     monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
 }
 </script>
