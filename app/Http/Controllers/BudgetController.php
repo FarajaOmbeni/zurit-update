@@ -72,7 +72,8 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
+            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount = $request->amount;
             $transaction->transaction_date = $request->income_date;
             $transaction->description = $request->description;
@@ -89,7 +90,6 @@ class BudgetController extends Controller
             $income->amount = $request->amount;
             $income->description = $request->description;
             $income->income_date = $request->income_date;
-            $income->isRecurrent = $request->isRecurrent ?? 'no';
             $income->transaction_id = $transaction->id;
             $income->save();
         });
@@ -117,7 +117,8 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
+            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount = $request->amount;
             $transaction->transaction_date = $request->expense_date;
             $transaction->description = $request->description;
@@ -132,7 +133,6 @@ class BudgetController extends Controller
                 $expense->category = $request->category;
             }
             $expense->amount = $request->amount;
-            $expense->isRecurrent = $request->isRecurrent ?? 'no';
             $expense->description = $request->description;
             $expense->expense_date = $request->expense_date;
             $expense->transaction_id = $transaction->id;
@@ -160,7 +160,7 @@ class BudgetController extends Controller
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
             'transaction_date' => 'required|date', // used as the income_date
-            'isRecurrent'      => 'nullable|string|in:yes,no',
+            'is_recurring'      => 'nullable|string|in:yes,no',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -176,7 +176,8 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
+            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;
             $transaction->transaction_date = $request->transaction_date;
@@ -191,7 +192,6 @@ class BudgetController extends Controller
             $expense->amount      = $request->amount;
             $expense->description = $request->description;
             $expense->expense_date = $request->transaction_date;
-            $expense->isRecurrent = $request->isRecurrent ?? 'no';
             $expense->save();
         });
 
@@ -205,7 +205,7 @@ class BudgetController extends Controller
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
             'transaction_date' => 'required|date',
-            'isRecurrent'      => 'nullable|string|in:yes,no',
+            'is_recurring'      => 'nullable|string|in:yes,no',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -221,7 +221,8 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->isRecurrent = $request->isRecurrent ?? 'no';
+            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;
             $transaction->transaction_date = $request->transaction_date;
@@ -236,7 +237,6 @@ class BudgetController extends Controller
             $income->amount      = $request->amount;
             $income->description = $request->description;
             $income->income_date = $request->transaction_date;
-            $income->isRecurrent = $request->isRecurrent ?? 'no';
             $income->save();
         });
 
