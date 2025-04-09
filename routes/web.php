@@ -90,7 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
-    Route::get('/admin/users', [AdminController::class, 'users'])->name('users.index');
+    Route::get('/admin', [AdminController::class, 'users'])->name('users.index');
     Route::get('/admin/system', [AdminController::class, 'system'])->name('system.index');
 
     //////////BLOGS ROOUTES//////////
