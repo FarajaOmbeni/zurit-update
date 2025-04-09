@@ -7,7 +7,7 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="icon" type="image/x-icon" href="/images/home/zurit.png">
+    <link rel="icon" type="image/x-icon" href="/storage/home/zurit.png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Fonts -->
