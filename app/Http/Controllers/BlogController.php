@@ -41,7 +41,7 @@ class BlogController extends Controller
         $blog = new Blog();
         $blog->blog_title = $request->blog_title;
         $blog->blog_tag = $request->blog_tag;
-        $blog->blog_image = $imagePath;
+        $blog->blog_image = basename($imagePath);
         $blog->blog_message = $request->content;
 
         $blog->save();
