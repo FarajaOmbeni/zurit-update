@@ -31,7 +31,12 @@ class BlogController extends Controller
             'content' => 'required',
         ]);
 
-        $imagePath = time() . '' . $request->file('blog_image')->store('blogs', 'public');
+        $imagePath = null;
+
+        if($request->hasFile('blog_image')) {
+            $image = $request->file('blog_image');
+            $imagePath = $image->store('blogs', 'public');
+        }
 
         $blog = new Blog();
         $blog->blog_title = $request->blog_title;

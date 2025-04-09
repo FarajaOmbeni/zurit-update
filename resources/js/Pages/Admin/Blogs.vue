@@ -53,7 +53,7 @@ const handleSubmit = () => {
     form.post(route('blogs.store'), {
         onSuccess: () => {
             form.reset()
-            openAlert('success', "Event added succesfully!", 5000)
+            openAlert('success', "Blog added succesfully!", 5000)
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)

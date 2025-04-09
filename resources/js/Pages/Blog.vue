@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-12">
             <!-- Blog Cards Section -->
             <div class="grid grid-cols-1 w-[70%] gap-8">
-                <BlogCard :image="`/images/blogs/${blog.blog_image}`" :title="blog.blog_title"
+                <BlogCard :image="`/storage/${blog.blog_image}`" :title="blog.blog_title"
                     :content="blog.blog_message" :link="blog.link" :date="formatDate(blog.created_at)" />
             </div>
             <!-- Search and Recent Posts Section -->
@@ -24,12 +24,12 @@
                 </div>
                 <div class="">
                     <h1 class="text-xl font-bold text-gray-800">Recent Posts</h1>
-                    <ul class="mt-2 space-y-4 list-none">
+                    <ul class="mt-2 pl-0 space-y-4 list-none">
                         <li v-for="blog in blogs.slice(0, 5)"
                             class="text-purple-700 hover:font-bold hover:text-purple-900 transition-colors duration-300">
                             <a :href="`/blog/${blog.id}`">
                                 <div class="flex gap-2 items-center cursor-pointer">
-                                    <img class="w-[6rem] h-20" :src="`/images/blogs/${blog.blog_image}`"
+                                    <img class="w-[6rem] h-20" :src="`/storage/${blog.blog_image}`"
                                         alt="Blog image">
                                     <div>
                                         <p class="text-sm">{{ blog.blog_title }}</p>
