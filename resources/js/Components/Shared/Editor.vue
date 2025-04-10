@@ -65,11 +65,11 @@ const config = computed(() => {
         Link,
         List,
         Alignment,
-        Image,
-        ImageToolbar,
-        ImageCaption,
-        ImageStyle,
-        ImageResize,
+        // Image,
+        // ImageToolbar,
+        // ImageCaption,
+        // ImageStyle,
+        // ImageResize,
         BlockQuote
     } = cloud.data.value.CKEditor;
 
@@ -86,11 +86,11 @@ const config = computed(() => {
             Link,
             List,
             Alignment,
-            Image,
-            ImageToolbar,
-            ImageCaption,
-            ImageStyle,
-            ImageResize,
+            // Image,
+            // ImageToolbar,
+            // ImageCaption,
+            // ImageStyle,
+            // ImageResize,
             BlockQuote,
             FormatPainter
         ],
