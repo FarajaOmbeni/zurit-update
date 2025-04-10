@@ -1,131 +1,93 @@
 <template>
-    <div>
-        <p class="block mb-1 font-medium text-purple-900">
-            {{ label }}
-        </p>
-        <ckeditor v-if="editor" v-model="internalValue" :editor="editor" :config="config" />
-    </div>
+  <div>
+    <!-- Label -->
+    <p class="mb-1 font-medium text-purple-900">{{ label }}</p>
+    <!-- Container for the Quill editor -->
+    <div ref="editorContainer" class="quill-editor border border-gray-300"></div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { Ckeditor, useCKEditorCloud } from '@ckeditor/ckeditor5-vue';
+import { ref, onMounted, watch } from 'vue';
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 
-// Define the props and emit
 const props = defineProps({
-    label: String,
-    modelValue: {
-        type: String,
-        default: ''
-    }
+  modelValue: {
+    type: String,
+    default: ''
+  },
+  label: {
+    type: String,
+    default: 'Editor'
+  }
 });
 const emit = defineEmits(['update:modelValue']);
 
-// Create an internal ref that starts with the prop value
-const internalValue = ref(props.modelValue);
+const editorContainer = ref(null);
+let quillInstance = null;
 
-// Watch for changes and emit updates so the parent stays in sync
-watch(internalValue, (newVal) => {
-    emit('update:modelValue', newVal);
+const updateEditorHeight = () => {
+  const qlEditor = editorContainer.value.querySelector('.ql-editor');
+  if (qlEditor) {
+    qlEditor.style.height = 'auto';
+    qlEditor.style.height = `${qlEditor.scrollHeight}px`;
+  }
+};
+
+onMounted(() => {
+  // Initialize Quill on the container element with alignment controls
+  quillInstance = new Quill(editorContainer.value, {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        // Alignment rich controls: displays left, center, right, and justify options
+        [{ align: [] }],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
+
+  // Set initial content if provided
+  if (props.modelValue) {
+    quillInstance.clipboard.dangerouslyPasteHTML(props.modelValue);
+  }
+  
+  // Adjust initial height of the editor
+  updateEditorHeight();
+
+  // Listen to text changes to update model and adjust editor height
+  quillInstance.on('text-change', () => {
+    const qlEditor = editorContainer.value.querySelector('.ql-editor');
+    const htmlContent = qlEditor.innerHTML;
+    emit('update:modelValue', htmlContent);
+    updateEditorHeight();
+  });
 });
 
-// If the prop changes from the parent, update the internal value
+// Watch for external model changes (v-model)
 watch(
-    () => props.modelValue,
-    (newVal) => {
-        internalValue.value = newVal;
+  () => props.modelValue,
+  (newValue) => {
+    const qlEditor = editorContainer.value.querySelector('.ql-editor');
+    if (quillInstance && newValue !== qlEditor.innerHTML) {
+      quillInstance.clipboard.dangerouslyPasteHTML(newValue);
+      updateEditorHeight();
     }
+  }
 );
-
-const cloud = useCKEditorCloud({
-    version: '44.3.0',
-    premium: true
-});
-
-const editor = computed(() => {
-    if (!cloud.data.value) {
-        return null;
-    }
-    return cloud.data.value.CKEditor.ClassicEditor;
-});
-
-// const licenseKey = import.meta.env.VITE_CK_EDITOR_LICENSE_KEY;
-const licenseKey = "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NzU4NjU1OTksImp0aSI6ImYzOGU1NjA4LWRiOTUtNDg3NS1iY2QyLTEyMDY2YzEyMWMyMSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkJPWCJdLCJ2YyI6IjY2ZGJhNDMzIn0.tRFbhRNOCHp2ohijE7565G6o4AFRbQnj7ZypGG46zkB5lsGYnvhPKqaqOIQSxbM0EScmNbHEbqDgm-nEfyolmQ";
-console.log("License: ", licenseKey)
-
-const config = computed(() => {
-    if (!cloud.data.value) {
-        return null;
-    }
-
-    const {
-        Essentials,
-        Paragraph,
-        Heading,
-        Bold,
-        Italic,
-        Link,
-        List,
-        Alignment,
-        // Image,
-        // ImageToolbar,
-        // ImageCaption,
-        // ImageStyle,
-        // ImageResize,
-        BlockQuote
-    } = cloud.data.value.CKEditor;
-
-    // const { FormatPainter } = cloud.data.value.CKEditorPremiumFeatures;
-
-    return {
-        licenseKey,
-        plugins: [
-            Essentials,
-            Paragraph,
-            Heading,
-            Bold,
-            Italic,
-            Link,
-            List,
-            Alignment,
-            // Image,
-            // ImageToolbar,
-            // ImageCaption,
-            // ImageStyle,
-            // ImageResize,
-            BlockQuote,
-            // FormatPainter
-        ],
-        toolbar: [
-            'heading',
-            '|',
-            'bold',
-            'italic',
-            'link',
-            'bulletedList',
-            'numberedList',
-            'alignment',
-            '|',
-            'insertImage',
-            'blockQuote',
-            '|',
-            'undo',
-            'redo',
-            '|',
-            // 'formatPainter'
-        ],
-        // image: {
-        //     toolbar: [
-        //         'imageStyle:inline',
-        //         'imageStyle:block',
-        //         'imageStyle:side',
-        //         '|',
-        //         'imageTextAlternative'
-        //     ]
-        // },
-        alignment: {
-            options: ['left', 'center', 'right', 'justify']
-        }
-    };
-});
 </script>
+
+<style scoped>
+/* Make sure the editor starts as one line and auto-expands */
+.quill-editor .ql-editor {
+  padding: 0.5rem;
+  overflow-y: hidden !important;
+  min-height: 1.5em;
+  height: auto !important;
+}
+</style>
