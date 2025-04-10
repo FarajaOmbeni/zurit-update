@@ -28,7 +28,20 @@ const activeInvestments = computed(() => {
 
 // Calculate net income for each investment
 const calculateNetIncome = (investment) => {
-    return investment.current_amount * (investment.expected_return_rate / 100);
+    const startDate = new Date(investment.start_date);
+    const endDate = new Date(investment.target_date);
+    const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365); // duration in years
+
+    const initialNetIncome = investment.current_amount * (investment.expected_return_rate / 100);
+    let actualIncome = initialNetIncome;
+
+    if (investment.type === 'bills' || investment.type === 'mmf') {
+        actualIncome = initialNetIncome * (85 / 100);
+    } 
+    if (investment.type === 'bonds') {
+        actualIncome = duration < 5 ? initialNetIncome * (85 / 100) : initialNetIncome * (90 / 100);
+    }
+    return actualIncome;
 };
 
 // Sum of all current_amount values for active investments
@@ -59,6 +72,7 @@ const handleEdit = (investment) => {
                     <th class="px-4 py-2 text-right">Current Amount</th>
                     <th class="px-4 py-2 text-right">Rate of Return</th>
                     <th class="px-4 py-2 text-right">Date of Maturity</th>
+                    <th class="px-4 py-2 text-right">Tax</th>
                     <th class="px-4 py-2 text-right">Net Income</th>
                     <th class="px-4 py-2 text-center">Actions</th>
                 </tr>
@@ -72,6 +86,24 @@ const handleEdit = (investment) => {
                     <td class="px-4 py-2 text-right">{{ formatCurrency(investment.current_amount) }}</td>
                     <td class="px-4 py-2 text-right">{{ investment.expected_return_rate }}%</td>
                     <td class="px-4 py-2 text-right">{{ formatDate(investment.target_date) }}</td>
+                    <td class="px-4 py-2 text-right">
+                        {{
+                            (() => {
+                                const startDate = new Date(investment.start_date);
+                                const endDate = new Date(investment.target_date);
+                                const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 30); // duration in months
+                                
+                                if (investment.type === 'bills' || investment.type === 'mmf') {
+                                    return '15%';
+                                } 
+                                if (investment.type === 'bonds' && duration < 5) {
+                                    return '15%';
+                                } else if (investment.type === 'bonds' && duration > 5) {
+                                    return '10%';
+                                }
+                            })()
+                        }}
+                    </td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment)) }}</td>
                     <td class="px-4 py-2 text-center">
                         <button @click="handleEdit(investment)"

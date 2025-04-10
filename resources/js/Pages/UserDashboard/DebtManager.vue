@@ -16,7 +16,7 @@ const props = defineProps({
     newDebt: Object,
 });
 
-console.log(props.newDebt)
+// console.log(props.newDebt)
 
 const debts = ref([...props.debts]);
 const activeDebts = computed(() => debts.value.filter(debt => debt.status === 'active'));

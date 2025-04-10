@@ -17,6 +17,8 @@ const props = defineProps({
     liabilities: Array,
 });
 
+console.log(typeof(props.liabilities[0].amount))
+
 // Modal control
 const assetModalOpen = ref(false);
 const liabilityModalOpen = ref(false);

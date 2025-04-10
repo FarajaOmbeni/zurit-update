@@ -10,6 +10,7 @@ use App\Models\Asset;
 use App\Models\Liability;
 use Illuminate\Http\Request;
 use App\Mail\FinancialAssistance;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
@@ -26,7 +27,7 @@ class NetworthController extends Controller
 
         // Get debts with selected columns, renaming current_amount to amount
         $debts = Debt::where('user_id', auth()->id())
-            ->select('name', 'current_amount as amount', 'created_at', 'updated_at')
+            ->select('name', DB::raw('initial_amount - current_amount as amount'), 'created_at', 'updated_at')
             ->get();
 
         // Combine the collections

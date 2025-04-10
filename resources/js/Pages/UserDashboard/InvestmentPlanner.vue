@@ -160,6 +160,18 @@ const resetForm = () => {
 };
 
 const submitForm = () => {
+    if (newInvestment.type === 'bonds' && newInvestment.start_date && newInvestment.target_date) {
+        const startDate = new Date(newInvestment.start_date);
+        const targetDate = new Date(newInvestment.target_date);
+        const oneYearLater = new Date(startDate);
+        oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
+        if (targetDate < oneYearLater) {
+            openAlert('warning', 'The minimum duration is 1 year', 5000);
+            return;
+        }
+    }
+    
     newInvestment.post(route('invest.store'), {
         onSuccess: (response) => {
             // If the server returns the new investment as part of the response
@@ -478,8 +490,8 @@ const confirmDelete = () => {
                                 class="block text-gray-700 text-xs font-medium mb-1">
                                 Details
                             </label>
-                            <select v-show="editInvestmentForm.type !== 'other'"
-                                id="edit_details_of_investment" v-model="editInvestmentForm.details_of_investment"
+                            <select v-show="editInvestmentForm.type !== 'other'" id="edit_details_of_investment"
+                                v-model="editInvestmentForm.details_of_investment"
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 :required="editInvestmentForm.type !== 'other'">
                                 <option v-show="editInvestmentForm.type === 'mmf'" v-for="mmf in moneyMarketFunds"

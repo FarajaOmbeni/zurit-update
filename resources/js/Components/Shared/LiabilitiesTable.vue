@@ -6,7 +6,7 @@
             <thead class="bg-purple-500 text-white">
                 <tr>
                     <th class="py-2 px-4 border border-gray-300 text-left">Liability Name</th>
-                    <th class="py-2 px-4 border border-gray-300 text-right">Amount</th>
+                    <th class="py-2 px-4 border border-gray-300 text-right"></th>
                 </tr>
             </thead>
             <tbody>
