@@ -49,7 +49,8 @@ const editor = computed(() => {
     return cloud.data.value.CKEditor.ClassicEditor;
 });
 
-const licenseKey = import.meta.env.VITE_CK_EDITOR_LICENSE_KEY;
+// const licenseKey = import.meta.env.VITE_CK_EDITOR_LICENSE_KEY;
+const licenseKey = "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NzU4NjU1OTksImp0aSI6ImYzOGU1NjA4LWRiOTUtNDg3NS1iY2QyLTEyMDY2YzEyMWMyMSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwiZmVhdHVyZXMiOlsiRFJVUCIsIkJPWCJdLCJ2YyI6IjY2ZGJhNDMzIn0.tRFbhRNOCHp2ohijE7565G6o4AFRbQnj7ZypGG46zkB5lsGYnvhPKqaqOIQSxbM0EScmNbHEbqDgm-nEfyolmQ";
 console.log("License: ", licenseKey)
 
 const config = computed(() => {
