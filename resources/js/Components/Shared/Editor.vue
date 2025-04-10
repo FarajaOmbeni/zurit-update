@@ -112,15 +112,15 @@ const config = computed(() => {
             '|',
             'formatPainter'
         ],
-        image: {
-            toolbar: [
-                'imageStyle:inline',
-                'imageStyle:block',
-                'imageStyle:side',
-                '|',
-                'imageTextAlternative'
-            ]
-        },
+        // image: {
+        //     toolbar: [
+        //         'imageStyle:inline',
+        //         'imageStyle:block',
+        //         'imageStyle:side',
+        //         '|',
+        //         'imageTextAlternative'
+        //     ]
+        // },
         alignment: {
             options: ['left', 'center', 'right', 'justify']
         }
