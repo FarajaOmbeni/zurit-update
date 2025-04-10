@@ -73,7 +73,7 @@ const config = computed(() => {
         BlockQuote
     } = cloud.data.value.CKEditor;
 
-    const { FormatPainter } = cloud.data.value.CKEditorPremiumFeatures;
+    // const { FormatPainter } = cloud.data.value.CKEditorPremiumFeatures;
 
     return {
         licenseKey,
@@ -92,7 +92,7 @@ const config = computed(() => {
             // ImageStyle,
             // ImageResize,
             BlockQuote,
-            FormatPainter
+            // FormatPainter
         ],
         toolbar: [
             'heading',
@@ -110,7 +110,7 @@ const config = computed(() => {
             'undo',
             'redo',
             '|',
-            'formatPainter'
+            // 'formatPainter'
         ],
         // image: {
         //     toolbar: [
