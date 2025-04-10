@@ -50,6 +50,7 @@ const editor = computed(() => {
 });
 
 const licenseKey = import.meta.env.VITE_CK_EDITOR_LICENSE_KEY;
+console.log("License: ", licenseKey)
 
 const config = computed(() => {
     if (!cloud.data.value) {
