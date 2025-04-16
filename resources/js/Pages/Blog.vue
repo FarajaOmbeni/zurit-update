@@ -2,18 +2,19 @@
 
     <Head title="Blogs" />
     <Navbar />
-    <div class="mt-32 mb-24  mx-4 ">
+    <div class="mt-32 mb-24 md:mx-4">
         <h1
-            class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-start font-bold text-purple-500 mb-4 text-center">
-            Our <span class="text-yellow-500">Blogs</span></h1>
+            class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-start font-bold text-purple-700 mb-4 text-center">
+            {{ blog.blog_title }}</h1>
         <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-12">
             <!-- Blog Cards Section -->
-            <div class="grid grid-cols-1 w-[70%] gap-8">
-                <BlogCard :image="`/public/storage/blogs/${blog.blog_image}`" :title="blog.blog_title"
+            <div class="grid grid-cols-1 md:w-[70%] gap-8">
+                <BlogCard :image="`/storage/blogs/${blog.blog_image}`" :title="blog.blog_title" :readmore="false"
                     :content="blog.blog_message" :link="blog.link" :date="formatDate(blog.created_at)" />
             </div>
+
             <!-- Search and Recent Posts Section -->
-            <div class="w-[30%]">
+            <div class="w-[90%] md:w-[30%]">
                 <div class="flex gap-4">
                     <input class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-purple-500" type="text"
                         placeholder="Search blogs..." />
@@ -29,7 +30,7 @@
                             class="text-purple-700 hover:font-bold hover:text-purple-900 transition-colors duration-300">
                             <a :href="`/blog/${blog.id}`">
                                 <div class="flex gap-2 items-center cursor-pointer">
-                                    <img class="w-[6rem] h-20" :src="`/public/storage/blogs/${blog.blog_image}`"
+                                    <img class="w-[6rem] h-20" :src="`/storage/blogs/${blog.blog_image}`"
                                         alt="Blog image">
                                     <div>
                                         <p class="text-sm">{{ blog.blog_title }}</p>

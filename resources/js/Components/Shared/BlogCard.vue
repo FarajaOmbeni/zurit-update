@@ -7,7 +7,7 @@
         <h2 class="text-xl font-semibold text-gray-800 mt-1 line-clamp-2">{{ title }}</h2>
         <div v-html="content" :class="clamped ? 'line-clamp-3' : ''" class="text-gray-600 mt-1 leading-loose"></div>
         <a :href="link" class="inline-block mt-3">
-            <button
+            <button v-if="readmore"
                 class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-yellow-400 text-white font-medium transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
                 Read More
             </button>
@@ -25,7 +25,11 @@ const props = defineProps({
     link: String,
     date: String,
     clamped: Boolean,
-    displaying: Boolean
+    displaying: Boolean,
+    readmore: {
+        typr: Boolean,
+        default: true
+    },
 });
 
 </script>
