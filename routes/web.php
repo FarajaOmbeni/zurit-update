@@ -17,6 +17,7 @@ use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
+use App\Http\Controllers\ZuriScoreController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -85,6 +86,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/calculators', function () {
         return Inertia::render('UserDashboard/Calculators');
     })->name('calculator.index');
+    Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
+    Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
 
 
     /////////////////////////////////////////////////////////

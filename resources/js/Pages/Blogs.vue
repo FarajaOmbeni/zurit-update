@@ -11,7 +11,7 @@
             <!-- Blog Cards Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 w-[70%] gap-8">
                 <BlogCard v-for="blog in paginatedBlogs" :key="blog.id" :displaying="true" :clamped="true"
-                    :image="`/storage/blogs/${blog.blog_image}`" :title="blog.blog_title" :content="blog.blog_message"
+                    :image="`/public/storage/blogs/${blog.blog_image}`" :title="blog.blog_title" :content="blog.blog_message"
                     :link="`/blog/${blog.id}`" :date="formatDate(blog.created_at)" />
                 <div v-if="paginatedBlogs.length === 0" class="col-span-2 text-center text-gray-500">
                     No blogs found.
@@ -35,7 +35,7 @@
                             class="text-purple-700 hover:font-bold hover:text-purple-900 transition-colors duration-300">
                             <a :href="`/blog/${blog.id}`">
                                 <div class="flex gap-2 items-center cursor-pointer">
-                                    <img class="w-[6rem] h-20" :src="`/storage/blogs/${blog.blog_image}`"
+                                    <img class="w-[6rem] h-20" :src="`/public/storage/blogs/${blog.blog_image}`"
                                         alt="Blog image">
                                     <div>
                                         <p class="text-sm">{{ blog.blog_title }}</p>
