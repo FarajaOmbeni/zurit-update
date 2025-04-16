@@ -35,7 +35,10 @@ class BlogController extends Controller
 
         if($request->hasFile('blog_image')) {
             $image = $request->file('blog_image');
-            $imagePath = $image->store('blogs', 'public');
+            $imageName = time().'.'.$image->getClientOriginalExtension();
+            $absolutePath = '/home/zuriuhqx/public_html/storage/blogs';
+            $image->move($absolutePath, $imageName);
+            $imagePath = '/storage/blogs/'.$imageName;
         }
 
         $blog = new Blog();
