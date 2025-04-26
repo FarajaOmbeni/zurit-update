@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use CURLFile;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ZuriScoreController extends Controller
 {
@@ -18,27 +20,46 @@ class ZuriScoreController extends Controller
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$url/v1/sta/auth",
+            // Add these two lines:
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_TIMEOUT => 30, // Set a reasonable timeout
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => `{
+            CURLOPT_POSTFIELDS => json_encode([
                 "api_username" => $username,
                 "api_password" => $password
-            }`,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json'
-            ),
+            ]),
+            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
         ));
 
         $response = curl_exec($curl);
-
+        $err = curl_error($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        return $response;
+        if ($err) {
+            Log::error("cURL Error: " . $err);
+            return false;
+        }
+
+        if ($httpCode !== 200) {
+            Log::error("HTTP Error: " . $httpCode . " Response: " . $response);
+            return false;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (isset($responseData['jwt'])) {
+            return $responseData['jwt'];
+        }
+
+        Log::error("Invalid response format: " . $response);
+        return false;
     }
 
     public function get_report(Request $request)
@@ -50,15 +71,32 @@ class ZuriScoreController extends Controller
 
         $token = $this->authenticate($api_url, $api_username, $api_password);
 
-        dd($token);
+        $request->validate([
+            'statement_type' => 'required|string',
+            'statement_password' => 'nullable|string',
+            'statement_file' => 'required|file|mimes:pdf|max:2048',
+            'email' => 'required|email',
+            'email_confirmation' => 'required|same:email',
+        ]);
 
         $statement_type = $request->statement_type;
         $statement_password = $request->statement_password;
-        $statement_file = $request->statement_file;
+        $file = $request->statement_file;
+        $filePath = $file->getPathname();
+
+        $postFields = [
+            'statement_type' => $statement_type,
+            'password' => $statement_password,
+            'file' => new CURLFile($filePath, $file->getMimeType(), $file->getClientOriginalName()),
+            'report_callback_url' => $callback_url
+        ];
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$api_url/v1/sta/statement_analysis",
+            // Add these two lines:
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -66,20 +104,31 @@ class ZuriScoreController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                'statement_type' => $statement_type,
-                'password' => $statement_password,
-                'file' => $statement_file,
-                'report_callback_url' => $callback_url
-            ),
+            CURLOPT_POSTFIELDS => $postFields,
             CURLOPT_HTTPHEADER => array(
                 'Authorization: Bearer ' . $token
             ),
         ));
 
         $response = curl_exec($curl);
-
+        $responseData = json_decode($response);
         curl_close($curl);
-        dd($response);
+
+        if (isset($responseData->code)) {
+            return to_route('zuriscore.index')->withErrors($responseData->message);
+        }
+        return to_route('zuriscore.index');
+    }
+
+    public function handleCallback(Request $request)
+    {
+        if ($request->isMethod('POST') && $request->route()->named('zuriscore.callback')) {
+            // Log the request headers and body for debugging
+            Log::info('Zurit callback headers', $request->headers->all());
+            Log::info('Zurit callback data', $request->all());
+
+            // Dump and die to see the data in the browser/response
+            dd("Callback received", $request->all());
+        }
     }
 }

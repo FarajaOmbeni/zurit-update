@@ -2,10 +2,8 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogController;
-use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\IndexController;
@@ -88,6 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('calculator.index');
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
+    Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])->name('zuriscore.callback');
 
 
     /////////////////////////////////////////////////////////

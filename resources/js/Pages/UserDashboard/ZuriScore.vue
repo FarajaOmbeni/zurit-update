@@ -21,9 +21,9 @@ const form = useForm({
     email_confirmation: '',
 });
 
-function handleFileUpload(event) {
-    form.statement_file = event.target.files[0];
-}
+const handleFile = (file) => {
+    form.statement_file = file;
+};
 
 function submitForm() {
     form.post(route('zuriscore.post'), {
@@ -35,7 +35,7 @@ function submitForm() {
             const errorMessages = Object.values(errors)
                 .flat()
                 .join(' ');
-            openAlert('danger', errorMessages, 5000);
+            openAlert('danger', errorMessages, 10000);
         }
     });
 }
@@ -48,14 +48,14 @@ function submitForm() {
         <div class="w-full text-gray-900">
             <Sidebar>
                 <div class="min-h-screen bg-white p-6">
-                    <h1 class="text-2xl font-semibold text-gray-900">Report Analysis</h1>
+                    <h1 class="text-2xl font-semibold text-gray-900">Financial Statement Analysis</h1>
                     <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                         :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                     <form @submit.prevent="submitForm" class="space-y-4">
-                        <Select label="Statement type" :options="['MPESA', 'Equity Bank']"
+                        <Select v-model="form.statement_type" label="Statement type" :options="['MPESA', 'Equity Bank']"
                             select_title="Statement type" />
                         <FileInput label="Upload Statement" v-model="form.statement_file" accept="application/pdf"
-                            @file-selected="handleFileUpload" />
+                            @file-selected="handleFile"/>
                         <Input type="text" placeholder="Enter statement password" label="Statement Password (If Needed)"
                             v-model="form.statement_password" />
                         <Select label="Statement Period"
