@@ -10,11 +10,14 @@ use App\Models\PastEvent;
 use App\Models\Testimonial;
 use App\Http\Controllers\Controller;
 
+use function Termwind\render;
+
 class IndexController extends Controller
 {
     public function index()
     {
-        $events = Event::orderby('date', 'asc')->paginate(3);
+        // $events = Event::orderby('date', 'asc')->paginate(3);
+        $events = Event::all();
         $pastevents = PastEvent::orderby('date', 'desc')->paginate(4);
         $testimonials = Testimonial::all();
         foreach ($pastevents as $pastevent) {
@@ -23,7 +26,7 @@ class IndexController extends Controller
         }
         $latestVideo = Video::orderBy('created_at', 'desc')->first();
 
-        return view('index', [
+        return Inertia::render('Welcome', [
             'events' => $events,
             'pastevents' => $pastevents,
             'testimonials' => $testimonials,

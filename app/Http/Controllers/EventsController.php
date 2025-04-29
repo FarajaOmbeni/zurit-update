@@ -14,9 +14,8 @@ class EventsController extends Controller
     public function index()
     {
         $events = Event::all();
-        $event_id = $events->pluck('id');
 
-        return Inertia::render('Admin/Events', ['events' => $events, 'event_id' => $event_id]);
+        return Inertia::render('Admin/Events', ['events' => $events]);
     }
 
     public function store(Request $request)
@@ -31,14 +30,22 @@ class EventsController extends Controller
             'registration_link' => 'required|url',
         ]);
 
-        $imagePath = time() . '' . $request->file('image')->store('blogs', 'public');
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $absolutePath = '/home/zuriuhqx/public_html/storage/events';
+            $image->move($absolutePath, $imageName);
+            $imagePath = '/storage/events/' . $imageName;
+        }
 
         $event = new Event();
         $event->name = $request->name;
         $event->date = $request->date;
         $event->price = $request->price;
         $event->price = $request->price;
-        $event->image = $imagePath;
+        $event->image = basename($imagePath);
         $event->registration_link = $request->registration_link;
 
         $event->save();
