@@ -5,7 +5,7 @@
         <div class="flex flex-wrap justify-center gap-8 mt-12">
             <div v-for="(event, index) in events" :key="index"
                 class="max-w-sm bg-purple-700 rounded-2xl overflow-hidden shadow-lg text-white">
-                <img class="w-full h-48 object-cover" :src="event.image" alt="Event Image" />
+                <img class="w-full h-48 object-cover" :src="`storage/events/${event.image}`" alt="Event Image" />
                 <div class="p-6">
                     <h2 class="text-2xl font-bold mb-2">
                         {{ event.title }}
