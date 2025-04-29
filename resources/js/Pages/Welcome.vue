@@ -7,6 +7,15 @@ import Footer from '@/Components/Footer.vue';
 import Partners from '@/Components/Partners.vue';
 import WhyChooseUs from '@/Components/WhyChooseUs.vue';
 import ContactUs from '@/Components/ContactUs.vue';
+import { ref } from 'vue'
+
+let eventsData = ref([])
+const props = defineProps({
+    events: Array
+})
+
+eventsData.value = props.events
+console.log("Events: ", props.events)
 
 </script>
 
@@ -15,7 +24,7 @@ import ContactUs from '@/Components/ContactUs.vue';
     <Head title="Home" />
     <Navbar />
         <Hero />
-        <Events />
+        <Events :events="eventsData"/>
         <!--Circles-->
         <div class="absolute -top-60 -left-60">
             <img class="w-[35rem]" src="/images/home/circles.svg" alt="Circles">

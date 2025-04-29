@@ -82,7 +82,7 @@ const handleSubmit = () => {
                     </form>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-purple-900 mb-4">All Events</h1>
+                    <h1 class="text-2xl font-bold text-purple-900">All Events</h1>
                     <AdminTable :data="eventsData" :headers="tableHeaders" :editable="true" />
                 </div>
             </AdminSidebar>

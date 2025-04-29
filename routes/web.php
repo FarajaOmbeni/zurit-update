@@ -16,9 +16,7 @@ use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [IndexController::class, 'index'])->name('home');
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
