@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use CURLFile;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Mail\ZuriScoreReportMail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ZuriScoreController extends Controller
 {
@@ -83,12 +85,13 @@ class ZuriScoreController extends Controller
         $statement_password = $request->statement_password;
         $file = $request->statement_file;
         $filePath = $file->getPathname();
+        $email = urlencode($request->input('email'));
 
         $postFields = [
             'statement_type' => $statement_type,
             'password' => $statement_password,
             'file' => new CURLFile($filePath, $file->getMimeType(), $file->getClientOriginalName()),
-            'report_callback_url' => $callback_url
+            'report_callback_url' => $callback_url . '?email=' . $email
         ];
 
         $curl = curl_init();
@@ -122,13 +125,21 @@ class ZuriScoreController extends Controller
 
     public function handleCallback(Request $request)
     {
-        if ($request->isMethod('POST') && $request->route()->named('zuriscore.callback')) {
-            // Log the request headers and body for debugging
-            Log::info('Zurit callback headers', $request->headers->all());
-            Log::info('Zurit callback data', $request->all());
+        $email = $request->query('email');
+        $data = $request->all();
+        $reportUrl = $data['reportUrl'];
+        $fullName = explode(' ', $data['reportData']['name']);
+        $firstName = $fullName[0];
 
-            // Dump and die to see the data in the browser/response
-            dd("Callback received", $request->all());
-        }
+        Log::info('Callback for email:', ['email' => $email, 'name'=>$firstName,'reportUrl' => $reportUrl]);
+        Log::info('ALL ZEE DATA:', ['data' => $data]);
+
+        Mail::to($email)->send(new ZuriScoreReportMail($firstName, $reportUrl));
+
+        // Return a success response
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Callback received successfully'
+        ], 200);
     }
 }

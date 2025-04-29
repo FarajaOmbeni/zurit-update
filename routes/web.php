@@ -16,6 +16,7 @@ use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ZuriScoreController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -86,8 +87,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('calculator.index');
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
-    Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])->name('zuriscore.callback');
-
 
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
@@ -136,5 +135,8 @@ Route::get('/advisory', function () {
 Route::get('/business-support', function() {
     return Inertia::render('BusinessSupport');
 })->name('business.support');
+Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('zuriscore.callback');
 
 require __DIR__.'/auth.php';
