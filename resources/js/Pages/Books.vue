@@ -17,6 +17,12 @@
                 price: 200,
                 image: '/images/books/goal_setting.webp'
             }" />
+            <BookCard :book="{
+                title: 'Transcend',
+                description: 'Navigating the Realities - Beyond the allure of Entrepreneurship',
+                price: 1500,
+                image: '/images/books/transcend.jpg'
+            }" />
         </div>
     </div>
     <Footer />
