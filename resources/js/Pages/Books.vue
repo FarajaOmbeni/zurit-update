@@ -20,7 +20,7 @@
             <BookCard :book="{
                 title: 'Transcend',
                 description: 'Navigating the Realities - Beyond the allure of Entrepreneurship',
-                price: 1500,
+                price: 1800,
                 image: '/images/books/transcend.jpg'
             }" />
         </div>

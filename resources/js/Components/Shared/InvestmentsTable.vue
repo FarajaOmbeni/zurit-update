@@ -83,7 +83,7 @@ const handleEdit = (investment) => {
                     <td class="px-4 py-2">{{ investment.type }}</td>
                     <td class="px-4 py-2">{{ investment.details_of_investment }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(investment.initial_amount) }}</td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(investment.current_amount) }}</td>
+                    <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment) + parseInt(investment.current_amount)) }}</td>
                     <td class="px-4 py-2 text-right">{{ investment.expected_return_rate }}%</td>
                     <td class="px-4 py-2 text-right">{{ formatDate(investment.target_date) }}</td>
                     <td class="px-4 py-2 text-right">
