@@ -50,7 +50,7 @@ const trainings = [
         type: 'corporate',
         imageUrl: '/images/training/prosperity.jpg',
         title: 'Posperity Masterclass',
-        description: 'This masterclass is a 3 hours program tailored to individuals, covering the fundamentals of personal finance and investments.',
+        description: 'This masterclass is a 5 week program tailored to individuals, covering the fundamentals of personal finance and investments.',
         details: [
             'Wealth building principles.',
             'Best practices for building wealth.',
