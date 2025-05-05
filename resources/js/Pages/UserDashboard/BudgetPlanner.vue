@@ -133,9 +133,9 @@ const confirmDelete = () => {
 //GETTING PROPS FROM CONTROLLER LOGIC
 const props = defineProps({
     data: Object,
-    currentMonth: String,
+    today: String,
 });
-console.log("DATA", props.data)
+console.log("CURRENT MONTH", props.today)
 
 //GETTING THE TOP INCOME AND EXPENSES
 const topIncomes = computed(() => {
@@ -439,7 +439,7 @@ function calculateMonthlySummary() {
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div v-show="hasData" class="flex justify-between">
                             <div>
-                                <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonth }}'s Budget</h1>
+                                <h1 class="text-2xl font-semibold text-gray-900"> {{ today }}'s Budget</h1>
                             </div>
                             <div class="px-6">
                                 <button @click="showBudgetModal = true"

@@ -17,9 +17,9 @@
                         <div class="text-lg font-semibold">
                             {{ event.price }}
                         </div>
-                        <button class="bg-yellow-500 text-purple-700 font-bold py-2 px-4 rounded hover:bg-yellow-400">
+                        <a :href="event.registration_link" target="_blank" class="bg-yellow-500 text-purple-700 font-bold py-2 px-4 rounded hover:bg-yellow-400 cursor-pointer">
                             {{ event.price === 'Free' ? 'Register' : 'Buy Ticket' }}
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -49,7 +49,7 @@ class BudgetController extends Controller
 
         return Inertia::render('UserDashboard/BudgetPlanner', [
             'data' => $data,
-            'currentMonth' => $currentMonthString,
+            'today' => $currentMonthString,
         ]);
     }
 
