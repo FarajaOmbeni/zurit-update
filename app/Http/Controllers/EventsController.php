@@ -53,24 +53,18 @@ class EventsController extends Controller
         return to_route('events.index');
     }
 
-    public function edit($id)
-    {
-        $event = Event::find($id);
-
-        return view('events_edit_admindash', ['event' => $event]);
-    }
-
     public function update(Request $request, $id)
     {
         $event = Event::findOrFail($id);
 
-        $imageName = ''; // Initialize image name variable
+        $imagePath = null;
 
-        // Handle file upload
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('/home/zuriuhqx/public_html/events_res/img', $imageName);
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $absolutePath = '/home/zuriuhqx/public_html/storage/events';
+            $image->move($absolutePath, $imageName);
+            $imagePath = '/storage/events/' . $imageName;
         }
 
         //validate the inputs
@@ -85,14 +79,11 @@ class EventsController extends Controller
         $event->date = $request->date;
         $event->registration_link = $request->registration_link;
         $event->price = $request->price;
-        $event->image = $imageName;
+        $event->image = basename($imagePath);
 
-        $event->save();
+        $event->update();
 
-        return redirect('/events_admindash')->with('success', [
-            'message' => 'Event Updated Successfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('events.index');
     }
 
     public function eventFeedback(Request $request)
@@ -143,9 +134,7 @@ class EventsController extends Controller
     {
         $event = Event::find($event);
         $event->delete();
-        return redirect()->route('events_admindash')->with('success', [
-            'message' => 'Event Deleted Successfully!',
-            'duration' => 3000,
-        ]);
+        
+        return to_route('events.index');
     }
 }

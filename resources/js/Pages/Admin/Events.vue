@@ -13,6 +13,65 @@ import { ref } from 'vue';
 
 const { openAlert, clearAlert, alertState } = useAlert()
 
+const emit = defineEmits(['edit', 'delete'])
+
+const isEditing = ref(false)
+const editingEventId = ref(null)
+
+const editForm = useForm({
+    name: '',
+    date: '',
+    image: '',
+    price: '',
+    registration_link: ''
+})
+
+function handleEdit(event) {
+    isEditing.value = true
+    editingEventId.value = event.id
+    editForm.name = event.name
+    editForm.date = event.date
+    editForm.price = event.price
+    editForm.registration_link = event.registration_link
+    editForm.image = null
+}
+
+function updateEvent() {
+    editForm.post(
+        route('events.update', editingEventId.value),   // PUT/PATCH route
+        {
+            onSuccess: () => {
+                // refresh the local table data without a hard reload
+                const idx = eventsData.value.findIndex(e => e.id === editingEventId.value)
+                if (idx > -1) eventsData.value[idx] = { ...editForm }  // optimistic UI
+                isEditing.value = false
+                editForm.reset()
+                openAlert('success', 'Event updated successfully!', 5000)
+            },
+            onError: (errors) => {
+                openAlert('danger', Object.values(errors).flat().join(' '), 5000)
+            }
+        }
+    )
+}
+
+function cancelEdit() {
+    isEditing.value = false
+    editForm.reset()
+}
+
+function handleDelete(event) {
+    if (!confirm(`Delete "${event.name}"? This can't be undone.`)) return
+
+    useForm({}).delete(route('events.destroy', event.id), {
+        onSuccess: () => {
+            eventsData.value = eventsData.value.filter(e => e.id !== event.id)
+            openAlert('success', 'Event deleted.', 4000)
+        },
+        onError: () => openAlert('danger', 'Could not delete the event.', 4000)
+    })
+}
+
 const props = defineProps({
     events: Array
 })
@@ -65,7 +124,7 @@ const handleSubmit = () => {
                 <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <h1 class="text-2xl font-bold text-purple-900 mb-8">Events Management</h1>
-                <div class="mb-8">
+                <div v-if="!isEditing" class="mb-8">
                     <h1 class="text-xl font-bold text-purple-900">Add New Event</h1>
                     <form @submit.prevent="handleSubmit">
                         <div>
@@ -81,9 +140,28 @@ const handleSubmit = () => {
                         </div>
                     </form>
                 </div>
+                <div v-else class="mb-8">
+                    <h1 class="text-xl font-bold text-purple-900">Edit Event</h1>
+                    <form @submit.prevent="updateEvent">
+                        <!-- same fields but bound to `editForm` -->
+                        <Input v-model="editForm.name" label="Event Name" id="name_edit" />
+                        <Input type="date" v-model="editForm.date" label="Date" id="date_edit" />
+                        <Select v-model="editForm.price" select_title="Free or Paid?" label="Free or Paid?"
+                            :options="['Free', 'Paid']" />
+                        <FileInput label="Event Image (optional)" v-model="editForm.image" accept="image/*"
+                            @file-selected="file => editForm.image = file" />
+                        <Input v-model="editForm.registration_link" label="Registration Link" id="link_edit" />
+
+                        <div class="flex gap-4">
+                            <Button type="submit">{{ editForm.processing ? 'Updating…' : 'Save' }}</Button>
+                            <Button type="button" @click="cancelEdit">Cancel</Button>
+                        </div>
+                    </form>
+                </div>
                 <div>
                     <h1 class="text-2xl font-bold text-purple-900">All Events</h1>
-                    <AdminTable :data="eventsData" :headers="tableHeaders" :editable="true" />
+                    <AdminTable :data="eventsData" :headers="tableHeaders" :editable="true" @edit="handleEdit"
+                        @delete="handleDelete" />
                 </div>
             </AdminSidebar>
         </div>

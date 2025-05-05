@@ -14,7 +14,7 @@
             <BookCard :book="{
                 title: 'Fininancial Goal Setting',
                 description: 'Unlock the path to realizing your financial deams with this insightful guide. Dive into the crucial art of goal setting, guided by the wheel of life, to pinpoint your aspirations',
-                price: 200,
+                price: 1500,
                 image: '/images/books/goal_setting.webp'
             }" />
             <BookCard :book="{

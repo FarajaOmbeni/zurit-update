@@ -61,7 +61,7 @@ const trainings = [
         ],
         attend: 'Individuals who are looking to build a solid financial foundation and grow their wealth.',
         price: '15,000',
-        duration: '8 weeks'
+        duration: '5 weeks'
     },
     {
         id: 2,

@@ -91,10 +91,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////BLOGS ROOUTES//////////
     Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
     Route::post('/admin/blogs', [BlogController::class, 'store'])->name('blogs.store');
+    Route::post('/admin/blogs/edit/{id}', [BlogController::class, 'update'])->name('blogs.update');
+    Route::delete('/admin/blogs/delete/{id}', [BlogController::class, 'destroy'])->name('blogs.destroy');
 
     ////////////EVENTS ROUTES/////////////
     Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
     Route::post('/admin/events', [EventsController::class, 'store'])->name('events.store');
+    Route::post('/admin/update/{id}', [EventsController::class, 'update'])->name('events.update');
+    Route::delete('/admin/delete/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
 
 
     Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');

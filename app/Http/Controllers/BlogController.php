@@ -57,46 +57,35 @@ class BlogController extends Controller
         return view('blogs');
     }
 
-
-    public function edit($id)
-    {
-        $blog = Blog::find($id);
-
-        return view('blogs_editdash', ['blog' => $blog]);
-    }
     public function update(Request $request, $id)
     {
         $blog = Blog::findOrFail($id);
 
-        $imageName = ''; // Initialize image name variable
+        $imagePath = null;
 
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            // $image->move(public_path('blogs_res/img'), $imageName);
-            $image->move('/home/zuriuhqx/public_html/blogs_res/img', $imageName);
+        if ($request->hasFile('blog_image')) {
+            $image = $request->file('blog_image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $absolutePath = '/home/zuriuhqx/public_html/storage/blogs';
+            $image->move($absolutePath, $imageName);
+            $imagePath = '/storage/blogs/' . $imageName;
         }
 
         //validate the inputs
         $request->validate([
-            'blog_image' => 'required|image',
             'blog_tag' => 'required',
             'blog_title' => 'required',
             'content' => 'required',
         ]);
 
-        $blog->blog_image = $request->file('blog_image')->store('public/blogs');
+        $blog->blog_image = basename($imagePath);
         $blog->blog_tag = $request->blog_tag;
         $blog->blog_title = $request->blog_title;
         $blog->blog_message = $request->content;
 
         $blog->save();
 
-        return redirect('/blogs_admindash')->with('success', [
-            'message' => 'Blog Updated Successfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('blogs.index');
     }
 
     public function destroy($id)
@@ -104,12 +93,10 @@ class BlogController extends Controller
         try {
             $blog = Blog::findOrFail($id);
             $blog->delete();
-            return redirect('/blogs_admindash')->with('success', [
-                'message' => 'Blog Deleted Successfully!',
-                'duration' => 3000,
-            ]);
+            
+            return to_route('blogs.index');
         } catch (\Exception $e) {
-            return redirect('/blogs_admindash')->with('error', [
+            return redirect(route('blogs.index'))->with('error', [
                 'message' => 'Error Deleting Blog!',
                 'duration' => 3000,
             ]);
