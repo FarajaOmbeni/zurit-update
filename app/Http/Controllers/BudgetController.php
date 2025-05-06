@@ -54,12 +54,13 @@ class BudgetController extends Controller
     }
 
     public function storeIncome(Request $request)
-    {
+    {        
         $request->validate([
             'amount'      => 'required|numeric',
             'category'    => 'required|string',
             'description' => 'required|string',
             'income_date' => 'required|date',
+            'is_recurring' => 'required|boolean'
         ]);
 
         DB::transaction(function () use ($request) {
@@ -72,11 +73,18 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->is_recurring = $request->boolean('is_recurring');
             $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount = $request->amount;
             $transaction->transaction_date = $request->income_date;
             $transaction->description = $request->description;
+
+            // Set next_run_at to the first of the next month if the transaction is recurrent
+            if ($transaction->is_recurring == true) {
+                $nextMonth = now()->addMonth()->startOfMonth();
+                $transaction->next_run_at = $nextMonth;
+            }
+
             $transaction->save();
 
             // Now create the income and assign the transaction id as a foreign key
@@ -105,6 +113,7 @@ class BudgetController extends Controller
             'amount'       => 'required|numeric',
             'description'  => 'required|string|max:255',
             'expense_date' => 'required|date|max:255',
+            'is_recurring' => 'required|boolean'
         ]);
 
         DB::transaction(function () use ($request) {
@@ -117,7 +126,12 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->is_recurring = $request->boolean('is_recurring');
+            // Set next_run_at to the first of the next month if the transaction is recurrent
+            if ($transaction->is_recurring == true) {
+                $nextMonth = now()->addMonth()->startOfMonth();
+                $transaction->next_run_at = $nextMonth;
+            }
             $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount = $request->amount;
             $transaction->transaction_date = $request->expense_date;
@@ -159,8 +173,8 @@ class BudgetController extends Controller
             'category'         => 'required|string|max:255',
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
-            'transaction_date' => 'required|date', // used as the income_date
-            'is_recurring'      => 'nullable|string|in:yes,no',
+            'transaction_date' => 'required|date',
+            'is_recurring'      => 'required|boolean',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -176,7 +190,14 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->is_recurring = $request->boolean('is_recurring');
+            // Set next_run_at to the first of the next month if the transaction is recurrent
+            if ($transaction->is_recurring == true) {
+                $nextMonth = now()->addMonth()->startOfMonth();
+                $transaction->next_run_at = $nextMonth;
+            } else if ($transaction->is_recurring == false) {
+                $transaction->next_run_at = null;
+            }
             $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;
@@ -205,7 +226,7 @@ class BudgetController extends Controller
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
             'transaction_date' => 'required|date',
-            'is_recurring'      => 'nullable|string|in:yes,no',
+            'is_recurring'      => 'required|boolean',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -221,7 +242,14 @@ class BudgetController extends Controller
             } else {
                 $transaction->category = $request->category;
             }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
+            $transaction->is_recurring = $request->boolean('is_recurring');
+            // Set next_run_at to the first of the next month if the transaction is recurrent
+            if ($transaction->is_recurring == true) {
+                $nextMonth = now()->addMonth()->startOfMonth();
+                $transaction->next_run_at = $nextMonth;
+            } else if ($transaction->is_recurring == false) {
+                $transaction->next_run_at = null;
+            }
             $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
             $transaction->amount           = $request->amount;
             $transaction->description      = $request->description;

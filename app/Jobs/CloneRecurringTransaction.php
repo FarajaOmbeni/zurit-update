@@ -47,7 +47,7 @@ class CloneRecurringTransaction implements ShouldQueue
             }
             // 3. Bump the prototype’s next_run_at to next month
             $this->prototype->update([
-                'next_run_at' => Carbon::parse($this->prototype->next_run_at)->addMonth()
+                'next_run_at' => Carbon::parse($this->prototype->next_run_at)->addMonth()->startOfMonth()
             ]);
         });
     }

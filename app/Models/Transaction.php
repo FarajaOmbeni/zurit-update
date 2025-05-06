@@ -16,6 +16,7 @@ class Transaction extends Model
         'category',
         'transaction_date',
         'description',
+        'is_recurring',
         'next_run_at',
     ];
 
