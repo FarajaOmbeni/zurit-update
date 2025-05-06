@@ -16,6 +16,7 @@ class Transaction extends Model
         'category',
         'transaction_date',
         'description',
+        'next_run_at',
     ];
 
     protected $casts = [
@@ -45,5 +46,15 @@ class Transaction extends Model
     public function debtPayment()
     {
         return $this->hasOne(DebtPayment::class);
+    }
+
+    public function income() 
+    {
+        return $this->hasOne(Income::class);
+    }
+
+    public function expense()
+    {
+        return $this->hasOne(Expense::class);
     }
 }

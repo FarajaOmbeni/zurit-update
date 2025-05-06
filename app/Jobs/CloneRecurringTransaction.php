@@ -20,24 +20,30 @@ class CloneRecurringTransaction implements ShouldQueue
     {
         DB::transaction(function () {
             // 1. Duplicate the transaction row (except primary key & dates)
-            $clone = $this->prototype->replicate([
-                'created_at',
-                'updated_at',
-                'next_run_at'
-            ]);
+            $clone = $this->prototype->replicate();
             $clone->transaction_date = today();
+            $clone->is_recurring = false;
+            $clone->next_run_at = null;
+            $clone->parent_transaction_id = $this->prototype->id;
             $clone->save();
 
             // 2. Duplicate the specialised record (income / expense)
             //    Detect which relationship exists:
             if ($this->prototype->income) {
-                $clone->income()->create(
-                    $this->prototype->income->only(['amount', 'income_date', 'category_id'])
-                );
+                $data = $this->prototype->income
+                            ->replicate(['id', 'transaction_id', 'created_at', 'updated_at'])
+                            ->toArray();
+                $data['income_date'] = today();
+                $clone->income()->create($data);
+
             } elseif ($this->prototype->expense) {
-                $clone->expense()->create(
-                    $this->prototype->expense->only(['amount', 'expense_date', 'category_id'])
-                );
+                $data = $this->prototype->expense
+                    ->replicate(['id', 'transaction_id', 'created_at', 'updated_at'])
+                    ->toArray();
+                $data['expense_date'] = today();
+
+                $clone->expense()->create($data);
+
             }
             // 3. Bump the prototype’s next_run_at to next month
             $this->prototype->update([
