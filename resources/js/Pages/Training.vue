@@ -49,7 +49,7 @@ const trainings = [
         id: 1,
         type: 'corporate',
         imageUrl: '/images/training/prosperity.jpg',
-        title: 'Posperity Masterclass',
+        title: 'Prosperity Masterclass',
         description: 'This masterclass is a 5 week program tailored to individuals, covering the fundamentals of personal finance and investments.',
         details: [
             'Wealth building principles.',
@@ -66,7 +66,7 @@ const trainings = [
         type: 'corporate',
         imageUrl: '/images/training/wealthwave.webp',
         title: 'Wealth Wave Talks',
-        description: 'Join our Wealth Wave Talks program to learn essential wealth creation and preservation strategies. This program offers insights into smooth wealth transfer to future generations and includes comprehensive training on wealth building and estate planning.',
+        description: 'Join our Wealth Wave Talks program every month to learn essential wealth creation and preservation strategies. This program offers insights into smooth wealth transfer to future generations and includes comprehensive training on wealth building and estate planning.',
         details: [
             'Getting it Right with your Investments',
             'Using Property to Build Wealth',
@@ -76,6 +76,7 @@ const trainings = [
         attend: 'This program is ideal for individuals seeking to enhance their financial literacy, wealth creation and preservation strategies.',
         duration: '3 hours',
         price: '3,000 per person',
+        more_info: 'This training is done on a MONTHLY basis.'
     },
     {
         id: 3,

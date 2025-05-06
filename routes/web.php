@@ -103,6 +103,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
     Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
+    Route::post('/admin/testimonials/edit/{id}', [TestimonialsController::class, 'update'])->name('testimonials.update');
+    Route::delete('/admin/testimonials/delete/{id}', [TestimonialsController::class, 'destroy'])->name('testimonials.destroy');
 
     Route::get('/admin/marketing', [MarketingController::class, 'index'])->name('marketing.index');
     Route::post('/admin/marketing', [MarketingController::class, 'sendEmails'])->name('marketing.send');

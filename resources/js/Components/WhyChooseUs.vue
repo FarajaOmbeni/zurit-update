@@ -1,35 +1,24 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted } from 'vue'
 
-const testimonials = ref([
-    {
-        id: 1,
-        name: "Ombeni Faraja",
-        image: "/images/team/davis.webp",
-        review:
-            "A review is an evaluation of a publication, product, service, or company or a critical take on current affairs in literature, politics, or culture...",
-    },
-    {
-        id: 2,
-        name: "Davis Otao",
-        image: "/images/team/faraja.webp",
-        review:
-            "I had a fantastic experience! The service was outstanding, and I highly recommend it to anyone looking for quality and reliability.",
-    },
-]);
+const props = defineProps({
+    testimonials: { type: Array, default: () => [] },
+})
 
-const currentIndex = ref(0);
-
+const currentIndex = ref(0)
 const nextTestimonial = () => {
-    currentIndex.value = (currentIndex.value + 1) % testimonials.value.length;
-};
+    currentIndex.value = (currentIndex.value + 1) % props.testimonials.length
+}
 
 onMounted(() => {
-    setInterval(nextTestimonial, 5000); // Auto-slide every 5 seconds
-});
+    setInterval(nextTestimonial, 5000)
+})
 
-const currentTestimonial = computed(() => testimonials.value[currentIndex.value]);
+const currentTestimonial = computed(
+    () => props.testimonials[currentIndex.value] ?? {}
+)
 </script>
+
 <template>
     <div class="bg-gray-100 py-16 px-6 md:px-12">
         <div class="max-w-6xl mx-auto flex flex-col xl:flex-row text-center xl:text-left gap-12">
@@ -62,7 +51,7 @@ const currentTestimonial = computed(() => testimonials.value[currentIndex.value]
                     <div>
                         <h3 class="text-xl font-semibold text-gray-900">3. Unwavering Commitment</h3>
                         <p class="text-gray-600">
-                            We’re passionately committed to your financial prosperity. Our core values drive us to work
+                            We're passionately committed to your financial prosperity. Our core values drive us to work
                             tirelessly to help you achieve your financial goals.
                         </p>
                     </div>

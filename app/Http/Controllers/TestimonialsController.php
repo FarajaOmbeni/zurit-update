@@ -19,16 +19,24 @@ class TestimonialsController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'content' => 'required|string',
+            'image'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $imagePath = time().''. $request->file('image')->store('testimonials', 'public');
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $absolutePath = '/home/zuriuhqx/public_html/storage/events';
+            $image->move($absolutePath, $imageName);
+            $imagePath = '/storage/events/' . $imageName;
+        }
 
         // Assuming you have a Testimonial model
         $testimonial = new Testimonial;
         $testimonial->name = $request->name;
-        $testimonial->image = $imagePath;
+        $testimonial->image = basename($imagePath);
         $testimonial->content = $request->content;
         $testimonial->save();
 
@@ -39,24 +47,28 @@ class TestimonialsController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'content' => 'required|string',
+            'image'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $testimonial = Testimonial::findOrFail($id);
         $testimonial->name = $request->name;
         $testimonial->content = $request->content;
 
+        $imagePath = null;
+
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();  
-            // $request->image->move(public_path('testimonial_images'), $imageName);
-            $request->image->move('/home/zuriuhqx/public_html/testimonial_images/', $imageName);
-            $testimonial->image = $imageName;
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $absolutePath = '/home/zuriuhqx/public_html/storage/events';
+            $image->move($absolutePath, $imageName);
+            $imagePath = '/storage/events/' . $imageName;
         }
 
-        $testimonial->save();
+        $testimonial->image = basename($imagePath);
+        $testimonial->update();
 
-        return redirect()->back()->with('success', ['message' => 'Testimonial updated successfully!', 'duration' => 3000]);
+        return to_route('testimonials.index');
     }
 
     public function destroy($id)
@@ -64,6 +76,6 @@ class TestimonialsController extends Controller
         $testimonial = Testimonial::findOrFail($id);
         $testimonial->delete();
 
-        return redirect()->back()->with('success', ['message' => 'Testimonial deleted successfully!', 'duration' => 3000]);
+        return to_route('testimonials.index');
     }
 }

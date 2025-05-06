@@ -61,6 +61,14 @@ class BlogController extends Controller
     {
         $blog = Blog::findOrFail($id);
 
+        //validate the inputs
+        $request->validate([
+            'blog_tag' => 'required',
+            'blog_title' => 'required',
+            'blog_image' => 'required|image',
+            'content' => 'required',
+        ]);
+
         $imagePath = null;
 
         if ($request->hasFile('blog_image')) {
@@ -70,13 +78,6 @@ class BlogController extends Controller
             $image->move($absolutePath, $imageName);
             $imagePath = '/storage/blogs/' . $imageName;
         }
-
-        //validate the inputs
-        $request->validate([
-            'blog_tag' => 'required',
-            'blog_title' => 'required',
-            'content' => 'required',
-        ]);
 
         $blog->blog_image = basename($imagePath);
         $blog->blog_tag = $request->blog_tag;
