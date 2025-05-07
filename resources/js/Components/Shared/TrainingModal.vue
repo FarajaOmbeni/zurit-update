@@ -40,24 +40,29 @@
                                 <span class="ml-2">{{ training?.duration }}</span>
                             </div>
 
-                            <div v-if="training?.price" class="flex font-bold text-lg" :class="training?.price2 ? 'flex-col' : 'flex-row items-center'">
+                            <div v-if="training?.price" class="flex text-gold-400 font-bold text-lg"
+                                :class="training?.price2 ? 'flex-col' : 'flex-row items-center'">
                                 <span class="font-medium">Price:</span>
                                 <span :class="training?.price2 ? 'ml-0' : 'ml-2'">Kshs {{ training?.price }}</span>
                             </div>
 
-                            <div v-if="training?.price2" class="flex font-bold items-center text-lg">
+                            <div v-if="training?.price2" class="flex text-gold-400 font-bold items-center text-lg">
                                 <span class="font-medium">Half day:</span>
                                 <span class="ml-2">Kshs {{ training?.price2 }}</span>
                             </div>
 
-                            <div v-if="training?.price3" class="flex font-bold items-center text-lg">
+                            <div v-if="training?.price3" class="flex text-gold-400 font-bold items-center text-lg">
                                 <span class="font-medium">Full day:</span>
                                 <span class="ml-2">Kshs {{ training?.price3 }}</span>
                             </div>
 
                             <div class="text-xl font-bold">Who should attend?</div>
-                            <div v-if="training?.attend" class="flex items-center text-lg">
-                                <span class="font-medium">{{ training?.attend }}</span>
+                            <div v-if="training?.attends" class="space-y-4">
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li v-for="(attend, index) in training?.attends" :key="index">
+                                        {{ attend }}
+                                    </li>
+                                </ul>
                             </div>
                             <div v-if="training?.more_info" class="flex items-center text-lg">
                                 <span class="font-medium">{{ training?.more_info }}</span>
@@ -79,6 +84,8 @@
 </template>
 
 <script setup>
+import ListItem from './ListItem.vue';
+
 defineProps({
     isOpen: {
         type: Boolean,

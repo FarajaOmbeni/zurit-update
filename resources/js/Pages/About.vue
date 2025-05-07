@@ -9,11 +9,13 @@
             <div>
                 <h3 class="font-bold text-3xl mb-4 text-center">Our History</h3>
                 <p class="text-gray-700 leading-relaxed text-2xl text-center mb-16">
-                    At Zurit Financial Consulting, we have a rich history of helping individuals and businesses achieve
-                    their
-                    financial goals. Our journey began with a vision to provide tailored financial solutions, and we
-                    have stayed
-                    true to that mission.
+                    At Zurit Consulting, our journey began with a bold vision: to make financial literacy and prosperity
+                    accessible, practical, and sustainable for all. From humble beginnings, we've grown into a trusted
+                    partner for <b>individuals, SACCOs, trustees, MSMEs, and corporates</b>—delivering tailored
+                    financial training, tools, and advisory solutions that empower
+                    people to make smarter money decisions. Rooted in our founder's passion for inclusive
+                    wealth-building, Zurit has remained committed to helping clients not only set financial goals—but
+                    achieve them with confidence.
                 </p>
                 <h4 class="font-semibold text-3xl mt-4 mb-6">Why Choose Us:</h4>
                 <ul class="list-disc pl-6 text-gray-700 text-2xl">
@@ -52,31 +54,32 @@
             <div>
                 <h2 class="text-2xl font-bold mb-2">Who We Are</h2>
                 <p class="text-gray-700 leading-relaxed text-xl">
-                    We are a bespoke Wealth Management Company focused on both individuals and corporates looking at
-                    growing
-                    wealth sustainably.
+                    We are Zurit Consulting—a bespoke wealth management and financial empowerment firm committed to
+                    helping individuals, corporates, and institutions grow and sustain wealth. From financial literacy
+                    to investment advisory, we specialize in custom solutions that bridge the
+                    gap between income and prosperity, empowering our clients to make confident, strategic decisions.
                 </p>
             </div>
             <div>
                 <h2 class="text-2xl font-bold mb-2">Our Vision</h2>
-                <p class="text-gray-700 leading-relaxed text-xl">Making financial prosperity the norm.</p>
+                <p class="text-gray-700 leading-relaxed text-xl">To make financial prosperity the norm, not the
+                    exception.</p>
             </div>
             <div>
-                <h2 class="text-2xl font-bold mb-2">Mission</h2>
+                <h2 class="text-2xl font-bold mb-2">Our Mission</h2>
                 <p class="text-gray-700 leading-relaxed text-xl">
-                    Deliver simple efficient Financial Trainings and Advisory Solutions which form the cornerstone of
-                    thriving
-                    investments.
+                    To deliver simple, efficient, and impactful financial training and advisory solutions that serve as
+                    the foundation for thriving investments and empowered lives.
                 </p>
             </div>
             <div>
                 <h2 class="text-2xl font-bold mb-2">Our Values</h2>
                 <ul class="list-disc pl-6 text-gray-700 text-xl">
-                    <li>Excellence</li>
-                    <li>Innovation</li>
-                    <li>Collaboration</li>
-                    <li>Accountability</li>
-                    <li>Impact</li>
+                    <li>Excellence - We pursue the highest standards in everything we do.</li>
+                    <li>Innovation - We design solutions that are fresh, practical, and future-focused.</li>
+                    <li>Collaboration - We believe transformation happens through partnership.</li>
+                    <li>Accountability - We are transparent, dependable, and committed to delivering results.</li>
+                    <li>Impact - We measure success by the positive change we create in people's lives</li>
                 </ul>
             </div>
 

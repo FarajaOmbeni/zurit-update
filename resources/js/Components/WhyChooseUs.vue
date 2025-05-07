@@ -32,27 +32,25 @@ const currentTestimonial = computed(
 
                 <div class="mt-6 space-y-6">
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">1. Financial Expertise</h3>
+                        <h3 class="text-xl font-semibold text-gray-900">1. Experienced Financial Experts</h3>
                         <p class="text-gray-600">
-                            Benefit from our wealth of experience and expertise in wealth management and financial
-                            planning.
-                            Our track record speaks for itself.
+                            Backed by over 20 years of leadership in investments, training, and advisory, our team
+                            brings deep expertise and insight to every client engagement.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">2. Tailored Solutions</h3>
+                        <h3 class="text-xl font-semibold text-gray-900">2. Customized Financial Strategies</h3>
                         <p class="text-gray-600">
-                            We customize financial strategies to meet your unique goals and challenges, ensuring your
-                            plan is as individual as you are.
+                            We don't do one-size-fits-all. Our approach is tailored to your unique needs—whether you're
+                            a business leader, employee, trustee, or entrepreneur.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">3. Unwavering Commitment</h3>
+                        <h3 class="text-xl font-semibold text-gray-900">3. Unwavering Commitment to Your Prosperity</h3>
                         <p class="text-gray-600">
-                            We're passionately committed to your financial prosperity. Our core values drive us to work
-                            tirelessly to help you achieve your financial goals.
+                            Your growth is our mission. From tools to training, we walk with you step-by-step toward a financially empowered future.
                         </p>
                     </div>
                 </div>

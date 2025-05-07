@@ -1,5 +1,6 @@
 <script setup>
 import GoldButton from '../Components/Shared/GoldButton.vue';
+import ListItem from './Shared/ListItem.vue';
 </script>
 <template>
     <div class="relative w-full h-screen flex items-center justify-center mb-12">
@@ -25,21 +26,37 @@ import GoldButton from '../Components/Shared/GoldButton.vue';
                     </h1>
 
                     <!-- Description -->
-                    <p class="mt-4 md:text-lg leading-relaxed">
-                        Unlocking financial prosperity with Zurit Consulting. Our tailored financial trainings and
-                        advisory solutions empower <span class="text-gold-300 font-semibold">trustees, corporates, and
-                            individuals</span> to navigate the complexities of fincance with confidence.
+                    <p class="my-4 md:text-md leading-relaxed">
+                        Unlocking Financial Prosperity for Individuals, Teams & Enterprises. At Zurit Consulting, we
+                        offer tailored financial training and advisory solutions designed to empower:
                     </p>
-                    <p class="font-bold text-gold-400 mt-4 text-xl md:text-2xl">Below are the trainings we offer: </p>
+
+                    <div class="font-semibold my-4">
+                        <ListItem name="Indididuals" details="seeking clarity and control over their finances" />
+                        <ListItem name="Trustees" details=" managing long-term pension and investment decisions" />
+                        <ListItem name="SACCO directors"
+                            details="strengthening financial literacy at the group level" />
+                        <ListItem name="HR professionals" details="building financially empowered, productive teams" />
+                        <ListItem name="MSMEs and corporates"
+                            details="driving growth through strategic financial planning" />
+                    </div>
+
+                    <p>
+                        Whether you're planning your personal journey, stewarding organizational funds, or leading a team toward sustainable successs<span class="text-gold-400">—Zurit equips you with the tools, mindset, and strategic insight to thrive.</span> 
+                    </p>
+
+                    <p class="font-bold text-gold-400 mt-4 text-xl md:text-xl italic">Let's make money simple. Let's
+                        make life
+                        better.</p>
                 </div>
 
                 <!-- Buttons Section -->
-                <div class="mt-6 grid grid-cols-2 gap-4 w-full max-w-md text-center mx-auto xl:mx-0">
+                <!-- <div class="mt-6 grid grid-cols-2 gap-4 w-full max-w-md text-center mx-auto xl:mx-0">
                     <GoldButton url="training" button_name="Individual Training" />
                     <GoldButton button_name="Corporate Training" url="training" />
                     <GoldButton button_name="Wealth Management" url="training" />
                     <GoldButton button_name="Financial Advisory" url="training" />
-                </div>
+                </div> -->
 
             </div>
 

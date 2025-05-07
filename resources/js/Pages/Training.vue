@@ -57,7 +57,7 @@ const trainings = [
             'How and where to invest',
             'How to systemize your investment processes.',
         ],
-        attend: 'Individuals who are looking to build a solid financial foundation and grow their wealth.',
+        attends: ['Individuals who are looking to build a solid financial foundation and grow their wealth.'],
         price: '15,000 per person',
         duration: '5 weeks'
     },
@@ -73,7 +73,7 @@ const trainings = [
             'Pension Funds and Wealth Creation',
             'Capitals Markets Investing',
         ],
-        attend: 'This program is ideal for individuals seeking to enhance their financial literacy, wealth creation and preservation strategies.',
+        attends: ['This program is ideal for individuals seeking to enhance their financial literacy, wealth creation and preservation strategies.'],
         duration: '3 hours',
         price: '3,000 per person',
         more_info: 'This training is done on a MONTHLY basis.'
@@ -90,7 +90,7 @@ const trainings = [
             'How and where to invest',
             'How to systemize your investment processes.',
         ],
-        attend: 'Pension Trustees, Human Resources professionals, Sacco Board',
+        attends: ['Pension Trustees, Human Resources professionals, Sacco Board'],
         duration: '5 days',
         price: '79,000 per person'
     },
@@ -105,7 +105,7 @@ const trainings = [
             'Portfolio Constructions',
             'Investment options and review of various asset class',
         ],
-        attend: 'Staff of Corporate institutions, owner management',
+        attends: ['Staff of Corporate institutions, owner management'],
         duration: '5 days',
         price: '79,000 per person'
     },
@@ -122,7 +122,7 @@ const trainings = [
             'Liquidity management, valuation challenges, and regulatory considerations',
             'Governance best practices for trustees: monitoring, reporting, and rebalancing'
         ],
-        attend: 'Pension Trustees, Human Resources professionals, Sacco Board',
+        attends: ['Pension Trustees, Human Resources professionals, Sacco Board'],
         duration: '5 days',
         price: '79,000 per person'
     },
@@ -137,7 +137,7 @@ const trainings = [
             'Debt management',
             'Investment options',
         ],
-        attend: 'Corporate institutions looking to increasing employee engagement and productivity',
+        attends: ['Corporate institutions looking to increasing employee engagement and productivity'],
         price: '39,000 per 2 hours per group',
         price2: '74,100 per group',
         price3: '140,790 per group',
@@ -153,7 +153,7 @@ const trainings = [
             'Goal Setting',
             'Investment options and review of various asset class',
         ],
-        attend: 'Staff of Corporate institutions, owner management',
+        attends: ['Staff of Corporate institutions, owner management'],
         price: '39,000 per 2 hours per group',
         price2: '74,100 per group',
         price3: '140,790 per group',
@@ -163,17 +163,19 @@ const trainings = [
         type: 'in-house',
         imageUrl: '/images/training/individual.avif',
         title: 'Individual Training',
-        description: 'A personalized financial-wellness program delivered one-on-one. Participants work with a certified trainer to master budgeting, investing, debt management, and retirement planning, leaving with a bespoke action plan aligned to their goals and risk tolerance.',
+        description: 'At Zurit Consulting, our one-on-one sessions are crafted to meet you exactly where you are—whether you`re navigating a financial decision, growing a business, or seeking greater clarity in your personal wealth journey.',
         details: [
-            'Comprehensive personal financial assessment and goal setting',
-            'Designing and maintaining an effective budget and savings plan',
-            'Investment fundamentals: asset classes, diversification, and risk-return trade-offs',
-            'Debt-reduction strategies and credit-score optimization',
-            'Retirement-planning basics, pension options, and future-value calculators',
-            'Creation of a step-by-step, individualized financial action plan'
+            'A customized financial review of your current position',
+            'A personalized action plan with realistic, goal-driven steps',
+            'Direct mentorship from our lead consultant',
+            'Follow-up support to help you stay on track',
         ],
-        attend: 'Employees, entrepreneurs, freelancers, recent graduates—anyone seeking tailored financial guidance',
-        price: '5,000 per hour',
+        attends: [
+            'Individuals seeking expert financial guidance',
+            'Entrepreneurs and professionals in transition,',
+            'Anyone looking to take control of their money and make strategic, confident decisions'
+        ],
+        price: '5,000 per session',
     },
     {
         id: 9,
@@ -187,8 +189,8 @@ const trainings = [
             'Investing in Real Estate',
             'How to create a good portfolio',
         ],
-        attend: 'This program is a golden opportunity for everyone! Whether you`re a seasoned investor, a beginner, or simply someone curious about the financial world',
-        price: 'FREE',
+        attends: ['Seasoned investor, a beginner, or simply someone curious about the financial world'],
+        price: '0',
         more_info: 'Conducted Through Virtual sessions: Enter Contact details for more info'
     },
     // Add more training items...

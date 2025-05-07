@@ -48,61 +48,82 @@ const trainings = [
         id: 1,
         type: 'sme',
         imageUrl: '/images/training/businessSupport/biz1.avif',
-        title: 'Training',
-        description: 'A comprehensive workshop designed to build foundational business skills for SME owners. The session covers key topics from operational efficiency to strategic planning, ensuring participants gain practical insights to grow their businesses.',
+        title: 'Business Process Review',
+        description: 'Streamline Operations. Optimize Performance. Drive Results.Zurit Consulting offers a practical and results- oriented Business Process Review service designed to help SMEs and organizations enhance operational efficiency, eliminate bottlenecks, and improve overall productivity. This is a hands - on engagement where we work closely with your team to assess and improve how your business runs.',
         details: [
-            'Introduction to business strategy',
-            'Operational and financial management fundamentals',
-            'Market analysis and competitive positioning',
-            'Interactive case studies and group discussions'
+            'Comprehensive mapping and analysis of current business processes',
+            'Identification of inefficiencies, duplications, and bottlenecks',
+            'Clear, actionable recommendations for process improvement',
+            'Implementation strategies, KPIs, and performance measurement frameworks'
         ],
-        attend: 'Small and medium enterprise owners, managers, and emerging business leaders',
-        price: '15,000'
+        attends: [
+            'SME founders and senior leaders',
+            'Operations managers and business unit heads',
+            'Teams responsible for process improvement and organizational effectiveness',
+        ],
+        more_info: 'pricing scales with scope and size'
     },
     {
         id: 2,
         type: 'sme',
         imageUrl: '/images/training/businessSupport/biz1.avif',
-        title: 'Tax Planning and Compliance',
-        description: 'This course provides an in-depth overview of tax regulations and practical strategies for tax planning. Participants will learn how to navigate complex tax laws, optimize deductions, and ensure compliance with statutory requirements.',
+        title: 'Business & Strategic Plans',
+        description: 'Build with Clarity. Grow with Purpose. Zurit Consulting offers expert support in the development of comprehensive business and strategic plans that fuel growth, guide execution, and position your enterprise for long - term success. Whether you`re launching, scaling, or repositioning, we help you craft a strategy that`s grounded in insight and aligned with your ambitions.',
         details: [
-            'Overview of current tax laws and regulations',
-            'Strategies for tax optimization and savings',
-            'Compliance best practices and audit preparation',
-            'Real-life case studies and Q&A sessions'
+            'Market analysis and strategic vision development',
+            'Clear goal setting and growth roadmap design',
+            'Financial projections and risk management planning',
+            'Actionable implementation steps and monitoring tools'
         ],
-        attend: 'Accountants, business owners, financial managers, and tax professionals',
+        attends: [
+            'SME owners and founders',
+            'Senior managers and department heads',
+            'Entrepreneurs seeking structured business growth',
+            'Organizations preparing for fundraising, investment, or expansion'
+        ],
         price: '15,000'
     },
     {
         id: 3,
         type: 'sme',
         imageUrl: '/images/training/businessSupport/biz3.avif',
-        title: 'Book Keeping',
-        description: 'Learn the essential skills of bookkeeping in this hands-on course. The training covers everything from basic ledger management to modern bookkeeping software, enabling participants to maintain accurate financial records for their businesses.',
+        title: 'Governance Review',
+        description: 'Strengthen Accountability. Enhance Transparency. Build Trust. Zurit Consulting offers a thorough Governance Review service tailored to help organizations assess and strengthen their governance frameworks.This service is designed to support sustainable leadership, ethical decision- making, and regulatory compliance. Whether you`re a growing company, a regulated institution, or a board seeking performance improvement, we provide clarity and direction.',
         details: [
-            'Fundamentals of bookkeeping and record keeping',
-            'Practical use of bookkeeping software',
-            'Invoicing, reconciliation, and financial reporting',
-            'Tips for maintaining error-free financial records'
+            'Assessment of board composition, roles, and practices',
+            'Evaluation of internal controls and risk oversight mechanisms',
+            'Review of compliance with corporate governance standards and regulatory frameworks',
+            'Tailored recommendations for governance enhancement and implementation priorities'
         ],
-        attend: 'Small business owners, accounting personnel, and finance staff',
-        price: '15,000'
+        attends: [
+            'Corporate Boards and Board Committees',
+            'SACCO and cooperative leadership teams',
+            'Governance and compliance officers',
+            'NGOs, trusts, and institutions undergoing growth or regulatory scrutiny'
+        ],
+        price: '15,000',
+        more_info: 'Custom packages available for full governance audits or board training sessions'
     },
     {
         id: 4,
         type: 'sme',
         imageUrl: '/images/training/advisory/advisory1.avif',
-        title: 'Business Compliance',
-        description: 'This training is tailored to help businesses understand and implement robust compliance practices. It focuses on risk management, regulatory frameworks, and internal controls to ensure that business operations adhere to legal and ethical standards.',
+        title: 'Research & Feasibility Review',
+        description: 'Validate Ideas. Reduce Risk. Make Informed Decisions. Zurit Consulting offers comprehensive research and feasibility analysis services to help businesses evaluate new projects, ventures, or expansion opportunities with clarity and confidence. We transform raw ideas into well- informed decisions through market intelligence, risk analysis, and strategic evaluation.',
         details: [
-            'Understanding regulatory frameworks and legal obligations',
-            'Developing and implementing compliance strategies',
-            'Risk management and internal control systems',
-            'Case studies on business compliance failures and successes'
+            'Market and competitor research to assess demand, positioning, and entry potential',
+            'Feasibility analysis covering operational, technical, and financial viability',
+            'Cost-benefit evaluation for resource planning and ROI estimation',
+            'Clear, actionable strategic recommendations tailored to your business goals'
         ],
-        attend: 'Compliance officers, legal advisors, business owners, and risk management professionals',
-        price: '15,000'
+        attends: [
+            'Corporate project and product development teams',
+            'SME founders exploring new ventures',
+            'Business analysts, strategists, and innovation leads',
+            'NGOs or donor-funded programs evaluating scalable solutions'
+        ],
+        price: '15,000',
+        more_info: 'Custom pricing available for complex or sector-specific feasibility studies'
     },
 ];
 
