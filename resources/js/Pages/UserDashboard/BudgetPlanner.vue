@@ -13,6 +13,13 @@ import { incomeCategories } from '@/Components/Variables/incomeCategories';
 //ALERT USAGE LOGIC, FROM COMPOSABLE
 const { alertState, openAlert, clearAlert } = useAlert();
 
+//GETTING PROPS FROM CONTROLLER LOGIC
+const props = defineProps({
+    data: Object,
+    today: String,
+});
+
+
 //EDIT AND DELETE MODAL LOGIC
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -22,8 +29,67 @@ const selectedTransaction = ref(null);
 const incomes = ref(null);
 const expenses = ref(null);
 
-const currentMontlyIncomes = ref(null)
-const currentMontlyExpenses = ref(null)
+const currentMontlyIncomes = ref(props.data.incomes || []);
+const currentMontlyExpenses = ref(props.data.expenses || []);
+
+//GETTING THE TOP INCOME AND EXPENSES
+const topIncomes = computed(() => {
+    const TOP_N = 3;
+    // 1. Get all income transactions for the current month
+    const monthlyIncomes = currentMontlyIncomes.value;
+    
+    // 2. Group incomes by category and sum their amounts
+    const groupedIncomes = monthlyIncomes.reduce((acc, income) => {
+        const category = income.category;
+        if (!acc[category]) {
+            acc[category] = { totalAmount: 0, incomes: [] };
+        }
+        acc[category].totalAmount += parseFloat(income.amount);
+        acc[category].incomes.push(income);
+        return acc;
+    }, {});
+
+    // 3. Convert grouped incomes to an array, sort, and slice
+    return Object.entries(groupedIncomes)
+        .map(([category, { totalAmount }]) => ({
+            label: category,
+            amount: Math.round(totalAmount),
+        }))
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, TOP_N);
+});
+
+const topExpenses = computed(() => {
+    const TOP_N = 3;
+    // 1. Get all non-recurrent expense transactions for the current month
+    const monthlyExpenses = currentMontlyExpenses.value;
+    
+    // 2. Group expenses by category
+    const groupedExpenses = monthlyExpenses.reduce((acc, expense) => {
+        const category = expense.category;
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(expense);
+        return acc;
+    }, {});
+
+    // 3. Sort, slice, and format
+    const sortedGroupedExpenses = Object.entries(groupedExpenses)
+        .map(([category, expenses]) => ({
+            category,
+            totalAmount: expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0),
+            expenses
+        }))
+        .sort((a, b) => b.totalAmount - a.totalAmount)
+        .slice(0, TOP_N);
+
+    return sortedGroupedExpenses.map(group => ({
+        label: group.category,
+        amount: Math.round(group.totalAmount),
+        expenses: group.expenses
+    }));
+});
 
 const categorizedExpenses = computed(() => {
     if (!currentMontlyExpenses.value) return {};
@@ -43,19 +109,6 @@ const categorizedExpenses = computed(() => {
             return acc;
         }, {});
 });
-
-// const monthlyBudgetExpenses = computed(() => {
-//     // Get all recurrent expenses
-//     const allRecurringExpenses = props.data.transactions
-//         ?.filter(transaction => transaction.type !== 'income' && transaction.is_recurring === 'yes');
-
-//     // Get all non-recurrent expenses for the current month
-//     const currentMonthNonRecurringExpenses = filteredTransactions.value
-//         ?.filter(transaction => transaction.type !== 'income' && transaction.is_recurring !== 'yes');
-
-//     // Combine the expenses
-//     return [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
-// });
 
 // Methods to open modals
 const openEditModal = (transaction) => {
@@ -127,77 +180,6 @@ const confirmDelete = () => {
     })
     showDeleteModal.value = false;
 };
-
-
-//GETTING PROPS FROM CONTROLLER LOGIC
-const props = defineProps({
-    data: Object,
-    today: String,
-});
-console.log("CURRENT MONTH", props.today)
-
-//GETTING THE TOP INCOME AND EXPENSES
-const topIncomes = computed(() => {
-    const TOP_N = 3;
-    // 1. Get all income transactions for the current month
-    const monthlyIncomes = filteredTransactions.value
-        ?.filter(t => t.type === 'income');
-    currentMontlyIncomes.value = monthlyIncomes
-
-    // 2. Group incomes by category and sum their amounts
-    const groupedIncomes = monthlyIncomes.reduce((acc, income) => {
-        const category = income.category;
-        if (!acc[category]) {
-            acc[category] = { totalAmount: 0, incomes: [] };
-        }
-        acc[category].totalAmount += parseFloat(income.amount);
-        acc[category].incomes.push(income);
-        return acc;
-    }, {});
-
-    // 3. Convert grouped incomes to an array, sort, and slice
-    return Object.entries(groupedIncomes)
-        .map(([category, { totalAmount }]) => ({
-            label: category,
-            amount: Math.round(totalAmount),
-        }))
-        .sort((a, b) => b.amount - a.amount)
-        .slice(0, TOP_N);
-});
-
-const topExpenses = computed(() => {
-    const TOP_N = 3;
-    // 1. Get all non-recurrent expense transactions for the current month
-    const monthlyExpenses = filteredTransactions.value
-        ?.filter(t => t.type !== 'income');
-    currentMontlyExpenses.value = monthlyExpenses
-
-    // 2. Group expenses by category
-    const groupedExpenses = monthlyExpenses.reduce((acc, expense) => {
-        const category = expense.category;
-        if (!acc[category]) {
-            acc[category] = [];
-        }
-        acc[category].push(expense);
-        return acc;
-    }, {});
-
-    // 3. Sort, slice, and format
-    const sortedGroupedExpenses = Object.entries(groupedExpenses)
-        .map(([category, expenses]) => ({
-            category,
-            totalAmount: expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0),
-            expenses
-        }))
-        .sort((a, b) => b.totalAmount - a.totalAmount)
-        .slice(0, TOP_N);
-
-    return sortedGroupedExpenses.map(group => ({
-        label: group.category,
-        amount: Math.round(group.totalAmount),
-        expenses: group.expenses
-    }));
-});
 
 //CHECK IF THERE IS DATA
 const hasData = computed(() => {

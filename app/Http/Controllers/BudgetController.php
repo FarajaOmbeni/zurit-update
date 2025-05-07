@@ -61,15 +61,21 @@ class BudgetController extends Controller
 
         // Eager load relationships with current month constraints
         $user->load([
-            'incomes',
-            'transactions',
-            'expenses',
+            'incomes' => function ($query) {
+                $query->whereMonth('income_date', now()->month)
+                      ->whereYear('income_date', now()->year);
+            },
+            'transactions' => function ($query) {
+                $query->whereMonth('transaction_date', now()->month)
+                      ->whereYear('transaction_date', now()->year);
+            },
+            'expenses' => function ($query) {
+                $query->whereMonth('expense_date', now()->month)
+                      ->whereYear('expense_date', now()->year);
+            },
             'goals',
-            'goals.contributions.transaction',
             'debts',
-            'debts.payments.transaction',
-            'investments',
-            'investments.contributions.transaction',
+            'investments'
         ]);
 
         $data = [
