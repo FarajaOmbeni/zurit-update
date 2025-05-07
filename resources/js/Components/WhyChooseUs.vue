@@ -65,14 +65,14 @@ const currentTestimonial = computed(
 
                 <div
                     class="mt-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden shadow-lg border-4 border-yellow-400">
-                    <img :src="currentTestimonial.image" :alt="currentTestimonial.name"
+                    <img :src="`storage/blogs/${currentTestimonial.image}`" :alt="currentTestimonial.name"
                         class="object-cover w-full h-full transition-all duration-500" />
                 </div>
 
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">{{ currentTestimonial.name }}</h3>
 
                 <p class="mt-4 text-gray-600 text-sm md:text-base w-4/5 md:w-3/5 mx-auto">
-                    {{ currentTestimonial.review }}
+                    {{ currentTestimonial.content }}
                 </p>
 
                 <!-- Navigation Dots -->
