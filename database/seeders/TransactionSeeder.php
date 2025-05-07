@@ -98,13 +98,10 @@ class TransactionSeeder extends Seeder
                         default => rand(10, 200),
                     };
 
-                    $isRecurring = Arr::random(['yes', 'no']);
                     $expenseTransaction = Transaction::create([
                         'user_id'          => $user->id,
                         'type'             => 'expense',
                         'category'         => $category,
-                        'is_recurring'     => $isRecurring,
-                        'recurrence_pattern' => $isRecurring === 'yes' ? Arr::random(['daily', 'weekly', 'monthly', 'quarterly', 'yearly']) : null,
                         'amount'           => $amount,
                         'transaction_date' => $expenseDate,
                         'description'      => "$category expense",

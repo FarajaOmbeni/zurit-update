@@ -13,6 +13,13 @@ import { incomeCategories } from '@/Components/Variables/incomeCategories';
 //ALERT USAGE LOGIC, FROM COMPOSABLE
 const { alertState, openAlert, clearAlert } = useAlert();
 
+//GETTING PROPS FROM CONTROLLER LOGIC
+const props = defineProps({
+    data: Object,
+    today: String,
+});
+
+
 //EDIT AND DELETE MODAL LOGIC
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -22,8 +29,67 @@ const selectedTransaction = ref(null);
 const incomes = ref(null);
 const expenses = ref(null);
 
-const currentMontlyIncomes = ref(null)
-const currentMontlyExpenses = ref(null)
+const currentMontlyIncomes = ref(props.data.incomes || []);
+const currentMontlyExpenses = ref(props.data.expenses || []);
+
+//GETTING THE TOP INCOME AND EXPENSES
+const topIncomes = computed(() => {
+    const TOP_N = 3;
+    // 1. Get all income transactions for the current month
+    const monthlyIncomes = currentMontlyIncomes.value;
+    
+    // 2. Group incomes by category and sum their amounts
+    const groupedIncomes = monthlyIncomes.reduce((acc, income) => {
+        const category = income.category;
+        if (!acc[category]) {
+            acc[category] = { totalAmount: 0, incomes: [] };
+        }
+        acc[category].totalAmount += parseFloat(income.amount);
+        acc[category].incomes.push(income);
+        return acc;
+    }, {});
+
+    // 3. Convert grouped incomes to an array, sort, and slice
+    return Object.entries(groupedIncomes)
+        .map(([category, { totalAmount }]) => ({
+            label: category,
+            amount: Math.round(totalAmount),
+        }))
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, TOP_N);
+});
+
+const topExpenses = computed(() => {
+    const TOP_N = 3;
+    // 1. Get all non-recurrent expense transactions for the current month
+    const monthlyExpenses = currentMontlyExpenses.value;
+    
+    // 2. Group expenses by category
+    const groupedExpenses = monthlyExpenses.reduce((acc, expense) => {
+        const category = expense.category;
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(expense);
+        return acc;
+    }, {});
+
+    // 3. Sort, slice, and format
+    const sortedGroupedExpenses = Object.entries(groupedExpenses)
+        .map(([category, expenses]) => ({
+            category,
+            totalAmount: expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0),
+            expenses
+        }))
+        .sort((a, b) => b.totalAmount - a.totalAmount)
+        .slice(0, TOP_N);
+
+    return sortedGroupedExpenses.map(group => ({
+        label: group.category,
+        amount: Math.round(group.totalAmount),
+        expenses: group.expenses
+    }));
+});
 
 const categorizedExpenses = computed(() => {
     if (!currentMontlyExpenses.value) return {};
@@ -44,19 +110,6 @@ const categorizedExpenses = computed(() => {
         }, {});
 });
 
-// const monthlyBudgetExpenses = computed(() => {
-//     // Get all recurrent expenses
-//     const allRecurringExpenses = props.data.transactions
-//         ?.filter(transaction => transaction.type !== 'income' && transaction.is_recurring === 'yes');
-
-//     // Get all non-recurrent expenses for the current month
-//     const currentMonthNonRecurringExpenses = filteredTransactions.value
-//         ?.filter(transaction => transaction.type !== 'income' && transaction.is_recurring !== 'yes');
-
-//     // Combine the expenses
-//     return [...(allRecurringExpenses || []), ...(currentMonthNonRecurringExpenses || [])];
-// });
-
 // Methods to open modals
 const openEditModal = (transaction) => {
     // Create a deep copy of the transaction
@@ -65,11 +118,10 @@ const openEditModal = (transaction) => {
         // Ensure the date is in the correct format for date input (YYYY-MM-DD)
         transaction_date: transaction.transaction_date
             ? new Date(transaction.transaction_date).toISOString().split('T')[0]
-            : ''
+            : '',
     };
-    console.log(selectedTransaction.value)
-    incomes.value = props.data.incomeCategories
-    expenses.value = props.data.expenseCategories
+    incomes.value = props.data.incomeCategories;
+    expenses.value = props.data.expenseCategories;
     showEditModal.value = true;
 };
 
@@ -83,8 +135,8 @@ const updateTransaction = useForm({
     description: '',
     amount: '',
     transaction_date: '',
-    // is_recurring: '',
-    recurrence_pattern: ''
+    is_recurring: false,
+    // recurrence_pattern: ''
 })
 
 // Methods to handle the modal actions
@@ -94,7 +146,7 @@ const saveEdit = () => {
     updateTransaction.category = transaction.category
     updateTransaction.description = transaction.description
     updateTransaction.amount = transaction.amount
-    // updateTransaction.is_recurring = transaction.is_recurring
+    updateTransaction.is_recurring = transaction.is_recurring
     // updateTransaction.recurrence_pattern = transaction.recurrence_pattern
     updateTransaction.transaction_date = transaction.transaction_date
 
@@ -128,77 +180,6 @@ const confirmDelete = () => {
     })
     showDeleteModal.value = false;
 };
-
-
-//GETTING PROPS FROM CONTROLLER LOGIC
-const props = defineProps({
-    data: Object,
-    today: String,
-});
-console.log("CURRENT MONTH", props.today)
-
-//GETTING THE TOP INCOME AND EXPENSES
-const topIncomes = computed(() => {
-    const TOP_N = 3;
-    // 1. Get all income transactions for the current month
-    const monthlyIncomes = filteredTransactions.value
-        ?.filter(t => t.type === 'income');
-    currentMontlyIncomes.value = monthlyIncomes
-
-    // 2. Group incomes by category and sum their amounts
-    const groupedIncomes = monthlyIncomes.reduce((acc, income) => {
-        const category = income.category;
-        if (!acc[category]) {
-            acc[category] = { totalAmount: 0, incomes: [] };
-        }
-        acc[category].totalAmount += parseFloat(income.amount);
-        acc[category].incomes.push(income);
-        return acc;
-    }, {});
-
-    // 3. Convert grouped incomes to an array, sort, and slice
-    return Object.entries(groupedIncomes)
-        .map(([category, { totalAmount }]) => ({
-            label: category,
-            amount: Math.round(totalAmount),
-        }))
-        .sort((a, b) => b.amount - a.amount)
-        .slice(0, TOP_N);
-});
-
-const topExpenses = computed(() => {
-    const TOP_N = 3;
-    // 1. Get all non-recurrent expense transactions for the current month
-    const monthlyExpenses = filteredTransactions.value
-        ?.filter(t => t.type !== 'income');
-    currentMontlyExpenses.value = monthlyExpenses
-
-    // 2. Group expenses by category
-    const groupedExpenses = monthlyExpenses.reduce((acc, expense) => {
-        const category = expense.category;
-        if (!acc[category]) {
-            acc[category] = [];
-        }
-        acc[category].push(expense);
-        return acc;
-    }, {});
-
-    // 3. Sort, slice, and format
-    const sortedGroupedExpenses = Object.entries(groupedExpenses)
-        .map(([category, expenses]) => ({
-            category,
-            totalAmount: expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0),
-            expenses
-        }))
-        .sort((a, b) => b.totalAmount - a.totalAmount)
-        .slice(0, TOP_N);
-
-    return sortedGroupedExpenses.map(group => ({
-        label: group.category,
-        amount: Math.round(group.totalAmount),
-        expenses: group.expenses
-    }));
-});
 
 //CHECK IF THERE IS DATA
 const hasData = computed(() => {
@@ -300,7 +281,7 @@ const newIncome = useForm({
     amount: '',
     description: '',
     income_date: '',
-    // is_recurring: 'no',
+    is_recurring: true,
     // recurrence_pattern: ''
 });
 
@@ -310,7 +291,7 @@ const newExpense = useForm({
     amount: '',
     description: '',
     expense_date: '',
-    // is_recurring: 'no',
+    is_recurring: true,
     // recurrence_pattern: ''
 });
 
@@ -645,7 +626,7 @@ function calculateMonthlySummary() {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    Math.round(transaction.amount).toLocaleString() }}
+                                                        Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -711,23 +692,23 @@ function calculateMonthlySummary() {
                                     :required="newIncome.value === 'other'" />
                             </div>
 
-                            <!-- <div class="mb-3">
+                            <div class="mb-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center text-sm">
-                                        <input type="radio" id="yes" name="is_recurring" value="yes"
-                                            v-model="newIncome.is_recurring" />
+                                        <input type="radio" id="yes" name="is_recurring" value="1"
+                                            v-model="newIncome.is_recurring" checked/>
                                         <span class="ml-1">Yes</span>
                                     </label>
                                     <label class="flex items-center text-sm">
-                                        <input type="radio" id="no" name="is_recurring" value="no"
+                                        <input type="radio" id="no" name="is_recurring" value="0"
                                             v-model="newIncome.is_recurring" />
                                         <span class="ml-1">No</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div v-show="newIncome.is_recurring === 'yes'" class="mb-3">
+                            <!-- <div v-show="newIncome.is_recurring === 'yes'" class="mb-3">
                                 <label for="incomeCategory"
                                     class="block text-sm font-medium text-gray-700 mb-1">Recurrence
                                     Pattern</label>
@@ -809,23 +790,23 @@ function calculateMonthlySummary() {
                                     :required="newExpense.value === 'other'" />
                             </div>
 
-                            <!-- <div class="mb-3">
+                            <div class="mb-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center text-sm">
-                                        <input type="radio" id="yes" name="is_recurring" value="yes"
-                                            v-model="newExpense.is_recurring" />
+                                        <input type="radio" id="yes" name="is_recurring" value="1"
+                                            v-model="newExpense.is_recurring" checked />
                                         <span class="ml-1">Yes</span>
                                     </label>
                                     <label class="flex items-center text-sm">
-                                        <input type="radio" id="no" name="is_recurring" value="no"
+                                        <input type="radio" id="no" name="is_recurring" value="0"
                                             v-model="newExpense.is_recurring" />
                                         <span class="ml-1">No</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div v-show="newExpense.is_recurring === 'yes'" class="mb-3">
+                            <!-- <div v-show="newExpense.is_recurring === 'yes'" class="mb-3">
                                 <label for="incomeCategory"
                                     class="block text-sm font-medium text-gray-700 mb-1">Recurrence
                                     Pattern</label>
@@ -993,23 +974,27 @@ function calculateMonthlySummary() {
                                     </select>
                                 </div>
 
-                                <!-- <div class="mb-3">
+                                <div class="mb-3">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
                                     <div class="flex space-x-4">
                                         <label class="flex items-center text-sm">
-                                            <input type="radio" id="yes" name="is_recurring" value="yes"
-                                                v-model="selectedTransaction.is_recurring" />
+                                            <input type="radio" id="yes" name="is_recurring" :value="true"
+                                                v-model="selectedTransaction.is_recurring" 
+                                                :checked="selectedTransaction.is_recurring == true"
+                                                />
                                             <span class="ml-1">Yes</span>
                                         </label>
                                         <label class="flex items-center text-sm">
-                                            <input type="radio" id="no" name="is_recurring" value="no"
-                                                v-model="selectedTransaction.is_recurring" />
+                                            <input type="radio" id="no" name="is_recurring" :value="false"
+                                                v-model="selectedTransaction.is_recurring" 
+                                                :checked="selectedTransaction.is_recurring == false"
+                                                />
                                             <span class="ml-1">No</span>
                                         </label>
                                     </div>
                                 </div>
 
-                                <div v-show="selectedTransaction.is_recurring === 'yes'" class="mb-3">
+                                <!-- <div v-show="selectedTransaction.is_recurring === 'yes'" class="mb-3">
                                     <label for="incomeCategory"
                                         class="block text-sm font-medium text-gray-700 mb-1">Recurrence
                                         Pattern</label>
@@ -1054,7 +1039,7 @@ function calculateMonthlySummary() {
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                            updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -1073,7 +1058,7 @@ function calculateMonthlySummary() {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>

@@ -12,13 +12,47 @@ use App\Models\Expense;
 use App\Models\DebtPayment;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\RecurrenceRule;
 use App\Models\GoalContribution;
 use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
 
+
 class BudgetController extends Controller
 {
-    use NetIncomeCalculator;
+    // app/Http/Controllers/BudgetController.php
+    private function upsertRule(Transaction $txn, Request $r): ?RecurrenceRule
+    {
+        /* 1. If user unticks the box */
+        if (!$r->boolean('is_recurring')) {
+
+            // deactivate the existing rule (if any)
+            if ($txn->rule) {
+                $txn->rule->update(['is_active' => false]);
+                return $txn->rule;          // ← keep the object so caller can leave rule_id
+            }
+
+            // create nothing, leave rule_id = null for brand‑new non‑recurring txn
+            return null;
+        }
+
+        /* 2. User wants this to be recurring */
+        $data = [
+            'user_id'     => $txn->user_id,
+            'type'        => $txn->type,
+            'category'    => $r->category === 'Other' ? $r->otherCategory : $r->category,
+            'amount'      => $r->amount,
+            'description' => $r->description,
+            'pattern'     => $r->recurrence_pattern ?? 'monthly',
+            'next_run_on' => now()->addMonth()->startOfMonth(),
+            'is_active'   => true,
+        ];
+
+        return $txn->rule
+            ? tap($txn->rule)->update($data)     // edit existing
+            : RecurrenceRule::create($data);     // or make new
+    }
+
 
     public function index()
     {
@@ -27,15 +61,21 @@ class BudgetController extends Controller
 
         // Eager load relationships with current month constraints
         $user->load([
-            'incomes',
-            'transactions',
-            'expenses',
+            'incomes' => function ($query) {
+                $query->whereMonth('income_date', now()->month)
+                      ->whereYear('income_date', now()->year);
+            },
+            'transactions' => function ($query) {
+                $query->whereMonth('transaction_date', now()->month)
+                      ->whereYear('transaction_date', now()->year);
+            },
+            'expenses' => function ($query) {
+                $query->whereMonth('expense_date', now()->month)
+                      ->whereYear('expense_date', now()->year);
+            },
             'goals',
-            'goals.contributions.transaction',
             'debts',
-            'debts.payments.transaction',
-            'investments',
-            'investments.contributions.transaction',
+            'investments'
         ]);
 
         $data = [
@@ -54,44 +94,40 @@ class BudgetController extends Controller
     }
 
     public function storeIncome(Request $request)
-    {
+    {        
         $request->validate([
             'amount'      => 'required|numeric',
             'category'    => 'required|string',
             'description' => 'required|string',
             'income_date' => 'required|date',
+            'is_recurring' => 'required|boolean'
         ]);
 
         DB::transaction(function () use ($request) {
-            // Create the transaction first
-            $transaction = new Transaction();
-            $transaction->user_id = auth()->id();
-            $transaction->type = 'income';
-            if ($request->category === 'Other') {
-                $transaction->category = $request->otherCategory;
-            } else {
-                $transaction->category = $request->category;
-            }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
-            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
-            $transaction->amount = $request->amount;
-            $transaction->transaction_date = $request->income_date;
-            $transaction->description = $request->description;
-            $transaction->save();
+            $txn = new Transaction([
+                'user_id'          => auth()->id(),
+                'type'             => 'income',
+                'category'         => $request->category === 'Other' ? $request->otherCategory : $request->category,
+                'amount'           => $request->amount,
+                'transaction_date' => $request->income_date,
+                'description'      => $request->description,
+            ]);
 
-            // Now create the income and assign the transaction id as a foreign key
-            $income = new Income();
-            $income->user_id = auth()->id();
-            if ($request->category === 'Other') {
-                $income->category = $request->otherCategory;
-            } else {
-                $income->category = $request->category;
+            $rule = $this->upsertRule($txn, $request);
+            /* only (re)attach when the user said “yes” AND there’s a rule row */
+            if ($request->boolean('is_recurring') && $rule) {
+                $txn->rule_id = $rule->id;
             }
-            $income->amount = $request->amount;
-            $income->description = $request->description;
-            $income->income_date = $request->income_date;
-            $income->transaction_id = $transaction->id;
-            $income->save();
+            $txn->save();
+
+
+            $txn->income()->create([
+                'user_id'     => $txn->user_id,
+                'category'    => $txn->category,
+                'amount'      => $txn->amount,
+                'description' => $txn->description,
+                'income_date' => $request->income_date,
+            ]);
         });
 
         return to_route('budget.index');
@@ -105,39 +141,36 @@ class BudgetController extends Controller
             'amount'       => 'required|numeric',
             'description'  => 'required|string|max:255',
             'expense_date' => 'required|date|max:255',
+            'is_recurring' => 'required|boolean'
         ]);
 
         DB::transaction(function () use ($request) {
-            // Create the transaction first
-            $transaction = new Transaction();
-            $transaction->user_id = auth()->id();
-            $transaction->type = 'expense';
-            if ($request->category === 'Other') {
-                $transaction->category = $request->otherCategory;
-            } else {
-                $transaction->category = $request->category;
-            }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
-            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
-            $transaction->amount = $request->amount;
-            $transaction->transaction_date = $request->expense_date;
-            $transaction->description = $request->description;
-            $transaction->save();
+            $txn = new Transaction([
+                'user_id'          => auth()->id(),
+                'type'             => 'expense',
+                'category'         => $request->category === 'Other' ? $request->otherCategory : $request->category,
+                'amount'           => $request->amount,
+                'transaction_date' => $request->expense_date,
+                'description'      => $request->description,
+            ]);
 
-            // Now create the expense and assign the transaction id as a foreign key
-            $expense = new Expense();
-            $expense->user_id = auth()->id();
-            if ($request->category === 'Other') {
-                $expense->category = $request->otherCategory;
-            } else {
-                $expense->category = $request->category;
+            $rule = $this->upsertRule($txn, $request);
+            /* only (re)attach when the user said “yes” AND there’s a rule row */
+            if ($request->boolean('is_recurring') && $rule) {
+                $txn->rule_id = $rule->id;
             }
-            $expense->amount = $request->amount;
-            $expense->description = $request->description;
-            $expense->expense_date = $request->expense_date;
-            $expense->transaction_id = $transaction->id;
-            $expense->save();
+            $txn->save();
+
+
+            $txn->expense()->create([
+                'user_id'     => $txn->user_id,
+                'category'    => $txn->category,
+                'amount'      => $txn->amount,
+                'description' => $txn->description,
+                'expense_date' => $request->expense_date,
+            ]);
         });
+
 
         return to_route('budget.index');
     }
@@ -159,41 +192,36 @@ class BudgetController extends Controller
             'category'         => 'required|string|max:255',
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
-            'transaction_date' => 'required|date', // used as the income_date
-            'is_recurring'      => 'nullable|string|in:yes,no',
+            'transaction_date' => 'required|date',
+            'is_recurring'      => 'required|boolean',
         ]);
 
         DB::transaction(function () use ($request, $id) {
-            // Use the transaction ID (passed from the front end) to update the Transaction.
-            $transaction = Transaction::findOrFail($id);
+            $txn   = Transaction::findOrFail($id);
+            $child = $txn->expense;           // or $txn->expense in updateExpense
 
-            // Retrieve the related Expense record by matching its transaction_id
-            $expense = Expense::where('transaction_id', $transaction->id)->firstOrFail();
+            // 1) update or create the rule
+            $rule = $this->upsertRule($txn, $request);
+            if ($rule) $txn->rule_id = $rule->id;
 
-            // Update the Transaction first
-            if ($request->category === 'Other') {
-                $transaction->category = $request->otherCategory;
-            } else {
-                $transaction->category = $request->category;
-            }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
-            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
-            $transaction->amount           = $request->amount;
-            $transaction->description      = $request->description;
-            $transaction->transaction_date = $request->transaction_date;
-            $transaction->save();
+            // 2) overwrite txn & child with new data
+            $newCategory = $request->category === 'Other' ? $request->otherCategory : $request->category;
 
-            // Now update the related Expense record
-            if ($request->category === 'Other') {
-                $expense->category = $request->otherCategory;
-            } else {
-                $expense->category = $request->category;
-            }
-            $expense->amount      = $request->amount;
-            $expense->description = $request->description;
-            $expense->expense_date = $request->transaction_date;
-            $expense->save();
+            $txn->update([
+                'category'         => $newCategory,
+                'amount'           => $request->amount,
+                'transaction_date' => $request->transaction_date,
+                'description'      => $request->description,
+            ]);
+
+            $child->update([
+                'category'  => $newCategory,
+                'amount'    => $request->amount,
+                'expense_date' => $request->transaction_date,   // expense_date in updateExpense
+                'description' => $request->description,
+            ]);
         });
+
 
         return to_route('budget.index');
     }
@@ -205,39 +233,33 @@ class BudgetController extends Controller
             'amount'           => 'required|numeric',
             'description'      => 'required|string|max:255',
             'transaction_date' => 'required|date',
-            'is_recurring'      => 'nullable|string|in:yes,no',
+            'is_recurring'      => 'required|boolean',
         ]);
 
         DB::transaction(function () use ($request, $id) {
-            // Use the transaction ID (passed from the front end) to update the Transaction.
-            $transaction = Transaction::findOrFail($id);
+            $txn   = Transaction::findOrFail($id);
+            $child = $txn->income;           // or $txn->expense in updateExpense
 
-            // Retrieve the related Income record by matching its transaction_id
-            $income = Income::where('transaction_id', $transaction->id)->firstOrFail();
+            // 1) update or create the rule
+            $rule = $this->upsertRule($txn, $request);
+            if ($rule) $txn->rule_id = $rule->id;
 
-            // Update the Transaction first
-            if ($request->category === 'Other') {
-                $transaction->category = $request->otherCategory;
-            } else {
-                $transaction->category = $request->category;
-            }
-            $transaction->is_recurring = $request->is_recurring ?? 'no';
-            $transaction->recurrence_pattern = $request->recurrence_pattern ?? null;
-            $transaction->amount           = $request->amount;
-            $transaction->description      = $request->description;
-            $transaction->transaction_date = $request->transaction_date;
-            $transaction->save();
+            // 2) overwrite txn & child with new data
+            $newCategory = $request->category === 'Other' ? $request->otherCategory : $request->category;
 
-            // Now update the related Income record
-            if ($request->category === 'Other') {
-                $income->category = $request->otherCategory;
-            } else {
-                $income->category = $request->category;
-            }
-            $income->amount      = $request->amount;
-            $income->description = $request->description;
-            $income->income_date = $request->transaction_date;
-            $income->save();
+            $txn->update([
+                'category'         => $newCategory,
+                'amount'           => $request->amount,
+                'transaction_date' => $request->transaction_date,
+                'description'      => $request->description,
+            ]);
+
+            $child->update([
+                'category'  => $newCategory,
+                'amount'    => $request->amount,
+                'income_date' => $request->transaction_date,   // expense_date in updateExpense
+                'description' => $request->description,
+            ]);
         });
 
         return to_route('budget.index');
