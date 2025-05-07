@@ -65,7 +65,7 @@ const currentTestimonial = computed(
 
                 <div
                     class="mt-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden shadow-lg border-4 border-yellow-400">
-                    <img :src="`storage/blogs/${currentTestimonial.image}`" :alt="currentTestimonial.name"
+                    <img :src="`storage/testimonials/${currentTestimonial.image}`" :alt="currentTestimonial.name"
                         class="object-cover w-full h-full transition-all duration-500" />
                 </div>
 
