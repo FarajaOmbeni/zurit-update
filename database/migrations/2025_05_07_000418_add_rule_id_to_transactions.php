@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            $table->boolean('is_recurring')->default(true);
-            $table->enum('recurrence_pattern', ['monthly'])->nullable();
-            $table->date('next_run_at')->nullable();
+            $table->foreignId('rule_id')
+                ->nullable()
+                ->after('user_id')
+                ->constrained('recurrence_rules')
+                ->cascadeOnDelete();
         });
     }
 

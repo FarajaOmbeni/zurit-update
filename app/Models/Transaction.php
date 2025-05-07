@@ -16,8 +16,7 @@ class Transaction extends Model
         'category',
         'transaction_date',
         'description',
-        'is_recurring',
-        'next_run_at',
+        'rule_id',
     ];
 
     protected $casts = [
@@ -57,5 +56,10 @@ class Transaction extends Model
     public function expense()
     {
         return $this->hasOne(Expense::class);
+    }
+
+    public function rule()
+    {
+        return $this->belongsTo(RecurrenceRule::class, 'rule_id');
     }
 }

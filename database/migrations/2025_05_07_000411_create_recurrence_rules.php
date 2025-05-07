@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('recurrence_rules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('type', ['income', 'expense', 'goal', 'investment', 'debt']);
+            $table->enum('type', ['income', 'expense']);
             $table->string('category');
             $table->decimal('amount', 15, 2);
-            $table->date('transaction_date');
             $table->string('description')->nullable();
+            $table->enum('pattern', ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'])
+                ->default('monthly');
+            $table->date('next_run_on');          // first date the rule should fire
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('recurrence_rules');
     }
 };

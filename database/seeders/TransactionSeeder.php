@@ -102,7 +102,6 @@ class TransactionSeeder extends Seeder
                         'user_id'          => $user->id,
                         'type'             => 'expense',
                         'category'         => $category,
-                        'is_recurring'     => true,
                         'amount'           => $amount,
                         'transaction_date' => $expenseDate,
                         'description'      => "$category expense",
