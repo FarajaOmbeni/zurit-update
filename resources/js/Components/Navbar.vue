@@ -115,7 +115,8 @@
                         </template>
                     </Dropdown>
                     <Link v-if="!$page.props.auth.user" :href="route('login')"
-                        class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
+                        class="bg-white text-gray-900 block px-3 py-2 rounded-md">Log
+                    in</Link>
                 </div>
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
@@ -233,7 +234,7 @@
                     </template>
                 </Dropdown>
                 <Link v-if="!$page.props.auth.user" :href="route('login')"
-                    class="bg-white text-gray-900 block px-3 py-2 rounded-md">Join Us</Link>
+                    class="bg-white text-gray-900 block px-3 py-2 rounded-md">Log in</Link>
             </div>
         </div>
     </nav>
@@ -265,7 +266,7 @@ const toggleMobileMenu = () => {
 }
 
 onMounted(() => {
-    handleScroll() 
+    handleScroll()
     window.addEventListener('scroll', handleScroll)
 })
 

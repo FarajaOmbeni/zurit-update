@@ -33,18 +33,15 @@
             <!-- Meet Our Team -->
             <div class="flex flex-col items-center">
                 <h2 class="font-bold text-3xl mb-6">Meet Our Team</h2>
-                <Profile name="Elizabeth Nkukuu" position="Founder - Team Leader" image="/images/team/liz.webp" />
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-32">
-                    <Profile name="Brian Salau" position="Manager" image="/images/team/brian.webp" />
-                    <Profile name="Ken Ndwigah" position="Head of Finance" image="/images/team/ken_img.webp" />
-                    <Profile name="Noelle Jentrix" position="Clients Relations" image="/images/team/noelle.webp" />
-                    <Profile name="Bryan Gitia" position="Investment Specialist" image="/images/team/gitia.webp" />
-                    <Profile name="Bramwel" position="Developer" image="/images/team/bramwel.webp" />
-                    <Profile name="Davis Otao" position="Full Stack Developer" image="/images/team/Davis.webp" />
-                    <Profile name="Ombeni Faraja" position="Full Stack Developer" image="/images/team/faraja.webp" />
-
-                    <Profile name="Churchil Wagwa" position="Multimedia Creative Arts"
-                        image="/images/team/churchill.webp" />
+                <Profile name="Elizabeth Nkukuu" position="Founder - Team Leader" image="/images/team/liz.webp"
+                    linkedin_link="https://www.linkedin.com/in/elizabethnkukuu/" />
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+                    <Profile name="Brian Salau" position="Manager" image="/images/team/brian.webp"
+                        linkedin_link="https://www.linkedin.com/in/brian-salau-500255233/" />
+                    <Profile name="Noelle Jentrix" position="Clients Relations" image="/images/team/noelle.webp"
+                        linkedin_link="https://www.linkedin.com/in/noel-nabwire-097001265/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" />
+                    <Profile name="Ombeni Faraja" position="Full Stack Developer" image="/images/team/faraja.webp"
+                        linkedin_link="https://www.linkedin.com/in/ombenifaraja/" />
                 </div>
             </div>
         </div>
