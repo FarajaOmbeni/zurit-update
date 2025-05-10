@@ -43,6 +43,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/zuriuhqx/zuritconsulting.com
+            git pull origin master
             composer dump-autoload
             php artisan migrate --force
             npm run build
