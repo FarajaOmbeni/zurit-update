@@ -38,10 +38,18 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                     <Profile name="Brian Salau" position="Manager" image="/images/team/brian.webp"
                         linkedin_link="https://www.linkedin.com/in/brian-salau-500255233/" />
-                    <Profile name="Noelle Jentrix" position="Clients Relations" image="/images/team/noelle.webp"
-                        linkedin_link="https://www.linkedin.com/in/noel-nabwire-097001265/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" />
                     <Profile name="Ombeni Faraja" position="Full Stack Developer" image="/images/team/faraja.webp"
                         linkedin_link="https://www.linkedin.com/in/ombenifaraja/" />
+                    <Profile name="Bryan Gitia" position="Investment Specialist" image="/images/team/gitia.webp"
+                        linkedin_link="https://www.linkedin.com/in/bgitia/" />
+                    <Profile name="Noelle Jentrix" position="Clients Relations" image="/images/team/noelle.webp"
+                        linkedin_link="https://www.linkedin.com/in/noel-nabwire-097001265/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" />
+                    <Profile name="Tugi Nyatuga" position="Sales and Social employee" image="/images/team/tugi.jpg"
+                        linkedin_link="https://www.linkedin.com/in/tugi-nyatuga-b981a4154/?originalSubdomain=ke" />
+                    <Profile name="Alvin Kausai" position="Digital Marketer" image="/images/team/alvin.jpg"
+                        linkedin_link="https://www.linkedin.com/in/keponyialvinkausai/" />
+                    <Profile name="Joel Mugonyi" position="Investment Analyst" image="/images/team/joel.jpg"
+                        linkedin_link="https://www.linkedin.com/in/joel-mugonyi-79427323a/" />
                 </div>
             </div>
         </div>
