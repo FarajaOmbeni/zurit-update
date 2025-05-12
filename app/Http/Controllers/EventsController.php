@@ -35,9 +35,7 @@ class EventsController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $absolutePath = '/home/zuriuhqx/public_html/storage/events';
-            $image->move($absolutePath, $imageName);
-            $imagePath = '/storage/events/' . $imageName;
+            $imagePath = $image->move(storage_path('app/public/events'), $imageName);
         }
 
         $event = new Event();
@@ -62,9 +60,7 @@ class EventsController extends Controller
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $absolutePath = '/home/zuriuhqx/public_html/storage/events';
-            $image->move($absolutePath, $imageName);
-            $imagePath = '/storage/events/' . $imageName;
+            $imagePath = $image->move(storage_path('app/public/events'), $imageName);
         }
 
         //validate the inputs

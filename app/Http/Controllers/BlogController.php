@@ -36,9 +36,7 @@ class BlogController extends Controller
         if($request->hasFile('blog_image')) {
             $image = $request->file('blog_image');
             $imageName = time().'.'.$image->getClientOriginalExtension();
-            $absolutePath = '/home/zuriuhqx/public_html/storage/blogs';
-            $image->move($absolutePath, $imageName);
-            $imagePath = '/storage/blogs/'.$imageName;
+            $imagePath = $image->move(storage_path('app/public/blogs'), $imageName);
         }
 
         $blog = new Blog();
@@ -74,9 +72,7 @@ class BlogController extends Controller
         if ($request->hasFile('blog_image')) {
             $image = $request->file('blog_image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $absolutePath = '/home/zuriuhqx/public_html/storage/blogs';
-            $image->move($absolutePath, $imageName);
-            $imagePath = '/storage/blogs/' . $imageName;
+            $imagePath = $image->move(storage_path('app/public/blogs'), $imageName);
         }
 
         $blog->blog_image = basename($imagePath);
