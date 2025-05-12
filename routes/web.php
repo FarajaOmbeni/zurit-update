@@ -13,6 +13,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\MarketingController;
+use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
 
@@ -21,6 +22,28 @@ Route::get('/', [IndexController::class, 'index'])->name('home');
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/about', [IndexController::class, 'about'])->name('about');
+Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
+Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');
+Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('networth');
+Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
+Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
+Route::get('/training', [IndexController::class, 'training'])->name('training');
+Route::get('/books', [IndexController::class, 'books'])->name('books');
+Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
+Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
+Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
+Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
+Route::get('/money-quiz', function() {
+    return Inertia::render('MoneyQuiz');
+})->name('money.quiz');
+Route::get('/advisory', function () {
+    return Inertia::render('Advisory');
+})->name('advisory');
+Route::get('/business-support', function () {
+    return Inertia::render('BusinessSupport');
+})->name('business.support');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -117,23 +140,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
     Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 });
-
-Route::get('/about', [IndexController::class, 'about'])->name('about');
-Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
-Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');
-Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('networth');
-Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
-Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
-Route::get('/training', [IndexController::class, 'training'])->name('training');
-Route::get('/books', [IndexController::class, 'books'])->name('books');
-Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
-Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
-Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
-Route::get('/advisory', function () {
-    return Inertia::render('Advisory');
-})->name('advisory');
-Route::get('/business-support', function() {
-    return Inertia::render('BusinessSupport');
-})->name('business.support');
 
 require __DIR__.'/auth.php';

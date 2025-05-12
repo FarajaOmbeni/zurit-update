@@ -28,7 +28,7 @@ class QuestionnaireResponseMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Questionnaire Response Mail',
+            subject: 'Money Quiz Response 💰',
         );
     }
 

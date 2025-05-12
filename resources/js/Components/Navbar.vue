@@ -80,6 +80,9 @@
                             <DropdownLink :href="route('business.support')">
                                 Business Support
                             </DropdownLink>
+                            <DropdownLink :href="route('money.quiz')">
+                                Money Quiz
+                            </DropdownLink>
                         </template>
                     </Dropdown>
                     <Link :href="route('books')" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
@@ -198,6 +201,9 @@
                         </DropdownLink>
                         <DropdownLink :href="route('business-support')">
                             Business Support
+                        </DropdownLink>
+                        <DropdownLink :href="route('money.quiz')">
+                            Money Quiz
                         </DropdownLink>
                     </template>
                 </Dropdown>
