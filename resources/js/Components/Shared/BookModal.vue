@@ -15,6 +15,9 @@
                     </div>
                     <div>
                         <p class="text-lg font-semibold text-yellow-600">Price: KES {{ book.price }}</p>
+                        <p class="text-yellow-600">After payment, visit this <a class="text-blue-500 underline"
+                                href="https://dashboard.mailerlite.com/forms/1042116/153897443613738343/share" target="_blank">link</a>
+                            so that we can process your order!</p>
                         <img src="/images/books/mpesa.webp" alt="Mpesa Details">
                     </div>
                 </div>
