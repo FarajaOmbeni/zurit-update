@@ -50,7 +50,7 @@ const trainings = [
         type: 'corporate',
         imageUrl: '/images/training/prosperity.jpg',
         title: 'Prosperity Masterclass',
-        description: 'This masterclass is a 5 week program tailored to individuals, covering the fundamentals of personal finance and investments.',
+        description: 'This masterclass is a 5-week program tailored to individuals, covering the fundamentals of personal finance and investments.',
         details: [
             'Wealth building principles.',
             'Best practices for building wealth.',
@@ -71,9 +71,9 @@ const trainings = [
             'Getting it Right with your Investments',
             'Using Property to Build Wealth',
             'Pension Funds and Wealth Creation',
-            'Capitals Markets Investing',
+            'Capital Markets Investing',
         ],
-        attends: ['This program is ideal for individuals seeking to enhance their financial literacy, wealth creation and preservation strategies.'],
+        attends: ['This program is ideal for individuals seeking to enhance their financial literacy, wealth creation, and preservation strategies.'],
         duration: '3 hours',
         price: '3,000 per person',
         more_info: 'This training is done on a MONTHLY basis.'
@@ -101,9 +101,9 @@ const trainings = [
         title: 'Retirement Planning',
         description: 'Immerse yourself in this comprehensive training designed for pension trustees. The course provides a deep dive into retirement planning strategies, helping trustees understand the complexities of retirement income management and long-term investment planning.',
         details: [
-            'Mental preparedness of life in retirement',
+            'Mental preparedness for life in retirement',
             'Portfolio Constructions',
-            'Investment options and review of various asset class',
+            'Investment options and review of various asset classes',
         ],
         attends: ['Staff of Corporate institutions, owner management'],
         duration: '5 days',
@@ -137,7 +137,7 @@ const trainings = [
             'Debt management',
             'Investment options',
         ],
-        attends: ['Corporate institutions looking to increasing employee engagement and productivity'],
+        attends: ['Corporate institutions looking to increase employee engagement and productivity'],
         price: '39,000 per 2 hours per group',
         price2: '74,100 per group',
         price3: '140,790 per group',
@@ -147,11 +147,11 @@ const trainings = [
         type: 'in-house',
         imageUrl: '/images/training/retirement_pic.webp',
         title: 'Retirement Planning',
-        description: 'Explore our Corporate Retirement Planning program, a comprehensive course designed to equip businesses with the knowledge and tools to establish and manage effective retirement plans. This program focuses on understanding the intricacies of retirement planning, including investment strategies, risk management, and regulatory compliance, with the goal of ensuring a secure and stable retirement for employees. ',
+        description: 'Explore our Corporate Retirement Planning program, a comprehensive course designed to equip businesses with the knowledge and tools to establish and manage effective retirement plans. This program focuses on understanding the intricacies of retirement planning, including investment strategies, risk management, and regulatory compliance, with the goal of ensuring a secure and stable retirement for employees.',
         details: [
             'Portfolio Constructions',
             'Goal Setting',
-            'Investment options and review of various asset class',
+            'Investment options and review of various asset classes',
         ],
         attends: ['Staff of Corporate institutions, owner management'],
         price: '39,000 per 2 hours per group',
@@ -163,7 +163,7 @@ const trainings = [
         type: 'in-house',
         imageUrl: '/images/training/individual.avif',
         title: 'Individual Training',
-        description: 'At Zurit Consulting, our one-on-one sessions are crafted to meet you exactly where you are—whether you`re navigating a financial decision, growing a business, or seeking greater clarity in your personal wealth journey.',
+        description: 'At Zurit Consulting, our one-on-one sessions are crafted to meet you exactly where you are—whether you\'re navigating a financial decision, growing a business, or seeking greater clarity in your personal wealth journey.',
         details: [
             'A customized financial review of your current position',
             'A personalized action plan with realistic, goal-driven steps',
@@ -172,7 +172,7 @@ const trainings = [
         ],
         attends: [
             'Individuals seeking expert financial guidance',
-            'Entrepreneurs and professionals in transition,',
+            'Entrepreneurs and professionals in transition',
             'Anyone looking to take control of their money and make strategic, confident decisions'
         ],
         price: '5,000 per session',
@@ -182,16 +182,16 @@ const trainings = [
         type: 'free',
         imageUrl: '/images/training/asset_class.webp',
         title: 'Bi-Weekly Webinar',
-        description: 'Our Asset Classes Training is a specialized program aimed at improving financial literacy and aiding in informed investment decisions. It`s suitable for both seasoned investors and beginners, providing the necessary knowledge to effectively navigate the complex world of asset classes.',
+        description: 'Our Asset Classes Training is a specialized program aimed at improving financial literacy and aiding in informed investment decisions. It\'s suitable for both seasoned investors and beginners, providing the necessary knowledge to effectively navigate the complex world of asset classes.',
         details: [
             'Understanding the various asset classes',
             'Investing in Bonds & Treasury Bills',
             'Investing in Real Estate',
             'How to create a good portfolio',
         ],
-        attends: ['Seasoned investor, a beginner, or simply someone curious about the financial world'],
+        attends: ['Seasoned investors, beginners, or simply someone curious about the financial world'],
         price: '0',
-        more_info: 'Conducted Through Virtual sessions: Enter Contact details for more info'
+        more_info: 'Conducted through virtual sessions: Enter contact details for more info'
     },
     // Add more training items...
 ]
@@ -199,8 +199,8 @@ const trainings = [
 const tabs = [
     { id: 'corporate', label: 'Corporate' },
     { id: 'quarterly', label: 'Quarterly' },
-    { id: 'in-house', label: 'In House Traininig' },
-    { id: 'free', label: 'FREE Traininig' }
+    { id: 'in-house', label: 'In-House Training' },
+    { id: 'free', label: 'FREE Training' }
 ]
 
 const activeTab = ref('corporate')

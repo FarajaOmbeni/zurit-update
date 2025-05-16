@@ -44,6 +44,8 @@ Route::get('/advisory', function () {
 Route::get('/business-support', function () {
     return Inertia::render('BusinessSupport');
 })->name('business.support');
+Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send.message');
+Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

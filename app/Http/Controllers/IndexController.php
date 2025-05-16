@@ -8,11 +8,13 @@ use App\Models\Event;
 use App\Models\Video;
 use App\Models\PastEvent;
 use App\Models\Testimonial;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
-
 use function Termwind\render;
+
+
+use App\Http\Controllers\Controller;
+use App\Mail\ContactFormMail;
+use Illuminate\Support\Facades\Mail;
 
 class IndexController extends Controller
 {
@@ -89,5 +91,43 @@ class IndexController extends Controller
             'blog' => $blog,
             'blogs' => $blogs
         ]);
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $name = $request->name;
+        $email = $request->email;
+        $message = $request->message;
+
+        // Send email
+        if (!isset($request->website)) {
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($name, $email, $message));
+        }
+
+        // You can add a success message or redirect here if needed
+        return redirect()->back()->with('success', 'Questionnaire submitted successfully! We will be in touch.');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        $email = $request->email;
+
+        // Send email
+        if (!isset($request->website)) {
+            Mail::to('ombenifaraja@gmail.com')->send(new ContactFormMail($email, $email, "Kindly get back to me soon!"));
+        }
+
+        // You can add a success message or redirect here if needed
+        return redirect()->back()->with('success', 'Questionnaire submitted successfully! We will be in touch.');
     }
 }

@@ -1,5 +1,7 @@
 <template>
     <footer class="bg-purple-900 text-center md:text-left text-gray-300 py-10">
+        <Alert v-if="alertState" :type="alertState.type" :message="alertState.message" :duration="alertState.duration"
+            :auto-close="alertState.autoClose" @close="clearAlert" />
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- Address Section -->
@@ -27,17 +29,19 @@
                 <!-- Quick Links -->
                 <div class="space-y-3">
                     <h2 class="text-lg font-semibold text-yellow-500">Quick Links</h2>
-                    <a href="{{ url('/') }}" class="block hover:text-yellow-400">Home</a>
+                    <Link :href="route('home')" class="block hover:text-yellow-400">Home</Link>
                     <Link :href="route('training')" class="block hover:text-yellow-400">Training</Link>
-                    <a href="{{ url('about') }}" class="block hover:text-yellow-400">About Us</a>
-                    <a href="/#contact-us" class="block hover:text-yellow-400">Contact Us</a>
+                    <Link :href="route('about')" class="block hover:text-yellow-400">About Us</Link>
                 </div>
 
                 <!-- Newsletter -->
                 <div class="space-y-3">
                     <h2 class="text-lg font-semibold text-yellow-500">Get In Touch</h2>
-                    <form action="{{ route('subscribe') }}" method="post" class="space-y-3">
-                        <input type="email" name="email" placeholder="Your Email"
+                    <form @submit.prevent="handleSubmit" class="space-y-3">
+                        <!-- Honeypot Field -->
+                        <input type="text" name="website" v-model="form.website" style="display:none" tabindex="-1" autocomplete="off" />
+
+                        <input type="email" name="email" v-model="form.email" placeholder="Your Email"
                             class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
                             required>
                         <button type="submit"
@@ -59,5 +63,31 @@
  
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import Alert from './Shared/Alert.vue'
+import { useAlert } from '@/Components/Composables/useAlert';
+import { useForm } from '@inertiajs/vue3'
+
+const { openAlert, clearAlert, alertState } = useAlert()
+
+const form = useForm({
+    email: '',
+    website: ''
+})
+
+const handleSubmit = () => {
+    form.post(route('send.email'), {
+        onSuccess: () => {
+            form.reset()
+            openAlert('success', "Email sent succesfully!", 5000)
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+
+            openAlert('danger', errorMessages, 5000);
+        }
+    })
+}
 
 </script>
