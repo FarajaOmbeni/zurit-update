@@ -46,6 +46,7 @@ Route::get('/business-support', function () {
 })->name('business.support');
 Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send.message');
 Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
+Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

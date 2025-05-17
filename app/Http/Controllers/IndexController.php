@@ -75,6 +75,11 @@ class IndexController extends Controller
         return Inertia::render('Feedback');
     }
 
+    public function calendar()
+    {
+        return Inertia::render('Calendar');
+    }
+
     public function blogs()
     {
         $blogs = Blog::all();
@@ -107,7 +112,7 @@ class IndexController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('ombenifaraja@gmail.com')->send(new ContactFormMail($name, $email, $message));
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($name, $email, $message));
         }
 
         // You can add a success message or redirect here if needed
@@ -124,7 +129,7 @@ class IndexController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('ombenifaraja@gmail.com')->send(new ContactFormMail($email, $email, "Kindly get back to me soon!"));
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($email, $email, "Kindly get back to me soon!"));
         }
 
         // You can add a success message or redirect here if needed

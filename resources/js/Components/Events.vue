@@ -1,7 +1,9 @@
 <template>
     <div class="mb-20">
         <p class="text-center text-4xl md:text-5xl font-extrabold text-purple-700 mb-10">Upcoming Events</p>
-
+        <div class="text-center">
+            <a class="bg-purple-500 p-2 text-xl font-bold text-white rounded hover:opacity-90 transiton" href="/calendar" target="_blank">View Calendar</a>
+        </div>
         <div class="flex flex-wrap justify-center gap-8 mt-12">
             <div v-for="(event, index) in events" :key="index"
                 class="max-w-sm bg-purple-700 rounded-2xl overflow-hidden shadow-lg text-white">
@@ -17,7 +19,8 @@
                         <div class="text-lg font-semibold">
                             {{ event.price }}
                         </div>
-                        <a :href="event.registration_link" target="_blank" class="bg-yellow-500 text-purple-700 font-bold py-2 px-4 rounded hover:bg-yellow-400 cursor-pointer">
+                        <a :href="event.registration_link" target="_blank"
+                            class="bg-yellow-500 text-purple-700 font-bold py-2 px-4 rounded hover:bg-yellow-400 cursor-pointer">
                             Register
                         </a>
                     </div>
@@ -29,7 +32,9 @@
 </template>
 
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import { formatDate } from './Composables/useDateFormat';
+
 defineProps({
     events: {
         type: Array,
