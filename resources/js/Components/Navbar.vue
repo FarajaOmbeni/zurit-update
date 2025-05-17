@@ -82,7 +82,7 @@
                         <div v-if="activeDropdown === 'user'"
                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                             @click.outside="closeDropdowns">
-                            <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
+                            <Link v-for="item in userMenuItems" :key="item.href" :href="item.href" :method="item.href === '/logout' ? 'post' : 'get'"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             {{ item.name }}
                             </Link>
@@ -211,7 +211,7 @@
                                 </svg>
                             </button>
                             <div v-if="activeMobileAccordion === 'user'" class="pl-4 space-y-1 mt-1">
-                                <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
+                                <Link v-for="item in userMenuItems" :key="item.href" :href="item.href" :method="item.href === '/logout' ? 'post' : 'get'"
                                     class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                                     @click="isMobileMenuOpen = false">
                                 {{ item.name }}
@@ -231,89 +231,75 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted } from 'vue'
-Link
+import { Link, usePage } from '@inertiajs/vue3'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
-// Props
-const props = defineProps({
-    user: {
-        type: Object,
-        default: null
-    },
-})
-console.log("User:", props.user)
+/* -------------------------------------------------
+   1.  Get the global Inertia page object
+   2.  Derive the current user from $page.props.auth.user
+-------------------------------------------------- */
+const page = usePage()
+const user = computed(() => page.props.auth?.user ?? null)
 
-// State
-const isScrolled = ref(false) // Initialize as false to start transparent
+/* -------------------------------------------------
+   Local state
+-------------------------------------------------- */
+const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 const activeDropdown = ref(null)
 const activeMobileAccordion = ref(null)
 
-// Navigation data
+/* -------------------------------------------------
+   Static nav data
+-------------------------------------------------- */
 const prosperityTools = [
-    { name: "Goal Setting", href: "/goal-setting" },
-    { name: "Budget Planner", href: "/budget-planner" },
-    { name: "Networth calculator", href: "/networth-calculator" },
-    { name: "Debt Manager", href: "/debt-manager" },
-    { name: "Investment Planner", href: "/investment-planner" }
+    { name: 'Goal Setting', href: '/goal-setting' },
+    { name: 'Budget Planner', href: '/budget-planner' },
+    { name: 'Networth calculator', href: '/networth-calculator' },
+    { name: 'Debt Manager', href: '/debt-manager' },
+    { name: 'Investment Planner', href: '/investment-planner' }
 ]
 
 const services = [
-    { name: "Training", href: "/training" },
-    { name: "Advisory", href: "/advisory" },
-    { name: "Business Support", href: "/business-support" },
-    { name: "Money Quiz", href: "/money-quiz" }
+    { name: 'Training', href: '/training' },
+    { name: 'Advisory', href: '/advisory' },
+    { name: 'Business Support', href: '/business-support' },
+    { name: 'Money Quiz', href: '/money-quiz' }
 ]
 
 const userMenuItems = [
-    { name: "Dashboard", href: "/budget" },
-    { name: "Profile", href: "/profile/edit" },
-    { name: "Log Out", href: "/logout" }
+    { name: 'Dashboard', href: '/user/budget' },
+    { name: 'Profile', href: '/profile' },
+    { name: 'Log Out', href: '/logout' }
 ]
 
-// Methods
-const handleScroll = () => {
-    // Always apply scroll effect on all pages
-    isScrolled.value = window.scrollY > 10 // Changed to 10px for quicker response
-}
+/* -------------------------------------------------
+   Helpers
+-------------------------------------------------- */
+const handleScroll = () => { isScrolled.value = window.scrollY > 10 }
 
-const toggleDropdown = (name) => {
-    activeDropdown.value = activeDropdown.value === name ? null : name
-}
+const toggleDropdown = name => { activeDropdown.value = activeDropdown.value === name ? null : name }
+const closeDropdowns = () => { activeDropdown.value = null }
+const toggleMobileAccordion = name => { activeMobileAccordion.value = activeMobileAccordion.value === name ? null : name }
 
-const closeDropdowns = () => {
-    activeDropdown.value = null
-}
+const isHomePage = () => window.location.pathname === '/'
 
-const toggleMobileAccordion = (name) => {
-    activeMobileAccordion.value = activeMobileAccordion.value === name ? null : name
-}
-
-let currentLocation = window.location.pathname;
-
-const isHomePage = () => {
-    return currentLocation === '/'
-}
-// Lifecycle hooks
+/* -------------------------------------------------
+   Lifecycle
+-------------------------------------------------- */
 onMounted(() => {
-    // Initialize scroll state based on current scroll position
     handleScroll()
     window.addEventListener('scroll', handleScroll)
-
-    // Close mobile menu on window resize (if screen becomes larger)
     window.addEventListener('resize', () => {
-        if (window.innerWidth >= 768) {
-            isMobileMenuOpen.value = false
-        }
+        if (window.innerWidth >= 768) isMobileMenuOpen.value = false
     })
 })
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)
-    window.removeEventListener('resize', () => { })
 })
 </script>
+
 
 <style scoped>
 /* Slide animation for mobile menu */

@@ -3,80 +3,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import Sidebar from '@/Components/Sidebar.vue'
 import { reactive, ref } from 'vue'
-import { moneyMarketFunds } from '@/Components/Variables/investmentTypes'
 import { formatCurrency } from '@/Components/Composables/useFormatCurrency'
 
-/* ─────────────────────────────
-   1) Existing "Projected Revenue" tool
-   ───────────────────────────── */
-const form = reactive({
-    // Treasury Bills
-    tbInitial: 0, tbDays: 91, tbRate: 0,
-    // Government Bonds
-    gbInitial: 0, gbYears: 0, gbRate: 0,
-    // Infrastructure Bonds
-    ibInitial: 0, ibYears: 0, ibRate: 0,
-    // Sacco Investments
-    saccoMonthly: 0, saccoMonths: 0, saccoRate: 0,
-    // Money‑Market Funds
-    mmfName: '', mmfInitial: 0, mmfMonthly: 0, mmfMonths: 0, mmfRate: 0,
-})
-const projectedRevenue = ref(0)
-
-// Calculate functions for each investment type
-const calculateTreasuryBills = () => {
-    return form.tbInitial * (1 + form.tbRate / 100) * (form.tbDays / 365)
-}
-
-const calculateGovernmentBonds = () => {
-    const total = form.gbInitial * form.gbYears
-    return form.gbInitial * (1 + form.gbRate / 100) * form.gbYears - total
-}
-
-const calculateInfrastructureBonds = () => {
-    const total = form.ibInitial * form.ibYears
-    return form.ibInitial * (1 + form.ibRate / 100) * form.ibYears - total
-}
-
-const calculateSaccoInvestments = () => {
-    return form.saccoMonthly * (1 + form.saccoRate / 100) ** (form.saccoMonths / 12) - form.saccoMonthly * form.saccoMonths
-}
-
-const calculateMoneyMarketFunds = () => {
-    return form.mmfMonthly * (1 + form.mmfRate / 100) ** (form.mmfMonths / 12) - form.mmfMonthly * form.mmfMonths
-}
-
-// Individual result values for each investment type
-const tbResult = ref(null)
-const gbResult = ref(null)
-const ibResult = ref(null)
-const saccoResult = ref(null)
-const mmfResult = ref(null)
-
-const calculateTB = () => {
-    tbResult.value = calculateTreasuryBills()
-    updateProjectedRevenue()
-}
-
-const calculateGB = () => {
-    gbResult.value = calculateGovernmentBonds()
-    updateProjectedRevenue()
-}
-
-const calculateIB = () => {
-    ibResult.value = calculateInfrastructureBonds()
-    updateProjectedRevenue()
-}
-
-const calculateSacco = () => {
-    saccoResult.value = calculateSaccoInvestments()
-    updateProjectedRevenue()
-}
-
-const calculateMMF = () => {
-    mmfResult.value = calculateMoneyMarketFunds()
-    updateProjectedRevenue()
-}
 
 /* ─────────────────────────────
    2) NEW – Five stand‑alone calculators
@@ -176,6 +104,91 @@ function calcTbill() {
     const net = gross * (1 - tbill.tax / 100)
     tbill.result = tbill.nominal - net
 }
+/* -----------------------------------------------------------------------
+   AMORTIZING-BOND STATE
+------------------------------------------------------------------------ */
+const amortizedBond = reactive({
+    faceValue: '',
+    couponRate: '',
+    totalYears: '',
+    amortStart: '',
+    paymentsPerYear: '',
+    marketRate: '',
+    issueDate: '',
+    valueDate: '',
+    maturityDate: ''
+})
+
+const amortizedPrice = ref(null)   // numeric price
+const amortizedSchedule = ref('')     // HTML table string
+
+/* -----------------------------------------------------------------------
+   MAIN CALCULATION
+------------------------------------------------------------------------ */
+const calculateAmortizedBond = () => {
+    const face = +amortizedBond.faceValue
+    const coupon = +amortizedBond.couponRate / 100
+    const years = +amortizedBond.totalYears
+    const start = +amortizedBond.amortStart
+    const freq = +amortizedBond.paymentsPerYear
+    const rate = +amortizedBond.marketRate / 100
+
+    const totalPeriods = years * freq
+    const startAmort = start * freq
+    const periodCoupon = coupon / freq
+    const periodRate = rate / freq
+    const principalPay = totalPeriods > startAmort
+        ? face / (totalPeriods - startAmort)
+        : 0
+
+    let remaining = face
+    let price = 0
+    let rows = ''
+
+    for (let i = 1; i <= totalPeriods; i++) {
+        const interest = remaining * periodCoupon
+        const principal = i > startAmort ? principalPay : 0
+        const total = interest + principal
+        const discount = total / Math.pow(1 + periodRate, i)
+
+        price += discount
+        remaining -= principal
+
+        rows += `
+  <tr class="font-bold">
+    <td class="border border-gray-300 px-2 py-1 text-right">${i}</td>
+    <td class="border border-gray-300 px-2 py-1 text-right">${formatCurrency(interest)}</td>
+    <td class="border border-gray-300 px-2 py-1 text-right">${formatCurrency(principal)}</td>
+    <td class="border border-gray-300 px-2 py-1 text-right">${formatCurrency(total)}</td>
+    <td class="border border-gray-300 px-2 py-1 text-right">${formatCurrency(discount)}</td>
+    <td class="border border-gray-300 px-2 py-1 text-right">${formatCurrency(remaining)}</td>
+  </tr>`
+
+    }
+
+    amortizedPrice.value = price
+    amortizedSchedule.value = `
+  <h4 class="text-lg font-semibold mt-4 mb-2 text-purple-700">
+    Repayment Schedule
+  </h4>
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-300 text-sm">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="px-2 py-1 text-right border border-gray-300">Period</th>
+          <th class="px-2 py-1 text-right border border-gray-300">Interest</th>
+          <th class="px-2 py-1 text-right border border-gray-300">Principal</th>
+          <th class="px-2 py-1 text-right border border-gray-300">Total&nbsp;Pmt</th>
+          <th class="px-2 py-1 text-right border border-gray-300">Discounted&nbsp;CF</th>
+          <th class="px-2 py-1 text-right border border-gray-300">Remaining</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`
+
+}
+
 </script>
 
 <template>
@@ -185,180 +198,88 @@ function calcTbill() {
         <div class="w-full text-gray-900">
             <Sidebar>
                 <div class="min-h-screen bg-white p-6 space-y-10">
-                    <!-- ────── Projected‑Profit tool (converted to accordions) ────── -->
-                    <section>
-                        <div class="max-w-2xl mx-auto space-y-6">
-                            <!-- Treasury Bills -->
-                            <details class="border rounded">
-                                <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
-                                    Treasury Bills
-                                </summary>
-                                <div class="p-4 space-y-3">
-                                    <label for="tbInitial" class="block text-sm font-semibold mb-1">Initial Investment
-                                        (KES)</label>
-                                    <input id="tbInitial" type="number" v-model.number="form.tbInitial"
-                                        placeholder="Enter amount" class="w-full border p-2 rounded" />
+                    <section class="max-w-2xl mx-auto space-y-6">
+                        <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">
+                            Calculators
+                        </h1>
+                        <!-- Amortizing Bond -->
+                        <details class="border rounded">
+                            <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
+                                Armotizing Bond Calculator
+                            </summary>
 
-                                    <label for="tbDays" class="block text-sm font-semibold mb-1">Number of Days</label>
-                                    <select id="tbDays" v-model.number="form.tbDays" class="w-full border p-2 rounded">
-                                        <option value="91">91</option>
-                                        <option value="182">182</option>
-                                        <option value="384">384</option>
-                                    </select>
+                            <div class="p-4 space-y-3">
+                                <!-- Inputs ------------------------------------------------------------ -->
+                                <label class="block text-sm font-semibold mb-1">
+                                    Face Value (KES)
+                                    <input type="number" v-model.number="amortizedBond.faceValue"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <label for="tbRate" class="block text-sm font-semibold mb-1">Rate of Return
-                                        (%)</label>
-                                    <input id="tbRate" type="number" v-model.number="form.tbRate"
-                                        placeholder="Enter rate" class="w-full border p-2 rounded" />
+                                <label class="block text-sm font-semibold mb-1">
+                                    Coupon Rate (%)
+                                    <input type="number" v-model.number="amortizedBond.couponRate"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <button @click="calculateTB"
-                                        class="bg-yellow-400 px-4 py-2 font-bold rounded w-full text-purple-700">
-                                        Calculate
-                                    </button>
+                                <label class="block text-sm font-semibold mb-1">
+                                    Total Years
+                                    <input type="number" v-model.number="amortizedBond.totalYears"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <p v-if="tbResult !== null" class="font-semibold text-green-700">
-                                        Projected Revenue: {{ formatCurrency(tbResult) }}
-                                    </p>
-                                </div>
-                            </details>
+                                <label class="block text-sm font-semibold mb-1">
+                                    Amortization Starts After (Years)
+                                    <input type="number" v-model.number="amortizedBond.amortStart"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                            <!-- Government Bonds -->
-                            <details class="border rounded">
-                                <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
-                                    Government Bonds
-                                </summary>
-                                <div class="p-4 space-y-3">
-                                    <label for="gbInitial" class="block text-sm font-semibold mb-1">Initial Investment
-                                        (KES)</label>
-                                    <input id="gbInitial" type="number" v-model.number="form.gbInitial"
-                                        placeholder="Enter amount" class="w-full border p-2 rounded" />
+                                <label class="block text-sm font-semibold mb-1">
+                                    Payments per Year
+                                    <input type="number" v-model.number="amortizedBond.paymentsPerYear"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <label for="gbYears" class="block text-sm font-semibold mb-1">Number of
-                                        Years</label>
-                                    <input id="gbYears" type="number" v-model.number="form.gbYears"
-                                        placeholder="Enter years" class="w-full border p-2 rounded" />
+                                <label class="block text-sm font-semibold mb-1">
+                                    Market Rate (%)
+                                    <input type="number" v-model.number="amortizedBond.marketRate"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <label for="gbRate" class="block text-sm font-semibold mb-1">Rate of Return
-                                        (%)</label>
-                                    <input id="gbRate" type="number" v-model.number="form.gbRate"
-                                        placeholder="Enter rate" class="w-full border p-2 rounded" />
+                                <!-- (Optional) Dates -->
+                                <label class="block text-sm font-semibold mb-1">
+                                    Issue Date
+                                    <input type="date" v-model="amortizedBond.issueDate"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <button @click="calculateGB"
-                                        class="bg-yellow-400 px-4 py-2 font-bold rounded w-full text-purple-700">
-                                        Calculate
-                                    </button>
+                                <label class="block text-sm font-semibold mb-1">
+                                    Value Date
+                                    <input type="date" v-model="amortizedBond.valueDate"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                                    <p v-if="gbResult !== null" class="font-semibold text-green-700">
-                                        Projected Revenue: {{ formatCurrency(gbResult) }}
-                                    </p>
-                                </div>
-                            </details>
+                                <label class="block text-sm font-semibold mb-1">
+                                    Maturity Date
+                                    <input type="date" v-model="amortizedBond.maturityDate"
+                                        class="w-full border p-2 rounded" />
+                                </label>
 
-                            <!-- Infrastructure Bonds -->
-                            <details class="border rounded">
-                                <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
-                                    Infrastructure Bonds
-                                </summary>
-                                <div class="p-4 space-y-3">
-                                    <label for="ibInitial" class="block text-sm font-semibold mb-1">Initial Investment
-                                        (KES)</label>
-                                    <input id="ibInitial" type="number" v-model.number="form.ibInitial"
-                                        placeholder="Enter amount" class="w-full border p-2 rounded" />
+                                <!-- Button -->
+                                <button @click="calculateAmortizedBond"
+                                    class="bg-yellow-400 px-4 py-2 font-bold rounded w-full text-purple-700">
+                                    Calculate
+                                </button>
 
-                                    <label for="ibYears" class="block text-sm font-semibold mb-1">Number of
-                                        Years</label>
-                                    <input id="ibYears" type="number" v-model.number="form.ibYears"
-                                        placeholder="Enter years" class="w-full border p-2 rounded" />
+                                <!-- Results -->
+                                <p v-if="amortizedPrice !== null" class="font-semibold text-green-700">
+                                    Estimated Bond Price: {{ formatCurrency(amortizedPrice) }}
+                                </p>
 
-                                    <label for="ibRate" class="block text-sm font-semibold mb-1">Rate of Return
-                                        (%)</label>
-                                    <input id="ibRate" type="number" v-model.number="form.ibRate"
-                                        placeholder="Enter rate" class="w-full border p-2 rounded" />
-
-                                    <button @click="calculateIB"
-                                        class="bg-yellow-400 px-4 py-2 font-bold rounded w-full text-purple-700">
-                                        Calculate
-                                    </button>
-
-                                    <p v-if="ibResult !== null" class="font-semibold text-green-700">
-                                        Projected Revenue: {{ formatCurrency(ibResult) }}
-                                    </p>
-                                </div>
-                            </details>
-
-                            <!-- Sacco Investments -->
-                            <details class="border rounded">
-                                <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
-                                    Sacco Investments
-                                </summary>
-                                <div class="p-4 space-y-3">
-                                    <label for="saccoMonthly" class="block text-sm font-semibold mb-1">Monthly
-                                        Contribution (KES)</label>
-                                    <input id="saccoMonthly" type="number" v-model.number="form.saccoMonthly"
-                                        placeholder="Enter contribution" class="w-full border p-2 rounded" />
-
-                                    <label for="saccoMonths" class="block text-sm font-semibold mb-1">Number of
-                                        Months</label>
-                                    <input id="saccoMonths" type="number" v-model.number="form.saccoMonths"
-                                        placeholder="Enter months" class="w-full border p-2 rounded" />
-
-                                    <label for="saccoRate" class="block text-sm font-semibold mb-1">Rate of Return
-                                        (%)</label>
-                                    <input id="saccoRate" type="number" v-model.number="form.saccoRate"
-                                        placeholder="Enter rate" class="w-full border p-2 rounded" />
-
-                                    <button @click="calculateSacco"
-                                        class="bg-yellow-400 px-4 py-2 font-bold rounded w-full text-purple-700">
-                                        Calculate
-                                    </button>
-
-                                    <p v-if="saccoResult !== null" class="font-semibold text-green-700">
-                                        Projected Revenue: {{ formatCurrency(saccoResult) }}
-                                    </p>
-                                </div>
-                            </details>
-
-                            <!-- Money Market Funds -->
-                            <details class="border rounded">
-                                <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
-                                    Money Market Funds
-                                </summary>
-                                <div class="p-4 space-y-3">
-                                    <label for="mmfName" class="block text-sm font-semibold mb-1">MMF Name</label>
-                                    <select id="mmfName" v-model="form.mmfName" class="w-full border p-2 rounded">
-                                        <option value="" class="hidden">Select MMF Name</option>
-                                        <option v-for="mmf in moneyMarketFunds" :key="mmf.value" :value="mmf.value">
-                                            {{ mmf.label }}
-                                        </option>
-                                    </select>
-
-                                    <label for="mmfMonthly" class="block text-sm font-semibold mb-1">Monthly
-                                        Contribution (KES)</label>
-                                    <input id="mmfMonthly" type="number" v-model.number="form.mmfMonthly"
-                                        placeholder="Enter contribution" class="w-full border p-2 rounded" />
-
-                                    <label for="mmfMonths" class="block text-sm font-semibold mb-1">Number of
-                                        Months</label>
-                                    <input id="mmfMonths" type="number" v-model.number="form.mmfMonths"
-                                        placeholder="Enter months" class="w-full border p-2 rounded" />
-
-                                    <label for="mmfRate" class="block text-sm font-semibold mb-1">Rate of Return
-                                        (%)</label>
-                                    <input id="mmfRate" type="number" v-model.number="form.mmfRate"
-                                        placeholder="Rate will update automatically"
-                                        class="w-full border p-2 rounded bg-gray-100" />
-
-                                    <button @click="calculateMMF"
-                                        class="bg-yellow-400 px-4 py-2 font-bold rounded w-full text-purple-700">
-                                        Calculate
-                                    </button>
-
-                                    <p v-if="mmfResult !== null" class="font-semibold text-green-700">
-                                        Projected Revenue: {{ formatCurrency(mmfResult) }}
-                                    </p>
-                                </div>
-                            </details>
-                        </div>
+                                <!-- Schedule -->
+                                <div v-if="amortizedSchedule" v-html="amortizedSchedule"></div>
+                            </div>
+                        </details>
 
                         <!-- Debt -->
                         <details class="border rounded">
@@ -392,11 +313,11 @@ function calcTbill() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="row in debt.schedule" :key="row.period">
-                                            <td class="p-2">{{ row.period }}</td>
-                                            <td class="p-2">{{ formatCurrency(row.principal) }}</td>
-                                            <td class="p-2">{{ formatCurrency(row.interest) }}</td>
-                                            <td class="p-2">{{ formatCurrency(row.balance) }}</td>
+                                        <tr class="font-bold" v-for="row in debt.schedule" :key="row.period">
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ row.period }}</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ formatCurrency(row.principal) }}</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ formatCurrency(row.interest) }}</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ formatCurrency(row.balance) }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -430,7 +351,7 @@ function calcTbill() {
                         <!-- Money Market -->
                         <details class="border rounded">
                             <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
-                                Money Market Growth
+                                Money Market and Sacco Growth
                             </summary>
                             <div class="p-4 space-y-3">
                                 <label class="block" for="">Initial Investment (KES):</label>
@@ -448,8 +369,8 @@ function calcTbill() {
                                 <button @click="calcMM" class="bg-yellow-400 px-4 py-2 font-bold rounded w-full">
                                     Calculate
                                 </button>
-                                <p v-if="mm.result !== null" class="font-semibold">
-                                    Estimated Value: {{ formatCurrency(mm.result) }}
+                                <p v-if="mm.result !== null" class="font-semibold text-green-600">
+                                    Estimated Value after {{ mm.months }} months: {{ formatCurrency(mm.result) }}
                                 </p>
                             </div>
                         </details>
