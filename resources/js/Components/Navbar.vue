@@ -9,15 +9,15 @@
             <div class="flex items-center justify-between h-24">
                 <!-- Logo -->
                 <div class="flex-shrink-0 py-2">
-                    <a href="/" class="block">
-                        <img src="/images/home/zurit.png" class="w-36" alt="Zurit Logo" />
-                    </a>
+                    <Link href="/" class="block">
+                    <img src="/images/home/zurit.png" class="w-36" alt="Zurit Logo" />
+                    </Link>
                 </div>
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="text-yellow-500 hover:text-yellow-400">Home</a>
-                    <a href="/about" class="text-gray-300 hover:text-gray-100">About us</a>
+                    <Link href="/" class="text-yellow-500 hover:text-yellow-400">Home</Link>
+                    <Link href="/about" class="text-gray-300 hover:text-gray-100">About us</Link>
 
                     <!-- Prosperity Tools Dropdown -->
                     <div class="relative">
@@ -34,10 +34,10 @@
                         <div v-if="activeDropdown === 'prosperityTools'"
                             class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                             @click.outside="closeDropdowns">
-                            <a v-for="item in prosperityTools" :key="item.href" :href="item.href"
+                            <Link v-for="item in prosperityTools" :key="item.href" :href="item.href"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ item.name }}
-                            </a>
+                            {{ item.name }}
+                            </Link>
                         </div>
                     </div>
 
@@ -56,16 +56,16 @@
                         <div v-if="activeDropdown === 'services'"
                             class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                             @click.outside="closeDropdowns">
-                            <a v-for="item in services" :key="item.href" :href="item.href"
+                            <Link v-for="item in services" :key="item.href" :href="item.href"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ item.name }}
-                            </a>
+                            {{ item.name }}
+                            </Link>
                         </div>
                     </div>
 
-                    <a href="/books" class="text-gray-300 hover:text-gray-100">Buy Book</a>
-                    <a href="/blogs" class="text-gray-300 hover:text-gray-100">Blogs</a>
-                    <a href="/feedback" class="text-gray-300 hover:text-gray-100">Feedback</a>
+                    <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
+                    <Link href="/blogs" class="text-gray-300 hover:text-gray-100">Blogs</Link>
+                    <Link href="/feedback" class="text-gray-300 hover:text-gray-100">Feedback</Link>
 
                     <!-- User Menu -->
                     <div v-if="user" class="relative">
@@ -82,16 +82,16 @@
                         <div v-if="activeDropdown === 'user'"
                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                             @click.outside="closeDropdowns">
-                            <a v-for="item in userMenuItems" :key="item.href" :href="item.href"
+                            <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ item.name }}
-                            </a>
+                            {{ item.name }}
+                            </Link>
                         </div>
                     </div>
-                    <a v-else href="/login"
+                    <Link v-else :href="route('login')"
                         class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-900 hover:bg-gray-100">
-                        Log in
-                    </a>
+                    Log in
+                    </Link>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -112,9 +112,9 @@
             <div v-if="isMobileMenuOpen"
                 class="fixed inset-y-0 right-0 w-[300px] bg-purple-900 shadow-xl z-50 md:hidden overflow-y-auto">
                 <div class="flex justify-between items-center p-4 border-b border-purple-800">
-                    <a href="/" @click="isMobileMenuOpen = false">
-                        <img src="/images/home/zurit.png" class="w-28" alt="Zurit Logo" />
-                    </a>
+                    <Link href="/" @click="isMobileMenuOpen = false">
+                    <img src="/images/home/zurit.png" class="w-28" alt="Zurit Logo" />
+                    </Link>
                     <button @click="isMobileMenuOpen = false" class="text-gray-300 hover:text-white">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -125,15 +125,15 @@
 
                 <div class="py-4">
                     <div class="space-y-1 px-2">
-                        <a href="/" class="block py-3 px-4 text-yellow-500 hover:bg-purple-800 rounded-md"
+                        <Link href="/" class="block py-3 px-4 text-yellow-500 hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                            Home
-                        </a>
-                        <a href="/about"
+                        Home
+                        </Link>
+                        <Link href="/about"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                            About us
-                        </a>
+                        About us
+                        </Link>
 
                         <!-- Mobile Accordions for Dropdowns -->
                         <div class="border-none">
@@ -150,11 +150,11 @@
                                 </svg>
                             </button>
                             <div v-if="activeMobileAccordion === 'prosperityTools'" class="pl-4 space-y-1 mt-1">
-                                <a v-for="item in prosperityTools" :key="item.href" :href="item.href"
+                                <Link v-for="item in prosperityTools" :key="item.href" :href="item.href"
                                     class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                                     @click="isMobileMenuOpen = false">
-                                    {{ item.name }}
-                                </a>
+                                {{ item.name }}
+                                </Link>
                             </div>
                         </div>
 
@@ -172,29 +172,29 @@
                                 </svg>
                             </button>
                             <div v-if="activeMobileAccordion === 'services'" class="pl-4 space-y-1 mt-1">
-                                <a v-for="item in services" :key="item.href" :href="item.href"
+                                <Link v-for="item in services" :key="item.href" :href="item.href"
                                     class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                                     @click="isMobileMenuOpen = false">
-                                    {{ item.name }}
-                                </a>
+                                {{ item.name }}
+                                </Link>
                             </div>
                         </div>
 
-                        <a href="/books"
+                        <Link href="/books"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                            Buy Book
-                        </a>
-                        <a href="/blogs"
+                        Buy Book
+                        </Link>
+                        <Link href="/blogs"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                            Blogs
-                        </a>
-                        <a href="/feedback"
+                        Blogs
+                        </Link>
+                        <Link href="/feedback"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                            Feedback
-                        </a>
+                        Feedback
+                        </Link>
 
                         <!-- User Menu for Mobile -->
                         <div v-if="user" class="border-none mt-2">
@@ -211,18 +211,18 @@
                                 </svg>
                             </button>
                             <div v-if="activeMobileAccordion === 'user'" class="pl-4 space-y-1 mt-1">
-                                <a v-for="item in userMenuItems" :key="item.href" :href="item.href"
+                                <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
                                     class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                                     @click="isMobileMenuOpen = false">
-                                    {{ item.name }}
-                                </a>
+                                {{ item.name }}
+                                </Link>
                             </div>
                         </div>
-                        <a v-else href="/login"
+                        <Link v-else href="/login"
                             class="block py-3 px-4 mt-4 text-center bg-white text-purple-900 hover:bg-gray-100 rounded-md"
                             @click="isMobileMenuOpen = false">
-                            Log in
-                        </a>
+                        Log in
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -231,7 +231,9 @@
 </template>
 
 <script setup>
+import { Link } from '@inertiajs/vue3'
 import { ref, onMounted, onUnmounted } from 'vue'
+Link
 
 // Props
 const props = defineProps({
@@ -240,6 +242,7 @@ const props = defineProps({
         default: null
     },
 })
+console.log("User:", props.user)
 
 // State
 const isScrolled = ref(false) // Initialize as false to start transparent

@@ -187,9 +187,6 @@ function calcTbill() {
                 <div class="min-h-screen bg-white p-6 space-y-10">
                     <!-- ────── Projected‑Profit tool (converted to accordions) ────── -->
                     <section>
-                        <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">
-                            Investment Projections
-                        </h1>
                         <div class="max-w-2xl mx-auto space-y-6">
                             <!-- Treasury Bills -->
                             <details class="border rounded">
@@ -362,12 +359,7 @@ function calcTbill() {
                                 </div>
                             </details>
                         </div>
-                    </section>
 
-                    <section class="max-w-2xl mx-auto space-y-6">
-                        <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">
-                            Other Calculators
-                        </h1>
                         <!-- Debt -->
                         <details class="border rounded">
                             <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white">
