@@ -1,7 +1,5 @@
 <template>
     <div class="my-12 flex flex-col items-center">
-        <Alert v-if="alertState" :type="alertState.type" :message="alertState.message" :duration="alertState.duration"
-            :auto-close="alertState.autoClose" @close="clearAlert" />
         <div>
             <p class="text-center text-4xl md:text-5xl font-extrabold text-yellow-500 mb-10">Contact Us</p>
         </div>
@@ -54,17 +52,23 @@
                             <input type="text" name="website" v-model="form.website" style="display:none" tabindex="-1"
                                 autocomplete="off" />
 
-                            <input type="text" placeholder="Your Name" v-model="form.name"
+                            <input required type="text" placeholder="Your Name" v-model="form.name"
                                 class="w-full px-4 py-3 mb-4 rounded-full shadow-lg text-gray-900" />
-                            <input type="email" placeholder="Your Email" v-model="form.email"
+                            <input required type="email" placeholder="Your Email" v-model="form.email"
                                 class="w-full px-4 py-3 mb-4 rounded-full shadow-lg text-gray-900" />
-                            <textarea placeholder="Your Message" v-model="form.message"
+                            <textarea required placeholder="Your Message" v-model="form.message"
                                 class="w-full px-4 py-3 mb-4 rounded-lg shadow-lg text-gray-900"></textarea>
 
-                            <button
-                                class="w-full py-3 text-white font-bold rounded-full bg-gradient-to-r from-purple-500 to-yellow-400 shadow-lg hover:opacity-90">
-                                Send Message
+                            <button type="submit"
+                                class="w-full bg-yellow-500 text-purple-900 font-semibold py-2 rounded-md hover:bg-yellow-400 transition"
+                                :class="form.processing ? 'opacity-50 cursor-not-allowed' : 'block'"
+                                :disabled="form.processing">
+                                {{ form.processing ? 'Sending...' : 'Send Message' }}
                             </button>
+                            <!-- Success Message -->
+                            <p v-if="showSuccess" class="text-green-300">
+                                Message sent successfully! We will get back to you soon!
+                            </p>
                         </div>
                     </form>
 
@@ -82,10 +86,23 @@
 
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import Alert from './Shared/Alert.vue'
-import { useAlert } from '@/Components/Composables/useAlert';
+import { ref, nextTick } from 'vue'
 
-const { openAlert, clearAlert, alertState } = useAlert()
+// Save scroll position before submitting
+const saveScrollPosition = () => {
+    sessionStorage.setItem('scrollPosition', window.scrollY);
+}
+
+// Restore scroll position after the form is submitted or page reloads
+const restoreScrollPosition = () => {
+    const savedPosition = sessionStorage.getItem('scrollPosition');
+    if (savedPosition) {
+        window.scrollTo(0, savedPosition);
+        sessionStorage.removeItem('scrollPosition'); 
+    }
+}
+
+const showSuccess = ref(false);
 
 const form = useForm({
     name: '',
@@ -95,10 +112,19 @@ const form = useForm({
 })
 
 const handleSubmit = () => {
+    saveScrollPosition();  
+
     form.post(route('send.message'), {
         onSuccess: () => {
             form.reset()
-            openAlert('success', "Message sent succesfully!", 5000)
+            showSuccess.value = true;
+            nextTick(() => {
+                setTimeout(() => {
+                    showSuccess.value = false;
+                }, 5000);
+            });
+
+            restoreScrollPosition();  // Restore scroll position after submission
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
@@ -109,4 +135,7 @@ const handleSubmit = () => {
         }
     })
 }
+
+// Restore scroll position on page load
+restoreScrollPosition();
 </script>

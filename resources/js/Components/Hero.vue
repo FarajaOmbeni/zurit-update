@@ -25,27 +25,26 @@ import ListItem from './Shared/ListItem.vue';
 
                     <!-- Description -->
                     <p class="my-4 text-sm sm:text-base md:text-md leading-relaxed">
-                        Unlocking Financial Prosperity for Individuals, Teams & Enterprises. At Zurit Consulting, we
-                        offer tailored financial training and advisory solutions designed to empower:
+                        Empowering individuals, teams, and enterprises with tailored financial training and advisory
+                        solutions:
                     </p>
 
                     <div class="font-semibold my-4">
-                        <ListItem name="Indididuals" details="seeking clarity and control over their finances" />
-                        <ListItem name="Trustees" details=" managing long-term pension and investment decisions" />
-                        <ListItem name="SACCO directors"
-                            details="strengthening financial literacy at the group level" />
-                        <ListItem name="HR professionals" details="building financially empowered, productive teams" />
-                        <ListItem name="MSMEs and corporates"
-                            details="driving growth through strategic financial planning" />
+                        <ListItem name="Individuals" details="gaining control over personal finances" />
+                        <ListItem name="Trustees" details="managing pension and investment decisions" />
+                        <ListItem name="SACCO Directors" details="enhancing financial literacy at the group level" />
+                        <ListItem name="HR Professionals" details="creating financially empowered teams" />
+                        <ListItem name="MSMEs & Corporates" details="driving growth through financial planning" />
                     </div>
 
                     <p>
-                        Whether you're planning your personal journey, stewarding organizational funds, or leading a team toward sustainable successs<span class="text-gold-400">—Zurit equips you with the tools, mindset, and strategic insight to thrive.</span> 
+                        Whether planning your personal finances, managing organizational funds, or leading teams to
+                        success, <span class="text-gold-400">Zurit equips you with the tools and insights to
+                            thrive.</span>
                     </p>
 
-                    <p class="font-bold text-gold-400 mt-4 text-lg sm:text-xl md:text-xl italic">Let's make money simple. Let's
-                        make life
-                        better.</p>
+                    <p class="font-bold text-gold-400 mt-4 text-lg sm:text-xl md:text-xl italic">Let’s make money
+                        simple. Let’s make life better.</p>
                 </div>
             </div>
 

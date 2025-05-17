@@ -107,7 +107,7 @@ class IndexController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($name, $email, $message));
+            Mail::to('ombenifaraja@gmail.com')->send(new ContactFormMail($name, $email, $message));
         }
 
         // You can add a success message or redirect here if needed

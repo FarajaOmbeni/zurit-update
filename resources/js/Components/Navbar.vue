@@ -1,7 +1,9 @@
 <template>
     <nav :class="[
         'fixed w-full top-0 z-50 transition-all duration-300',
-        isScrolled ? 'bg-purple-900 shadow-lg' : 'bg-transparent'
+        isHomePage()
+            ? (isScrolled ? 'bg-purple-900 shadow-lg' : 'bg-transparent')
+            : 'bg-purple-900'
     ]">
         <div class="max-w-8xl mx-auto px-4 md:px-6">
             <div class="flex items-center justify-between h-24">
@@ -230,7 +232,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { onClickOutside } from '@vueuse/core'
 
 // Props
 const props = defineProps({
@@ -238,10 +239,6 @@ const props = defineProps({
         type: Object,
         default: null
     },
-    isHomePage: {
-        type: Boolean,
-        default: true // Changed default to true so navbar is transparent by default
-    }
 })
 
 // State
@@ -252,11 +249,11 @@ const activeMobileAccordion = ref(null)
 
 // Navigation data
 const prosperityTools = [
-    { name: "Goal Setting", href: "/goal" },
-    { name: "Budget Planner", href: "/budget" },
-    { name: "Networth calculator", href: "/networth" },
-    { name: "Debt Manager", href: "/debt" },
-    { name: "Investment Planner", href: "/investment" }
+    { name: "Goal Setting", href: "/goal-setting" },
+    { name: "Budget Planner", href: "/budget-planner" },
+    { name: "Networth calculator", href: "/networth-calculator" },
+    { name: "Debt Manager", href: "/debt-manager" },
+    { name: "Investment Planner", href: "/investment-planner" }
 ]
 
 const services = [
@@ -290,6 +287,11 @@ const toggleMobileAccordion = (name) => {
     activeMobileAccordion.value = activeMobileAccordion.value === name ? null : name
 }
 
+let currentLocation = window.location.pathname;
+
+const isHomePage = () => {
+    return currentLocation === '/'
+}
 // Lifecycle hooks
 onMounted(() => {
     // Initialize scroll state based on current scroll position
