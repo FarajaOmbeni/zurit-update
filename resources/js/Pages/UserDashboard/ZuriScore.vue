@@ -39,6 +39,25 @@ function submitForm() {
         }
     });
 }
+
+const mpesa_form = useForm({
+    amount: ''
+})
+
+function sendStkPush() {
+    mpesa_form.post(route('stk.push'), {
+        onSuccess: () => {
+            mpesa_form.reset();
+            openAlert('success', "Mpesa stk push sent successfully!", 5000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+            openAlert('danger', errorMessages, 10000);
+        }
+    })
+}
 </script>
 
 <template>
@@ -65,6 +84,11 @@ function submitForm() {
                         <Input label="Confirm Email" placeholder="Confirm email address"
                             v-model="form.email_confirmation" />
                         <Button type="submit"> {{ form.processing ? 'Loading...' : 'Submit' }} </Button>
+                    </form>
+                    <p>MPESA TEST</p>
+                    <form @submit="sendStkPush">
+                        <input type="text" v-model="mpesa_form.amount" :disabled="mpesa_form.processing"><br>
+                        <button type="submit" :disabled="mpesa_form.processing" class="bg-purple-500 text-white p-2">Submit</button>
                     </form>
                 </div>
             </Sidebar>
