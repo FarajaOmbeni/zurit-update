@@ -1,5 +1,6 @@
 <template>
-    <Head title="Calendar"/>
+
+    <Head title="Calendar" />
     <div class="p-4 bg-gray-100 min-h-screen">
         <h1 class="text-3xl font-bold text-purple-700 mb-6 text-center">Zurit Consulting Events</h1>
 
@@ -65,6 +66,15 @@
                         <span>{{ event.details }}</span>
                     </div>
                 </div>
+                <!-- inside your v-for card -->
+                <div class="mt-4 text-center">
+                    <a :href="event.link" target="_blank" :class="[
+                        'inline-block px-4 py-2 rounded font-bold transition-colors',
+                        getEventButtonClass(event.type)
+                    ]">
+                        REGISTER
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -73,11 +83,36 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
-import axios from 'axios'; // Make sure to install axios: npm install axios
 
 const allEvents = ref([]);
 const loading = ref(true);
 const currentDate = ref(new Date()); // Start with Jan 2025 as data is for 2025
+
+/* put this next to getEventPriceClass etc. */
+const getEventButtonClass = (type) => {
+    switch (type) {
+        case 'corporate_monthly':      // card: bg-purple-500
+            return 'bg-yellow-400 text-purple-800 hover:bg-yellow-500';
+
+        case 'masterclass_quarterly':  // card: bg-yellow-500
+            return 'bg-purple-600 text-yellow-200 hover:bg-purple-700';
+
+        case 'retirement_planning':    // card: bg-purple-700
+            return 'bg-yellow-300 text-purple-900 hover:bg-yellow-400';
+
+        case 'alternative_investments':// card: bg-yellow-300
+            return 'bg-purple-700 text-yellow-200 hover:bg-purple-800';
+
+        case 'in_house':               // card: bg-gray-700
+            return 'bg-white text-gray-800 hover:bg-gray-200';
+
+        case 'webinar_bi_weekly':      // card: bg-purple-400
+            return 'bg-yellow-500 text-purple-800 hover:bg-yellow-600';
+
+        default:
+            return 'bg-slate-400 text-white hover:bg-slate-500';
+    }
+};
 
 // --- Helper to parse dates, assuming YYYY-MM-DD from API ---
 const parseDate = (dateString) => {
@@ -101,25 +136,25 @@ onMounted(async () => {
         // Using provided data directly for this example since I can't make an API call
         const rawEvents = [
             // Corporate Trainings
-            { id: 'corp1', title: "Corporate Training", topic: "Using NSSF / Pension to save on tax", date_start: "2025-04-05", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp2', title: "Corporate Training", topic: "How to Navigate Financial Changes", date_start: "2025-05-31", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp3', title: "Corporate Training", topic: "Developing Long-term Wealth Strategies", date_start: "2025-06-28", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp4', title: "Corporate Training", topic: "The Timeless Principles of Wealth Creation", date_start: "2025-07-26", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp5', title: "Corporate Training", topic: "Back to the Drawing Board – How to Implement Your Financial Plan", date_start: "2025-08-30", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp6', title: "Corporate Training", topic: "Securing Your Retirement", date_start: "2025-09-27", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp7', title: "Corporate Training", topic: "How Businesses Can Successfully Invest in Financial Markets", date_start: "2025-10-31", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp8', title: "Corporate Training", topic: "Strategies Businesses Can Adopt to Protect and Grow Wealth", date_start: "2025-11-29", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
-            { id: 'corp9', title: "Corporate Training", topic: "Scaling Businesses Effectively to Increase Market Value", date_start: "2025-12-20", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000" },
+            { id: 'corp1', title: "Wealth Wave Talks", topic: "Using NSSF / Pension to save on tax", date_start: "2025-04-05", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp2', title: "Wealth Wave Talks", topic: "How to Navigate Financial Changes", date_start: "2025-05-31", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp3', title: "Wealth Wave Talks", topic: "Developing Long-term Wealth Strategies", date_start: "2025-06-28", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp4', title: "Wealth Wave Talks", topic: "The Timeless Principles of Wealth Creation", date_start: "2025-07-26", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp5', title: "Wealth Wave Talks", topic: "Back to the Drawing Board - How to Implement Your Financial Plan", date_start: "2025-08-30", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp6', title: "Wealth Wave Talks", topic: "Securing Your Retirement", date_start: "2025-09-27", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp7', title: "Wealth Wave Talks", topic: "How Businesses Can Successfully Invest in Financial Markets", date_start: "2025-10-31", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp8', title: "Wealth Wave Talks", topic: "Strategies Businesses Can Adopt to Protect and Grow Wealth", date_start: "2025-11-29", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
+            { id: 'corp9', title: "Wealth Wave Talks", topic: "Scaling Businesses Effectively to Increase Market Value", date_start: "2025-12-20", type: "corporate_monthly", location: "Nairobi County", price: "Ksh 3,000", link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share' },
 
             // Quarterly Trainings – Prosperity Masterclass
-            { id: 'mast1', title: "Prosperity Masterclass", date_start: "2025-04-10", date_end: "2025-05-08", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast2', title: "Prosperity Masterclass", date_start: "2025-05-10", date_end: "2025-06-07", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast3', title: "Prosperity Masterclass", date_start: "2025-06-12", date_end: "2025-07-10", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast4', title: "Prosperity Masterclass", date_start: "2025-07-12", date_end: "2025-08-09", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast5', title: "Prosperity Masterclass", date_start: "2025-08-14", date_end: "2025-09-11", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast6', title: "Prosperity Masterclass", date_start: "2025-09-13", date_end: "2025-10-11", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast7', title: "Prosperity Masterclass", date_start: "2025-10-16", date_end: "2025-11-13", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
-            { id: 'mast8', title: "Prosperity Masterclass", date_start: "2025-11-15", date_end: "2025-12-13", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments" },
+            { id: 'mast1', title: "Prosperity Masterclass", date_start: "2025-04-10", date_end: "2025-05-08", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share' },
+            { id: 'mast2', title: "Prosperity Masterclass", date_start: "2025-05-10", date_end: "2025-06-07", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
+            { id: 'mast3', title: "Prosperity Masterclass", date_start: "2025-06-12", date_end: "2025-07-10", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
+            { id: 'mast4', title: "Prosperity Masterclass", date_start: "2025-07-12", date_end: "2025-08-09", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
+            { id: 'mast5', title: "Prosperity Masterclass", date_start: "2025-08-14", date_end: "2025-09-11", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
+            { id: 'mast6', title: "Prosperity Masterclass", date_start: "2025-09-13", date_end: "2025-10-11", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
+            { id: 'mast7', title: "Prosperity Masterclass", date_start: "2025-10-16", date_end: "2025-11-13", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
+            { id: 'mast8', title: "Prosperity Masterclass", date_start: "2025-11-15", date_end: "2025-12-13", type: "masterclass_quarterly", location: "Virtual", price: "Ksh 15,000", details: "Each cohort runs for 1 month. Includes: Wealth-building principles, Best practices, Investment options, Systemizing your investments", link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'},
 
             // Retirement Planning
             { id: 'ret1', title: "Retirement Planning", date_start: "2025-04-14", date_end: "2025-04-18", location: "Mombasa", type: "retirement_planning", price: "Ksh 79,000 excl. VAT", topic: "Taking Stock, Mental Preparedness, Financial Well-being, Health, Investment Options in Retirement" },
@@ -128,11 +163,11 @@ onMounted(async () => {
             { id: 'ret4', title: "Retirement Planning", date_start: "2025-12-08", date_end: "2025-12-12", location: "Mombasa", type: "retirement_planning", price: "Ksh 79,000 excl. VAT", topic: "Taking Stock, Mental Preparedness, Financial Well-being, Health, Investment Options in Retirement" },
 
             // Alternative Investments
-            { id: 'alt1', title: "Alternative Investments", date_start: "2025-05-12", date_end: "2025-05-16", location: "Nanyuki", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance" },
-            { id: 'alt2', title: "Alternative Investments", date_start: "2025-06-09", date_end: "2025-06-13", location: "Kisumu", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance" },
-            { id: 'alt3', title: "Alternative Investments", date_start: "2025-08-18", date_end: "2025-08-22", location: "Mombasa", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance" },
-            { id: 'alt4', title: "Alternative Investments", date_start: "2025-09-15", date_end: "2025-09-19", location: "Kiambu County", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance" },
-            { id: 'alt5', title: "Alternative Investments", date_start: "2025-11-10", date_end: "2025-11-14", location: "Nakuru", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance" },
+            { id: 'alt1', title: "Alternative Investments", date_start: "2025-05-12", date_end: "2025-05-16", location: "Kisumu", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance", link: 'https://dashboard.mailerlite.com/forms/1042116/152526113162135515/share' },
+            { id: 'alt2', title: "Alternative Investments", date_start: "2025-06-09", date_end: "2025-06-13", location: "Kisumu", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance", link: 'https://dashboard.mailerlite.com/forms/1042116/152526113162135515/share' },
+            { id: 'alt3', title: "Alternative Investments", date_start: "2025-08-18", date_end: "2025-08-22", location: "Mombasa", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance", link: 'https://dashboard.mailerlite.com/forms/1042116/152526113162135515/share' },
+            { id: 'alt4', title: "Alternative Investments", date_start: "2025-09-15", date_end: "2025-09-19", location: "Kiambu County", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance", link: 'https://dashboard.mailerlite.com/forms/1042116/152526113162135515/share' },
+            { id: 'alt5', title: "Alternative Investments", date_start: "2025-11-10", date_end: "2025-11-14", location: "Nakuru", type: "alternative_investments", price: "Ksh 79,000 excl. VAT", topic: "Investment Landscape, Fixed Income, Equities, Real Estate, Offshore, Private Equity, Portfolio & Risk Mgmt, Personal Finance", link: 'https://dashboard.mailerlite.com/forms/1042116/152526113162135515/share' },
 
             // In-House Trainings
             { id: 'inhouse1', title: "In-House Training: Employee Wellness", type: "in_house", price: "Ksh 5,000/person or 45,000 for 10", details: "Custom/On-Demand", location: "Client Premises" }, // Date is on-demand
