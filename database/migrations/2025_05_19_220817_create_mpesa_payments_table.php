@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mpesas', function (Blueprint $table) {
+        Schema::create('mpesa_payments', function (Blueprint $table) {
             $table->id();
-            $table->string('merchant_request_id')->index();
-            $table->string('checkout_request_id')->index();
-            $table->integer('result_code');
-            $table->string('result_desc');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('purpose')->nullable();
+            $table->string('merchant_request_id');
+            $table->string('checkout_request_id');
+            $table->integer('result_code')->nullable();
+            $table->string('result_desc')->nullable();
             $table->string('phone_number');
             $table->string('amount');
-            $table->string('mpesa_receipt_number');
-            $table->string('balance')->nullable();
-            $table->string('transaction_date');
+            $table->string('mpesa_receipt_number')->nullable();
+            $table->string('transaction_date')->nullable();
             $table->timestamps();
         });
     }

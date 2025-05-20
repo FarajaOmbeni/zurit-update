@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Inertia\Inertia;
 use App\Models\Mpesa;
+use App\Models\MpesaPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
+use App\Events\MpesaPaymentSucceeded;
+use App\Support\MpesaStk;
 
 class MpesaController extends Controller
 {
@@ -61,7 +64,7 @@ class MpesaController extends Controller
         $timestamp = date('YmdHis');
 
         $shortCode = "174379"; //sandbox -174379
-        $passkey = env('MPESA_PASS_KEY');
+        $passkey = env('MPESA_PASSKEY');
 
         $stk_password = base64_encode($shortCode . $passkey . $timestamp);
 
@@ -110,49 +113,47 @@ class MpesaController extends Controller
         }
     }
 
-    public function handleCallback(Request $request)
+    public function handleCallback(Request $request, MpesaStk $stk)
     {
+        $stk->handleCallback($request->all());
+        return ['ResultCode' => 0, 'ResultDesc' => 'OK'];
         // Get the raw POST data from the request
-        $raw_data = $request->getContent();
+        // $raw_data = $request->getContent();
 
-        // Decode the JSON data
-        $data = json_decode($raw_data, true) ?? [];
+        // // Decode the JSON data
+        // $data = json_decode($raw_data, true) ?? [];
 
-        $body = data_get($data, 'Body.stkCallback', []);
-        $items = collect(data_get($body, 'CallbackMetadata.Item', []))
-            ->pluck('Value', 'Name');
+        // $body = data_get($data, 'Body.stkCallback', []);
+        // $items = collect(data_get($body, 'CallbackMetadata.Item', []))
+        //     ->pluck('Value', 'Name');
 
 
-        Log::info("Callback Body: ", $body);
+        // Log::info("Callback Body: ", $body);
 
-        if($body['ResultCode'] == 0) {
-            $record = Mpesa::updateOrCreate(
-                ['checkout_request_id' => $body['CheckoutRequestID'] ?? ''],
-                [
-                    'merchant_request_id'  => $body['MerchantRequestID'] ?? '',
-                    'result_code'          => $body['ResultCode']        ?? -1,
-                    'result_desc'          => $body['ResultDesc']        ?? 'N/A',
+        // $payment = MpesaPayment::where('checkout_request_id', $body['CheckoutRequestID'] ?? '')
+        //     ->first();
 
-                    'amount'               => $items->get('Amount'),
-                    'mpesa_receipt_number' => $items->get('MpesaReceiptNumber'),
-                    'balance'              => $items->get('Balance'),
-                    'phone_number'         => $items->get('PhoneNumber'),
-                    'transaction_date'     => $items->get('TransactionDate'),
-                ]
-            );
-        } else {
-            return redirect()->route('zuriscore.index')->withErrors(['error' => 'An error occurred during the transaction. Please try again.']);
-        }
+        // if (!$payment) {
+        //     return response()->json(['message' => 'Unknown payment'], 404);
+        // }
 
-        // Log the callback data for debugging
-        Log::info("Callback data received", ['data' => $data]);
+        // $payment->update(
+        //     [
+        //         'result_code'          => $body['ResultCode']        ?? -1,
+        //         'result_desc'          => $body['ResultDesc']        ?? 'N/A',
 
-        // Here you can handle the data, e.g., validate and save to the database
+        //         'amount'               => $items->get('Amount'),
+        //         'mpesa_receipt_number' => $items->get('MpesaReceiptNumber'),
+        //         'phone_number'         => $items->get('PhoneNumber'),
+        //         'transaction_date'     => $items->get('TransactionDate'),
+        //     ]
+        // );
 
-        // Return a success response
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Callback received successfully'
-        ], 200);
+        // if ($payment->isSuccessful()) {
+        //     MpesaPaymentSucceeded::dispatch($payment); 
+        // }
+
+        // // Return a success response
+        // return response()->json(['ResultCode' => 0, 'ResultDesc' => 'OK'], 200);
     }
 }

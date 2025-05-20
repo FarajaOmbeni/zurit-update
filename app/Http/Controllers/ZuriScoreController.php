@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use CURLFile;
 use Inertia\Inertia;
+use App\Support\MpesaStk;
+use App\Models\MpesaPayment;
 use Illuminate\Http\Request;
 use App\Mail\ZuriScoreReportMail;
 use Illuminate\Support\Facades\Log;
@@ -64,7 +66,7 @@ class ZuriScoreController extends Controller
         return false;
     }
 
-    public function get_report(Request $request)
+    public function get_report(Request $request, MpesaStk $stk)
     {
         $api_url = env('ZURIT_URL');
         $api_username = env('ZURIT_USERNAME');
@@ -80,6 +82,13 @@ class ZuriScoreController extends Controller
             'email' => 'required|email',
             'email_confirmation' => 'required|same:email',
         ]);
+
+        $payment = $stk->sendStkPush(
+            amount: 1,
+            phone: '254729054607',
+            purpose: 'report',
+            userId: auth()->user()->id
+        );
 
         $statement_type = $request->statement_type;
         $statement_password = $request->statement_password;
