@@ -31,7 +31,7 @@ class MpesaStk
         string    $purpose   = 'general',
         ?int      $userId    = null
     ): MpesaPayment {
-        $timestamp = now()->format('YmdHis');
+        $timestamp = date('YmdHis');
         $password  = base64_encode(
             $this->shortCode . env('MPESA_PASSKEY') . $timestamp
         );
@@ -40,18 +40,17 @@ class MpesaStk
             'BusinessShortCode' => $this->shortCode,
             'Password'          => $password,
             'Timestamp'         => $timestamp,
-            'TransactionType'   => 'CustomerBuyGoodsOnline',
+            'TransactionType'   => 'CustomerPayBillOnline', //CustomerBuyGoodsOnline
             'Amount'            => $amount,
             'PartyA'            => $phone,
             'PartyB'            => $this->shortCode,
             'PhoneNumber'       => $phone,
             'CallBackURL'       => env('MPESA_CALLBACK'),
             'AccountReference'  => 'account',
-            'TransactionDesc'   => $purpose,
+            'TransactionDesc'   => 'test',
         ];
 
         $token = $this->accessToken();
-        Log::info($token);
 
         $response = Http::withToken($token)
             ->acceptJson()

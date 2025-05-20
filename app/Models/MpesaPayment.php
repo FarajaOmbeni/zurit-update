@@ -16,6 +16,7 @@ class MpesaPayment extends Model
         'amount',
         'mpesa_receipt_number',
         'transaction_date',
+        'purpose',
     ];
 
     protected function user() 

@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use Inertia\Inertia;
 use App\Models\Mpesa;
 use App\Models\MpesaPayment;
+use App\Support\MpesaStk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Events\MpesaPaymentSucceeded;
-use App\Support\MpesaStk;
+use Inertia\Inertia;
 
 class MpesaController extends Controller
 {
@@ -64,7 +63,7 @@ class MpesaController extends Controller
         $timestamp = date('YmdHis');
 
         $shortCode = "174379"; //sandbox -174379
-        $passkey = env('MPESA_PASSKEY');
+        $passkey = env('MPESA_PASS_KEY');
 
         $stk_password = base64_encode($shortCode . $passkey . $timestamp);
 
@@ -115,9 +114,11 @@ class MpesaController extends Controller
 
     public function handleCallback(Request $request, MpesaStk $stk)
     {
+        Log::info('🔥 M-PESA Callback Hit!', ['data' => $request->all()]);
+        
         $stk->handleCallback($request->all());
         return ['ResultCode' => 0, 'ResultDesc' => 'OK'];
-        // Get the raw POST data from the request
+        // // Get the raw POST data from the request
         // $raw_data = $request->getContent();
 
         // // Decode the JSON data
@@ -130,30 +131,34 @@ class MpesaController extends Controller
 
         // Log::info("Callback Body: ", $body);
 
-        // $payment = MpesaPayment::where('checkout_request_id', $body['CheckoutRequestID'] ?? '')
-        //     ->first();
+        // if($body['ResultCode'] == 0) {
+        //     $record = MpesaPayment::updateOrCreate(
+        //         ['checkout_request_id' => $body['CheckoutRequestID'] ?? ''],
+        //         [
+        //             'merchant_request_id'  => $body['MerchantRequestID'] ?? '',
+        //             'result_code'          => $body['ResultCode']        ?? -1,
+        //             'result_desc'          => $body['ResultDesc']        ?? 'N/A',
 
-        // if (!$payment) {
-        //     return response()->json(['message' => 'Unknown payment'], 404);
+        //             'amount'               => $items->get('Amount'),
+        //             'mpesa_receipt_number' => $items->get('MpesaReceiptNumber'),
+        //             'balance'              => $items->get('Balance'),
+        //             'phone_number'         => $items->get('PhoneNumber'),
+        //             'transaction_date'     => $items->get('TransactionDate'),
+        //         ]
+        //     );
+        // } else {
+        //     return redirect()->route('zuriscore.index')->withErrors(['error' => 'An error occurred during the transaction.']);
         // }
 
-        // $payment->update(
-        //     [
-        //         'result_code'          => $body['ResultCode']        ?? -1,
-        //         'result_desc'          => $body['ResultDesc']        ?? 'N/A',
+        // // Log the callback data for debugging
+        // Log::info("Callback data received", ['data' => $data]);
 
-        //         'amount'               => $items->get('Amount'),
-        //         'mpesa_receipt_number' => $items->get('MpesaReceiptNumber'),
-        //         'phone_number'         => $items->get('PhoneNumber'),
-        //         'transaction_date'     => $items->get('TransactionDate'),
-        //     ]
-        // );
-
-        // if ($payment->isSuccessful()) {
-        //     MpesaPaymentSucceeded::dispatch($payment); 
-        // }
+        // // Here you can handle the data, e.g., validate and save to the database
 
         // // Return a success response
-        // return response()->json(['ResultCode' => 0, 'ResultDesc' => 'OK'], 200);
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Callback received successfully'
+        // ], 200);
     }
 }
