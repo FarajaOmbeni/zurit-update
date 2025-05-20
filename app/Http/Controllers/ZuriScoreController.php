@@ -90,31 +90,8 @@ class ZuriScoreController extends Controller
             userId: auth()->user()->id
         );
 
-        $paid = false;
-        for ($i = 0; $i < 6; $i++) {
-            sleep(10);                                        
-
-            $status = $stk->checkStkStatus($payment->checkout_request_id);
-
-            if ($status['ResultCode'] == 0) {                                     
-                    $paid = true;
-                    break;
-            } else {
-                $payment->update([
-                    'result_code' => $status['ResultCode'],
-                    'result_desc' => $status['ResultDesc']
-                ]);
-                return back()->withErrors("Transaction Failed. Please try again.");
-            }          
-        }
-
-        if (! $paid) {
-            $payment->update([
-                'result_code' => 408, // Custom code to represent timeout
-                'result_desc' => 'Timeout: No user response within 60 seconds'
-            ]);
-
-            return back()->withErrors("Payment not completed in time. Please try again.");
+        if (! $stk->waitForConfirmation($payment)) {
+            return back()->withErrors("Transaction Failed. Please try again.");
         }
 
         $statement_type = $request->statement_type;

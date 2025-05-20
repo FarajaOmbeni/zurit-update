@@ -142,4 +142,32 @@ class MpesaStk
             ->throw()
             ->json();
     }
+
+    public function waitForConfirmation(MpesaPayment $payment, int $attempts = 6, int $delaySeconds = 10): bool
+    {
+        for ($i = 0; $i < $attempts; $i++) {
+            sleep($delaySeconds);
+
+            $status = $this->checkStkStatus($payment->checkout_request_id);
+
+            if ($status['ResultCode'] == 0) {
+                return true;
+            } else {
+                $payment->update([
+                    'result_code' => $status['ResultCode'],
+                    'result_desc' => $status['ResultDesc']
+                ]);
+
+                return false;
+            }
+        }
+
+        // Timeout after all attempts
+        $payment->update([
+            'result_code' => 408,
+            'result_desc' => 'Timeout: No user response within ' . ($attempts * $delaySeconds) . ' seconds'
+        ]);
+
+        return false;
+    }
 }
