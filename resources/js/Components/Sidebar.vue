@@ -174,6 +174,12 @@ const menuItems = [
     active: currentRoute.startsWith('/user/calculators'),
     link: 'calculator.index'
   },
+  {
+    title: 'Zuri Score',
+    icon: 'UserGroupIcon',
+    active: currentRoute.startsWith('/user/zuriscore'),
+    link: 'zuriscore.index'
+  },
 ]
 
 // Sidebar state - set to false by default
