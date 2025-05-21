@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use CURLFile;
 use Inertia\Inertia;
 use App\Support\MpesaStk;
-use App\Models\MpesaPayment;
 use Illuminate\Http\Request;
 use App\Mail\ZuriScoreReportMail;
 use Illuminate\Support\Facades\Log;
@@ -78,14 +77,16 @@ class ZuriScoreController extends Controller
         $request->validate([
             'statement_type' => 'required|string',
             'statement_password' => 'nullable|string',
+            'statement_duration' => 'required|integer',
             'statement_file' => 'required|file|mimes:pdf|max:2048',
             'email' => 'required|email',
             'email_confirmation' => 'required|same:email',
+            'phone' => 'required'
         ]);
 
         $payment  = $stk->sendStkPush(
-            amount: 1,
-            phone: '254729054607',
+            amount: $request->statement_duration,
+            phone: $request->phone,
             purpose: 'report',
             userId: auth()->user()->id
         );

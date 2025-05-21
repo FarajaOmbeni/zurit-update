@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('mpesa_payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('purpose')->nullable();
             $table->string('merchant_request_id');
             $table->string('checkout_request_id');

@@ -42,9 +42,9 @@ class MpesaStk
             'Timestamp'         => $timestamp,
             'TransactionType'   => 'CustomerPayBillOnline', //CustomerBuyGoodsOnline
             'Amount'            => $amount,
-            'PartyA'            => $phone,
+            'PartyA'            => $this->formatPhoneNumber($phone),
             'PartyB'            => $this->shortCode,
-            'PhoneNumber'       => $phone,
+            'PhoneNumber'       => $this->formatPhoneNumber($phone),
             'CallBackURL'       => env('MPESA_CALLBACK'),
             'AccountReference'  => 'account',
             'TransactionDesc'   => 'test',
@@ -67,6 +67,36 @@ class MpesaStk
             'amount'              => $amount,
         ]);
     }
+
+    private function formatPhoneNumber(string $phone): string
+    {
+        // Remove all non-numeric characters (e.g. +, spaces)
+        $phone = preg_replace('/\D/', '', $phone);
+
+        // Handle formats
+        if (strlen($phone) === 9 && str_starts_with($phone, '7')) {
+            // e.g. 729054607
+            return '254' . $phone;
+        }
+
+        if (strlen($phone) === 10 && str_starts_with($phone, '07')) {
+            // e.g. 0729054607
+            return '254' . substr($phone, 1);
+        }
+
+        if (strlen($phone) === 13 && str_starts_with($phone, '254')) {
+            // e.g. 254729054607
+            return $phone;
+        }
+
+        if (strlen($phone) === 12 && str_starts_with($phone, '254')) {
+            // Already formatted
+            return $phone;
+        }
+
+        throw new \InvalidArgumentException("Invalid Kenyan phone number format: {$phone}");
+    }
+
 
     /* --------------------------------------------------------------
      |  CALLBACK  →  call from your Route/controller

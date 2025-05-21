@@ -82,7 +82,7 @@
                             </DropdownLink>
                         </template>
                     </Dropdown>
-                    <Link :href="route('books')" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
+                    <Link :href="route('books.index')" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
                     <Link :href="route('blogs')" class="text-gray-300 hover:text-gray-100">Blogs</Link>
                     <Link :href="route('feedback')" class="text-gray-300 hover:text-gray-100">Feedback</Link>
                     <Dropdown v-if="$page.props.auth.user" align="right" width="48">
@@ -200,7 +200,7 @@
                         </DropdownLink>
                     </template>
                 </Dropdown>
-                <Link :href="route('books')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
+                <Link :href="route('books.index')" class="text-gray-300 hover:text-white block px-3 py-2">Buy Book</Link>
                 <Link :href="route('blogs')" class="text-gray-300 hover:text-white block px-3 py-2">Blogs</Link>
                 <Link :href="route('feedback')" class="text-gray-300 hover:text-white block px-3 py-2">Feedback</Link>
                 <Dropdown v-if="$page.props.auth.user" align="right" width="48">

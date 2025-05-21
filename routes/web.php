@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BookController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DebtController;
@@ -126,7 +127,8 @@ Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('
 Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
 Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
 Route::get('/training', [IndexController::class, 'training'])->name('training');
-Route::get('/books', [IndexController::class, 'books'])->name('books');
+Route::get('/books', [BookController::class, 'index'])->name('books.index');
+Route::post('/book/buy', [BookController::class, 'payment'])->name('buy.book');
 Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');

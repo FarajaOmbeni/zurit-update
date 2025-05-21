@@ -7,7 +7,7 @@
         <select :id="id" v-model="internalValue" :type="type" :placeholder="placeholder"
             class="w-full px-3 py-2 border-1 border-purple-900 focus:outline-none focus:ring-1 rounded">
             <option value="" class="hidden">{{ select_title }}</option>
-            <option v-for="option in options" :value="option">{{ option }}</option>
+            <option v-for="option in options" :value="option.value">{{ option.label }}</option>
         </select>
     </div>
 </template>
@@ -38,7 +38,7 @@ const props = defineProps({
     },
     options: {
         type: Array,
-        default: []
+        default: () => []
     },
     select_title: {
         type: String,

@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
@@ -19,6 +18,7 @@ const form = useForm({
     statement_duration: '',
     email: '',
     email_confirmation: '',
+    phone: '',
 });
 
 const handleFile = (file) => {
@@ -39,25 +39,6 @@ function submitForm() {
         }
     });
 }
-
-const mpesa_form = useForm({
-    amount: ''
-})
-
-function sendStkPush() {
-    mpesa_form.post(route('stk.push'), {
-        onSuccess: () => {
-            mpesa_form.reset();
-            openAlert('success', "Mpesa stk push sent successfully!", 5000);
-        },
-        onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
-        }
-    })
-}
 </script>
 
 <template>
@@ -71,24 +52,29 @@ function sendStkPush() {
                     <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                         :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                     <form @submit.prevent="submitForm" class="space-y-4">
-                        <Select v-model="form.statement_type" label="Statement type" :options="['MPESA', 'Equity Bank']"
+                        <Select v-model="form.statement_type" label="Statement type"
+                            :options="[{ label: 'M-PESA', value: 'MPESA' }, { label: 'Equity Bank', value: 'Equity Bank' }]"
                             select_title="Statement type" />
                         <FileInput label="Upload Statement" v-model="form.statement_file" accept="application/pdf"
-                            @file-selected="handleFile"/>
+                            @file-selected="handleFile" />
                         <Input type="text" placeholder="Enter statement password" label="Statement Password (If Needed)"
                             v-model="form.statement_password" />
-                        <Select label="Statement Period"
-                            :options="['1 month', '3 months', '6 months', '1 year', '2 years']"
-                            v-model="form.statement_duration" select_title="Select duration" />
+                        <Select label="Statement Period" select_title="Select duration" :options="[
+                                {label: '1 Month - KES 10', value: 10},
+                                {label: '3 Month - KES 100', value: 100},
+                                {label: '6 Month - KES 200', value: 200},
+                                {label: '1 Year - KES 300', value: 300},
+                                {label: '2 Years - KES 500', value: 500}
+                            ]" v-model="form.statement_duration" />
                         <Input label="Email" placeholder="Email address to recieve report" v-model="form.email" />
                         <Input label="Confirm Email" placeholder="Confirm email address"
                             v-model="form.email_confirmation" />
-                        <Button type="submit"> {{ form.processing ? 'Loading...' : 'Submit' }} </Button>
-                    </form>
-                    <p>MPESA TEST</p>
-                    <form @submit="sendStkPush">
-                        <input type="text" v-model="mpesa_form.amount" :disabled="mpesa_form.processing"><br>
-                        <button type="submit" :disabled="mpesa_form.processing" class="bg-purple-500 text-white p-2">Submit</button>
+                        <Input label="Pay with" placeholder="Safaricom phone number for payment" v-model="form.phone" />
+                        <p class="text-md italic text-green-500" :class="form.processing ? 'block': 'hidden'">We have sent an STK push to {{ form.phone }}. Confirm to conitnue.</p>
+
+                        <Button type="submit" :processing="form.processing">
+                            {{ form.processing ? 'Loading...' : 'Submit' }}
+                        </Button>
                     </form>
                 </div>
             </Sidebar>
