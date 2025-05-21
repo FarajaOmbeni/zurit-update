@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
