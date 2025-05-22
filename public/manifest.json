@@ -2,9 +2,15 @@
   "name": "Zurit Consulting",
   "short_name": "Zurit",
   "background_color": "#fff",
+  "start_url": "/index.php",
   "description": "Zurit Consulting",
   "display": "standalone",
   "theme_color": "#6834e6",
+  "id": "zuritconsulting",
+  "dir": "auto",
+  "scope": "https://zuritconsulting.com/",
+  "lang": "en",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "pwa_images/zurit-512-512.png",
@@ -43,11 +49,6 @@
       "purpose": "maskable"
     }
   ],
-  "id": "zuritconsulting",
-  "dir": "auto",
-  "scope": "https://zuritconsulting.com/",
-  "lang": "en",
-  "orientation": "portrait",
   "display_override": [
     "standalone",
     "window-controls-overlay"
