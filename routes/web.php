@@ -148,6 +148,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 });
 
+Route::get('/terms-and-conditions', function () {
+    return Inertia::render('TermsAndConditions');
+});
 Route::get('/about', [IndexController::class, 'about'])->name('about');
 Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
 Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');

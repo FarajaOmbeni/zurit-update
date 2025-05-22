@@ -60,6 +60,7 @@
             <!-- Copyright -->
             <div class="text-center text-gray-400 mt-10">
                 <p>&copy; 2025 ZURIT CONSULTING. All Rights Reserved.</p>
+                <p><Link class="text-blue-500 underline" href="/terms-and-conditions" target="_blank">Terms and conditions</Link> apply.</p>
             </div>
         </div>
     </footer>
