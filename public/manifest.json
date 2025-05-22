@@ -1,0 +1,67 @@
+{
+  "name": "Zurit Consulting",
+  "short_name": "Zurit",
+  "background_color": "#fff",
+  "description": "Zurit Consulting",
+  "display": "standalone",
+  "theme_color": "#6834e6",
+  "icons": [
+    {
+      "src": "pwa_images/zurit-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pwa_images/zurit-48-48.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "pwa_images/zurit-72-72.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "pwa_images/zurit-96-96.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pwa_images/zurit-144-144.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "pwa_images/zurit-192-192.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "zuritconsulting",
+  "dir": "auto",
+  "scope": "https://zuritconsulting.com/",
+  "lang": "en",
+  "orientation": "portrait",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
+  ],
+  "categories": [
+    "education",
+    "finance"
+  ],
+  "iarc_rating_id": "16+",
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.rgb.principlesoffinance",
+      "id": ""
+    }
+  ]
+}
