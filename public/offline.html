@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="title" content="Zurit Consulting">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error 500 - Zurit Consulting</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #ffffff;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .error-container {
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .error-heading {
+      font-size: 160px;
+      font-weight: 900;
+      letter-spacing: 10px;
+      background: linear-gradient(90deg, #6b3594 38%, #facc15 50%, #8d5ba6 62%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 540px) {
+      .error-heading {
+        font-size: 120px;
+        letter-spacing: 5px;
+      }
+    }
+
+    .error-message {
+      font-size: 26px;
+      color: #6b3594;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .error-paragraph {
+      font-size: 18px;
+      color: #4a4a4a;
+      margin-bottom: 25px;
+    }
+
+    .error-btn {
+      display: inline-block;
+      background-color: #facc15;
+      color: #6b3594;
+      padding: 12px 24px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .error-btn:hover {
+      background-color: #8d5ba6;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="error-container">
+    <h1 class="error-heading">Opps!</h1>
+    <h2 class="error-message">Sorry, Something Went Wrong</h2>
+    <p class="error-paragraph">
+      The page you're trying to reach is currently unavailable.<br>
+      Please connect to the internet.
+    </p>
+    <a href="/" class="error-btn">Back to Home Page</a>
+  </div>
+
+</body>
+</html>
