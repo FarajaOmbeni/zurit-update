@@ -1,6 +1,6 @@
 <template>
     <div class="w-full p-4 bg-white rounded-lg shadow-md border-2">
-        <h2 class="text-xl font-bold text-center mb-4">Add your first investment</h2>
+        <h2 v-if="investmentItems.length === 0" class="text-xl font-bold text-center mb-4">Add your first investment</h2>
 
         <div v-if="investmentItems"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

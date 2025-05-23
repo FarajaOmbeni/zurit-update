@@ -35,13 +35,6 @@ class InvestmentController extends Controller
             'expected_return_rate' => 'required|numeric',
         ]);
 
-        // $start_date = Carbon::createFromDate($request->start_date);
-        // $target_date = Carbon::createFromDate($request->target_date);
-        // $months = round($start_date->diffInMonths($target_date));
-        // if ($months == 0) {
-        //     $months = 1;
-        // }
-
         $investment = new Investment();
         $investment->user_id = auth()->id();
         $investment->type = $request->type;

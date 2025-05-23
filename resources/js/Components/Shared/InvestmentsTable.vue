@@ -2,6 +2,9 @@
 import { computed, ref, watch } from 'vue';
 import { formatCurrency } from '@/Components/Composables/useFormatCurrency';
 import { formatDate } from '../Composables/useDateFormat';
+import { useAlert } from '../Composables/useAlert';
+import { useForm } from '@inertiajs/vue3';
+const { openAlert, alertState } = useAlert();
 
 const props = defineProps({
     investments: {
@@ -37,7 +40,7 @@ const calculateNetIncome = (investment) => {
 
     if (investment.type === 'bills' || investment.type === 'mmf') {
         actualIncome = initialNetIncome * (85 / 100);
-    } 
+    }
     if (investment.type === 'bonds') {
         actualIncome = duration < 5 ? initialNetIncome * (85 / 100) : initialNetIncome * (90 / 100);
     }
@@ -58,9 +61,27 @@ const totalNetIncome = computed(() => {
 const handleEdit = (investment) => {
     emit('edit-investment', investment);
 };
+
+// Function to handle delete button click
+const handleDelete = (investment) => {
+    const msg = `Are you sure you want to delete "${investment.details_of_investment}"?`;
+    if (window.confirm(msg)) {
+        const form = useForm();
+        form.delete(route('invest.destroy', investment.id), {
+            onSuccess: () => {
+                openAlert('success', 'Investment deleted successfully.');
+                window.location.reload();
+            },
+            onError: () => {
+                openAlert('danger', 'Failed to delete investment. Please try again.');
+            }
+        });
+    }
+};
 </script>
 
 <template>
+    <Alert v-if="alertState" :type="alertState.type" :message="alertState.message" />
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border border-gray-200">
             <thead class="bg-purple-500 text-white">
@@ -83,7 +104,8 @@ const handleEdit = (investment) => {
                     <td class="px-4 py-2">{{ investment.type }}</td>
                     <td class="px-4 py-2">{{ investment.details_of_investment }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(investment.initial_amount) }}</td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment) + parseInt(investment.current_amount)) }}</td>
+                    <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment) +
+                        parseInt(investment.current_amount)) }}</td>
                     <td class="px-4 py-2 text-right">{{ investment.expected_return_rate }}%</td>
                     <td class="px-4 py-2 text-right">{{ formatDate(investment.target_date) }}</td>
                     <td class="px-4 py-2 text-right">
@@ -92,13 +114,12 @@ const handleEdit = (investment) => {
                                 const startDate = new Date(investment.start_date);
                                 const endDate = new Date(investment.target_date);
                                 const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 30); // duration in months
-                                
+
                                 if (investment.type === 'bills' || investment.type === 'mmf') {
                                     return '15%';
-                                } 
-                                if (investment.type === 'bonds' && duration < 5) {
-                                    return '15%';
-                                } else if (investment.type === 'bonds' && duration > 5) {
+                                }
+                                if (investment.type === 'bonds' && duration < 5) { return '15%'; } else if
+                                    (investment.type === 'bonds' && duration > 5) {
                                     return '10%';
                                 }
                             })()
@@ -109,6 +130,10 @@ const handleEdit = (investment) => {
                         <button @click="handleEdit(investment)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md text-xs transition-colors duration-200">
                             Edit
+                        </button>
+                        <button @click="handleDelete(investment)"
+                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md text-xs transition-colors duration-200">
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -121,8 +146,9 @@ const handleEdit = (investment) => {
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalCurrentAmount) }}</td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalNetIncome) }}</td>
                     <td class="px-4 py-2"></td>
+                    <td class="px-4 py-2"></td>
+                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalNetIncome) }}</td>
                 </tr>
             </tfoot>
         </table>
