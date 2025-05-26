@@ -70,15 +70,39 @@ class BudgetController extends Controller
         ]);
 
         $data = [
-            'incomes'     => $user->incomes,
-            'expenses'    => $user->expenses,
-            'transactions' => $user->transactions,
+            'incomes'     => $user->incomes()->whereMonth('income_date', now()->month)->get(),
+            'expenses'    => $user->expenses()->whereMonth('expense_date', now()->month)->get(),
+            'transactions' => $user->transactions()->whereMonth('transaction_date', now()->month)->get(),
             'goals'       => $user->goals,
             'debts'       => $user->debts,
             'investments' => $user->investments,
         ];
 
         return Inertia::render('UserDashboard/BudgetPlanner', [
+            'data' => $data,
+            'today' => $currentMonthString,
+        ]);
+    }
+
+    public function budgets()
+    {
+        $user = auth()->user();
+        $currentMonthString = now()->format('F');
+
+        // Eager load relationships with current month constraints
+        $user->load([
+            'incomes',
+            'transactions',
+            'expenses',
+        ]);
+
+        $data = [
+            'incomes'     => $user->incomes,
+            'expenses'    => $user->expenses,
+            'transactions' => $user->transactions,
+        ];
+
+        return Inertia::render('UserDashboard/Budgets', [
             'data' => $data,
             'today' => $currentMonthString,
         ]);

@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
@@ -195,7 +195,6 @@ const hasData = computed(() => {
 // Modal states
 const showIncomeModal = ref(false);
 const showExpenseModal = ref(false);
-const showContributeModal = ref(false);
 const showBudgetModal = ref(false);
 
 const isContribution = computed(() =>
@@ -507,15 +506,11 @@ function calculateMonthlySummary() {
                             </div>
                         </div>
 
-                        <div class="my-4 w-[50%] flex flex-col items-center justify-center mx-auto">
-                            <label for="monthSelect" class="block text-sm font-medium text-gray-700 mb-1">Select
-                                Month</label>
-                            <select id="monthSelect" v-model="currentMonth" @change="selectMonth(currentMonth)"
-                                class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option v-for="(monthName, index) in availableMonths" :key="index" :value="monthName">
-                                    {{ monthName }}
-                                </option>
-                            </select>
+                        <div class="my-4 w-full flex justify-center">
+                            <a target="_blank" :href="route('budget.budgets')"
+                                class="bg-purple-500 px-4 py-2 rounded-md text-white hover:bg-purple-600">View
+                            Previous
+                            Budgets</a>
                         </div>
 
                         <div v-if="hasData" class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -646,7 +641,7 @@ function calculateMonthlySummary() {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    Math.round(transaction.amount).toLocaleString() }}
+                                                        Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -826,8 +821,7 @@ function calculateMonthlySummary() {
                                 </div>
                             </div>
 
-                            <div v-show="isContribution"
-                                class="mb-4">
+                            <div v-show="isContribution" class="mb-4">
                                 <label for="contributionType"
                                     class="block text-sm font-medium text-gray-700 mb-1">Specify
                                     the contribution</label>
@@ -883,7 +877,7 @@ function calculateMonthlySummary() {
                                 <label for="expenseDate"
                                     class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                 <input type="date" id="expenseDate" v-model="newExpense.expense_date"
-                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"/>
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
                             </div>
 
                             <div class="flex justify-end space-x-2">
@@ -894,95 +888,6 @@ function calculateMonthlySummary() {
                                 <button type="submit"
                                     class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                     {{ newExpense.processing ? 'Saving...' : 'Save Expense' }}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-
-                <!-- CONTRIBUTE MODAL  -->
-                <div v-if="showContributeModal"
-                    class="fixed mr-16 sm:mr-0 inset-0 overflow-y-auto z-10 flex items-center justify-center">
-                    <div class="fixed inset-0 bg-black bg-opacity-50" @click="showContributeModal = false"></div>
-                    <div class="relative bg-white rounded-lg max-w-md w-full mx-4 p-6 shadow-xl">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Contribute</h3>
-                        <form @submit.prevent="submitContribution">
-                            <div class="mb-4">
-                                <label for="contributeType"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Contribute
-                                    to</label>
-                                <select id="contributeType"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    v-model="newContribution.category" required>
-                                    <option value="">Select Contribution</option>
-                                    <option value="goal">Goal</option>
-                                    <option value="debt">Debt</option>
-                                    <option value="investment">Investment</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="contributionType"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Specify
-                                    the contribution</label>
-                                <select v-if="newContribution.category === 'debt'" id="contributionType"
-                                    v-model="newContribution.debtId"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    required>
-                                    <option value="">Select Contribution</option>
-                                    <option v-for="debt in data.debts" :key="debt.id" :value="debt.id">
-                                        {{ debt.name }}
-                                    </option>
-                                </select>
-
-                                <select v-if="newContribution.category === 'goal'" id="contributionType"
-                                    v-model="newContribution.goalId"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    required>
-                                    <option value="">Select Contribution</option>
-                                    <option v-for="goal in data.goals" :key="goal.id" :value="goal.id">
-                                        {{ goal.name }}
-                                    </option>
-                                </select>
-
-                                <select v-if="newContribution.category === 'investment'" id="contributionType"
-                                    v-model="newContribution.goalId"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    required>
-                                    <option value="">Select Contribution</option>
-                                    <option v-for="investment in data.investments" :key="investment.id"
-                                        :value="investment.id">
-                                        {{ investment.details_of_investment }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="contribution_amount"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Amount
-                                    (KES)</label>
-                                <input type="number" id="contribution_amount" v-model="newContribution.amount"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    min="0" step="0.01" required />
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="expenseDescription"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea id="expenseDescription" rows="2"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    readonly :value="selectedDebtDescription || selectedGoalDescription"></textarea>
-                            </div>
-
-                            <div class="flex justify-end space-x-3">
-                                <button type="button" @click="showContributeModal = false"
-                                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Cancel
-                                </button>
-                                <button type="submit"
-                                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                    {{ newContribution.processing ? 'Contributing...' : 'Contribute' }}
                                 </button>
                             </div>
                         </form>
@@ -1086,7 +991,7 @@ function calculateMonthlySummary() {
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                            updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -1105,7 +1010,7 @@ function calculateMonthlySummary() {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
