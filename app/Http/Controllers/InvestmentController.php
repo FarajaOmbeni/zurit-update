@@ -136,7 +136,7 @@ class InvestmentController extends Controller
         });
 
 
-        return to_route('investment.index');
+        return to_route('budget.index');
     }
 
     public function destroy($id)

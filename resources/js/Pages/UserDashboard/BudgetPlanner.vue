@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
@@ -18,8 +18,6 @@ const props = defineProps({
     data: Object,
     today: String,
 });
-
-
 //EDIT AND DELETE MODAL LOGIC
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -37,7 +35,7 @@ const topIncomes = computed(() => {
     const TOP_N = 3;
     // 1. Get all income transactions for the current month
     const monthlyIncomes = currentMontlyIncomes.value;
-    
+
     // 2. Group incomes by category and sum their amounts
     const groupedIncomes = monthlyIncomes.reduce((acc, income) => {
         const category = income.category;
@@ -63,7 +61,7 @@ const topExpenses = computed(() => {
     const TOP_N = 3;
     // 1. Get all non-recurrent expense transactions for the current month
     const monthlyExpenses = currentMontlyExpenses.value;
-    
+
     // 2. Group expenses by category
     const groupedExpenses = monthlyExpenses.reduce((acc, expense) => {
         const category = expense.category;
@@ -200,78 +198,8 @@ const showExpenseModal = ref(false);
 const showContributeModal = ref(false);
 const showBudgetModal = ref(false);
 
-const selectedDebtDescription = computed(() => {
-    if (newContribution.category === 'debt' && newContribution.debtId) {
-        const selectedDebt = props.data.debts.find(debt => debt.id == newContribution.debtId);
-        return selectedDebt ? selectedDebt.description : '';
-    }
-    return '';
-});
-
-const selectedGoalDescription = computed(() => {
-    if (newContribution.category === 'goal' && newContribution.goalId) {
-        const selectedGoal = props.data.goals.find(goal => goal.id == newContribution.goalId);
-        return selectedGoal ? selectedGoal.description : '';
-    }
-    return '';
-});
-
-
-const newContribution = useForm({
-    amount: '',
-})
-
-const submitContribution = () => {
-    if (newContribution.category == 'debt') {
-        newContribution.put(route('debt.contribute', newContribution.debtId), {
-            onSuccess: () => {
-                showContributeModal.value = false;
-                showExpenseModal.value = false;
-                newContribution.reset();
-                openAlert('success', 'Contribution Made Succesfully.', 5000)
-            },
-            onError: (errors) => {
-                const errorMessages = Object.values(errors)
-                    .flat()
-                    .join(' ');
-
-                openAlert('danger', errorMessages, 5000);
-            }
-        });
-    } else if (newContribution.category == 'goal') {
-        newContribution.put(route('goal.contribute', newContribution.goalId), {
-            onSuccess: () => {
-                showContributeModal.value = false;
-                showExpenseModal.value = false;
-                newContribution.reset();
-                openAlert('success', 'Contribution Made Succesfully.', 5000)
-            },
-            onError: (errors) => {
-                const errorMessages = Object.values(errors)
-                    .flat()
-                    .join(' ');
-
-                openAlert('danger', errorMessages, 5000);
-            }
-        });
-    } else {
-        newContribution.put(route('invest.contribute', newContribution.investmentId), {
-            onSuccess: () => {
-                showContributeModal.value = false;
-                showExpenseModal.value = false;
-                newContribution.reset();
-                openAlert('success', 'Contribution Made Succesfully.', 5000)
-            },
-            onError: (errors) => {
-                const errorMessages = Object.values(errors)
-                    .flat()
-                    .join(' ');
-
-                openAlert('danger', errorMessages, 5000);
-            }
-        });
-    }
-}
+const isContribution = computed(() =>
+    newExpense.category === 'debt' || newExpense.category === 'investment' || newExpense.category === 'goal');
 
 
 // Form data
@@ -295,6 +223,29 @@ const newExpense = useForm({
     // recurrence_pattern: ''
 });
 
+watch(
+    () => [
+        newExpense.category,
+        newExpense.debtId,
+        newExpense.goalId,
+        newExpense.investmentId
+    ],
+    () => {
+        if (newExpense.category === 'debt') {
+            const d = props.data.debts.find(x => x.id == newExpense.debtId);
+            newExpense.description = d ? d.description : '';
+        } else if (newExpense.category === 'goal') {
+            const g = props.data.goals.find(x => x.id == newExpense.goalId);
+            newExpense.description = g ? g.description : '';
+        } else if (newExpense.category === 'investment') {
+            const i = props.data.investments.find(x => x.id == newExpense.investmentId);
+            newExpense.description = i ? i.details_of_investment : '';
+        } else {
+            newExpense.description = ''; // regular expense, user will type
+        }
+    }
+);
+
 // Form submission handlers
 const submitIncome = () => {
     newIncome.post(route('income.store'), {
@@ -315,12 +266,25 @@ const submitIncome = () => {
 };
 
 const submitExpense = () => {
+    if (newExpense.category === 'debt') {
+        submitDebtContribution();
+    } else if (newExpense.category === 'investment') {
+        submitInvestmentContribution();
+    } else if (newExpense.category === 'goal') {
+        submitGoalContribution();
+    } else {
+        submitNewExpense();
+    }
+}
+
+const submitNewExpense = () => {
     newExpense.post(route('expense.store'), {
         onSuccess: () => {
             showExpenseModal.value = false;
             calculateMonthlySummary();
             newExpense.reset();
             openAlert('success', 'Expense added successfully', 5000)
+            window.location.reload();
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
@@ -330,8 +294,64 @@ const submitExpense = () => {
             openAlert('danger', errorMessages, 5000);
         }
     });
-};
+}
 
+const submitDebtContribution = () => {
+    newExpense.put(route('debt.contribute', newExpense.debtId), {
+        onSuccess: () => {
+            showContributeModal.value = false;
+            showExpenseModal.value = false;
+            newExpense.reset();
+            openAlert('success', 'Contribution Made Succesfully.', 5000)
+            window.location.reload();
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+
+            openAlert('danger', errorMessages, 5000);
+        }
+    });
+}
+
+const submitInvestmentContribution = () => {
+    newExpense.put(route('invest.contribute', newExpense.investmentId), {
+        onSuccess: () => {
+            showContributeModal.value = false;
+            showExpenseModal.value = false;
+            newExpense.reset();
+            openAlert('success', 'Contribution Made Succesfully.', 5000)
+            window.location.reload();
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+
+            openAlert('danger', errorMessages, 5000);
+        }
+    });
+}
+
+const submitGoalContribution = () => {
+    newExpense.put(route('goal.contribute', newExpense.goalId), {
+        onSuccess: () => {
+            showContributeModal.value = false;
+            showExpenseModal.value = false;
+            newExpense.reset();
+            openAlert('success', 'Contribution Made Succesfully.', 5000)
+            window.location.reload();
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+
+            openAlert('danger', errorMessages, 5000);
+        }
+    });
+}
 
 // State
 const currentMonth = ref(null);
@@ -626,7 +646,7 @@ function calculateMonthlySummary() {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                        Math.round(transaction.amount).toLocaleString() }}
+                                                    Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -697,7 +717,7 @@ function calculateMonthlySummary() {
                                 <div class="flex space-x-4">
                                     <label class="flex items-center text-sm">
                                         <input type="radio" id="yes" name="is_recurring" value="1"
-                                            v-model="newIncome.is_recurring" checked/>
+                                            v-model="newIncome.is_recurring" checked />
                                         <span class="ml-1">Yes</span>
                                     </label>
                                     <label class="flex items-center text-sm">
@@ -775,7 +795,7 @@ function calculateMonthlySummary() {
                                     class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     required>
                                     <option value="">Select Expense Type</option>
-                                    <option v-for="category in expenseCategories" :value="category.label"
+                                    <option v-for="category in expenseCategories" :value="category.value"
                                         :key="category.value">
                                         {{ category.label }}
                                     </option>
@@ -790,7 +810,7 @@ function calculateMonthlySummary() {
                                     :required="newExpense.value === 'other'" />
                             </div>
 
-                            <div class="mb-3">
+                            <div v-show="!isContribution" class="mb-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Is Recurrent?</label>
                                 <div class="flex space-x-4">
                                     <label class="flex items-center text-sm">
@@ -806,19 +826,42 @@ function calculateMonthlySummary() {
                                 </div>
                             </div>
 
-                            <!-- <div v-show="newExpense.is_recurring === 'yes'" class="mb-3">
-                                <label for="incomeCategory"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Recurrence
-                                    Pattern</label>
-                                <select type="text" id="incomeCategory" v-model="newExpense.recurrence_pattern"
-                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    :required="newExpense.is_recurring === 'yes'">
-                                    <option value="daily">Daily</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="quaterly">Quaterly</option>
-                                    <option value="yearly">Yearly</option>
+                            <div v-show="isContribution"
+                                class="mb-4">
+                                <label for="contributionType"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Specify
+                                    the contribution</label>
+                                <select v-if="newExpense.category === 'debt'" id="contributionType"
+                                    v-model="newExpense.debtId"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option v-for="debt in data.debts" :key="debt.id" :value="debt.id">
+                                        {{ debt.name }}
+                                    </option>
                                 </select>
-                            </div> -->
+
+                                <select v-if="newExpense.category === 'goal'" id="contributionType"
+                                    v-model="newExpense.goalId"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option v-for="goal in data.goals" :key="goal.id" :value="goal.id">
+                                        {{ goal.name }}
+                                    </option>
+                                </select>
+
+                                <select v-if="newExpense.category === 'investment'" id="contributionType"
+                                    v-model="newExpense.investmentId"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option v-for="investment in data.investments" :key="investment.id"
+                                        :value="investment.id">
+                                        {{ investment.details_of_investment }}
+                                    </option>
+                                </select>
+                            </div>
 
                             <div class="mb-3">
                                 <label for="expenseAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount
@@ -836,19 +879,14 @@ function calculateMonthlySummary() {
                                     required></textarea>
                             </div>
 
-                            <div class="mb-4">
+                            <div v-show="!isContribution" class="mb-4">
                                 <label for="expenseDate"
                                     class="block text-sm font-medium text-gray-700 mb-1">Date</label>
                                 <input type="date" id="expenseDate" v-model="newExpense.expense_date"
-                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    required />
+                                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"/>
                             </div>
 
                             <div class="flex justify-end space-x-2">
-                                <button type="button" @click="showContributeModal = true"
-                                    class="px-3 py-1.5 border border-yellow-300 rounded-md shadow-sm text-sm text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">
-                                    Contribute
-                                </button>
                                 <button type="button" @click="showExpenseModal = false"
                                     class="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     Cancel
@@ -905,6 +943,17 @@ function calculateMonthlySummary() {
                                     <option value="">Select Contribution</option>
                                     <option v-for="goal in data.goals" :key="goal.id" :value="goal.id">
                                         {{ goal.name }}
+                                    </option>
+                                </select>
+
+                                <select v-if="newContribution.category === 'investment'" id="contributionType"
+                                    v-model="newContribution.goalId"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                    <option value="">Select Contribution</option>
+                                    <option v-for="investment in data.investments" :key="investment.id"
+                                        :value="investment.id">
+                                        {{ investment.details_of_investment }}
                                     </option>
                                 </select>
                             </div>
@@ -979,16 +1028,14 @@ function calculateMonthlySummary() {
                                     <div class="flex space-x-4">
                                         <label class="flex items-center text-sm">
                                             <input type="radio" id="yes" name="is_recurring" :value="true"
-                                                v-model="selectedTransaction.is_recurring" 
-                                                :checked="selectedTransaction.is_recurring == true"
-                                                />
+                                                v-model="selectedTransaction.is_recurring"
+                                                :checked="selectedTransaction.is_recurring == true" />
                                             <span class="ml-1">Yes</span>
                                         </label>
                                         <label class="flex items-center text-sm">
                                             <input type="radio" id="no" name="is_recurring" :value="false"
-                                                v-model="selectedTransaction.is_recurring" 
-                                                :checked="selectedTransaction.is_recurring == false"
-                                                />
+                                                v-model="selectedTransaction.is_recurring"
+                                                :checked="selectedTransaction.is_recurring == false" />
                                             <span class="ml-1">No</span>
                                         </label>
                                     </div>
@@ -1039,7 +1086,7 @@ function calculateMonthlySummary() {
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                            updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -1058,7 +1105,7 @@ function calculateMonthlySummary() {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
