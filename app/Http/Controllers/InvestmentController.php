@@ -91,7 +91,7 @@ class InvestmentController extends Controller
         });
 
 
-        return to_route('investment.index');
+        return to_route('invest.index');
     }
 
     public function contribute(Request $request)

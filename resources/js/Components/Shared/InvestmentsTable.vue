@@ -12,6 +12,7 @@ const props = defineProps({
         default: () => [],
     },
 });
+console.log(props.investments)
 
 // Add emit for the edit action
 const emit = defineEmits(['edit-investment']);
@@ -27,34 +28,6 @@ watch(() => props.investments, (newInvestments) => {
 // Filter investments that are active
 const activeInvestments = computed(() => {
     return investmentList.value.filter(investment => investment.status === 'active');
-});
-
-// Calculate net income for each investment
-const calculateNetIncome = (investment) => {
-    const startDate = new Date(investment.start_date);
-    const endDate = new Date(investment.target_date);
-    const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365); // duration in years
-
-    const initialNetIncome = investment.current_amount * (investment.expected_return_rate / 100);
-    let actualIncome = initialNetIncome;
-
-    if (investment.type === 'bills' || investment.type === 'mmf') {
-        actualIncome = initialNetIncome * (85 / 100);
-    }
-    if (investment.type === 'bonds') {
-        actualIncome = duration < 5 ? initialNetIncome * (85 / 100) : initialNetIncome * (90 / 100);
-    }
-    return actualIncome;
-};
-
-// Sum of all current_amount values for active investments
-const totalCurrentAmount = computed(() => {
-    return activeInvestments.value.reduce((total, investment) => total + Number(investment.current_amount || 0), 0);
-});
-
-// Sum of all net income values for active investments
-const totalNetIncome = computed(() => {
-    return activeInvestments.value.reduce((total, investment) => total + calculateNetIncome(investment), 0);
 });
 
 // Function to handle edit button click
@@ -78,6 +51,19 @@ const handleDelete = (investment) => {
         });
     }
 };
+
+const totalInitialAmount = computed(() =>
+    activeInvestments.value.reduce(
+        (total, investment) => total + Number(investment.initial_amount || 0),
+        0,
+    ),
+);
+const totalCumulativeAmount = computed(() =>
+    activeInvestments.value.reduce((t, i) => t + i.cumulative_amount, 0)
+);
+const totalNetIncome = computed(() =>
+    activeInvestments.value.reduce((t, i) => t + i.profit, 0)
+);
 </script>
 
 <template>
@@ -89,12 +75,12 @@ const handleDelete = (investment) => {
                     <th class="px-4 py-2 text-left">Date</th>
                     <th class="px-4 py-2 text-left">Type</th>
                     <th class="px-4 py-2 text-left">Investment Name</th>
-                    <th class="px-4 py-2 text-right">Initial Amount</th>
-                    <th class="px-4 py-2 text-right">Current Amount</th>
+                    <th class="px-4 py-2 text-right">First Deposit</th>
+                    <th class="px-4 py-2 text-right">Cumulative Amount</th>
                     <th class="px-4 py-2 text-right">Rate of Return</th>
-                    <th class="px-4 py-2 text-right">Date of Maturity</th>
+                    <th class="px-4 py-2 text-right">Maturity Date</th>
                     <th class="px-4 py-2 text-right">Tax</th>
-                    <th class="px-4 py-2 text-right">Net Income</th>
+                    <th class="px-4 py-2 text-right">Profit</th>
                     <th class="px-4 py-2 text-center">Actions</th>
                 </tr>
             </thead>
@@ -104,28 +90,29 @@ const handleDelete = (investment) => {
                     <td class="px-4 py-2">{{ investment.type }}</td>
                     <td class="px-4 py-2">{{ investment.details_of_investment }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(investment.initial_amount) }}</td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment) +
-                        parseInt(investment.current_amount)) }}</td>
-                    <td class="px-4 py-2 text-right">{{ investment.expected_return_rate }}%</td>
+                    <td class="px-4 py-2 text-right">{{ formatCurrency(investment.cumulative_amount) }}</td>
+                    <td class="px-4 py-2 text-right">
+                        {{ Number(investment.expected_return_rate).toFixed(2) }}%
+                    </td>
                     <td class="px-4 py-2 text-right">{{ formatDate(investment.target_date) }}</td>
                     <td class="px-4 py-2 text-right">
                         {{
-                            (() => {
-                                const startDate = new Date(investment.start_date);
-                                const endDate = new Date(investment.target_date);
-                                const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 30); // duration in months
+                        (() => {
+                        const startDate = new Date(investment.start_date);
+                        const endDate = new Date(investment.target_date);
+                        const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 30); // duration in months
 
-                                if (investment.type === 'bills' || investment.type === 'mmf') {
-                                    return '15%';
-                                }
-                                if (investment.type === 'bonds' && duration < 5) { return '15%'; } else if
-                                    (investment.type === 'bonds' && duration > 5) {
-                                    return '10%';
-                                }
+                        if (investment.type === 'bills' || investment.type === 'mmf') {
+                        return '15%';
+                        }
+                        if (investment.type === 'bonds' && duration < 5) { return '15%' ; } else if
+                            (investment.type==='bonds' && duration> 5) {
+                            return '10%';
+                            }
                             })()
-                        }}
+                            }}
                     </td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(calculateNetIncome(investment)) }}</td>
+                    <td class="px-4 py-2 text-right">{{ investment.profit }}</td>
                     <td class="px-4 py-2 text-center">
                         <button @click="handleEdit(investment)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md text-xs transition-colors duration-200">
@@ -143,8 +130,8 @@ const handleDelete = (investment) => {
                     <td class="px-4 py-2">Totals</td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalCurrentAmount) }}</td>
-                    <td class="px-4 py-2"></td>
+                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalInitialAmount) }}</td>
+                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalCumulativeAmount) }}</td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
