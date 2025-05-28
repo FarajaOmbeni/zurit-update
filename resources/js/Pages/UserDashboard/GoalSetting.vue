@@ -54,30 +54,10 @@ const resetForm = () => {
 const submitForm = () => {
     newGoal.post(route('goal.store'), {
         onSuccess: (response) => {
-            // Add the new goal to the local goals array
-            if (response?.props?.goal) {
-                // If the response includes the newly created goal
-                goals.value.push(response.props.goal);
-            } else {
-                // Fallback: use form data to create a temporary goal object
-                // with default values until next full page load
-                const tempGoal = {
-                    id: Date.now(), // temporary id
-                    name: newGoal.name,
-                    description: newGoal.description,
-                    target_amount: newGoal.target_amount,
-                    start_date: newGoal.start_date,
-                    target_date: newGoal.target_date,
-                    status: 'active', // default status for new goals
-                    current_amount: 0, // default for new goals
-                    progress_percentage: 0 // default for new goals
-                };
-                goals.value.push(tempGoal);
-            }
-
             newGoal.reset();
             closeModal();
             openAlert('success', 'Goal added successfully', 5000);
+            window.location.reload();
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors).flat().join(' ');

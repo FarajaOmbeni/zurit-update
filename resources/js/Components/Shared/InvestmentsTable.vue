@@ -76,11 +76,11 @@ const totalNetIncome = computed(() =>
                     <th class="px-4 py-2 text-left">Type</th>
                     <th class="px-4 py-2 text-left">Investment Name</th>
                     <th class="px-4 py-2 text-right">First Deposit</th>
-                    <th class="px-4 py-2 text-right">Cumulative Amount</th>
+                    <th class="px-4 py-2 text-right">Gross Amount</th>
                     <th class="px-4 py-2 text-right">Rate of Return</th>
                     <th class="px-4 py-2 text-right">Maturity Date</th>
                     <th class="px-4 py-2 text-right">Tax</th>
-                    <th class="px-4 py-2 text-right">Profit</th>
+                    <th class="px-4 py-2 text-right">Net Profit</th>
                     <th class="px-4 py-2 text-center">Actions</th>
                 </tr>
             </thead>

@@ -154,6 +154,7 @@ const saveEdit = () => {
         onSuccess: () => {
             showEditModal.value = false
             openAlert('success', 'Transaction Updated Succesfully', 5000)
+            window.location.reload();
         },
         onError: (errors) => {
             openAlert('danger', errors, 5000)
@@ -298,7 +299,6 @@ const submitNewExpense = () => {
 const submitDebtContribution = () => {
     newExpense.put(route('debt.contribute', newExpense.debtId), {
         onSuccess: () => {
-            showContributeModal.value = false;
             showExpenseModal.value = false;
             newExpense.reset();
             openAlert('success', 'Contribution Made Succesfully.', 5000)
@@ -317,7 +317,6 @@ const submitDebtContribution = () => {
 const submitInvestmentContribution = () => {
     newExpense.put(route('invest.contribute', newExpense.investmentId), {
         onSuccess: () => {
-            showContributeModal.value = false;
             showExpenseModal.value = false;
             newExpense.reset();
             openAlert('success', 'Contribution Made Succesfully.', 5000)
@@ -336,7 +335,6 @@ const submitInvestmentContribution = () => {
 const submitGoalContribution = () => {
     newExpense.put(route('goal.contribute', newExpense.goalId), {
         onSuccess: () => {
-            showContributeModal.value = false;
             showExpenseModal.value = false;
             newExpense.reset();
             openAlert('success', 'Contribution Made Succesfully.', 5000)
