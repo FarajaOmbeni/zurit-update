@@ -28,4 +28,20 @@ class MpesaPayment extends Model
     {
         return $this->result_code == 0;
     }
+
+    public function scopeSubscription($query)
+    {
+        return $query->where('purpose', 'subscription');
+    }
+
+    public function scopeSuccessful($query)
+    {
+        return $query->where('result_code', 0)
+            ->whereNotNull('mpesa_receipt_number');
+    }
+
+    public function scopeLatestFirst($query)
+    {
+        return $query->orderByDesc('paid_at');
+    }
 }

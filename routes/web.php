@@ -1,7 +1,6 @@
 <?php
 
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BookController;
@@ -17,13 +16,13 @@ use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\MarketingController;
+use App\Http\Controllers\QuestionnaireController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ZuriScoreController;
 use App\Http\Controllers\CoachAdminController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\CreateMeetingController;
-use App\Http\Controllers\PaymentStatusController;
-use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ElearningController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\CourseController;
@@ -61,8 +60,10 @@ Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send
 Route::post('/sendFeedback', [EventsController::class, 'eventFeedback'])->name('send.feedback');
 Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
 Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
+Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscription.plans');
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -288,6 +289,10 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
 
+Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('mpesa-callback');
+Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.push');
 
 Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])

@@ -132,4 +132,27 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Coach::class, 'email', 'email');
     }
+    public function mpesaPayments()
+    {
+        return $this->hasMany(MpesaPayment::class);
+    }
+
+    public function latestValidSubscription(): ?MpesaPayment
+    {
+        return $this->mpesaPayments()
+            ->where('purpose', 'subscription')
+            ->where('result_code', 0)
+            ->whereNotNull('mpesa_receipt_number')
+            ->orderByDesc('created_at')
+            ->first();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        $payment = $this->latestValidSubscription();
+
+        return $payment &&
+            $payment->created_at->greaterThan(now()->subDays(31));
+    }
+
 }

@@ -34,6 +34,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'role' => $request->user() ? $request->user()->role : null,
+                'subscribed' => $request->user()?->hasActiveSubscription(),
             ],
             'csrf_token' => csrf_token(),
         ];
