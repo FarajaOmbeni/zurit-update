@@ -31,38 +31,52 @@ class DebtController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
+            'name'           => 'required|string|max:255',
+            'type'           => 'required|string|max:255',
+            'description'    => 'required|string|max:255',
             'initial_amount' => 'required|numeric',
-            'interest_rate' => 'required|numeric',
-            'start_date' => 'required|date',
-            'due_date' => 'required|date',
+            'interest_rate'  => 'required|numeric',
+            'start_date'     => 'required|date',
+            'due_date'       => 'required|date',
         ]);
 
         $start_date = Carbon::createFromDate($request->start_date);
-        $due_date = Carbon::createFromDate($request->due_date);
-        $months = round($start_date->diffInMonths($due_date));
-        if ($months == 0) {
-            $months = 1;
+        $due_date   = Carbon::createFromDate($request->due_date);
+
+        // Calculate the number of months between start and due
+        $months = $start_date->diffInMonths($due_date);
+        $months = $months ?: 1;  // ensure at least 1 month
+
+        // Amortization parameters
+        $P = $request->initial_amount;                      
+        $annualRate = $request->interest_rate;              
+        $r_monthly  = ($annualRate / 100) / 12;            
+        $n          = $months;                             
+        
+        if ($r_monthly > 0) {
+            $payment = ($P * $r_monthly) / (1 - pow(1 + $r_monthly, -$n));
+        } else {
+            // zero-interest case
+            $payment = $P / $n;
         }
 
         $debt = new Debt();
-        $debt->user_id = auth()->id();
-        $debt->name = $request->name;
-        $debt->type = $request->type;
-        $debt->description = $request->description;
-        $debt->initial_amount = $request->initial_amount;
-        $debt->interest_rate = $request->interest_rate;
-        $debt->start_date = $request->start_date;
-        $debt->due_date = $request->due_date;
-        $debt->minimum_payment = round(($request->initial_amount + $request->initial_amount * ($request->interest_rate / 100)) / $months);
+        $debt->user_id         = auth()->id();
+        $debt->name            = $request->name;
+        $debt->type            = $request->type;
+        $debt->description     = $request->description;
+        $debt->initial_amount  = $P;
+        $debt->interest_rate   = $annualRate;
+        $debt->start_date      = $request->start_date;
+        $debt->due_date        = $request->due_date;
+        $debt->minimum_payment = round($payment, 2);       // currency-friendly rounding
         $debt->save();
 
         return to_route('debt.index', [
             'newDebt' => $debt,
         ]);
     }
+
 
     //Update a debt in the Debt Manager View 
     public function update(Request $request)

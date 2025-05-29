@@ -1,0 +1,52 @@
+name: Deploy Laravel Project on push
+on:
+  push:
+    branches:
+      - master
+jobs:
+  web-deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the latest code
+        uses: actions/checkout@v3
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo, pdo_mysql, openssl, tokenizer, xml, ctype, json, fileinfo
+          
+      - name: Install Dependencies
+        run: |
+          rm -rf vendor composer.lock
+          composer install --no-dev --optimize-autoloader --no-interaction || exit 1
+        
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /
+          exclude: |
+            .env
+            .git
+            .github
+            
+      - name: Execute migrations on the server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/zuriuhqx/zuritconsulting.com
+            git pull origin master
+            composer dump-autoload
+            php artisan migrate --force
+            npm run build
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache

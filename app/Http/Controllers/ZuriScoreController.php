@@ -67,10 +67,10 @@ class ZuriScoreController extends Controller
 
     public function get_report(Request $request, MpesaStk $stk)
     {
-        $api_url = env('ZURIT_URL');
-        $api_username = env('ZURIT_USERNAME');
-        $api_password = env('ZURIT_PASSWORD');
-        $callback_url = env('ZURIT_CALLBACK_URL');
+        $api_url = config('zuriscore.ZURIT_URL');
+        $api_username = config('zuriscore.ZURIT_USERNAME');
+        $api_password = config('zuriscore.ZURIT_PASSWORD');
+        $callback_url = config('zuriscore.ZURIT_CALLBACK_URL');
 
         $token = $this->authenticate($api_url, $api_username, $api_password);
 

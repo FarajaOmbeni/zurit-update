@@ -17,9 +17,6 @@ return new class extends Migration
             $table->enum('type', ['income', 'expense', 'goal', 'investment', 'debt']);
             $table->string('category');
             $table->decimal('amount', 15, 2);
-            $table->enum('is_recurring', ['yes', 'no'])->default('no')->nullable();
-            $table->enum('recurrence_pattern', ['daily', 'weekly','monthly', 'quarterly','yearly'])->nullable();
-            $table->foreignId('parent_transaction_id')->nullable();
             $table->date('transaction_date');
             $table->string('description')->nullable();
             $table->timestamps();

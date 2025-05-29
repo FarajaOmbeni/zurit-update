@@ -6,7 +6,7 @@
             <div v-for="(item, index) in items" :key="index" class="flex flex-col items-center justify-end">
                 <div class="relative w-full mb-2 flex justify-center">
                     <div class="text-sm font-medium text-blue-600">
-                        {{ item.currency }} {{ item.amount.toLocaleString() }}
+                        {{ formatCurrency(item.amount) }}
                     </div>
                 </div>
                 <div class="w-full bg-gray-200 rounded-sm">
@@ -22,6 +22,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { formatCurrency } from '../Composables/useFormatCurrency';
 
 const props = defineProps({
     title: {

@@ -16,6 +16,7 @@ class Transaction extends Model
         'category',
         'transaction_date',
         'description',
+        'rule_id',
     ];
 
     protected $casts = [
@@ -45,5 +46,20 @@ class Transaction extends Model
     public function debtPayment()
     {
         return $this->hasOne(DebtPayment::class);
+    }
+
+    public function income() 
+    {
+        return $this->hasOne(Income::class);
+    }
+
+    public function expense()
+    {
+        return $this->hasOne(Expense::class);
+    }
+
+    public function rule()
+    {
+        return $this->belongsTo(RecurrenceRule::class, 'rule_id');
     }
 }

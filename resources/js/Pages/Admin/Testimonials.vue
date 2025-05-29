@@ -14,6 +14,62 @@ import Alert from '@/Components/Shared/Alert.vue';
 //ALERT USAGE LOGIC, FROM COMPOSABLE
 const { alertState, openAlert, clearAlert } = useAlert();
 
+const emit = defineEmits(['edit', 'delete'])
+
+const isEditing = ref(false)
+const editingTestimonialId = ref(null)
+
+const editForm = useForm({
+    name: '',
+    image: '',
+    content: '',
+})
+
+function handleEdit(testimonial) {
+    isEditing.value = true
+    editingTestimonialId.value = testimonial.id
+    editForm.name = testimonial.name
+    editForm.content = testimonial.content
+    editForm.image = null
+}
+
+function updateTestimonial() {
+    editForm.post(
+        route('testimonials.update', editingTestimonialId.value),   // PUT/PATCH route
+        {
+            onSuccess: () => {
+                // refresh the local table data without a hard reload
+                const idx = testimonials.value.findIndex(e => e.id === editingTestimonialId.value)
+                if (idx > -1) testimonials.value[idx] = { ...editForm }  // optimistic UI
+                isEditing.value = false
+                editForm.reset()
+                openAlert('success', 'Testimonial updated successfully!', 5000)
+            },
+            onError: (errors) => {
+                openAlert('danger', Object.values(errors).flat().join(' '), 5000)
+            }
+        }
+    )
+}
+
+function cancelEdit() {
+    isEditing.value = false
+    editForm.reset()
+}
+
+function handleDelete(testimonial) {
+    if (!confirm(`Delete "${testimonial.name}'s" testimony? This can't be undone.`)) return
+
+    useForm({}).delete(route('testimonials.destroy', testimonial.id), {
+        onSuccess: () => {
+            testimonials.value = testimonials.value.filter(e => e.id !== testimonial.id)
+            openAlert('success', 'testimonial deleted.', 4000)
+        },
+        onError: () => openAlert('danger', 'Could not delete the testimonial.', 4000)
+    })
+}
+
+
 const testimonials = ref([])
 
 const tableHeaders = ref([
@@ -63,7 +119,7 @@ const handleSubmit = () => {
             <AdminSidebar>
                 <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
-                <div class="mb-12 px-4">
+                <div v-if="!isEditing" class="mb-12 px-4">
                     <h1 class="text-2xl font-bold text-purple-900">Add Testimonials to Homepage</h1>
                     <form @submit.prevent="handleSubmit">
                         <div>
@@ -75,9 +131,27 @@ const handleSubmit = () => {
                         </div>
                     </form>
                 </div>
+
+                <div v-else class="mb-12 px-4">
+                    <h1 class="text-2xl font-bold text-purple-900">Edit Testimonials</h1>
+                    <form @submit.prevent="updateTestimonial">
+                        <div>
+                            <Input v-model="editForm.name" label="Name" placeholder="Enter the testifier name"
+                                id="name" />
+                            <FileInput label="Testifier Image" v-model="editForm.image" accept="image/*"
+                                @file-selected="file => editForm.image = file" />
+                            <Editor label="Testimonial" v-model="editForm.content" />
+                            <div class="flex gap-4">
+                                <Button type="submit">{{ editForm.processing ? 'Saving...' : 'Save' }}</Button>
+                                <Button type="button" @click="cancelEdit">Cancel</Button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div>
                     <h1 class="text-2xl font-bold text-purple-900 pl-4 mb-4">All Testimonials</h1>
-                    <AdminTable :data="testimonials" :headers="tableHeaders" :editable="true" />
+                    <AdminTable :data="testimonials" :headers="tableHeaders" :editable="true" @edit="handleEdit"
+                        @delete="handleDelete" />
                 </div>
             </AdminSidebar>
         </div>

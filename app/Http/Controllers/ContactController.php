@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
-    public function store(Request $request){
+public function store(Request $request){
 
         $validatedData = $request->validate([
             'name' => 'required',

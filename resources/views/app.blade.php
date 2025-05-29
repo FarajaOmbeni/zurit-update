@@ -7,8 +7,11 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="icon" type="image/x-icon" href="/storage/home/zurit.png">
+    <link rel="icon" type="image/x-icon" href="/images/home/zurit.png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Manifest --}}
+    <link rel="manifest" href="/manifest.json">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

@@ -1,35 +1,24 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted } from 'vue'
 
-const testimonials = ref([
-    {
-        id: 1,
-        name: "Ombeni Faraja",
-        image: "/images/team/davis.webp",
-        review:
-            "A review is an evaluation of a publication, product, service, or company or a critical take on current affairs in literature, politics, or culture...",
-    },
-    {
-        id: 2,
-        name: "Davis Otao",
-        image: "/images/team/faraja.webp",
-        review:
-            "I had a fantastic experience! The service was outstanding, and I highly recommend it to anyone looking for quality and reliability.",
-    },
-]);
+const props = defineProps({
+    testimonials: { type: Array, default: () => [] },
+})
 
-const currentIndex = ref(0);
-
+const currentIndex = ref(0)
 const nextTestimonial = () => {
-    currentIndex.value = (currentIndex.value + 1) % testimonials.value.length;
-};
+    currentIndex.value = (currentIndex.value + 1) % props.testimonials.length
+}
 
 onMounted(() => {
-    setInterval(nextTestimonial, 5000); // Auto-slide every 5 seconds
-});
+    setInterval(nextTestimonial, 5000)
+})
 
-const currentTestimonial = computed(() => testimonials.value[currentIndex.value]);
+const currentTestimonial = computed(
+    () => props.testimonials[currentIndex.value] ?? {}
+)
 </script>
+
 <template>
     <div class="bg-gray-100 py-16 px-6 md:px-12">
         <div class="max-w-6xl mx-auto flex flex-col xl:flex-row text-center xl:text-left gap-12">
@@ -43,27 +32,25 @@ const currentTestimonial = computed(() => testimonials.value[currentIndex.value]
 
                 <div class="mt-6 space-y-6">
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">1. Financial Expertise</h3>
+                        <h3 class="text-xl font-semibold text-gray-900">1. Experienced Financial Experts</h3>
                         <p class="text-gray-600">
-                            Benefit from our wealth of experience and expertise in wealth management and financial
-                            planning.
-                            Our track record speaks for itself.
+                            Backed by over 20 years of leadership in investments, training, and advisory, our team
+                            brings deep expertise and insight to every client engagement.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">2. Tailored Solutions</h3>
+                        <h3 class="text-xl font-semibold text-gray-900">2. Customized Financial Strategies</h3>
                         <p class="text-gray-600">
-                            We customize financial strategies to meet your unique goals and challenges, ensuring your
-                            plan is as individual as you are.
+                            We don't do one-size-fits-all. Our approach is tailored to your unique needs—whether you're
+                            a business leader, employee, trustee, or entrepreneur.
                         </p>
                     </div>
 
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-900">3. Unwavering Commitment</h3>
+                        <h3 class="text-xl font-semibold text-gray-900">3. Unwavering Commitment to Your Prosperity</h3>
                         <p class="text-gray-600">
-                            We’re passionately committed to your financial prosperity. Our core values drive us to work
-                            tirelessly to help you achieve your financial goals.
+                            Your growth is our mission. From tools to training, we walk with you step-by-step toward a financially empowered future.
                         </p>
                     </div>
                 </div>
@@ -78,14 +65,14 @@ const currentTestimonial = computed(() => testimonials.value[currentIndex.value]
 
                 <div
                     class="mt-6 w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden shadow-lg border-4 border-yellow-400">
-                    <img :src="currentTestimonial.image" :alt="currentTestimonial.name"
+                    <img :src="`storage/testimonials/${currentTestimonial.image}`" :alt="currentTestimonial.name"
                         class="object-cover w-full h-full transition-all duration-500" />
                 </div>
 
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">{{ currentTestimonial.name }}</h3>
 
                 <p class="mt-4 text-gray-600 text-sm md:text-base w-4/5 md:w-3/5 mx-auto">
-                    {{ currentTestimonial.review }}
+                    {{ currentTestimonial.content }}
                 </p>
 
                 <!-- Navigation Dots -->

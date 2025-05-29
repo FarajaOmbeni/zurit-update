@@ -14,9 +14,8 @@ class EventsController extends Controller
     public function index()
     {
         $events = Event::all();
-        $event_id = $events->pluck('id');
 
-        return Inertia::render('Admin/Events', ['events' => $events, 'event_id' => $event_id]);
+        return Inertia::render('Admin/Events', ['events' => $events]);
     }
 
     public function store(Request $request)
@@ -31,14 +30,20 @@ class EventsController extends Controller
             'registration_link' => 'required|url',
         ]);
 
-        $imagePath = time() . '' . $request->file('image')->store('blogs', 'public');
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->move(storage_path('app/public/events'), $imageName);
+        }
 
         $event = new Event();
         $event->name = $request->name;
         $event->date = $request->date;
         $event->price = $request->price;
         $event->price = $request->price;
-        $event->image = $imagePath;
+        $event->image = basename($imagePath);
         $event->registration_link = $request->registration_link;
 
         $event->save();
@@ -46,24 +51,16 @@ class EventsController extends Controller
         return to_route('events.index');
     }
 
-    public function edit($id)
-    {
-        $event = Event::find($id);
-
-        return view('events_edit_admindash', ['event' => $event]);
-    }
-
     public function update(Request $request, $id)
     {
         $event = Event::findOrFail($id);
 
-        $imageName = ''; // Initialize image name variable
+        $imagePath = null;
 
-        // Handle file upload
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move('/home/zuriuhqx/public_html/events_res/img', $imageName);
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->move(storage_path('app/public/events'), $imageName);
         }
 
         //validate the inputs
@@ -78,14 +75,11 @@ class EventsController extends Controller
         $event->date = $request->date;
         $event->registration_link = $request->registration_link;
         $event->price = $request->price;
-        $event->image = $imageName;
+        $event->image = basename($imagePath);
 
-        $event->save();
+        $event->update();
 
-        return redirect('/events_admindash')->with('success', [
-            'message' => 'Event Updated Successfully!',
-            'duration' => 3000,
-        ]);
+        return to_route('events.index');
     }
 
     public function eventFeedback(Request $request)
@@ -136,9 +130,7 @@ class EventsController extends Controller
     {
         $event = Event::find($event);
         $event->delete();
-        return redirect()->route('events_admindash')->with('success', [
-            'message' => 'Event Deleted Successfully!',
-            'duration' => 3000,
-        ]);
+        
+        return to_route('events.index');
     }
 }

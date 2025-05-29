@@ -14,7 +14,7 @@
                         <h1 class="text-xl font-bold">{{ book.title }}</h1>
                         <p class="text-md mb-2">{{ book.description }}</p>
                     </div>
-                    <div>
+                    <div class="flex flex-col gap-2">
                         <p class="text-lg font-semibold text-yellow-600">Price: KES {{ book.price }}</p>
                         <button @click="openPaymentModal"
                             class="mt-4 bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700 transition">

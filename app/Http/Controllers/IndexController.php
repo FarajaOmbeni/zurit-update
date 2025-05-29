@@ -8,13 +8,20 @@ use App\Models\Event;
 use App\Models\Video;
 use App\Models\PastEvent;
 use App\Models\Testimonial;
+use Illuminate\Http\Request;
+use function Termwind\render;
+
+
 use App\Http\Controllers\Controller;
+use App\Mail\ContactFormMail;
+use Illuminate\Support\Facades\Mail;
 
 class IndexController extends Controller
 {
     public function index()
     {
-        $events = Event::orderby('date', 'asc')->paginate(3);
+        // $events = Event::orderby('date', 'asc')->paginate(3);
+        $events = Event::all();
         $pastevents = PastEvent::orderby('date', 'desc')->paginate(4);
         $testimonials = Testimonial::all();
         foreach ($pastevents as $pastevent) {
@@ -23,7 +30,7 @@ class IndexController extends Controller
         }
         $latestVideo = Video::orderBy('created_at', 'desc')->first();
 
-        return view('index', [
+        return Inertia::render('Welcome', [
             'events' => $events,
             'pastevents' => $pastevents,
             'testimonials' => $testimonials,
@@ -68,6 +75,11 @@ class IndexController extends Controller
         return Inertia::render('Feedback');
     }
 
+    public function calendar()
+    {
+        return Inertia::render('Calendar');
+    }
+
     public function blogs()
     {
         $blogs = Blog::all();
@@ -84,5 +96,43 @@ class IndexController extends Controller
             'blog' => $blog,
             'blogs' => $blogs
         ]);
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $name = $request->name;
+        $email = $request->email;
+        $message = $request->message;
+
+        // Send email
+        if (!isset($request->website)) {
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($name, $email, $message));
+        }
+
+        // You can add a success message or redirect here if needed
+        return redirect()->back()->with('success', 'Questionnaire submitted successfully! We will be in touch.');
+    }
+
+    public function sendEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        $email = $request->email;
+
+        // Send email
+        if (!isset($request->website)) {
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($email, $email, "Kindly get back to me soon!"));
+        }
+
+        // You can add a success message or redirect here if needed
+        return redirect()->back()->with('success', 'Questionnaire submitted successfully! We will be in touch.');
     }
 }

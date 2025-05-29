@@ -25,15 +25,19 @@
         </div>
         <div class="mb-2" :class="localGoal.status === 'in_progress' ? 'text-gray-600' : 'text-green-500'">
             <p>{{ localGoal.description
-                }}</p>
+            }}</p>
             <p class="mt-1"><strong>Goal:</strong> {{ formatCurrency(localGoal.target_amount) }}</p>
             <p class="mt-1"><strong>Saved:</strong> {{ formatCurrency(localGoal.current_amount) }}</p>
             <p v-show="localGoal.status === 'in_progress'" class="mt-1"><strong>Remaining:</strong> {{
                 formatCurrency(localGoal.target_amount -
-                localGoal.current_amount) }}
+                    localGoal.current_amount) }}
+            </p>
+            <p v-show="localGoal.status === 'in_progress'" class="mt-1"><strong>Minimum Contribution:</strong> {{
+                formatCurrency(minimumContribution) }}
             </p>
             <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div :class="localGoal.status === 'in_progress' ? 'bg-yellow-400' : 'bg-green-500'" class="h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
+                <div :class="localGoal.status === 'in_progress' ? 'bg-yellow-400' : 'bg-green-500'"
+                    class="h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
             </div>
         </div>
         <div v-show="localGoal.status === 'in_progress'" class="text-right text-sm text-gray-500">
@@ -265,4 +269,18 @@ const confirmDelete = () => {
             console.error('Error deleting goal:', error);
         });
 };
+
+const minimumContribution = computed(() => {
+    const start = new Date(localGoal.value.start_date);
+    const target = new Date(localGoal.value.target_date);
+
+    const years = target.getFullYear() - start.getFullYear();
+    const months = target.getMonth() - start.getMonth();
+    const totalMonths = (years * 12) + months;
+
+    if (totalMonths <= 0) return 0;
+
+    return localGoal.value.target_amount / totalMonths;
+});
+
 </script>

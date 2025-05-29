@@ -179,7 +179,7 @@ const menuItems = [
     icon: 'UserGroupIcon',
     active: currentRoute.startsWith('/user/zuriscore'),
     link: 'zuriscore.index'
-  }
+  },
 ]
 
 // Sidebar state - set to false by default

@@ -31,11 +31,11 @@
             <p class="text-gray-600" :class="{
                 'text-green-500': debtData.status === 'paid_off'
             }">{{ debtData.description }}</p>
-            <p class="mt-1"><strong>Due:</strong> {{ formatCurrency(debtData.initial_amount) }}
+            <p class="mt-1"><strong>Principal:</strong> {{ formatCurrency(debtData.initial_amount) }}
             </p>
             <p class="mt-1"><strong>Paid:</strong> {{ formatCurrency(debtData.current_amount) }}
             </p>
-            <p class="mt-1"><strong>Balance:</strong> {{ formatCurrency(debtData.initial_amount - debtData.current_amount) }}
+            <p class="mt-1"><strong>Due:</strong> {{ formatCurrency(debtData.initial_amount - debtData.current_amount) }}
             </p>
             <p class="mt-1"><strong>Minimum payment:</strong> {{ formatCurrency(debtData.minimum_payment) }}
             </p>
@@ -45,7 +45,7 @@
             </p>
             <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
                 <div :class="debtData.status === 'active' ? 'bg-yellow-400' : 'bg-green-500'"
-                    class="h-2.5 rounded-full" :style="{ width: progressPercentage }"></div>
+                    class="h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
             </div>
         </div>
         <div class="text-right text-red-500 font-bold text-sm" :class="{ 'hidden': debtData.status === 'paid_off' }">

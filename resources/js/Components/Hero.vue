@@ -1,5 +1,5 @@
 <script setup>
-import GoldButton from '../Components/Shared/GoldButton.vue';
+import ListItem from './Shared/ListItem.vue';
 </script>
 <template>
     <div class="relative w-full h-screen flex items-center justify-center mb-12">
@@ -13,40 +13,45 @@ import GoldButton from '../Components/Shared/GoldButton.vue';
             class="absolute inset-0 bg-gradient-to-r from-[#35389b] via-[#5f55c7] to-[#a882ef] opacity-80 rounded-br-[10rem] overflow-hidden">
         </div>
 
-
         <!-- Content -->
         <div
-            class="w-[30rem] md:w-full relative z-10 text-white px-6 flex flex-col justify-center items-center mt-20 md:mt-20 xl:mt-0 text-center font-bold xl:text-left xl:flex-row md:mt-0 gap-12">
+            class="w-full max-w-[30rem] md:max-w-full relative z-10 text-white px-4 md:px-6 flex flex-col justify-center items-center mt-20 md:mt-20 xl:mt-0 text-center font-bold xl:text-left xl:flex-row md:mt-0 gap-6 md:gap-12">
             <!-- Text Content -->
             <div class="flex flex-col max-w-2xl">
                 <div class="">
-                    <h1 class="text-3xl md:text-4xl xl:text-5xl font-extrabold">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-extrabold">
                         Welcome to <span class="text-gold-400">Zurit Consulting</span>
                     </h1>
 
                     <!-- Description -->
-                    <p class="mt-4 md:text-lg leading-relaxed">
-                        Unlocking financial prosperity with Zurit Consulting. Our tailored financial trainings and
-                        advisory solutions empower <span class="text-gold-300 font-semibold">trustees, corporates, and
-                            individuals</span> to navigate the complexities of fincance with confidence.
+                    <p class="my-4 text-sm sm:text-base md:text-md leading-relaxed">
+                        Empowering individuals, teams, and enterprises with tailored financial training and advisory
+                        solutions:
                     </p>
-                    <p class="font-bold text-gold-400 mt-4 text-xl md:text-2xl">Below are the trainings we offer: </p>
-                </div>
 
-                <!-- Buttons Section -->
-                <div class="mt-6 grid grid-cols-2 gap-4 w-full max-w-md text-center mx-auto xl:mx-0">
-                    <GoldButton url="training" button_name="Individual Training" />
-                    <GoldButton button_name="Corporate Training" url="training" />
-                    <GoldButton button_name="Wealth Management" url="training" />
-                    <GoldButton button_name="Financial Advisory" url="training" />
-                </div>
+                    <div class="font-semibold my-4">
+                        <ListItem name="Individuals" details="gaining control over personal finances" />
+                        <ListItem name="Trustees" details="managing pension and investment decisions" />
+                        <ListItem name="SACCO Directors" details="enhancing financial literacy at the group level" />
+                        <ListItem name="HR Professionals" details="creating financially empowered teams" />
+                        <ListItem name="MSMEs & Corporates" details="driving growth through financial planning" />
+                    </div>
 
+                    <p>
+                        Whether planning your personal finances, managing organizational funds, or leading teams to
+                        success, <span class="text-gold-400">Zurit equips you with the tools and insights to
+                            thrive.</span>
+                    </p>
+
+                    <p class="font-bold text-gold-400 mt-4 text-lg sm:text-xl md:text-xl italic">Let’s make money
+                        simple. Let’s make life better.</p>
+                </div>
             </div>
 
             <!-- Video Section -->
             <div class="relative flex justify-center">
                 <iframe
-                    class="w-[350px] h-[200px] sm:w-[450px] sm:h-[250px] xl:w-[650px] xl:h-[350px] max-w-full max-h-full rounded-lg shadow-lg"
+                    class="hidden md:block w-[300px] h-[170px] sm:w-[350px] sm:h-[200px] md:w-[450px] md:h-[250px] xl:w-[650px] xl:h-[350px] max-w-full max-h-full rounded-lg shadow-lg"
                     src="https://www.youtube.com/embed/x_g-M07DjNg" frameborder="0" allowfullscreen>
                 </iframe>
             </div>

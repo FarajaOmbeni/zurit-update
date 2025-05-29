@@ -15,18 +15,42 @@ use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ZuriScoreController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [IndexController::class, 'index'])->name('home');
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/about', [IndexController::class, 'about'])->name('about');
+Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
+Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');
+Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('networth');
+Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
+Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
+Route::get('/training', [IndexController::class, 'training'])->name('training');
+Route::get('/books', [IndexController::class, 'books'])->name('books');
+Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
+Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
+Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
+Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
+Route::get('/money-quiz', function() {
+    return Inertia::render('MoneyQuiz');
+})->name('money.quiz');
+Route::get('/advisory', function () {
+    return Inertia::render('Advisory');
+})->name('advisory');
+Route::get('/business-support', function () {
+    return Inertia::render('BusinessSupport');
+})->name('business.support');
+Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send.message');
+Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
+Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -36,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  BUDGET ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/budget', [BudgetController::class, 'index'])->name('budget.index');
+    Route::get('/user/budget/budgets', [BudgetController::class, 'budgets'])->name('budget.budgets');
     Route::post('addIncome', [BudgetController::class, 'storeIncome'])->name('income.store');
     Route::put('/income/{id}', [BudgetController::class, 'updateIncome'])->name('income.edit');
     Route::delete('/income/{id}', [BudgetController::class, 'destroyIncome'])->name('income.destroy');
@@ -65,7 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ////////////////////////////////////////////////////////
     Route::get('/user/invest', [InvestmentController::class, 'index'])->name('invest.index');
     Route::post('/user/invest', [InvestmentController::class, 'store'])->name('invest.store');
-    Route::post('/user/invest/{id}', [InvestmentController::class, 'destroy'])->name('invest.destroy');
+    Route::delete('/user/invest/{id}', [InvestmentController::class, 'destroy'])->name('invest.destroy');
     Route::put('/user/invest/{id}', [InvestmentController::class, 'update'])->name('invest.update');
     Route::put('/user/invest/contribute/{id}', [InvestmentController::class, 'contribute'])->name('invest.contribute');
 
@@ -99,14 +124,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////BLOGS ROOUTES//////////
     Route::get('/admin/blogs', [BlogController::class, 'index'])->name('blogs.index');
     Route::post('/admin/blogs', [BlogController::class, 'store'])->name('blogs.store');
+    Route::post('/admin/blogs/edit/{id}', [BlogController::class, 'update'])->name('blogs.update');
+    Route::delete('/admin/blogs/delete/{id}', [BlogController::class, 'destroy'])->name('blogs.destroy');
 
     ////////////EVENTS ROUTES/////////////
     Route::get('/admin/events', [EventsController::class, 'index'])->name('events.index');
     Route::post('/admin/events', [EventsController::class, 'store'])->name('events.store');
+    Route::post('/admin/update/{id}', [EventsController::class, 'update'])->name('events.update');
+    Route::delete('/admin/delete/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
 
 
     Route::get('/admin/testimonials', [TestimonialsController::class, 'index'])->name('testimonials.index');
     Route::post('/admin/testimonials', [TestimonialsController::class, 'store'])->name('testimonials.store');
+    Route::post('/admin/testimonials/edit/{id}', [TestimonialsController::class, 'update'])->name('testimonials.update');
+    Route::delete('/admin/testimonials/delete/{id}', [TestimonialsController::class, 'destroy'])->name('testimonials.destroy');
 
     Route::get('/admin/marketing', [MarketingController::class, 'index'])->name('marketing.index');
     Route::post('/admin/marketing', [MarketingController::class, 'sendEmails'])->name('marketing.send');
@@ -120,6 +151,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 });
 
+Route::get('/terms-and-conditions', function () {
+    return Inertia::render('TermsAndConditions');
+});
 Route::get('/about', [IndexController::class, 'about'])->name('about');
 Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
 Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');
