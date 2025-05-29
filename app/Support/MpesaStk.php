@@ -15,9 +15,9 @@ class MpesaStk
         private string $baseUrl    = 'https://sandbox.safaricom.co.ke',
         private ?string $token     = null,                         
     ) {
-        if (env('MPESA_ENVIRONMENT') === 'live') {
+        if (config('mpesa.MPESA_ENVIRONMENT') === 'live') {
             $this->baseUrl  = 'https://api.safaricom.co.ke';
-            $this->shortCode = env('MPESA_SHORTCODE');
+            $this->shortCode = config('mpesa.MPESA_SHORTCODE');
         }
     }
 
@@ -33,7 +33,7 @@ class MpesaStk
     ): MpesaPayment {
         $timestamp = date('YmdHis');
         $password  = base64_encode(
-            $this->shortCode . env('MPESA_PASSKEY') . $timestamp
+            $this->shortCode . config('mpesa.MPESA_PASSKEY') . $timestamp
         );
 
         $payload = [
@@ -45,7 +45,7 @@ class MpesaStk
             'PartyA'            => $this->formatPhoneNumber($phone),
             'PartyB'            => $this->shortCode,
             'PhoneNumber'       => $this->formatPhoneNumber($phone),
-            'CallBackURL'       => env('MPESA_CALLBACK'),
+            'CallBackURL'       => config('mpesa.MPESA_CALLBACK'),
             'AccountReference'  => 'account',
             'TransactionDesc'   => 'test',
         ];
@@ -138,8 +138,8 @@ class MpesaStk
         if ($this->token) return $this->token;   // cached
 
         $credentials = base64_encode(
-            env('MPESA_CONSUMER_KEY') . ':' .
-                env('MPESA_CONSUMER_SECRET')
+            config('mpesa.MPESA_CONSUMER_KEY') . ':' .
+                config('mpesa.MPESA_CONSUMER_SECRET')
         );
 
         $this->token = Http::withHeaders([
@@ -156,7 +156,7 @@ class MpesaStk
     {
         $timestamp = now()->format('YmdHis');
         $password  = base64_encode(
-            $this->shortCode . env('MPESA_PASSKEY') . $timestamp
+            $this->shortCode . config('mpesa.MPESA_PASSKEY') . $timestamp
         );
 
         $payload = [

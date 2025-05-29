@@ -1,0 +1,11 @@
+<?php
+
+return [
+    'MPESA_URL' => env('MPESA_URL'),
+    'MPESA_CONSUMER_KEY' => env('MPESA_CONSUMER_KEY'),
+    'MPESA_CONSUMER_SECRET' => env('MPESA_CONSUMER_SECRET'),
+    'MPESA_PASSKEY' => env('MPESA_PASSKEY'),
+    'MPESA_SHORTCODE' => env('MPESA_SHORTCODE'),
+    'MPESA_ENV' => env('MPESA_ENV'),
+    'MPESA_CALLBACK' => env('MPESA_CALLBACK'),
+];
