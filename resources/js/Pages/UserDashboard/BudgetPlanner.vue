@@ -429,7 +429,7 @@ function calculateMonthlySummary() {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Budget Planner" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>

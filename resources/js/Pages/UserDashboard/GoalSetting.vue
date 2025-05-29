@@ -74,7 +74,7 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Goal Setting" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>

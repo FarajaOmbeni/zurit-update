@@ -94,7 +94,7 @@ const submitLiability = () => {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="NetWorth Calculator" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>

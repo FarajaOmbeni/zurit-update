@@ -106,7 +106,7 @@ const closeModalOnOutsideClick = (event) => {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Debt Manager" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>

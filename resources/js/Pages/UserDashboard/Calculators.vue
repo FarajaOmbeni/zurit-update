@@ -193,7 +193,7 @@ const calculateAmortizedBond = () => {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Calculators" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>

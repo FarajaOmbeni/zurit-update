@@ -192,7 +192,7 @@ function selectMonth(monthName) {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Budgets" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>

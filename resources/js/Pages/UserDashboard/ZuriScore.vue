@@ -42,7 +42,7 @@ function submitForm() {
 
 <template>
 
-    <Head title="Dashboard" />
+    <Head title="Zuriscore" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
