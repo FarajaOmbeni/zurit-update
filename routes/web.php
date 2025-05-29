@@ -16,6 +16,7 @@ use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\MpesaController;
 use App\Http\Controllers\QuestionnaireController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ZuriScoreController;
@@ -51,8 +52,10 @@ Route::get('/business-support', function () {
 Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send.message');
 Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
 Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
+Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscription.plans');
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -176,9 +179,9 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
 
-Route::post('/59b10f78e6b', [MpesaController::class, 'handleCallback'])
+Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
-    ->name('59b10f78e6b');
+    ->name('mpesa-callback');
 Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.push');
 
 require __DIR__.'/auth.php';
