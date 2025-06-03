@@ -64,7 +64,8 @@ const trainings = [
             'Businesses seeking to expand through strategic partnerships, acquisitions, or deal structuring',
             'Enterprises navigating institutional investor requirements or growth transactions',
         ],
-        price: '15,000 for a discovery session'
+        price: '15,000 for a discovery session',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/154628223647352061/share'
     },
     {
         id: 2,

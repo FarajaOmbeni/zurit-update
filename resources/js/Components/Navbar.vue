@@ -268,7 +268,7 @@ const services = [
 ]
 
 const userMenuItems = [
-    { name: 'Dashboard', href: '/user/budget' },
+    { name: 'Prosperity Dashboard', href: '/user/budget' },
     { name: 'Profile', href: '/profile' },
     { name: 'Log Out', href: '/logout' }
 ]

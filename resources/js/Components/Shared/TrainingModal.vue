@@ -71,10 +71,10 @@
 
 
                             <!-- Enroll button -->
-                            <button @click="$emit('enroll', training?.id)"
+                            <a :href="training?.link" target="_blank"
                                 class="w-full bg-amber-400 text-gray-900 py-3 rounded-lg font-medium hover:bg-amber-500 transition-colors duration-200">
                                 Enroll Now
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

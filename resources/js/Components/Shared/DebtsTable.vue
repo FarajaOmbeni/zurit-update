@@ -5,7 +5,7 @@
             <thead class="bg-purple-500 text-white">
                 <tr>
                     <th class="px-4 py-2 text-left">Debt Name</th>
-                    <th class="px-4 py-2 text-right">Amount Due</th>
+                    <th class="px-4 py-2 text-right">Principal</th>
                     <th class="px-4 py-2 text-right">Amount Paid</th>
                     <th class="px-4 py-2 text-right">Minimum Payment</th>
                     <th class="px-4 py-2 text-right">Interest Rate</th>

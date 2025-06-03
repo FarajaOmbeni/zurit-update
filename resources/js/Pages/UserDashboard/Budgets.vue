@@ -5,9 +5,7 @@ import Sidebar from '@/Components/Sidebar.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import { formatDate } from '@/Components/Composables/useDateFormat';
-import { expenseCategories } from '@/Components/Variables/expenseCategories'; // Assuming these are used elsewhere or can be removed if not
-import { incomeCategories } from '@/Components/Variables/incomeCategories'; // Assuming these are used elsewhere or can be removed if not
-
+import IncomeExpenseTrendChart from '@/Components/IncomeExpenseTrendChart.vue';
 //GETTING PROPS FROM CONTROLLER LOGIC
 const props = defineProps({
     data: Object,
@@ -252,6 +250,10 @@ function selectMonth(monthName) {
                                 class="bg-white shadow rounded-lg" />
                         </div>
 
+                        <div v-if="hasData" class="mt-8">
+                            <IncomeExpenseTrendChart :transactions="props.data.transactions" />
+                        </div>
+
                         <div v-show="hasData" class="mt-12">
                             <h2 class="text-xl font-bold text-gray-900 text-center">Your Income - {{ currentMonth }}
                             </h2>
@@ -330,7 +332,8 @@ function selectMonth(monthName) {
                         </div>
 
                         <div v-show="hasData" class="mt-12">
-                            <h2 class="text-xl font-bold text-center text-gray-900">All Transactions - {{ currentMonth }}</h2>
+                            <h2 class="text-xl font-bold text-center text-gray-900">All Transactions - {{ currentMonth
+                                }}</h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
                                 <!-- Transaction List -->
                                 <ul class="divide-y divide-gray-200">
@@ -354,7 +357,7 @@ function selectMonth(monthName) {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                        Math.round(transaction.amount).toLocaleString() }}
+                                                    Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                             </div>
                                         </div>

@@ -59,7 +59,8 @@ const trainings = [
         ],
         attends: ['Individuals who are looking to build a solid financial foundation and grow their wealth.'],
         price: '15,000 per person',
-        duration: '5 weeks'
+        duration: '5 weeks',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/152887660784912024/share'
     },
     {
         id: 2,
@@ -124,7 +125,8 @@ const trainings = [
         ],
         attends: ['Pension Trustees, Human Resources professionals, Sacco Board'],
         duration: '5 days',
-        price: '79,000 per person'
+        price: '79,000 per person',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/152526113162135515/share'
     },
     {
         id: 6,
