@@ -125,21 +125,6 @@
                         <textarea id="description" v-model="editDebt.description"
                             class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                             rows="2"></textarea>
-
-                        <!-- Repayment Commitment Radio Buttons -->
-                        <div class="flex items-center gap-4 mt-2">
-                            <span class="text-xs text-gray-700">Commit to monthly repayment?</span>
-                            <label class="flex items-center text-xs gap-1">
-                                <input type="radio" v-model="editDebt.commitment" :value="true"
-                                    class="text-purple-500" />
-                                Yes
-                            </label>
-                            <label class="flex items-center text-xs gap-1">
-                                <input type="radio" v-model="editDebt.commitment" :value="false"
-                                    class="text-purple-500" />
-                                No
-                            </label>
-                        </div>
                     </div>
 
                     <div class="mt-3 flex justify-end space-x-2">
@@ -237,7 +222,6 @@ const editDebt = useForm({
     interest_rate: '',
     start_date: '',
     due_date: '',
-    commitment: false,
 });
 
 // Populate form when modal is opened

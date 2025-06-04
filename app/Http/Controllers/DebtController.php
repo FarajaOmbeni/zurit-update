@@ -18,12 +18,8 @@ class DebtController extends Controller
 {
     use NetIncomeCalculator;
 
-    private function storeRecurrentExpense(Debt $debt, float $payment){
-        // If commitment is true, create a recurring expense
-        if (!request()->boolean('commitment')) {
-            return;
-        }
-
+    private function storeRecurrentExpense(Debt $debt, float $payment)
+    {
         $budgetController = new BudgetController();
 
         // build a pseudo-request for storeExpense
@@ -98,21 +94,16 @@ class DebtController extends Controller
         $months = $months ?: 1;  // ensure at least 1 month
 
         // Amortization parameters
-        $P = $request->initial_amount;                      
-        $annualRate = $request->interest_rate;              
-        $r_monthly  = ($annualRate / 100) / 12;            
-        $n          = $months;                             
-        
+        $P = $request->initial_amount;
+        $annualRate = $request->interest_rate;
+        $r_monthly  = ($annualRate / 100) / 12;
+        $n          = $months;
+
         if ($r_monthly > 0) {
             $payment = ($P * $r_monthly) / (1 - pow(1 + $r_monthly, -$n));
         } else {
             // zero-interest case
             $payment = $P / $n;
-        }
-
-        if ($request->commitment == true) {
-            $budgetController = new BudgetController();
-            $budgetController->storeExpense($request);
         }
 
         $debt = new Debt();
@@ -189,7 +180,7 @@ class DebtController extends Controller
             $transaction = new Transaction();
             $transaction->user_id = auth()->id();
             $transaction->type = 'expense';
-            $transaction->category = 'Debt Payment'; 
+            $transaction->category = 'Debt Payment';
             $transaction->amount = $request->amount;
             $transaction->transaction_date = Carbon::now();
             $transaction->description = 'Debt Payment for ' . Debt::find($request->id)->name;
