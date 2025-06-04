@@ -37,7 +37,8 @@ const newDebt = useForm({
     initial_amount: '',
     interest_rate: '',
     start_date: '',
-    due_date: ''
+    duration_months: '',
+    duration_years: '',
 });
 
 // Open modal
@@ -61,30 +62,11 @@ const submitForm = () => {
     newDebt.post(route('debt.store'), {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: (response) => {
-            // Add the new debt to the local state
-            if (response?.props?.newDebt) {
-                // If the server returns the created debt
-                debts.value.push(response.props.newDebt);
-            } else {
-                const tempDebt = {
-                    id: Date.now(),
-                    name: newDebt.name,
-                    type: newDebt.type,
-                    description: newDebt.description,
-                    initial_amount: parseFloat(newDebt.initial_amount),
-                    interest_rate: parseFloat(newDebt.interest_rate),
-                    current_amount: 0,
-                    start_date: newDebt.start_date,
-                    due_date: newDebt.due_date,
-                    status: 'active', 
-                };
-                debts.value.push(tempDebt);
-            }
-
+        onSuccess: () => {
             newDebt.reset();
             closeModal();
             openAlert('success', 'Debt added successfully', 5000);
+            window.location.reload();
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)
@@ -225,22 +207,36 @@ const closeModalOnOutsideClick = (event) => {
                             </div>
                         </div>
 
-                        <!-- Initial Date Field -->
+                        <!-- Start Date Field -->
                         <div class="col-span-1">
-                            <label for="start_date" class="block text-gray-700 text-xs font-medium mb-1">Initial
+                            <label for="start_date" class="block text-gray-700 text-xs font-medium mb-1">Start
                                 Date</label>
                             <input type="date" id="start_date" v-model="newDebt.start_date"
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 required>
                         </div>
 
-                        <!-- Due Date Field -->
+                        <!-- Duration Field -->
                         <div class="col-span-1">
-                            <label for="due_date" class="block text-gray-700 text-xs font-medium mb-1">Due Date</label>
-                            <input type="date" id="due_date" v-model="newDebt.due_date"
-                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                required>
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Duration</label>
+                            <div class="flex gap-2">
+                                <!-- Years -->
+                                <div class="flex-1">
+                                    <input type="number" min="0" v-model="newDebt.duration_years" placeholder="Years"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        required>
+                                </div>
+
+                                <!-- Months -->
+                                <div class="flex-1">
+                                    <input type="number" min="0" max="11" v-model="newDebt.duration_months"
+                                        placeholder="Months"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        required>
+                                </div>
+                            </div>
                         </div>
+
                     </div>
 
                     <!-- Description Field -->

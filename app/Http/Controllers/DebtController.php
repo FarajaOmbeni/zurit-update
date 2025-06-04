@@ -37,11 +37,12 @@ class DebtController extends Controller
             'initial_amount' => 'required|numeric',
             'interest_rate'  => 'required|numeric',
             'start_date'     => 'required|date',
-            'due_date'       => 'required|date',
+            'duration_months' => 'required|numeric',
+            'duration_years' => 'required|numeric',
         ]);
 
         $start_date = Carbon::createFromDate($request->start_date);
-        $due_date   = Carbon::createFromDate($request->due_date);
+        $due_date   = Carbon::createFromDate($request->start_date)->addMonths($request->duration_months)->addYears($request->duration_years)->format('Y-m-d');
 
         // Calculate the number of months between start and due
         $months = $start_date->diffInMonths($due_date);
@@ -68,7 +69,7 @@ class DebtController extends Controller
         $debt->initial_amount  = $P;
         $debt->interest_rate   = $annualRate;
         $debt->start_date      = $request->start_date;
-        $debt->due_date        = $request->due_date;
+        $debt->due_date        = $due_date;
         $debt->minimum_payment = round($payment, 2);       // currency-friendly rounding
         $debt->save();
 
