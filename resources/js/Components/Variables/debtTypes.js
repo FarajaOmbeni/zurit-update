@@ -1,9 +1,15 @@
 export const debtTypes = [
-    { value: 'credit_card', label: 'Credit Card' },
-    { value: 'personal_loan', label: 'Personal Loan' },
-    { value: 'mortgage', label: 'Mortgage' },
-    { value: 'auto_loan', label: 'Auto Loan' },
-    { value: 'student_loan', label: 'Student Loan' },
-    { value: 'medical_debt', label: 'Medical Debt' },
-    { value: 'other', label: 'Other' }
+    { value: "bank_loan", label: "Bank Loan" },
+    { value: "sacco_loan", label: "Sacco Loan" },
+    { value: "microfinance_loan", label: "Microfinance Loan" },
+    { value: "mobile_loan", label: "Mobile Loan (M-Shwari / Fuliza)" },
+    { value: "chama_loan", label: "Chama Loan" },
+    { value: "credit_card", label: "Credit Card" },
+    { value: "business_capital", label: "Business Capital Loan" },
+    { value: "school_fees_loan", label: "School Fees Loan" },
+    { value: "medical_loan", label: "Medical Loan" },
+    { value: "emergency_loan", label: "Emergency Loan" },
+    { value: "vehicle_loan", label: "Vehicle Loan" },
+    { value: "hustler_fund", label: "Hustler Fund" },
+    { value: "other", label: "Other" },
 ];

@@ -35,7 +35,8 @@
             </p>
             <p class="mt-1"><strong>Paid:</strong> {{ formatCurrency(debtData.current_amount) }}
             </p>
-            <p class="mt-1"><strong>Due:</strong> {{ formatCurrency(debtData.initial_amount - debtData.current_amount) }}
+            <p class="mt-1"><strong>Due:</strong> {{ formatCurrency(debtData.initial_amount - debtData.current_amount)
+                }}
             </p>
             <p class="mt-1"><strong>Minimum payment:</strong> {{ formatCurrency(debtData.minimum_payment) }}
             </p>
@@ -44,8 +45,8 @@
                 debtData.current_amount) }}
             </p>
             <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
-                <div :class="debtData.status === 'active' ? 'bg-yellow-400' : 'bg-green-500'"
-                    class="h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
+                <div :class="debtData.status === 'active' ? 'bg-yellow-400' : 'bg-green-500'" class="h-2.5 rounded-full"
+                    :style="{ width: progressPercentage + '%' }"></div>
             </div>
         </div>
         <div class="text-right text-red-500 font-bold text-sm" :class="{ 'hidden': debtData.status === 'paid_off' }">
@@ -116,11 +117,29 @@
                         </div>
                     </div>
 
-                    <!-- Description Field -->
+                    <!-- Description Field + Commitment Radios -->
                     <div class="mt-2">
-                        <label for="description" class="block text-xs font-medium text-gray-700">Description</label>
-                        <textarea id="description" v-model="editDebt.description" rows="2"
-                            class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2"></textarea>
+                        <label for="description" class="block text-gray-700 text-xs font-medium mb-1">
+                            Description
+                        </label>
+                        <textarea id="description" v-model="editDebt.description"
+                            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            rows="2"></textarea>
+
+                        <!-- Repayment Commitment Radio Buttons -->
+                        <div class="flex items-center gap-4 mt-2">
+                            <span class="text-xs text-gray-700">Commit to monthly repayment?</span>
+                            <label class="flex items-center text-xs gap-1">
+                                <input type="radio" v-model="editDebt.commitment" :value="true"
+                                    class="text-purple-500" />
+                                Yes
+                            </label>
+                            <label class="flex items-center text-xs gap-1">
+                                <input type="radio" v-model="editDebt.commitment" :value="false"
+                                    class="text-purple-500" />
+                                No
+                            </label>
+                        </div>
                     </div>
 
                     <div class="mt-3 flex justify-end space-x-2">
@@ -217,7 +236,8 @@ const editDebt = useForm({
     initial_amount: '',
     interest_rate: '',
     start_date: '',
-    due_date: ''
+    due_date: '',
+    commitment: false,
 });
 
 // Populate form when modal is opened
@@ -229,6 +249,7 @@ const populateForm = () => {
     editDebt.interest_rate = debtData.value.interest_rate || '';
     editDebt.start_date = debtData.value.start_date || '';
     editDebt.due_date = debtData.value.due_date;
+    editDebt.commitment = debtData.value.commitment;
 };
 
 // Close modal when clicking outside

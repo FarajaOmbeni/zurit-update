@@ -8,16 +8,65 @@ use Inertia\Inertia;
 use App\Models\Expense;
 use App\Models\DebtPayment;
 use App\Models\Transaction;
-use App\Models\ExtraPayment;
 use Illuminate\Http\Request;
-use App\Models\MonthlyPayment;
 use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BudgetController;
 
 class DebtController extends Controller
 {
     use NetIncomeCalculator;
+
+    private function storeRecurrentExpense(Debt $debt, float $payment){
+        // If commitment is true, create a recurring expense
+        if (!request()->boolean('commitment')) {
+            return;
+        }
+
+        $budgetController = new BudgetController();
+
+        // build a pseudo-request for storeExpense
+        $expenseRequest = new Request([
+            'category'        => 'Loan Repayment',
+            'amount'          => round($payment, 2),
+            'description'     => "Repayment for {$debt->name}",
+            'expense_date'    => today(),
+            'is_recurring'    => true,
+            'recurrence_pattern' => 'monthly',
+        ]);
+
+        $expenseRequest->setUserResolver(function () {
+            return auth()->user(); // ensure auth()->id() works inside called controller
+        });
+
+        $budgetController->storeExpense($expenseRequest);
+
+        // Create the transaction
+        $transaction = new Transaction();
+        $transaction->user_id = auth()->id();
+        $transaction->type = 'expense';
+        $transaction->category = 'Debt Payment';
+        $transaction->amount = $payment;
+        $transaction->transaction_date = now();
+        $transaction->description = "Debt Payment for {$debt->name}";
+        $transaction->save();
+
+        // Create the debt payment record
+        $debtPayment = new DebtPayment();
+        $debtPayment->debt_id = $debt->id;
+        $debtPayment->transaction_id = $transaction->id;
+        $debtPayment->amount = $payment;
+        $debtPayment->payment_date = now();
+        $debtPayment->save();
+
+        // Update debt
+        $debt->current_amount += $payment;
+        if ($debt->current_amount >= $debt->initial_amount) {
+            $debt->status = 'paid_off';
+        }
+        $debt->save();
+    }
 
     public function index()
     {
@@ -61,6 +110,11 @@ class DebtController extends Controller
             $payment = $P / $n;
         }
 
+        if ($request->commitment == true) {
+            $budgetController = new BudgetController();
+            $budgetController->storeExpense($request);
+        }
+
         $debt = new Debt();
         $debt->user_id         = auth()->id();
         $debt->name            = $request->name;
@@ -72,6 +126,8 @@ class DebtController extends Controller
         $debt->due_date        = $due_date;
         $debt->minimum_payment = round($payment, 2);       // currency-friendly rounding
         $debt->save();
+
+        $this->storeRecurrentExpense($debt, $payment);
 
         return to_route('debt.index', [
             'newDebt' => $debt,
@@ -99,7 +155,7 @@ class DebtController extends Controller
             $months = 1;
         }
 
-        DB::transaction(function () use ($request, $months) {
+        $debt = DB::transaction(function () use ($request, $months) {
             // Finally, update the Debt record.
             $debt = Debt::find($request->id);
             $debt->name = $request->name;
@@ -113,8 +169,11 @@ class DebtController extends Controller
                 ($request->initial_amount + $request->initial_amount * ($request->interest_rate / 100)) / $months
             );
             $debt->update();
+
+            return $debt;
         });
 
+        $this->storeRecurrentExpense($debt, $debt->minimum_payment);
 
         return to_route('debt.index');
     }

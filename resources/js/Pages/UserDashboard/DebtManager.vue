@@ -39,6 +39,7 @@ const newDebt = useForm({
     start_date: '',
     duration_months: '',
     duration_years: '',
+    commitment: false,
 });
 
 // Open modal
@@ -239,13 +240,29 @@ const closeModalOnOutsideClick = (event) => {
 
                     </div>
 
-                    <!-- Description Field -->
+                    <!-- Description Field + Commitment Radios -->
                     <div class="mt-2">
-                        <label for="description"
-                            class="block text-gray-700 text-xs font-medium mb-1">Description</label>
+                        <label for="description" class="block text-gray-700 text-xs font-medium mb-1">
+                            Description
+                        </label>
                         <textarea id="description" v-model="newDebt.description"
                             class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                             rows="2"></textarea>
+
+                        <!-- Repayment Commitment Radio Buttons -->
+                        <div class="flex items-center gap-4 mt-2">
+                            <span class="text-xs text-gray-700">Commit to monthly repayment?</span>
+                            <label class="flex items-center text-xs gap-1">
+                                <input type="radio" v-model="newDebt.commitment" :value="true"
+                                    class="text-purple-500" />
+                                Yes
+                            </label>
+                            <label class="flex items-center text-xs gap-1">
+                                <input type="radio" v-model="newDebt.commitment" :value="false"
+                                    class="text-purple-500" />
+                                No
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Form Buttons -->
