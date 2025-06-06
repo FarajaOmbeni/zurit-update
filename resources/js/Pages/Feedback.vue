@@ -13,6 +13,7 @@
                     <label class="block text-gray-700 font-medium">Name of the Event</label>
                     <select v-model="form.eventName"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Event" hidden>Select Event</option>
                         <option value="Property Fundamentals">Property Fundamentals</option>
                         <option value="Investment Strategies">Investment Strategies</option>
                         <option value="Alternative Investments">Alternative Investments</option>
@@ -31,6 +32,7 @@
                     </label>
                     <select v-model="form.logisticsRating"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Logistics Rating" hidden>Select Logistics Rating</option>
                         <option value="Disorganized - 1">1. Disorganized</option>
                         <option value="Kind of Organized - 2">2. Kind of Organized</option>
                         <option value="Adequate - 3">3. Adequate</option>
@@ -47,6 +49,7 @@
                     </label>
                     <select v-model="form.clarityRating"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Clarity Rating" hidden>Select Clarity Rating</option>
                         <option value="confusing - 1">1. Confusing</option>
                         <option value="somewhat clear - 2">2. Somewhat Clear</option>
                         <option value="fair - 3">3. Fair</option>
@@ -65,6 +68,7 @@
                     </label>
                     <select v-model="form.relevanceRating"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Relevance Rating" hidden>Select Relevance Rating</option>
                         <option value="Irrelevant - 1">1. Irrelevant</option>
                         <option value="Somewhat Relevant - 2">2. Somewhat Relevant</option>
                         <option value="Moderately Relevant - 3">3. Moderately Relevant</option>
@@ -80,6 +84,7 @@
                     </label>
                     <select v-model="form.recommendationLikelihood"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Recommendation Likelihood" hidden>Select Recommendation Likelihood</option>
                         <option value="Unlikely - 1">1. Unlikely</option>
                         <option value="Less Likely - 2">2. Less Likely</option>
                         <option value="Neutral - 3">3. Neutral</option>
@@ -94,6 +99,7 @@
                     </label>
                     <select v-model="form.attendanceLikelihood"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Attendance Likelihood" hidden>Select Attendance Likelihood</option>
                         <option value="Unlikely - 1">1. Unlikely</option>
                         <option value="Less Likely - 2">2. Less Likely</option>
                         <option value="Neutral - 3">3. Neutral</option>
@@ -110,6 +116,7 @@
                     </label>
                     <select v-model="form.valueForMoney"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
+                        <option value="Select Value for Money" hidden>Select Value for Money</option>
                         <option value="No Value - 1">1. No Value</option>
                         <option value="Poor Value - 2">2. Poor Value</option>
                         <option value="Fair Value - 3">3. Fair Value</option>
@@ -191,13 +198,13 @@ const restoreScrollPosition = () => {
 const showSuccess = ref(false);
 
 const form = useForm({
-    eventName: '',
-    logisticsRating: '',
-    clarityRating: '',
-    relevanceRating: '',
-    recommendationLikelihood: '',
-    attendanceLikelihood: '',
-    valueForMoney: '',
+    eventName: 'Select Event',
+    logisticsRating: 'Select Logistics Rating',
+    clarityRating: 'Select Clarity Rating',
+    relevanceRating: 'Select Relevance Rating',
+    recommendationLikelihood: 'Select Recommendation Likelihood',
+    attendanceLikelihood: 'Select Attendance Likelihood',
+    valueForMoney: 'Select Value for Money',
     mostValuable: '',
     areaOfImprovement: '',
     topicSuggestion: '',
