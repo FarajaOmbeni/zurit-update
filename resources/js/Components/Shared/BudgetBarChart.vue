@@ -6,7 +6,9 @@
             <div v-for="(item, index) in items" :key="index" class="flex flex-col items-center justify-end">
                 <div class="relative w-full mb-2 flex justify-center">
                     <div class="text-sm font-medium text-blue-600">
-                        {{ formatCurrency(item.amount) }}
+                        <span :class="{ 'blur-sm': !showBalances }">
+                            {{ formatCurrency(item.amount) }}
+                        </span>
                     </div>
                 </div>
                 <div class="w-full bg-gray-200 rounded-sm">
@@ -48,6 +50,10 @@ const props = defineProps({
     maxHeight: {
         type: Number,
         default: 200
+    },
+    showBalances: {
+        type: Boolean,
+        default: false
     }
 });
 

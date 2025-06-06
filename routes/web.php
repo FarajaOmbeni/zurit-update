@@ -176,9 +176,9 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
 
-Route::post('/59b10f78e6b', [MpesaController::class, 'handleCallback'])
+Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
-    ->name('59b10f78e6b');
+    ->name('mpesa-callback');
 Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.push');
 
 require __DIR__.'/auth.php';

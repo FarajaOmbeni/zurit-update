@@ -425,6 +425,8 @@ function calculateMonthlySummary() {
 
     monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
 }
+
+const showBalances = ref(false)
 </script>
 
 <template>
@@ -436,9 +438,32 @@ function calculateMonthlySummary() {
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div v-show="hasData" class="flex justify-between">
-                            <div>
-                                <h1 class="text-2xl font-semibold text-gray-900"> {{ today }}'s Budget</h1>
+                            <div class="flex items-center justify-between mb-4 gap-2">
+                                <h1 class="text-2xl font-semibold text-gray-900">
+                                    {{ today }}'s Budget
+                                </h1>
+                                <!-- Toggle Button -->
+                                <button @click="showBalances = !showBalances" class="text-gray-600 hover:text-gray-800">
+                                    <svg v-if="!showBalances" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5
+           c4.477 0 8.268 2.943 9.542 7
+           -1.274 4.057-5.065 7-9.542 7
+           -4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19
+           c-4.477 0-8.268-2.943-9.542-7
+           a9.956 9.956 0 012.442-3.993" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6.1 6.1l11.8 11.8" />
+                                    </svg>
+                                </button>
                             </div>
+
                             <div class="px-6">
                                 <button @click="showBudgetModal = true"
                                     class="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition duration-150">
@@ -450,7 +475,8 @@ function calculateMonthlySummary() {
                             :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
 
                         <div v-if="hasData" class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                            <div class="bg-white overflow-hidden shadow rounded-lg">
+
+                            <!-- <div class="bg-white overflow-hidden shadow rounded-lg">
                                 <div class="px-4 py-5 sm:p-6">
                                     <dt class="text-sm font-medium text-gray-500 truncate">Total Income</dt>
                                     <dd class="mt-1 text-3xl font-semibold text-green-600">KES {{
@@ -474,7 +500,29 @@ function calculateMonthlySummary() {
                                         KES {{ monthlyBalance.toLocaleString() }}
                                     </dd>
                                 </div>
-                            </div>
+                            </div> -->
+                            <!-- Total Income -->
+                            <dd class="mt-1 text-3xl font-semibold text-green-600">
+                                <span :class="{ 'blur-md': !showBalances }">
+                                    KES {{ monthlyIncome.toLocaleString() }}
+                                </span>
+                            </dd>
+
+                            <!-- Total Expenses -->
+                            <dd class="mt-1 text-3xl font-semibold text-red-500">
+                                <span :class="{ 'blur-md': !showBalances }">
+                                    KES {{ monthlyExpenses.toLocaleString() }}
+                                </span>
+                            </dd>
+
+                            <!-- Balance -->
+                            <dd class="mt-1 text-3xl font-semibold"
+                                :class="monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'">
+                                <span :class="{ 'blur-md': !showBalances }">
+                                    KES {{ monthlyBalance.toLocaleString() }}
+                                </span>
+                            </dd>
+
 
                             <div class="bg-white overflow-hidden shadow rounded-lg">
                                 <div class="px-4 py-5 sm:p-6 flex flex-col space-y-2">
@@ -507,16 +555,16 @@ function calculateMonthlySummary() {
                         <div class="my-4 w-full flex justify-center">
                             <a target="_blank" :href="route('budget.budgets')"
                                 class="bg-purple-500 px-4 py-2 rounded-md text-white hover:bg-purple-600">View
-                            Previous
-                            Budgets</a>
+                                Previous
+                                Budgets</a>
                         </div>
 
                         <div v-if="hasData" class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
                             <BudgetBarChart title="Top Income Sources" :items="topIncomes" type="income"
-                                class="bg-white shadow rounded-lg" />
+                                class="bg-white shadow rounded-lg" :showBalances="showBalances" />
 
                             <BudgetBarChart title="Top Expenses" :items="topExpenses" type="expense"
-                                class="bg-white shadow rounded-lg" />
+                                class="bg-white shadow rounded-lg" :showBalances="showBalances" />
                         </div>
 
                         <div v-show="hasData" class="mt-12">
@@ -639,7 +687,7 @@ function calculateMonthlySummary() {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                        Math.round(transaction.amount).toLocaleString() }}
+                                                    Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -764,10 +812,12 @@ function calculateMonthlySummary() {
                                     class="px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                     Cancel
                                 </button>
-                                <button type="submit"
-                                    class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <button type="submit" :disabled="newIncome.processing"
+                                    class="px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                    :class="{ 'opacity-50 cursor-not-allowed': newIncome.processing }">
                                     {{ newIncome.processing ? 'Saving...' : 'Save Income' }}
                                 </button>
+
                             </div>
                         </form>
                     </div>
@@ -989,7 +1039,7 @@ function calculateMonthlySummary() {
                                 <div class="flex justify-end space-x-2">
                                     <button @click="saveEdit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                            updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
+                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
                                     <button @click="showEditModal = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                                 </div>
@@ -1008,7 +1058,7 @@ function calculateMonthlySummary() {
                             <div class="flex justify-end space-x-2">
                                 <button @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
