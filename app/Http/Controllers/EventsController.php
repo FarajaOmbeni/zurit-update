@@ -84,46 +84,39 @@ class EventsController extends Controller
 
     public function eventFeedback(Request $request)
     {
-        //Store to teh Database
-        EventsFeedback::create([
-            'name' => $request->input('name'),
-            'venue' => $request->input('venue'),
-            'comprehensiveness' => $request->input('comprehensiveness'),
-            'relevance' => $request->input('relevance'),
-            'recommendation' => $request->input('recommendation'),
-            'return_client' => $request->input('return_client'),
-            'value_for_money' => $request->input('value_for_money'),
-            'valuable_aspect' => $request->input('valuable_aspect'),
-            'improvement' => $request->input('improvement'),
-            'suggestion' => $request->input('suggestion'),
-            'improve_experience' => $request->input('improve_experience'),
-            'fav_trainor' => $request->input('fav_trainor'),
-            'testimonial' => $request->input('testimonial'),
+        $request->validate([
+            'eventName' => 'required|string|max:255',
+            'logisticsRating' => 'required|string|max:255',
+            'clarityRating' => 'required|string|max:255',
+            'relevanceRating' => 'required|string|max:255',
+            'recommendationLikelihood' => 'required|string|max:255',
+            'attendanceLikelihood' => 'required|string|max:255',
+            'valueForMoney' => 'required|string|max:255',
+            'mostValuable' => 'required|string|max:255',
+            'areaOfImprovement' => 'required|string|max:255',
+            'topicSuggestion' => 'required|string|max:255',
+            'favoriteSpeaker' => 'required|string|max:255',
         ]);
 
+        $eventName = $request->eventName;
+        $logisticsRating = $request->logisticsRating;
+        $clarityRating = $request->clarityRating;
+        $relevanceRating = $request->relevanceRating;
+        $recommendationLikelihood = $request->recommendationLikelihood;
+        $attendanceLikelihood = $request->attendanceLikelihood;
+        $valueForMoney = $request->valueForMoney;
+        $mostValuable = $request->mostValuable;
+        $areaOfImprovement = $request->areaOfImprovement;
+        $topicSuggestion = $request->topicSuggestion;
+        $favoriteSpeaker = $request->favoriteSpeaker;
 
-        //Send email
-        Mail::to('info@zuritconsulting.com')->send(new EventFeedbackMail(
-            $request->input('name'),
-            $request->input('venue'),
-            $request->input('comprehensiveness'),
-            $request->input('relevance'),
-            $request->input('recommendation'),
-            $request->input('return_client'),
-            $request->input('value_for_money'),
-            $request->input('valuable_aspect'),
-            $request->input('improvement'),
-            $request->input('suggestion'),
-            $request->input('improve_experience'),
-            $request->input('fav_trainor'),
-            $request->input('testimonial'),
+        // Send email
+        if (!isset($request->website)) {
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new EventFeedbackMail($eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker));
+        }
 
-        ));
-
-        return redirect('/contactus')->with('success', [
-            'message' => 'Feedback Sent Successfully!',
-            'duration' => 3000,
-        ]);
+        // You can add a success message or redirect here if needed
+        return redirect()->back()->with('success', 'Feedback submitted successfully! Thank you for your feedback!');
     }
 
     public function destroy($event)

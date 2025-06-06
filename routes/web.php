@@ -47,6 +47,7 @@ Route::get('/business-support', function () {
     return Inertia::render('BusinessSupport');
 })->name('business.support');
 Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send.message');
+Route::post('/sendFeedback', [EventsController::class, 'eventFeedback'])->name('send.feedback');
 Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
 Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
 

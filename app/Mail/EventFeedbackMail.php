@@ -11,43 +11,39 @@ class EventFeedbackMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $name, $venue, $comprehensiveness, $relevance, $recommendation, $return_client, $value_for_money, $valuable_aspect, $improvement, $suggestion, $improve_experience, $fav_trainor, $testimonial;
+    public $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker;
 
-    public function __construct($name, $venue, $comprehensiveness, $relevance, $recommendation, $return_client, $value_for_money, $valuable_aspect, $improvement, $suggestion, $improve_experience, $fav_trainor, $testimonial) // changed from $message
+    public function __construct($eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker)
     {
-        $this->name = (string)$name;
-        $this->venue = (string)$venue;
-        $this->comprehensiveness = (string)$comprehensiveness;
-        $this->relevance = (string)$relevance;
-        $this->recommendation = (string)$recommendation;
-        $this->return_client = (string)$return_client;
-        $this->value_for_money = (string)$value_for_money;
-        $this->valuable_aspect = (string)$valuable_aspect;
-        $this->improvement = (string)$improvement;
-        $this->suggestion = (string)$suggestion;
-        $this->improve_experience = (string)$improve_experience;
-        $this->fav_trainor = (string)$fav_trainor;
-        $this->testimonial = (string)$testimonial;
+        $this->eventName = (string)$eventName;
+        $this->logisticsRating = (string)$logisticsRating;
+        $this->clarityRating = (string)$clarityRating;
+        $this->relevanceRating = (string)$relevanceRating;
+        $this->recommendationLikelihood = (string)$recommendationLikelihood;
+        $this->attendanceLikelihood = (string)$attendanceLikelihood;
+        $this->valueForMoney = (string)$valueForMoney;
+        $this->mostValuable = (string)$mostValuable;
+        $this->areaOfImprovement = (string)$areaOfImprovement;
+        $this->topicSuggestion = (string)$topicSuggestion;
+        $this->favoriteSpeaker = (string)$favoriteSpeaker;
     }
 
     public function build()
     {
         return $this->view('emails.feedback-form')
             ->with([
-                'name' => $this->name,
-                'venue' => $this->venue,
-                'comprehensiveness' => $this->comprehensiveness,
-                'relevance' => $this->relevance,
-                'recommendation' => $this->recommendation,
-                'return_client' => $this->return_client,
-                'value_for_money' => $this->value_for_money,
-                'valuable_aspect' => $this->valuable_aspect,
-                'improvement' => $this->improvement,
-                'suggestion' => $this->suggestion,
-                'improve_experience' => $this->improve_experience,
-                'fav_trainor' => $this->fav_trainor,
-                'testimonial' => $this->testimonial,
+                'eventName' => $this->eventName,
+                'logisticsRating' => $this->logisticsRating,
+                'clarityRating' => $this->clarityRating,
+                'relevanceRating' => $this->relevanceRating,
+                'recommendationLikelihood' => $this->recommendationLikelihood,
+                'attendanceLikelihood' => $this->attendanceLikelihood,
+                'valueForMoney' => $this->valueForMoney,
+                'mostValuable' => $this->mostValuable,
+                'areaOfImprovement' => $this->areaOfImprovement,
+                'topicSuggestion' => $this->topicSuggestion,
+                'favoriteSpeaker' => $this->favoriteSpeaker,
             ])
-            ->subject($this->name . ' - Client Feedback Submition');
+            ->subject($this->eventName . ' - Client Feedback Submission');
     }
 }
