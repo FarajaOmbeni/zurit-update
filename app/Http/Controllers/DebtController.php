@@ -26,7 +26,7 @@ class DebtController extends Controller
         $expenseRequest = new Request([
             'category'        => 'Loan Repayment',
             'amount'          => round($payment, 2),
-            'description'     => "Repayment for {$debt->name}",
+            'description'     => "Debt Repayment for {$debt->name}",
             'expense_date'    => today(),
             'is_recurring'    => true,
             'recurrence_pattern' => 'monthly',
@@ -35,8 +35,6 @@ class DebtController extends Controller
         $expenseRequest->setUserResolver(function () {
             return auth()->user(); // ensure auth()->id() works inside called controller
         });
-
-        $budgetController->storeExpense($expenseRequest);
 
         // Create the transaction
         $transaction = new Transaction();
@@ -55,6 +53,8 @@ class DebtController extends Controller
         $debtPayment->amount = $payment;
         $debtPayment->payment_date = now();
         $debtPayment->save();
+
+        $budgetController->upsertRule($transaction, $expenseRequest);
 
         // Update debt
         $debt->current_amount += $payment;

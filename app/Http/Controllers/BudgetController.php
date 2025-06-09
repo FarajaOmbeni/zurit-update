@@ -21,7 +21,7 @@ use App\Traits\NetIncomeCalculator;
 class BudgetController extends Controller
 {
     // app/Http/Controllers/BudgetController.php
-    private function upsertRule(Transaction $txn, Request $r): ?RecurrenceRule
+    public function upsertRule(Transaction $txn, Request $r): ?RecurrenceRule
     {
         /* 1. If user unticks the box */
         if (!$r->boolean('is_recurring')) {

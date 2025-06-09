@@ -43,7 +43,9 @@ const newGoal = useForm({
     description: '',
     target_amount: '',
     start_date: '',
-    target_date: ''
+    duration_months: '',
+    duration_years: '',
+    commitment: false
 });
 
 // Reset form fields using the built-in reset() method
@@ -173,13 +175,25 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                                 required>
                         </div>
 
-                        <!-- Target Date Field -->
+                        <!-- Duration Field -->
                         <div class="col-span-1">
-                            <label for="target_date" class="block text-gray-700 text-xs font-medium mb-1">Target
-                                Date</label>
-                            <input type="date" id="target_date" v-model="newGoal.target_date"
-                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                required>
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Duration</label>
+                            <div class="flex gap-2">
+                                <!-- Years -->
+                                <div class="flex-1">
+                                    <input type="number" min="0" v-model="newGoal.duration_years" placeholder="Years"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        required>
+                                </div>
+
+                                <!-- Months -->
+                                <div class="flex-1">
+                                    <input type="number" min="0" max="11" v-model="newGoal.duration_months"
+                                        placeholder="Months"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        required>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Description Field -->
@@ -190,6 +204,19 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 rows="2"></textarea>
                         </div>
+                    </div>
+
+                    <!-- Repayment Commitment Radio Buttons -->
+                    <div class="flex items-center gap-4 mt-2">
+                        <span class="text-xs text-gray-700 font-bold">Commit to monthly repayment?</span>
+                        <label class="flex items-center text-xs gap-1">
+                            <input type="radio" v-model="newGoal.commitment" :value="true" class="text-purple-500" />
+                            Yes
+                        </label>
+                        <label class="flex items-center text-xs gap-1">
+                            <input type="radio" v-model="newGoal.commitment" :value="false" class="text-purple-500" />
+                            No
+                        </label>
                     </div>
 
                     <!-- Form Buttons -->

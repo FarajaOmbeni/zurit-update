@@ -25,12 +25,12 @@
         </div>
         <div class="mb-2" :class="localGoal.status === 'in_progress' ? 'text-gray-600' : 'text-green-500'">
             <p>{{ localGoal.description
-            }}</p>
+                }}</p>
             <p class="mt-1"><strong>Goal:</strong> {{ formatCurrency(localGoal.target_amount) }}</p>
             <p class="mt-1"><strong>Saved:</strong> {{ formatCurrency(localGoal.current_amount) }}</p>
             <p v-show="localGoal.status === 'in_progress'" class="mt-1"><strong>Remaining:</strong> {{
                 formatCurrency(localGoal.target_amount -
-                    localGoal.current_amount) }}
+                localGoal.current_amount) }}
             </p>
             <p v-show="localGoal.status === 'in_progress'" class="mt-1"><strong>Minimum Contribution:</strong> {{
                 formatCurrency(minimumContribution) }}
@@ -81,7 +81,7 @@
 
                         <!-- Target Date Field -->
                         <div class="col-span-1">
-                            <label for="target_date" class="block text-xs font-medium text-gray-700">Target Date</label>
+                            <label for="target_date" class="block text-xs font-medium text-gray-700">Due Date</label>
                             <input type="date" id="target_date" v-model="editGoal.target_date"
                                 class="mt-0.5 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 text-xs py-1.5 px-2" />
                         </div>
@@ -184,7 +184,10 @@ const editGoal = useForm({
     description: '',
     target_amount: '',
     start_date: '',
-    target_date: ''
+    duration_months: '',
+    duration_years: '',
+    target_date: '',
+    commitment: false
 });
 
 // Populate form when modal is opened
@@ -225,7 +228,8 @@ const submitEdit = () => {
                     description: editGoal.description,
                     target_amount: editGoal.target_amount,
                     start_date: editGoal.start_date,
-                    target_date: editGoal.target_date
+                    duration_months: editGoal.duration_months,
+                    duration_years: editGoal.duration_years
                 };
             }
 
