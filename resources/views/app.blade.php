@@ -24,6 +24,19 @@
         })(window, document, "clarity", "script", "q821c62vm9");
     </script>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QZMJCGHRR4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-QZMJCGHRR4');
+    </script>
+
     {{-- Manifest --}}
     <link rel="manifest" href="/manifest.json">
 
