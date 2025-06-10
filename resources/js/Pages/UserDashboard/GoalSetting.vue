@@ -6,6 +6,7 @@ import Sidebar from '@/Components/Sidebar.vue';
 import GoalCard from '@/Components/Shared/GoalCard.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
+import { goalTypes } from '@/Components/Variables/goalTypes';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
@@ -146,10 +147,15 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                     <div class="grid grid-cols-2 gap-x-2 gap-y-2">
                         <!-- Name Field -->
                         <div class="col-span-2">
-                            <label for="name" class="block text-gray-700 text-xs font-medium mb-1">Name</label>
-                            <input type="text" id="name" v-model="newGoal.name"
+                            <label for="type" class="block text-gray-700 text-xs font-medium mb-1">Name</label>
+                            <select id="type" v-model="newGoal.name"
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 required>
+                                <option value="" disabled>Select Name</option>
+                                <option v-for="type in goalTypes" :key="type.value" :value="type.value">
+                                    {{ type.label }}
+                                </option>
+                            </select>
                         </div>
 
                         <!-- Target Amount Field -->
@@ -204,19 +210,17 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 rows="2"></textarea>
                         </div>
-                    </div>
 
-                    <!-- Repayment Commitment Radio Buttons -->
-                    <div class="flex items-center gap-4 mt-2">
-                        <span class="text-xs text-gray-700 font-bold">Commit to monthly repayment?</span>
-                        <label class="flex items-center text-xs gap-1">
-                            <input type="radio" v-model="newGoal.commitment" :value="true" class="text-purple-500" />
-                            Yes
-                        </label>
-                        <label class="flex items-center text-xs gap-1">
-                            <input type="radio" v-model="newGoal.commitment" :value="false" class="text-purple-500" />
-                            No
-                        </label>
+                        <!-- Contribution type -->
+                        <div class="col-span-2">
+                            <label for="contribution" class="block text-gray-700 text-xs font-medium mb-1">How often
+                                will you contribute to this goal?</label>
+                            <select name="contribution" id=""
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
+                                <option value="">Weekly</option>
+                                <option value="" selected>Monthly</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Form Buttons -->

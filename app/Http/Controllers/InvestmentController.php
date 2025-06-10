@@ -16,6 +16,47 @@ class InvestmentController extends Controller
 {
     use NetIncomeCalculator;
 
+    private function storeRecurrentExpense(Investment $investment, float $payment)
+    {
+        $budgetController = new BudgetController();
+
+        // build a pseudo-request for storeExpense
+        $expenseRequest = new Request([
+            'category'        => 'Investment',
+            'amount'          => round($payment, 2),
+            'description'     => "Investment for {$investment->name}",
+            'expense_date'    => today(),
+            'is_recurring'    => true,
+            'recurrence_pattern' => 'monthly',
+        ]);
+
+        $expenseRequest->setUserResolver(function () {
+            return auth()->user(); // ensure auth()->id() works inside called controller
+        });
+
+        // Create the transaction
+        $transaction = new Transaction();
+        $transaction->user_id = auth()->id();
+        $transaction->type = 'expense';
+        $transaction->category = 'Investment Contribution';
+        $transaction->amount = $payment;
+        $transaction->transaction_date = now();
+        $transaction->description = "Investment for {$investment->name}";
+        $transaction->save();
+
+        // Create the investment payment record
+        $investmentContribution = new investmentContribution();
+        $investmentContribution->investment_id = $investment->id;
+        $investmentContribution->transaction_id = $transaction->id;
+        $investmentContribution->amount = $payment;
+        $investmentContribution->contribution_date = now();
+        $investmentContribution->save();
+
+        $budgetController->upsertRule($transaction, $expenseRequest);
+
+        $investment->save();
+    }
+
     public function index()
     {
         $investments = Investment::where('user_id', auth()->id())->get();
@@ -34,6 +75,8 @@ class InvestmentController extends Controller
             'initial_amount' => 'required|numeric',
             'expected_return_rate' => 'required|numeric',
         ]);
+
+        $target_date = Carbon::createFromDate($request->target_date)->addMonths($request->duration_months)->addYears($request->duration_years)->format('Y-m-d');
 
         $investment = new Investment();
         $investment->user_id = auth()->id();
@@ -58,8 +101,13 @@ class InvestmentController extends Controller
         }
         else {
             $investment->start_date = $request->start_date;
-            $investment->target_date = $request->target_date;
+            $investment->target_date = $target_date;
         }
+
+        if ($request->boolean('commitment')) {
+            $this->storeRecurrentExpense($investment, $request->committed_amount);
+        }
+
         $investment->save();
 
         return to_route('invest.index');

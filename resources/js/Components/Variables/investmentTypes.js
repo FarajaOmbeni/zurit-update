@@ -111,7 +111,28 @@ export const bonds = [
 ];
 
 export const treasuryBills = [
-    { value: "t_bill_91", label: "91-Day Treasury Bill", return: "12.8" },
-    { value: "t_bill_182", label: "182-Day Treasury Bill", return: "13.2" },
-    { value: "t_bill_364", label: "364-Day Treasury Bill", return: "13.5" },
+    {
+        value: "t_bill_91",
+        label: "91-Day Treasury Bill",
+        return: "8.2816", // Previous Avg. Interest Rate
+        issue_number: "2634/091",
+        auction_date: "12/06/2025",
+        value_dated: "16/06/2025",
+    },
+    {
+        value: "t_bill_182",
+        label: "182-Day Treasury Bill",
+        return: "8.5433", // Previous Avg. Interest Rate
+        issue_number: "2608/182",
+        auction_date: "12/06/2025",
+        value_dated: "16/06/2025",
+    },
+    {
+        value: "t_bill_364",
+        label: "364-Day Treasury Bill",
+        return: "9.9985", // Previous Avg. Interest Rate
+        issue_number: "2562/364",
+        auction_date: "12/06/2025",
+        value_dated: "16/06/2025",
+    },
 ];

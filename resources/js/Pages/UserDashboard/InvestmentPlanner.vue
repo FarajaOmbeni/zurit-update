@@ -108,7 +108,17 @@ const newInvestment = useForm({
     start_date: '',
     target_date: '',
     expected_return_rate: '',
-    frequency_of_return: ''
+    frequency_of_return: '',
+    commitment: false,
+    committed_amount: '',
+    duration_months: '',
+    duration_years: '',
+});
+
+watch(() => newInvestment.type, () => {
+    newInvestment.expected_return_rate = null;
+    newInvestment.description = '';
+    newInvestment.details_of_investment = '';
 });
 
 watch(() => newInvestment.details_of_investment, (newVal) => {
@@ -127,7 +137,9 @@ watch(() => newInvestment.details_of_investment, (newVal) => {
     if (newInvestment.type === 'bills') {
         const selectedBill = treasuryBills.find(bill => bill.label === newVal);
         if (selectedBill) {
+            const description = `Issue Number: ${selectedBill.issue_number} Auction Date: ${selectedBill.auction_date}Value Dated: ${selectedBill.value_dated}`;
             newInvestment.expected_return_rate = selectedBill.return;
+            newInvestment.description = description
         }
     }
 });
@@ -420,13 +432,25 @@ const confirmDelete = () => {
                                 required />
                         </div>
 
-                        <!-- Target Date Field -->
-                        <div v-if="newInvestment.type !== 'bills'" class="col-span-1">
-                            <label for="target_date" class="block text-gray-700 text-xs font-medium mb-1">Target
-                                Date</label>
-                            <input type="date" id="target_date" v-model="newInvestment.target_date"
-                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                required />
+                        <!-- Duration Field -->
+                        <div v-show="newInvestment.type !== 'bills'" class="col-span-1">
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Duration</label>
+                            <div class="flex gap-2">
+                                <!-- Years -->
+                                <div class="flex-1">
+                                    <input type="number" min="0" v-model="newInvestment.duration_years" placeholder="Years"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        >
+                                </div>
+
+                                <!-- Months -->
+                                <div class="flex-1">
+                                    <input type="number" min="0" max="11" v-model="newInvestment.duration_months"
+                                        placeholder="Months"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        >
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -438,6 +462,35 @@ const confirmDelete = () => {
                             class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                             rows="2"></textarea>
                     </div>
+
+                    <!-- Contribution Commitment Radio Buttons -->
+                    <!-- <div v-show="newInvestment.type === 'mmf'" class="flex items-center gap-4 mt-2">
+                        <span class="text-xs text-gray-700 font-bold">Commit to monthly contribution?</span>
+                        <label class="flex items-center text-xs gap-1">
+                            <input type="radio" v-model="newInvestment.commitment" :value="true"
+                                class="text-purple-500" />
+                            Yes
+                        </label>
+                        <label class="flex items-center text-xs gap-1">
+                            <input type="radio" v-model="newInvestment.commitment" :value="false"
+                                class="text-purple-500" />
+                            No
+                        </label>
+                    </div> -->
+
+                    <!-- Target Amount Field -->
+                    <!-- <div v-show="newInvestment.commitment == true" class="mt-4">
+                        <label for="initial_amount" class="block text-gray-700 text-xs font-medium mb-1">How much do you
+                            commit?</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-xs">KES</span>
+                            </div>
+                            <input type="number" id="target_amount" v-model="newInvestment.committed_amount"
+                                class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                step="0.01" min="0" required />
+                        </div>
+                    </div> -->
 
                     <!-- Form Buttons -->
                     <div class="flex justify-end space-x-2 mt-3">
