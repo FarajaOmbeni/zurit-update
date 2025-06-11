@@ -13,11 +13,12 @@ import Alert from '@/Components/Shared/Alert.vue';
 const { alertState, openAlert, clearAlert } = useAlert();
 
 const props = defineProps({
+    investments: Array,
     assets: Array,
     liabilities: Array,
 });
 
-console.log(typeof(props.liabilities[0].amount))
+console.log(typeof(props.liabilities))
 
 // Modal control
 const assetModalOpen = ref(false);
@@ -101,7 +102,7 @@ const submitLiability = () => {
                 <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <!-- Action Buttons -->
-                <div class="flex justify-end space-x-4 mb-6">
+                <!-- <div class="flex justify-end space-x-4 mb-6">
                     <button @click="assetModalOpen = true"
                         class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
@@ -120,14 +121,14 @@ const submitLiability = () => {
                         </svg>
                         Add Liability
                     </button>
-                </div>
+                </div> -->
 
                 <div>
-                    <NetWorthChart :assets="assets" :liabilities="liabilities" />
+                    <NetWorthChart :assets="investments" :liabilities="liabilities" />
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
                     <div>
-                        <AssetsTable :assets="assets" />
+                        <AssetsTable :assets="investments" />
                     </div>
                     <div>
                         <LiabilitiesTable :liabilities="liabilities" />

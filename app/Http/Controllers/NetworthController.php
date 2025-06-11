@@ -10,6 +10,7 @@ use App\Models\Asset;
 use App\Models\Liability;
 use Illuminate\Http\Request;
 use App\Mail\FinancialAssistance;
+use App\Models\Investment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -25,6 +26,13 @@ class NetworthController extends Controller
             ->select('name', 'amount', 'created_at', 'updated_at')
             ->get();
 
+        $investments = Investment::where('user_id', auth()->id())
+            ->select(
+                'details_of_investment as name', // Alias to match frontend
+                'current_amount as value'        // Alias to match frontend
+            )
+            ->get();
+
         // Get debts with selected columns, renaming current_amount to amount
         $debts = Debt::where('user_id', auth()->id())
             ->select('name', DB::raw('initial_amount - current_amount as amount'), 'created_at', 'updated_at')
@@ -36,6 +44,7 @@ class NetworthController extends Controller
         return Inertia::render('UserDashboard/NetworthCalculator', [
             'assets' => $assets,
             'liabilities' => $combinedLiabilitiesAndDebts,
+            'investments' => $investments
         ]);
     }
 
