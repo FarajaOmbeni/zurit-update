@@ -17,9 +17,9 @@ class UserSeeder extends Seeder
         User::create([
             'name'              => 'johndoe',
             'email'             => 'john@example.com',
-            'phone_number'      => '123-456-7890',
+            // 'phone_number'      => '123-456-7890',
             'password'          => Hash::make('password'),
-            'role'              => 'user',
+            'role'              => 1,
             'email_verified_at' => now(),
             'created_at'        => now(),
             'updated_at'        => now(),

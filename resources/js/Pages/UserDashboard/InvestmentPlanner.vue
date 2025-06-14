@@ -464,7 +464,7 @@ const confirmDelete = () => {
                     </div>
 
                     <!-- Contribution Commitment Radio Buttons -->
-                    <!-- <div v-show="newInvestment.type === 'mmf'" class="flex items-center gap-4 mt-2">
+                    <div v-show="newInvestment.type === 'mmf'" class="flex items-center gap-4 mt-2">
                         <span class="text-xs text-gray-700 font-bold">Commit to monthly contribution?</span>
                         <label class="flex items-center text-xs gap-1">
                             <input type="radio" v-model="newInvestment.commitment" :value="true"
@@ -476,10 +476,10 @@ const confirmDelete = () => {
                                 class="text-purple-500" />
                             No
                         </label>
-                    </div> -->
+                    </div>
 
                     <!-- Target Amount Field -->
-                    <!-- <div v-show="newInvestment.commitment == true" class="mt-4">
+                    <div v-show="newInvestment.commitment == true" class="mt-4">
                         <label for="initial_amount" class="block text-gray-700 text-xs font-medium mb-1">How much do you
                             commit?</label>
                         <div class="relative">
@@ -490,7 +490,7 @@ const confirmDelete = () => {
                                 class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 step="0.01" min="0" required />
                         </div>
-                    </div> -->
+                    </div>
 
                     <!-- Form Buttons -->
                     <div class="flex justify-end space-x-2 mt-3">

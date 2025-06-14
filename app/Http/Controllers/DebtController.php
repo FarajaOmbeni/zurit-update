@@ -46,6 +46,16 @@ class DebtController extends Controller
         $transaction->description = "Debt Payment for {$debt->name}";
         $transaction->save();
 
+        // Create the expense record
+        $expense = new Expense();
+        $expense->user_id = $transaction->user_id;
+        $expense->category = $transaction->category;
+        $expense->transaction_id = $transaction->id;
+        $expense->amount = $transaction->amount;
+        $expense->description = $transaction->description;
+        $expense->expense_date = now();
+        $expense->save();
+
         // Create the debt payment record
         $debtPayment = new DebtPayment();
         $debtPayment->debt_id = $debt->id;

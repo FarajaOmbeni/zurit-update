@@ -38,7 +38,7 @@ class NetworthController extends Controller
             ->select('name', DB::raw('initial_amount - current_amount as amount'), 'created_at', 'updated_at')
             ->get();
 
-        // Combine the collections
+        // Combine the collectionsJ
         $combinedLiabilitiesAndDebts = $liabilities->concat($debts);
 
         return Inertia::render('UserDashboard/NetworthCalculator', [

@@ -16,16 +16,50 @@ class InvestmentController extends Controller
 {
     use NetIncomeCalculator;
 
+    private function storeInitialInvestment(Investment $investment, float $payment)
+    {
+        // Create the transaction (no budget rule, no recurrence)
+        $transaction = new Transaction();
+        $transaction->user_id = auth()->id();
+        $transaction->type = 'expense';
+        $transaction->category = 'Investment Contribution';
+        $transaction->amount = $payment;
+        $transaction->transaction_date = Carbon::now();
+        $transaction->description = "Initial investment for {$investment->details_of_investment}";
+        $transaction->save();
+
+        // Create the expense record
+        $expense = new Expense();
+        $expense->user_id = $transaction->user_id;
+        $expense->category = $transaction->category;
+        $expense->transaction_id = $transaction->id;
+        $expense->amount = $transaction->amount;
+        $expense->description = $transaction->description;
+        $expense->expense_date = Carbon::now();
+        $expense->save();
+
+        // Create the investment payment record
+        $investmentContribution = new investmentContribution();
+        $investmentContribution->investment_id = $investment->id;
+        $investmentContribution->transaction_id = $transaction->id;
+        $investmentContribution->amount = $payment;
+        $investmentContribution->contribution_date = Carbon::now();
+        $investmentContribution->save();
+    }
+
     private function storeRecurrentExpense(Investment $investment, float $payment)
     {
         $budgetController = new BudgetController();
+
+        // Calculate first day of next month
+        $nextMonthFirstDay = Carbon::now()->addMonth()->startOfMonth();
 
         // build a pseudo-request for storeExpense
         $expenseRequest = new Request([
             'category'        => 'Investment',
             'amount'          => round($payment, 2),
-            'description'     => "Investment for {$investment->name}",
-            'expense_date'    => today(),
+            'description'     => "Investment for {$investment->details_of_investment}",
+            'expense_date'    => $nextMonthFirstDay,
             'is_recurring'    => true,
             'recurrence_pattern' => 'monthly',
         ]);
@@ -40,8 +74,8 @@ class InvestmentController extends Controller
         $transaction->type = 'expense';
         $transaction->category = 'Investment Contribution';
         $transaction->amount = $payment;
-        $transaction->transaction_date = now();
-        $transaction->description = "Investment for {$investment->name}";
+        $transaction->transaction_date = $nextMonthFirstDay;
+        $transaction->description = "Investment for {$investment->details_of_investment}";
         $transaction->save();
 
         // Create the investment payment record
@@ -49,7 +83,7 @@ class InvestmentController extends Controller
         $investmentContribution->investment_id = $investment->id;
         $investmentContribution->transaction_id = $transaction->id;
         $investmentContribution->amount = $payment;
-        $investmentContribution->contribution_date = now();
+        $investmentContribution->contribution_date = $nextMonthFirstDay;
         $investmentContribution->save();
 
         $budgetController->upsertRule($transaction, $expenseRequest);
@@ -104,11 +138,13 @@ class InvestmentController extends Controller
             $investment->target_date = $target_date;
         }
 
+        $investment->save();
+
+        $this->storeInitialInvestment($investment, $request->initial_amount);
+
         if ($request->boolean('commitment')) {
             $this->storeRecurrentExpense($investment, $request->committed_amount);
         }
-
-        $investment->save();
 
         return to_route('invest.index');
     }
