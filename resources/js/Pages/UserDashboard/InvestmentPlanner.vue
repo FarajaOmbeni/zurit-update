@@ -25,12 +25,56 @@ const openModal = () => {
 };
 const closeModal = () => {
     isModalOpen.value = false;
-    resetForm();
 };
 
 const closeModalOnOutsideClick = (event) => {
     if (event.target.classList.contains('modal-overlay')) {
         closeModal();
+    }
+};
+
+// Modal state for choosing an investment
+const isRealEstateModalOpen = ref(false);
+const openRealEstateModal = () => {
+    isRealEstateModalOpen.value = true;
+};
+const closeRealEstateModal = () => {
+    isRealEstateModalOpen.value = false;
+};
+
+const closeRealEstateModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeRealEstateModal();
+    }
+};
+
+// Modal state for adding real estate investment
+const isChoiceModalOpen = ref(false);
+const openChoiceModal = () => {
+    isChoiceModalOpen.value = true;
+};
+const closeChoiceModal = () => {
+    isChoiceModalOpen.value = false;
+};
+
+const closeChoiceModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeChoiceModal();
+    }
+};
+
+// Modal state for adding stocks investment
+const isStockModalOpen = ref(false);
+const openStockModal = () => {
+    isStockModalOpen.value = true;
+};
+const closeStockModal = () => {
+    isStockModalOpen.value = false;
+};
+
+const closeStockModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeStockModal();
     }
 };
 
@@ -101,7 +145,7 @@ watch(editingInvestment, (investment) => {
 
 // Form data for creating a new investment
 const newInvestment = useForm({
-    type: '',
+    type: 'select',
     details_of_investment: '',
     description: '',
     initial_amount: '',
@@ -183,7 +227,7 @@ const submitForm = () => {
             return;
         }
     }
-    
+
     newInvestment.post(route('invest.store'), {
         onSuccess: (response) => {
             // If the server returns the new investment as part of the response
@@ -303,7 +347,7 @@ const confirmDelete = () => {
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="mb-6 text-2xl font-bold">Investments Tracker</h3>
-                    <button @click="openModal"
+                    <button @click="openChoiceModal"
                         class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
                             fill="currentColor">
@@ -324,6 +368,290 @@ const confirmDelete = () => {
                         @delete-investment="openDeleteModal" />
                 </div>
             </Sidebar>
+        </div>
+
+        <!-- Investment Selection modal -->
+        <div v-if="isChoiceModalOpen" @click="closeChoiceModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+
+                <div class="bg-purple-500 text-white px-4 py-3 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Select Investment Type</h3>
+                    <button @click="closeChoiceModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-5">
+                    <div class="flex flex-col space-y-3">
+                        <button @click="openModal"
+                            class="w-full px-4 py-3 text-left bg-purple-500 hover:bg-opacity-90 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            Add Fixed Income Investment
+                        </button>
+                        <button @click="openRealEstateModal"
+                            class="w-full px-4 py-3 text-left bg-purple-500 hover:bg-opacity-90 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            Add Real Estate Investment
+                        </button>
+                        <button @click="openStockModal"
+                            class="w-full px-4 py-3 text-left bg-purple-500 hover:bg-opacity-90 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            Add Stocks Investment
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Add Real Estate -->
+        <div v-if="isRealEstateModalOpen" @click="closeRealEstateModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Add Real Estate Investment</h3>
+                    <button @click="closeRealEstateModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitForm" class="p-4">
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+                        <div class="col-span-1">
+                            <label for="property_type" class="block text-gray-700 text-xs font-medium mb-1">Property
+                                Type</label>
+                            <select id="property_type" v-model="newInvestment.type"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                                <option value="select" hidden>Select Type</option>
+                                <option value="residential">Residential</option>
+                                <option value="commercial">Commercial</option>
+                                <option value="land">Land</option>
+                                <option value="reit">REIT</option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="location" class="block text-gray-700 text-xs font-medium mb-1">Location</label>
+                            <input type="text" id="location" v-model="newInvestment.details_of_investment"
+                                placeholder="e.g., Kilimani, Nairobi"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required />
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="purchase_price" class="block text-gray-700 text-xs font-medium mb-1">Purchase
+                                Price</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input type="number" id="purchase_price" v-model="newInvestment.initial_amount"
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    step="0.01" min="0" required />
+                            </div>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="purchase_date" class="block text-gray-700 text-xs font-medium mb-1">Purchase
+                                Date</label>
+                            <input type="date" id="purchase_date" v-model="newInvestment.start_date"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required />
+                        </div>
+
+                        <div class="col-span-2">
+                            <label for="rental_income" class="block text-gray-700 text-xs font-medium mb-1">Rental
+                                Income
+                                (p.m.)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input type="number" id="rental_income" v-model="newInvestment.current_amount"
+                                    class="w-full pl-10 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="real_estate_notes"
+                            class="block text-gray-700 text-xs font-medium mb-1">Description</label>
+                        <textarea id="real_estate_notes" v-model="newInvestment.description"
+                            placeholder="e.g., 3-bedroom apartment, 1/4 acre plot"
+                            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            rows="2"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" @click="closeRealEstateModal"
+                            class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            {{ newInvestment.processing ? 'Saving...' : 'Add Property' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Stocks Investment -->
+        <div v-if="isStockModalOpen" @click="closeStockModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Add Stock Investment</h3>
+                    <button @click="closeStockModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitForm" class="p-4">
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+                        <div class="col-span-1">
+                            <label for="stock_ticker" class="block text-gray-700 text-xs font-medium mb-1">Stock
+                                Ticker</label>
+                            <select id="stock_ticker" v-model="newInvestment.type"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                                <option value="select" hidden>Select Ticker</option>
+                                <option value="" disabled selected hidden>Select Ticker</option>
+                                <option value="SCOM">SCOM - Safaricom PLC</option>
+                                <option value="EQTY">EQTY - Equity Group Holdings Plc</option>
+                                <option value="KCB">KCB - KCB Group Plc</option>
+                                <option value="EABL">EABL - East African Breweries Plc</option>
+                                <option value="ABSA">ABSA - Absa Bank Kenya Plc</option>
+                                <option value="SCBK">SCBK - Standard Chartered Bank Kenya Ltd</option>
+                                <option value="COOP">COOP - The Co-operative Bank of Kenya Ltd</option>
+                                <option value="NCBA">NCBA - NCBA Group Plc</option>
+                                <option value="SBIC">SBIC - Stanbic Holdings Plc</option>
+                                <option value="BAT">BAT - British American Tobacco Kenya plc</option>
+                                <option value="KEGN">KEGN - Kenya Electricity Generating Company PLC</option>
+                                <option value="KQ">KQ - Kenya Airways Plc</option>
+                                <option value="DTK">DTK - Diamond Trust Bank Kenya Ltd</option>
+                                <option value="BAMB">BAMB - Bamburi Cement Plc</option>
+                                <option value="BRIT">BRIT - Britam Holdings Plc</option>
+                                <option value="KPLC">KPLC - The Kenya Power and Lighting Company Plc</option>
+                                <option value="JUB">JUB - Jubilee Holdings Limited</option>
+                                <option value="TOTL">TOTL - TotalEnergies Marketing Kenya PLC</option>
+                                <option value="HFCK">HFCK - HF Group Plc</option>
+                                <option value="KNRE">KNRE - Kenya Reinsurance Corporation Limited</option>
+                                <option value="CTUM">CTUM - Centum Investment Company Plc</option>
+                                <option value="CIC">CIC - The CIC Insurance Group Plc</option>
+                                <option value="KUKZ">KUKZ - Kakuzi Plc</option>
+                                <option value="CRWN">CRWN - Crown Paints Kenya PLC</option>
+                                <option value="LBTY">LBTY - Liberty Kenya Holdings Plc</option>
+                                <option value="IMH">IMH - I&M Group PLC</option>
+                                <option value="CARB">CARB - Carbacid Investments plc</option>
+                                <option value="TPSE">TPSE - TPS Eastern Africa Plc</option>
+                                <option value="WTK">WTK - Williamson Tea Kenya Plc</option>
+                                <option value="SASN">SASN - Sasini PLC</option>
+                                <option value="PORT">PORT - East African Portland Cement PLC</option>
+                                <option value="BKG">BKG - BK Group PLC</option>
+                                <option value="NBV">NBV - Nairobi Business Ventures PLC</option>
+                                <option value="NSE">NSE - Nairobi Securities Exchange Plc</option>
+                                <option value="NMG">NMG - Nation Media Group PLC</option>
+                                <option value="KAPC">KAPC - Kapchorua Tea Kenya Plc</option>
+                                <option value="BOC">BOC - BOC Kenya Plc</option>
+                                <option value="UNGA">UNGA - Unga Group Plc</option>
+                                <option value="CGEN">CGEN - Car & General (Kenya) Plc</option>
+                                <option value="TCL">TCL - TransCentury PLC</option>
+                                <option value="SCAN">SCAN - WPP Scangroup Plc</option>
+                                <option value="SMER">SMER - Sameer Africa PLC</option>
+                                <option value="FAHR">FAHR - ILAM Fahari I-REIT</option>
+                                <option value="SLAM">SLAM - Sanlam Kenya Plc</option>
+                                <option value="LIMT">LIMT - Limuru Tea Plc</option>
+                                <option value="LKL">LKL - Longhorn Publishers Plc</option>
+                                <option value="AMAC">AMAC - Africa Mega Agricorp Plc</option>
+                                <option value="SGL">SGL - The Standard Group PLC</option>
+                                <option value="CABL">CABL - East African Cables PLC</option>
+                                <option value="EGAD">EGAD - Eaagads Limited</option>
+                                <option value="HAFR">HAFR - Home Afrika Limited</option>
+                                <option value="FTGH">FTGH - FTG Holdings Ltd</option>
+                                <option value="EVRD">EVRD - Eveready East Africa PLC</option>
+                                <option value="KURV">KURV - Kurwitu Ventures Limited</option>
+                                <option value="OCH">OCH - Olympia Capital Holdings Limited</option>
+                                <option value="XPRS">XPRS - Express Kenya PLC</option>
+                                <option value="UCHM">UCHM - Uchumi Supermarkets Limited</option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="exchange" class="block text-gray-700 text-xs font-medium mb-1">Exchange</label>
+                            <select id="exchange" v-model="newInvestment.details_of_investment"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                                <option value="select" hidden>Select Type</option>
+                                <option value="NSE">NSE (Nairobi)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="number_of_shares" class="block text-gray-700 text-xs font-medium mb-1">Number of
+                                Shares</label>
+                            <input type="number" id="number_of_shares" v-model="newInvestment.initial_amount" step="any"
+                                min="0"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required />
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="purchase_price_per_share"
+                                class="block text-gray-700 text-xs font-medium mb-1">Price / Share</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input type="number" id="purchase_price_per_share"
+                                    v-model="newInvestment.current_amount"
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    step="0.01" min="0" required />
+                            </div>
+                        </div>
+
+                        <div class="col-span-2">
+                            <label for="stock_purchase_date"
+                                class="block text-gray-700 text-xs font-medium mb-1">Purchase Date</label>
+                            <input type="date" id="stock_purchase_date" v-model="newInvestment.start_date"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="stock_notes"
+                            class="block text-gray-700 text-xs font-medium mb-1">Description</label>
+                        <textarea id="stock_notes" v-model="newInvestment.description"
+                            placeholder="e.g., Reason for buying, target price"
+                            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            rows="2"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" @click="closeStockModal"
+                            class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            {{ newInvestment.processing ? 'Saving...' : 'Add Stock' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Add Investment Modal -->
@@ -350,6 +678,7 @@ const confirmDelete = () => {
                             <select type="text" id="type" v-model="newInvestment.type"
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 required>
+                                <option value="select" hidden>Select Type</option>
                                 <option value="mmf">Money Market Fund</option>
                                 <option value="bonds">Bonds</option>
                                 <option value="bills">Treasury Bills</option>
@@ -438,17 +767,16 @@ const confirmDelete = () => {
                             <div class="flex gap-2">
                                 <!-- Years -->
                                 <div class="flex-1">
-                                    <input type="number" min="0" v-model="newInvestment.duration_years" placeholder="Years"
-                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                        >
+                                    <input type="number" min="0" v-model="newInvestment.duration_years"
+                                        placeholder="Years"
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
                                 </div>
 
                                 <!-- Months -->
                                 <div class="flex-1">
                                     <input type="number" min="0" max="11" v-model="newInvestment.duration_months"
                                         placeholder="Months"
-                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                        >
+                                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
                                 </div>
                             </div>
                         </div>
