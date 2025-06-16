@@ -175,3 +175,7 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->name('zuriscore.callback');
 
 require __DIR__.'/auth.php';
+
+Route::get('/email', function(){
+    return view('emails.zuriscore-report');
+});

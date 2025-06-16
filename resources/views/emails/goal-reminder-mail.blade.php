@@ -3,22 +3,22 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Manage Your Investments</title>
+    <title>Goal Contribution Reminder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f6f9fc;
+            background-color: #f4f8fb;
             margin: 0;
             padding: 20px;
         }
 
         .email-container {
             max-width: 600px;
-            background: #ffffff;
             margin: 0 auto;
+            background-color: #ffffff;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .logo {
@@ -35,12 +35,8 @@
             color: #333333;
         }
 
-        h3 {
-            color: #555555;
-        }
-
         p {
-            color: #666666;
+            color: #555555;
             line-height: 1.6;
         }
 
@@ -62,13 +58,10 @@
             margin-top: 30px;
         }
 
-        .footer-logo {
-            margin-top: 10px;
-        }
-
         .footer-logo img {
             width: 100px;
             height: auto;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -80,19 +73,19 @@
         </div>
 
         <h2>Hello {{ $user->name }},</h2>
-        <h3>It's a great day to grow your investments!</h3>
         <p>
-            We're reaching out from Zurit Consulting to gently remind you to review and update your investment
-            portfolio.
-            Keeping it current helps ensure you're on track to meet your financial goals.
+            Just a quick reminder from the Zurit Consulting team — every step counts when it comes to reaching your
+            financial goals.
         </p>
         <p>
-            You can easily log in to your account and manage your portfolio by clicking the button below. And if you
-            have
-            any questions, our team is always here to help.
+            Have you made a contribution toward your goal this week? Your Goal Setting Tool makes it easy to track and
+            stay committed. Small, consistent progress leads to big achievements.
+        </p>
+        <p>
+            Take a moment now to contribute and see how close you are to your target!
         </p>
 
-        <a class="cta-button" href="https://zuritconsulting.com/user/invest">Update My Portfolio</a>
+        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/user/goal">Contribute Now</a>
 
         <div class="footer">
             <p>© {{ date('Y') }} Zurit Consulting. All rights reserved.</p>

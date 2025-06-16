@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('remove:past-event')->dailyAt('23:50');
         $schedule->command('app:send-email-reminder')->dailyAt('9:00');
+        $schedule->command('app:send-goal-reminder')->dailyAt('9:00');
         $schedule->command('create:recurrent-transactions')->daily();
         $schedule->command('run:recurring')->dailyAt('00:05');
     }

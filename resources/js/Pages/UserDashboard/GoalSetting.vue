@@ -219,6 +219,7 @@ const completedGoals = computed(() => goals.value.filter(goal => goal.status ===
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
                                 <option value="">Weekly</option>
                                 <option value="" selected>Monthly</option>
+                                <option value="" selected>Quarterly</option>
                             </select>
                         </div>
                     </div>

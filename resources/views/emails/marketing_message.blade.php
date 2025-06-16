@@ -36,6 +36,7 @@
         {!! $content !!}
         <div class="footer">
             <h4>© 2025 Zurit Consulting. All rights reserved.</h4>
+            <img src="{{ asset('images/home/zurit_white_bg.webp') }}" alt="Zurit Consulting Logo">
         </div>
     </div>
 </body>
