@@ -25,11 +25,16 @@ class NetworthController extends Controller
         $liabilities = Liability::where('user_id', auth()->id())
             ->select('name', 'amount', 'created_at', 'updated_at')
             ->get();
-
+            
+        $fixedIncomeTypes = ['mmf', 'bills', 'bonds', 'other'];
         $investments = Investment::where('user_id', auth()->id())
             ->select(
                 'details_of_investment as name', // Alias to match frontend
-                'current_amount as value'        // Alias to match frontend
+            'type', // Select the 'type' column as it's used in the CASE statement
+            DB::raw("CASE
+                    WHEN type IN ('" . implode("','", $fixedIncomeTypes) . "') THEN current_amount
+                    ELSE initial_amount
+                 END AS value")
             )
             ->get();
 

@@ -72,16 +72,13 @@ const totalNetIncome = computed(() =>
         <table class="min-w-full bg-white border border-gray-200">
             <thead class="bg-purple-500 text-white">
                 <tr>
-                    <th class="px-4 py-2 text-left">Date</th>
+                    <th class="px-4 py-2 text-left">Purchase Date</th>
                     <th class="px-4 py-2 text-left">Type</th>
-                    <th class="px-4 py-2 text-left">Investment Name</th>
-                    <th class="px-4 py-2 text-right">First Deposit</th>
-                    <th class="px-4 py-2 text-right">Gross Amount</th>
-                    <th class="px-4 py-2 text-right">Rate of Return</th>
-                    <th class="px-4 py-2 text-right">Maturity Date</th>
-                    <th class="px-4 py-2 text-right">Tax</th>
-                    <th class="px-4 py-2 text-right">Net Profit</th>
-                    <th class="px-4 py-2 text-center">Actions</th>
+                    <th class="px-4 py-2 text-left">Location</th>
+                    <th class="px-4 py-2 text-right">Description</th>
+                    <th class="px-4 py-2 text-right">Purchase Price</th>
+                    <th class="px-4 py-2 text-right">Rental Income (p.m)</th>
+                    <th class="px-4 py-2 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-gray-700">
@@ -89,30 +86,9 @@ const totalNetIncome = computed(() =>
                     <td class="px-4 py-2">{{ formatDate(investment.start_date) }}</td>
                     <td class="px-4 py-2">{{ investment.type }}</td>
                     <td class="px-4 py-2">{{ investment.details_of_investment }}</td>
+                    <td class="px-4 py-2">{{ investment.description }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(investment.initial_amount) }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(investment.cumulative_amount) }}</td>
-                    <td class="px-4 py-2 text-right">
-                        {{ Number(investment.expected_return_rate).toFixed(2) }}%
-                    </td>
-                    <td class="px-4 py-2 text-right">{{ formatDate(investment.target_date) }}</td>
-                    <td class="px-4 py-2 text-right">
-                        {{
-                        (() => {
-                        const startDate = new Date(investment.start_date);
-                        const endDate = new Date(investment.target_date);
-                        const duration = (endDate - startDate) / (1000 * 60 * 60 * 24 * 30); // duration in months
-
-                        if (investment.type === 'bills' || investment.type === 'mmf') {
-                        return '15%';
-                        }
-                        if (investment.type === 'bonds' && duration < 5) { return '15%' ; } else if
-                            (investment.type==='bonds' && duration> 5) {
-                            return '10%';
-                            }
-                            })()
-                            }}
-                    </td>
-                    <td class="px-4 py-2 text-right">{{ investment.profit }}</td>
                     <td class="px-4 py-2 text-center">
                         <button @click="handleEdit(investment)"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md text-xs transition-colors duration-200">
@@ -130,12 +106,12 @@ const totalNetIncome = computed(() =>
                     <td class="px-4 py-2">Totals</td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
+                    <td class="px-4 py-2"></td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalInitialAmount) }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalCumulativeAmount) }}</td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalNetIncome) }}</td>
                 </tr>
             </tfoot>
         </table>

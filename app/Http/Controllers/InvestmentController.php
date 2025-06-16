@@ -16,7 +16,7 @@ class InvestmentController extends Controller
 {
     use NetIncomeCalculator;
 
-    private function storeInitialInvestment(Investment $investment, float $payment)
+    private function storeInitialInvestment(Investment $investment, float $payment, $date)
     {
         // Create the transaction (no budget rule, no recurrence)
         $transaction = new Transaction();
@@ -24,7 +24,7 @@ class InvestmentController extends Controller
         $transaction->type = 'expense';
         $transaction->category = 'Investment Contribution';
         $transaction->amount = $payment;
-        $transaction->transaction_date = Carbon::now();
+        $transaction->transaction_date = $date;
         $transaction->description = "Initial investment for {$investment->details_of_investment}";
         $transaction->save();
 
@@ -35,7 +35,7 @@ class InvestmentController extends Controller
         $expense->transaction_id = $transaction->id;
         $expense->amount = $transaction->amount;
         $expense->description = $transaction->description;
-        $expense->expense_date = Carbon::now();
+        $expense->expense_date = $date;
         $expense->save();
 
         // Create the investment payment record
@@ -43,7 +43,7 @@ class InvestmentController extends Controller
         $investmentContribution->investment_id = $investment->id;
         $investmentContribution->transaction_id = $transaction->id;
         $investmentContribution->amount = $payment;
-        $investmentContribution->contribution_date = Carbon::now();
+        $investmentContribution->contribution_date = $date;
         $investmentContribution->save();
     }
 
@@ -102,14 +102,20 @@ class InvestmentController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $fixed_income = ['mmf', 'bonds', 'bills'];
+
+        // Define base rules
+        $rules = [
             'type' => 'required|string|max:255',
             'details_of_investment' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'initial_amount' => 'required|numeric',
-            'expected_return_rate' => 'required|numeric',
-        ]);
+        ];
+        if (in_array($request->type, $fixed_income)){
+            $rules['expected_return_rate'] = 'required|numeric';
+        }
 
+        $request->validate($rules);
         $target_date = Carbon::createFromDate($request->target_date)->addMonths($request->duration_months)->addYears($request->duration_years)->format('Y-m-d');
 
         $investment = new Investment();
@@ -118,7 +124,11 @@ class InvestmentController extends Controller
         $investment->details_of_investment = $request->details_of_investment;
         $investment->description = $request->description;
         $investment->initial_amount = $request->initial_amount;
-        $investment->current_amount = $request->initial_amount;
+        if(in_array($request->type, $fixed_income)){
+            $investment->current_amount = $request->initial_amount;
+        } else {
+            $investment->current_amount = $request->current_amount;
+        }
         $investment->frequency_of_return = $request->frequency_of_return;
         $investment->expected_return_rate = $request->expected_return_rate;
         if ($request->details_of_investment == '91-Day Treasury Bill') {
@@ -140,10 +150,26 @@ class InvestmentController extends Controller
 
         $investment->save();
 
-        $this->storeInitialInvestment($investment, $request->initial_amount);
+        $this->storeInitialInvestment($investment, $request->initial_amount, $request->start_date);
 
         if ($request->boolean('commitment')) {
             $this->storeRecurrentExpense($investment, $request->committed_amount);
+        }
+
+        $real_estate = ['commercial', 'residential', 'land', 'reit'];
+        if (in_array($request->type, $real_estate)) {
+            $budgetController = new BudgetController();
+
+            // Create a new request with the required data
+            $incomeRequest = new Request([
+                'amount' => $request->current_amount,
+                'category' => 'Real Estate Income',
+                'description' => 'Rental income from ' . $request->details_of_investment,
+                'income_date' => Carbon::now(),
+                'is_recurring' => true
+            ]);
+
+            $budgetController->storeIncome($incomeRequest);
         }
 
         return to_route('invest.index');

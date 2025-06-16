@@ -8,11 +8,44 @@ import InvestmentChart from '@/Components/Shared/InvestmentChart.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
 import { moneyMarketFunds, bonds, treasuryBills } from '@/Components/Variables/investmentTypes';
+import RealEstateTable from '@/Components/Shared/RealEstateTable.vue';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
+const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other']; 
+const REAL_ESTATE_TYPES = ['residential', 'commercial', 'reit', 'land'];
+const STOCKS_TYPES = ['nse'];
+
 const props = defineProps({
     investments: Array
+});
+
+const fixedIncomes = computed(() => {
+    // Ensure props.investments is an array before filtering
+    if (!props.investments) {
+        return [];
+    }
+    return props.investments.filter(investment =>
+        FIXED_INCOME_TYPES.includes(investment.type)
+    );
+});
+
+const realEstateInvestments = computed(() => {
+    if (!props.investments) {
+        return [];
+    }
+    return props.investments.filter(investment =>
+        REAL_ESTATE_TYPES.includes(investment.type)
+    );
+});
+
+const stockInvestments = computed(() => {
+    if (!props.investments) {
+        return [];
+    }
+    return props.investments.filter(investment =>
+        STOCKS_TYPES.includes(investment.type)
+    );
 });
 
 // Create a reactive copy of the investments from props
@@ -151,6 +184,7 @@ const newInvestment = useForm({
     initial_amount: '',
     start_date: '',
     target_date: '',
+    current_amount: '',
     expected_return_rate: '',
     frequency_of_return: '',
     commitment: false,
@@ -363,8 +397,19 @@ const confirmDelete = () => {
                     <InvestmentChart :investments="investments" />
                 </div>
                 <div v-show="investments.length > 0">
-                    <h1 class="text-2xl font-bold text-purple-700">Your Investments</h1>
-                    <InvestmentsTable :investments="investments" @edit-investment="openEditModal"
+                    <h1 class="text-2xl font-bold text-purple-700">Fixed Income Investments</h1>
+                    <InvestmentsTable :investments="fixedIncomes" @edit-investment="openEditModal"
+                        @delete-investment="openDeleteModal" />
+                </div>
+                <div v-show="realEstateInvestments.length > 0">
+                    <h1 class="text-2xl font-bold text-purple-700">Real Estate Investments</h1>
+                    <RealEstateTable :investments="realEstateInvestments" @edit-investment="openEditModal"
+                        @delete-investment="openDeleteModal" />
+                </div>
+
+                <div v-show="stockInvestments.length > 0">
+                    <h1 class="text-2xl font-bold text-purple-700">Stock Investments</h1>
+                    <InvestmentsTable :investments="stockInvestments" @edit-investment="openEditModal"
                         @delete-investment="openDeleteModal" />
                 </div>
             </Sidebar>
@@ -455,7 +500,7 @@ const confirmDelete = () => {
                                 </div>
                                 <input type="number" id="purchase_price" v-model="newInvestment.initial_amount"
                                     class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                    step="0.01" min="0" required />
+                                    min="0" required />
                             </div>
                         </div>
 
@@ -468,14 +513,14 @@ const confirmDelete = () => {
                         </div>
 
                         <div class="col-span-2">
-                            <label for="rental_income" class="block text-gray-700 text-xs font-medium mb-1">Rental
+                            <label for="current_amount" class="block text-gray-700 text-xs font-medium mb-1">Rental
                                 Income
                                 (p.m.)</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
                                     <span class="text-gray-500 text-xs">KES</span>
                                 </div>
-                                <input type="number" id="rental_income" v-model="newInvestment.current_amount"
+                                <input type="number" id="current_amount" v-model="newInvestment.current_amount"
                                     class="w-full pl-10 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500" />
                             </div>
                         </div>
@@ -816,7 +861,7 @@ const confirmDelete = () => {
                             </div>
                             <input type="number" id="target_amount" v-model="newInvestment.committed_amount"
                                 class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                step="0.01" min="0" required />
+                                step="0.01" min="0" />
                         </div>
                     </div>
 
