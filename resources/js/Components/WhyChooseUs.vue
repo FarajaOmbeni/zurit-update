@@ -50,7 +50,8 @@ const currentTestimonial = computed(
                     <div>
                         <h3 class="text-xl font-semibold text-gray-900">3. Unwavering Commitment to Your Prosperity</h3>
                         <p class="text-gray-600">
-                            Your growth is our mission. From tools to training, we walk with you step-by-step toward a financially empowered future.
+                            Your growth is our mission. From tools to training, we walk with you step-by-step toward a
+                            financially empowered future.
                         </p>
                     </div>
                 </div>
@@ -71,9 +72,9 @@ const currentTestimonial = computed(
 
                 <h3 class="mt-4 text-xl font-semibold text-gray-900">{{ currentTestimonial.name }}</h3>
 
-                <p class="mt-4 text-gray-600 text-sm md:text-base w-4/5 md:w-3/5 mx-auto">
-                    {{ currentTestimonial.content }}
-                </p>
+
+                <div v-html="currentTestimonial.content" class="mt-4 text-lg text-gray-900"></div>
+
 
                 <!-- Navigation Dots -->
                 <div class="flex mt-4 space-x-2">
