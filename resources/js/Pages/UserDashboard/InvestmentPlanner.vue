@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
 import InvestmentsTable from '@/Components/Shared/InvestmentsTable.vue';
 import InvestmentChart from '@/Components/Shared/InvestmentChart.vue';
@@ -479,7 +479,6 @@ const confirmDelete = () => {
                                 <option value="residential">Residential</option>
                                 <option value="commercial">Commercial</option>
                                 <option value="land">Land</option>
-                                <option value="reit">REIT</option>
                             </select>
                         </div>
 

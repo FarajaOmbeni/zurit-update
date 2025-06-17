@@ -136,6 +136,7 @@ const totalNetIncome = computed(() =>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalNetIncome) }}</td>
+                    <td class="px-4 py-2"></td>
                 </tr>
             </tfoot>
         </table>

@@ -53,7 +53,7 @@ class TestimonialsController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'content' => 'required|string',
-            'image'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            // 'image'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         try {

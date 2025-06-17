@@ -1,22 +1,23 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\BlogController;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\VideoController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
-use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\MarketingController;
-use App\Http\Controllers\QuestionnaireController;
-use App\Http\Controllers\TestimonialsController;
-use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ZuriScoreController;
+use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\TestimonialsController;
+use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
