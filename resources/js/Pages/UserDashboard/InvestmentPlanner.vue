@@ -388,6 +388,17 @@ const confirmDelete = () => {
         }
     });
 };
+/* 1️⃣  auto-fill price when user picks a ticker */
+watch(
+    () => newInvestment.type,
+    (ticker) => {
+        const s = shares.find(x => x.ticker === ticker);
+        newInvestment.expected_return_rate = s ? s.price : '';
+        /* reset totals so math stays consistent */
+        newInvestment.initial_amount = '';
+        newInvestment.current_amount = '';
+    }
+);
 </script>
 
 <template>
@@ -673,7 +684,6 @@ const confirmDelete = () => {
         </div>
 
         <!-- Add Stocks Investment -->
-        <!-- Add Stocks Investment -->
         <div v-if="isStockModalOpen" @click="closeStockModalOnOutsideClick"
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
@@ -694,12 +704,9 @@ const confirmDelete = () => {
                         <!-- 1. Ticker -->
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">Stock Ticker</label>
-                            <select v-model="newInvestment.type" @change="
-                                const sel = shares.find(s => s.ticker === newInvestment.type);
-                                newInvestment.expected_return_rate = sel ? sel.price : 0;
-                                newInvestment.current_amount = newInvestment.initial_amount * newInvestment.expected_return_rate;
-                                " class="w-full px-2 py-1.5 text-xs text-gray-900 border rounded-md focus:ring-1
-                                focus:ring-purple-500" required>
+                            <select v-model="newInvestment.type"
+                                class="w-full px-2 py-1.5 text-xs text-gray-900 border rounded-md focus:ring-1 focus:ring-purple-500"
+                                required>
                                 <option disabled value="">Select Ticker</option>
                                 <option v-for="s in shares" :key="s.ticker" :value="s.ticker">
                                     {{ s.ticker }}
@@ -738,10 +745,7 @@ const confirmDelete = () => {
                                 <span
                                     class="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-gray-500">KES</span>
                                 <input type="number" step="0.01" min="0"
-                                    v-model.number="newInvestment.expected_return_rate" @input="
-                                        newInvestment.current_amount =
-                                        newInvestment.initial_amount * newInvestment.expected_return_rate
-                                        "
+                                    v-model.number="newInvestment.expected_return_rate"
                                     class="w-full pl-8 pr-2 py-1.5 text-xs border rounded-md focus:ring-1 focus:ring-purple-500"
                                     required />
                             </div>
