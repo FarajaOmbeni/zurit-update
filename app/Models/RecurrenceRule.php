@@ -13,6 +13,7 @@ class RecurrenceRule extends Model
         'amount',
         'description',
         'pattern',
+        'investment_id',
         'next_run_on',
         'is_active'
     ];

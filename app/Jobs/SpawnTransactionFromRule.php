@@ -3,10 +3,11 @@
 namespace App\Jobs;
 
 use Carbon\Carbon;
+use App\Models\Investment;
 use App\Models\RecurrenceRule;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
@@ -30,23 +31,44 @@ class SpawnTransactionFromRule implements ShouldQueue
                 'description'      => $this->rule->description,
             ]);
 
-            /*   Spawn correct child row */
-            if ($this->rule->type === 'income') {
-                $txn->income()->create([
-                    'user_id'     => $txn->user_id,
-                    'category'    => $txn->category,
-                    'amount'      => $txn->amount,
-                    'description' => $txn->description,
-                    'income_date' => today(),
-                ]);
-            } else {                        // expense
-                $txn->expense()->create([
-                    'user_id'      => $txn->user_id,
-                    'category'     => $txn->category,
-                    'amount'       => $txn->amount,
-                    'description'  => $txn->description,
-                    'expense_date' => today(),
-                ]);
+            switch ($this->rule->type) {
+                case 'income':
+                    $txn->income()->create([
+                        'user_id'     => $txn->user_id,
+                        'category'    => $txn->category,
+                        'amount'      => $txn->amount,
+                        'description' => $txn->description,
+                        'income_date' => today(),
+                    ]);
+                    break;
+
+                case 'expense':
+                    $txn->expense()->create([
+                        'user_id'      => $txn->user_id,
+                        'category'     => $txn->category,
+                        'amount'       => $txn->amount,
+                        'description'  => $txn->description,
+                        'expense_date' => today(),
+                    ]);
+                    break;
+
+                case 'investment':
+                    /* 2a  find the investment */
+                    $investment = Investment::find($this->rule->investment_id);
+
+                    if ($investment) {
+                        // bump its running balance
+                        $investment->current_amount += $txn->amount;
+                        $investment->save();
+
+                        // optional: record a contribution row
+                        $investment->contributions()->create([
+                            'transaction_id' => $txn->id,
+                            'amount'         => $txn->amount,
+                            'contribution_date' => today(),
+                        ]);
+                    }
+                    break;
             }
 
             /*   Push next_run_on forward */

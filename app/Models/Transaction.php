@@ -42,6 +42,11 @@ class Transaction extends Model
         return $this->hasOne(InvestmentContribution::class);
     }
 
+    public function investment()
+    {
+        return $this->belongsTo(Investment::class, 'type', 'details_of_investment');
+    }
+
     // A transaction can be an expense
     public function debtPayment()
     {

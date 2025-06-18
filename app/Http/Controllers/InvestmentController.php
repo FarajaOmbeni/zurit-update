@@ -61,6 +61,7 @@ class InvestmentController extends Controller
             'description'     => "Investment for {$investment->details_of_investment}",
             'expense_date'    => $nextMonthFirstDay,
             'is_recurring'    => true,
+            'investment_id'   => $investment->id,
             'recurrence_pattern' => 'monthly',
         ]);
 
@@ -71,7 +72,7 @@ class InvestmentController extends Controller
         // Create the transaction
         $transaction = new Transaction();
         $transaction->user_id = auth()->id();
-        $transaction->type = 'expense';
+        $transaction->type = 'investment';
         $transaction->category = 'Investment Contribution';
         $transaction->amount = $payment;
         $transaction->transaction_date = $nextMonthFirstDay;

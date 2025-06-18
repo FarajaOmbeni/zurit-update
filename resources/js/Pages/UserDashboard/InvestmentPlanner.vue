@@ -479,6 +479,7 @@ const confirmDelete = () => {
                                 <option value="residential">Residential</option>
                                 <option value="commercial">Commercial</option>
                                 <option value="land">Land</option>
+                                <option @click="openStockModal" value="reits">Reits</option>
                             </select>
                         </div>
 

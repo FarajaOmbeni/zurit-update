@@ -40,6 +40,7 @@ class BudgetController extends Controller
         $data = [
             'user_id'     => $txn->user_id,
             'type'        => $txn->type,
+            'investment_id'=> $r->input('investment_id'),
             'category'    => $r->category === 'Other' ? $r->otherCategory : $r->category,
             'amount'      => $r->amount,
             'description' => $r->description,
