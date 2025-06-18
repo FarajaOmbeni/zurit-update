@@ -180,5 +180,8 @@ Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('mpesa-callback');
 Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.push');
+Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('chatpesa-callback');
 
 require __DIR__.'/auth.php';

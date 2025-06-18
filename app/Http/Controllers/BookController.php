@@ -6,6 +6,7 @@ use App\Models\Book;
 use Inertia\Inertia;
 use App\Mail\BuyBookMail;
 use App\Mail\UserBuyBookMail;
+use App\Support\ChatpesaStk;
 use App\Support\MpesaStk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -110,7 +111,7 @@ class BookController extends Controller
         }
     }
 
-    public function payment(Request $request, MpesaStk $stk) { //Ignore this error
+    public function payment(Request $request, ChatpesaStk $stk) { //Ignore this error
         $request->validate([
             'price' => 'required|integer',
             'name' => 'required',
@@ -133,9 +134,9 @@ class BookController extends Controller
             userId: null
         );
 
-        if (! $stk->waitForConfirmation($payment)) {
-            return back()->withErrors("Transaction Failed. Please try again.");
-        }
+        // if (! $stk->waitForConfirmation($payment)) {
+        //     return back()->withErrors("Transaction Failed. Please try again.");
+        // }
 
         Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail($name, $email, $title, $phone, $address));
         Mail::to($email)->send(new UserBuyBookMail($name, $email, $title, $phone));

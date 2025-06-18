@@ -117,7 +117,7 @@ class MpesaController extends Controller
         Log::info('🔥 M-PESA Callback Hit!', ['data' => $request->all()]);
         
         $stk->handleCallback($request->all());
-        return ['ResultCode' => 0, 'ResultDesc' => 'OK'];
+        // return ['ResultCode' => 0, 'ResultDesc' => 'OK'];
         // // Get the raw POST data from the request
         // $raw_data = $request->getContent();
 
