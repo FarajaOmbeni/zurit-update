@@ -108,12 +108,12 @@ class InvestmentController extends Controller
         // Define base rules
         $rules = [
             'type' => 'required|string|max:255',
-            'details_of_investment' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'initial_amount' => 'required|numeric',
         ];
         if (in_array($request->type, $fixed_income)){
             $rules['expected_return_rate'] = 'required|numeric';
+            $rules['details_of_investment'] = 'required|string|max:255';
         }
 
         $request->validate($rules);
@@ -157,7 +157,7 @@ class InvestmentController extends Controller
             $this->storeRecurrentExpense($investment, $request->committed_amount);
         }
 
-        $real_estate = ['commercial', 'residential', 'land', 'reit'];
+        $real_estate = ['commercial', 'residential', 'land'];
         if (in_array($request->type, $real_estate)) {
             $budgetController = new BudgetController();
 
