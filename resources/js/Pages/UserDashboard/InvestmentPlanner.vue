@@ -9,12 +9,13 @@ import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
 import { moneyMarketFunds, bonds, treasuryBills, reits, shares } from '@/Components/Variables/investmentTypes';
 import RealEstateTable from '@/Components/Shared/RealEstateTable.vue';
+import StocksTable from '@/Components/Shared/StocksTable.vue';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
 const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other']; 
-const REAL_ESTATE_TYPES = ['residential', 'commercial', 'reit', 'land'];
-const STOCKS_TYPES = ['nse'];
+const REAL_ESTATE_TYPES = ['residential', 'commercial', 'land'];
+const STOCKS_TYPES = ['NSE', 'reits'];
 
 const props = defineProps({
     investments: Array
@@ -44,9 +45,11 @@ const stockInvestments = computed(() => {
         return [];
     }
     return props.investments.filter(investment =>
-        STOCKS_TYPES.includes(investment.type)
+        STOCKS_TYPES.includes(investment.type) || STOCKS_TYPES.includes(investment.details_of_investment)
     );
 });
+
+console.log(stockInvestments)
 
 // Create a reactive copy of the investments from props
 const investments = ref([...props.investments]);
@@ -58,6 +61,7 @@ const openModal = () => {
 };
 const closeModal = () => {
     isModalOpen.value = false;
+    newInvestment.reset();
 };
 
 const closeModalOnOutsideClick = (event) => {
@@ -73,6 +77,7 @@ const openRealEstateModal = () => {
 };
 const closeRealEstateModal = () => {
     isRealEstateModalOpen.value = false;
+    newInvestment.reset();
 };
 
 const closeRealEstateModalOnOutsideClick = (event) => {
@@ -103,6 +108,8 @@ const openStockModal = () => {
 };
 const closeStockModal = () => {
     isStockModalOpen.value = false;
+    newInvestment.reset();
+
 };
 
 const closeStockModalOnOutsideClick = (event) => {
@@ -122,6 +129,7 @@ const openReitsModal = () => {
 };
 const closeReitsModal = () => {
     isReitsModalOpen.value = false;
+    newInvestment.reset();
 };
 
 const closeReitsModalOnOutsideClick = (event) => {
@@ -439,7 +447,7 @@ watch(
 
                 <div v-show="stockInvestments.length > 0">
                     <h1 class="text-2xl font-bold text-purple-700">Stock Investments</h1>
-                    <InvestmentsTable :investments="stockInvestments" @edit-investment="openEditModal"
+                    <StocksTable :investments="stockInvestments" @edit-investment="openEditModal"
                         @delete-investment="openDeleteModal" />
                 </div>
             </Sidebar>
@@ -676,7 +684,7 @@ watch(
                         </button>
                         <button type="submit"
                             class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
-                            {{ newInvestment.processing ? 'Saving...' : 'Add Stock' }}
+                            {{ newInvestment.processing ? 'Saving...' : 'Add Reit' }}
                         </button>
                     </div>
                 </form>
