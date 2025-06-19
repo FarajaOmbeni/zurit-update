@@ -34,7 +34,6 @@ class ChatpesaStk
             'callback_url'      =>config('chatpesa.CHATPESA_CALLBACK')
         ];
 
-        dd($this->apiToken);
 
         $response = Http::withToken($this->apiToken)
             ->acceptJson()
@@ -73,30 +72,23 @@ class ChatpesaStk
 
     private function formatPhoneNumber(string $phone): string
     {
-        // Remove all non-numeric characters (e.g. +, spaces)
-        $phone = preg_replace('/\D/', '', $phone);
+        $digits = preg_replace('/\D/', '', $phone);
 
-        // Handle formats
-        if (strlen($phone) === 9 && str_starts_with($phone, '7')) {
-            // e.g. 729054607
-            return '254' . $phone;
+        // 07 XXXXXXXX  (already OK)
+        if (strlen($digits) === 10 && str_starts_with($digits, '07')) {
+            return $digits;
         }
 
-        if (strlen($phone) === 10 && str_starts_with($phone, '07')) {
-            // e.g. 0729054607
-            return '254' . substr($phone, 1);
+        // 7 XXXXXXXX   → prefix 0
+        if (strlen($digits) === 9 && str_starts_with($digits, '7')) {
+            return '0' . $digits;
         }
 
-        if (strlen($phone) === 13 && str_starts_with($phone, '254')) {
-            // e.g. 254729054607
-            return $phone;
+        // 2547 XXXXXXXX or +2547… → drop country code, prefix 0
+        if (strlen($digits) === 12 && str_starts_with($digits, '2547')) {
+            return '0' . substr($digits, 3);   // keep the 7XXXXXXXX part
         }
 
-        if (strlen($phone) === 12 && str_starts_with($phone, '254')) {
-            // Already formatted
-            return $phone;
-        }
-
-        throw new \InvalidArgumentException("Invalid Kenyan phone number format: {$phone}");
+        throw new \InvalidArgumentException("Invalid Kenyan phone number: {$phone}");
     }
 }

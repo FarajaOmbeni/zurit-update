@@ -8,7 +8,7 @@
             <BookCard :book="{
                 title: 'Thrive',
                 description: 'Your ultimate guide to financial freedom. Clear, concise steps to wealth creation.',
-                price: 1,
+                price: 10,
                 image: '/images/books/thrive.webp'
             }" />
             <BookCard :book="{
