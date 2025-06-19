@@ -58,11 +58,13 @@ const totalInitialAmount = computed(() =>
         0,
     ),
 );
+
+// Fixed totalCumulativeAmount with proper number conversion
 const totalCumulativeAmount = computed(() =>
-    activeInvestments.value.reduce((t, i) => t + i.cumulative_amount, 0)
-);
-const totalNetIncome = computed(() =>
-    activeInvestments.value.reduce((t, i) => t + i.profit, 0)
+    activeInvestments.value.reduce(
+        (total, investment) => total + Number(investment.current_amount || 0),
+        0,
+    ),
 );
 </script>
 
@@ -110,6 +112,7 @@ const totalNetIncome = computed(() =>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalInitialAmount) }}</td>
+                    <td class="px-4 py-2"></td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(totalCumulativeAmount) }}</td>
                     <td class="px-4 py-2"></td>
                 </tr>

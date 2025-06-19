@@ -7,7 +7,7 @@ import InvestmentsTable from '@/Components/Shared/InvestmentsTable.vue';
 import InvestmentChart from '@/Components/Shared/InvestmentChart.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
-import { moneyMarketFunds, bonds, treasuryBills, reits, shares } from '@/Components/Variables/investmentTypes';
+import { moneyMarketFunds, bonds, treasuryBills, reits, shares, realEstate } from '@/Components/Variables/investmentTypes';
 import RealEstateTable from '@/Components/Shared/RealEstateTable.vue';
 import StocksTable from '@/Components/Shared/StocksTable.vue';
 
@@ -142,6 +142,17 @@ const closeReitsModalOnOutsideClick = (event) => {
 const isEditModalOpen = ref(false);
 const editingInvestment = ref(null);
 
+const closeEditModal = () => {
+    isEditModalOpen.value = false;
+    editingInvestment.value = null;
+};
+
+const closeEditModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeEditModal();
+    }
+};
+
 const openEditModal = (investment) => {
     // Create a copy of the investment to avoid directly mutating the original
     editingInvestment.value = {
@@ -158,17 +169,6 @@ const openEditModal = (investment) => {
         status: investment.status
     };
     isEditModalOpen.value = true;
-};
-
-const closeEditModal = () => {
-    isEditModalOpen.value = false;
-    editingInvestment.value = null;
-};
-
-const closeEditModalOnOutsideClick = (event) => {
-    if (event.target.classList.contains('modal-overlay')) {
-        closeEditModal();
-    }
 };
 
 // Form for editing investment
@@ -202,7 +202,6 @@ watch(editingInvestment, (investment) => {
         editInvestmentForm.status = investment.status;
     }
 });
-
 // Form data for creating a new investment
 const newInvestment = useForm({
     type: 'select',
@@ -407,6 +406,148 @@ watch(
         newInvestment.current_amount = '';
     }
 );
+
+// === REAL ESTATE EDIT LOGIC ===
+
+const isEditRealEstateModalOpen = ref(false);
+const editingRealEstate = ref(null); // Holds the original investment data for editing
+
+// Form for editing a real estate investment
+const editRealEstateForm = useForm({
+    id: '',
+    type: '',
+    details_of_investment: '',
+    initial_amount: '',
+    current_amount: '', // Represents rental income here
+    start_date: '',
+    description: '',
+});
+
+const openEditRealEstateModal = (investment) => {
+    editingRealEstate.value = { ...investment }; // Create a copy
+    isEditRealEstateModalOpen.value = true;
+};
+
+const closeEditRealEstateModal = () => {
+    isEditRealEstateModalOpen.value = false;
+    editingRealEstate.value = null;
+    editRealEstateForm.reset();
+};
+
+const closeEditRealEstateModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeEditRealEstateModal();
+    }
+};
+
+
+// Watch for changes in the investment to be edited and populate the form
+watch(editingRealEstate, (investment) => {
+    if (investment) {
+        editRealEstateForm.id = investment.id;
+        editRealEstateForm.type = investment.type;
+        editRealEstateForm.details_of_investment = investment.details_of_investment;
+        editRealEstateForm.initial_amount = investment.initial_amount;
+        editRealEstateForm.current_amount = investment.current_amount;
+        editRealEstateForm.start_date = new Date(investment.start_date).toISOString().split('T')[0] || '';
+        editRealEstateForm.description = investment.description || '';
+    }
+});
+
+// Submit the edited real estate form
+const submitEditRealEstateForm = () => {
+    editRealEstateForm.put(route('invest.update', editRealEstateForm.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closeEditRealEstateModal();
+            // You might want to refresh your investments list or update the specific item
+            openAlert('success', 'Real estate investment updated successfully!', 5000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors).flat().join(' ');
+            openAlert('danger', errorMessages || 'An error occurred.', 5000);
+        }
+    });
+};
+
+// === STOCK/REIT EDIT LOGIC ===
+
+const isEditStockModalOpen = ref(false);
+const editingStock = ref(null);
+
+// A single form for both stocks and reits
+const editStockForm = useForm({
+    id: '',
+    type: '', // Holds stock Ticker
+    details_of_investment: '', // Holds REIT Name or Stock Exchange
+    initial_amount: '', // Number of shares
+    current_amount: '', // Total Price
+    expected_return_rate: '', // Price per share
+    start_date: '',
+    description: '',
+});
+
+// COMPUTED PROPERTY to display the correct name in the read-only field.
+const shareDisplayName = computed(() => {
+    if (!editStockForm.type) {
+        return '';
+    }
+    // For REITs, the name is in 'details_of_investment'
+    if (editStockForm.type === 'reits') {
+        return editStockForm.details_of_investment;
+    } else {
+        return editStockForm.type;
+    }
+});
+
+
+// You need a way to distinguish between a stock and a reit in your investment object.
+const openEditStockModal = (investment) => {
+    editingStock.value = { ...investment }; // Create a copy
+    isEditStockModalOpen.value = true;
+};
+
+const closeEditStockModal = () => {
+    isEditStockModalOpen.value = false;
+    editingStock.value = null;
+    editStockForm.reset();
+};
+
+const closeEditStockModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeEditStockModal();
+    }
+};
+
+// Watch for changes and populate the form
+watch(editingStock, (investment) => {
+    if (investment) {
+        editStockForm.id = investment.id;
+        editStockForm.type = investment.type;
+        editStockForm.details_of_investment = investment.details_of_investment;
+        editStockForm.initial_amount = investment.initial_amount;
+        editStockForm.current_amount = investment.current_amount;
+        editStockForm.expected_return_rate = investment.expected_return_rate;
+        editStockForm.start_date = new Date(investment.start_date).toISOString().split('T')[0] || '';
+        editStockForm.description = investment.description || '';
+    }
+});
+
+
+// Submit the edited stock/reit form
+const submitEditStockForm = () => {
+    editStockForm.put(route('invest.update', editStockForm.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closeEditStockModal();
+            openAlert('success', 'Share investment updated successfully!', 5000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors).flat().join(' ');
+            openAlert('danger', errorMessages || 'An error occurred.', 5000);
+        }
+    });
+};
 </script>
 
 <template>
@@ -441,13 +582,13 @@ watch(
                 </div>
                 <div v-show="realEstateInvestments.length > 0">
                     <h1 class="text-2xl font-bold text-purple-700">Real Estate Investments</h1>
-                    <RealEstateTable :investments="realEstateInvestments" @edit-investment="openEditModal"
+                    <RealEstateTable :investments="realEstateInvestments" @edit-investment="openEditRealEstateModal"
                         @delete-investment="openDeleteModal" />
                 </div>
 
                 <div v-show="stockInvestments.length > 0">
-                    <h1 class="text-2xl font-bold text-purple-700">Stock Investments</h1>
-                    <StocksTable :investments="stockInvestments" @edit-investment="openEditModal"
+                    <h1 class="text-2xl font-bold text-purple-700">Stock and Reits Investments</h1>
+                    <StocksTable :investments="stockInvestments" @edit-investment="openEditStockModal"
                         @delete-investment="openDeleteModal" />
                 </div>
             </Sidebar>
@@ -514,11 +655,8 @@ watch(
                                 class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                                 required>
                                 <option value="select" hidden>Select Type</option>
-                                <option value="residential">Residential</option>
-                                <option value="commercial">Commercial</option>
-                                <option value="land">Land</option>
-                                <option value="reits">Reits</option>
-                                <option value="other">Other</option>
+                                <option v-for="estate in realEstate" :key="estate.label" :value="estate.value">{{
+                                    estate.label }}</option>
                             </select>
                         </div>
 
@@ -639,8 +777,8 @@ watch(
                                 <input type="number" id="purchase_price_per_share"
                                     v-model.number="newInvestment.expected_return_rate"
                                     @input="newInvestment.current_amount = newInvestment.initial_amount * newInvestment.expected_return_rate"
-                                    class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                    step="0.01" min="0" required />
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 bg-gray-100 cursor-not-allowed"
+                                    step="0.01" min="0" required readonly />
                             </div>
                         </div>
 
@@ -754,8 +892,8 @@ watch(
                                     class="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-gray-500">KES</span>
                                 <input type="number" step="0.01" min="0"
                                     v-model.number="newInvestment.expected_return_rate"
-                                    class="w-full pl-8 pr-2 py-1.5 text-xs border rounded-md focus:ring-1 focus:ring-purple-500"
-                                    required />
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border rounded-md focus:ring-1 focus:ring-purple-500 bg-gray-100 cursor-not-allowed"
+                                    required readonly />
                             </div>
                         </div>
 
@@ -1146,6 +1284,186 @@ watch(
                         <button type="submit"
                             class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
                             {{ editInvestmentForm.processing ? 'Updating...' : 'Update Investment' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Real Estate -->
+        <div v-if="isEditRealEstateModalOpen" @click="closeEditRealEstateModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Edit Real Estate Investment</h3>
+                    <button @click="closeEditRealEstateModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitEditRealEstateForm" class="p-4">
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+                        <div class="col-span-1">
+                            <label for="edit_property_type"
+                                class="block text-gray-700 text-xs font-medium mb-1">Property Type</label>
+                            <select id="edit_property_type" v-model="editRealEstateForm.type"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required>
+                                <option value="select" hidden>Select Type</option>
+                                <option v-for="estate in realEstate" :key="estate.label" :value="estate.value">{{
+                                    estate.label }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="edit_location"
+                                class="block text-gray-700 text-xs font-medium mb-1">Location</label>
+                            <input type="text" id="edit_location" v-model="editRealEstateForm.details_of_investment"
+                                placeholder="e.g., Kilimani, Nairobi"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required />
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="edit_purchase_price"
+                                class="block text-gray-700 text-xs font-medium mb-1">Purchase Price</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input type="number" id="edit_purchase_price"
+                                    v-model="editRealEstateForm.initial_amount"
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    min="0" step="0.01" required />
+                            </div>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label for="edit_purchase_date"
+                                class="block text-gray-700 text-xs font-medium mb-1">Purchase Date</label>
+                            <input type="date" id="edit_purchase_date" v-model="editRealEstateForm.start_date"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                required />
+                        </div>
+
+                        <div class="col-span-2">
+                            <label for="edit_rental_income" class="block text-gray-700 text-xs font-medium mb-1">Rental
+                                Income (p.m.)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input type="number" id="edit_rental_income" v-model="editRealEstateForm.current_amount"
+                                    class="w-full pl-10 pr-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                    min="0" step="0.01" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="edit_real_estate_notes"
+                            class="block text-gray-700 text-xs font-medium mb-1">Description</label>
+                        <textarea id="edit_real_estate_notes" v-model="editRealEstateForm.description"
+                            placeholder="e.g., 3-bedroom apartment, 1/4 acre plot"
+                            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            rows="2"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" @click="closeEditRealEstateModal"
+                            class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            {{ editRealEstateForm.processing ? 'Updating...' : 'Update Property' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Reits and Stocks -->
+        <div v-if="isEditStockModalOpen" @click="closeEditStockModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Edit Share Investment</h3>
+                    <button @click="closeEditStockModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitEditStockForm" class="p-4">
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+                        <div class="col-span-1">
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Name/Ticker</label>
+                            <input type="text" :value="shareDisplayName"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                                readonly />
+                        </div>
+
+                        <div class="col-span-1">
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Number of Shares</label>
+                            <input type="number" v-model.number="editStockForm.initial_amount"
+                                @input="editStockForm.current_amount = editStockForm.initial_amount * editStockForm.expected_return_rate"
+                                class="w-full px-2 py-1.5 text-xs border rounded-md" step="any" min="0" required />
+                        </div>
+
+                        <div class="col-span-1">
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Price / Share</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-gray-500">KES</span>
+                                <input type="number" v-model.number="editStockForm.expected_return_rate"
+                                    @input="editStockForm.current_amount = editStockForm.initial_amount * editStockForm.expected_return_rate"
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border rounded-md bg-gray-100 cursor-not-allowed"
+                                    step="0.01" min="0" required readonly />
+                            </div>
+                        </div>
+
+                        <div class="col-span-1">
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Total Price</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-gray-500">KES</span>
+                                <input type="number" v-model.number="editStockForm.current_amount"
+                                    @input="editStockForm.initial_amount = editStockForm.expected_return_rate ? editStockForm.current_amount / editStockForm.expected_return_rate : 0"
+                                    class="w-full pl-8 pr-2 py-1.5 text-xs border rounded-md" step="0.01" min="0"
+                                    required />
+                            </div>
+                        </div>
+
+                        <div class="col-span-2">
+                            <label class="block text-gray-700 text-xs font-medium mb-1">Purchase Date</label>
+                            <input type="date" v-model="editStockForm.start_date"
+                                class="w-full px-2 py-1.5 text-xs border rounded-md" required />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="block text-gray-700 text-xs font-medium mb-1">Description</label>
+                        <textarea v-model="editStockForm.description"
+                            placeholder="e.g., Reason for buying, target price"
+                            class="w-full px-2 py-1.5 text-xs border rounded-md" rows="2"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" @click="closeEditStockModal"
+                            class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                            {{ editStockForm.processing ? 'Updating...' : 'Update Investment' }}
                         </button>
                     </div>
                 </form>

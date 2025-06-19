@@ -116,7 +116,8 @@ class BudgetController extends Controller
             'category'    => 'required|string',
             'description' => 'required|string',
             'income_date' => 'required|date',
-            'is_recurring' => 'required|boolean'
+            'is_recurring' => 'required|boolean',
+            'investment_id' => 'nullable|integer|exists:investments,id'
         ]);
 
         DB::transaction(function () use ($request) {
@@ -133,6 +134,12 @@ class BudgetController extends Controller
             /* only (re)attach when the user said “yes” AND there’s a rule row */
             if ($request->boolean('is_recurring') && $rule) {
                 $txn->rule_id = $rule->id;
+
+                // If investment_id is provided, update the rule
+                if ($request->has('investment_id')) {
+                    $rule->investment_id = $request->investment_id;
+                    $rule->save();
+                }
             }
             $txn->save();
 
@@ -273,7 +280,7 @@ class BudgetController extends Controller
             $child->update([
                 'category'  => $newCategory,
                 'amount'    => $request->amount,
-                'income_date' => $request->transaction_date,   // expense_date in updateExpense
+                'income_date' => $request->transaction_date,
                 'description' => $request->description,
             ]);
         });

@@ -110,6 +110,25 @@ export const bonds = [
     { value: "corporate_bond", label: "Corporate Bond", return: "12.0" },
 ];
 
+export const realEstate = [
+    {
+        value: "residential",
+        label: "Residential",
+    },
+    {
+        value: "commercial",
+        label: "Commercial",
+    },
+    {
+        value: "land",
+        label: "Land",
+    },
+    {
+        value: "reits",
+        label: "Reits",
+    },
+];
+
 export const treasuryBills = [
     {
         value: "t_bill_91",

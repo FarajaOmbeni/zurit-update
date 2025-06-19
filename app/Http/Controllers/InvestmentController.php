@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\NetIncomeCalculator;
 use App\Models\InvestmentContribution;
+use App\Models\RecurrenceRule;
 
 class InvestmentController extends Controller
 {
@@ -167,7 +168,8 @@ class InvestmentController extends Controller
                 'category' => 'Real Estate Income',
                 'description' => 'Rental income from ' . $request->details_of_investment,
                 'income_date' => Carbon::now(),
-                'is_recurring' => true
+                'is_recurring' => true,
+                'investment_id' => $investment->id
             ]);
 
             $budgetController->storeIncome($incomeRequest);
@@ -179,26 +181,63 @@ class InvestmentController extends Controller
     //Update a investment in the Investment Planner View 
     public function update(Request $request)
     {
-        $request->validate([
+        $fixed_income = ['mmf', 'bonds', 'bills'];
+        $real_estate = ['residential', 'commercial', 'land'];
+
+        // Define base rules
+        $rules = [
             'type' => 'required|string|max:255',
-            'details_of_investment' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'initial_amount' => 'required|numeric',
-            'start_date' => 'required|date',
-            'target_date' => 'required|date',
-            'expected_return_rate' => 'required|numeric',
-        ]);
+        ];
 
-        DB::transaction(function () use ($request) {
-            // Finally, update the Investment record.
-            $investment = Investment::find($request->id);
+        if (in_array($request->type, $fixed_income)) {
+            $rules['expected_return_rate'] = 'required|numeric';
+            $rules['details_of_investment'] = 'required|string|max:255';
+        }
+
+        $request->validate($rules);
+
+        DB::transaction(function () use ($request, $fixed_income, $real_estate) {
+            // Update the Investment record
+            $investment = Investment::findOrFail($request->id);
             $investment->type = $request->type;
             $investment->details_of_investment = $request->details_of_investment;
             $investment->description = $request->description;
             $investment->initial_amount = $request->initial_amount;
+
+            if (!in_array($request->type, $fixed_income)) {
+                $investment->current_amount = $request->current_amount;
+            }
+
             $investment->start_date = $request->start_date;
             $investment->target_date = $request->target_date;
-            $investment->update();
+
+            if (in_array($request->type, $real_estate)) {
+                $rule = RecurrenceRule::where('investment_id', $investment->id)->first();
+
+                if ($rule) {
+                    // Store the existing data before deleting
+                    $ruleData = [
+                        'user_id' => $rule->user_id,
+                        'investment_id' => $rule->investment_id,
+                        'category' => $rule->category,
+                        'description' => $rule->description,
+                        'pattern' => $rule->pattern,
+                        'next_run_on' => $rule->next_run_on,
+                        // Add any other fields you need to preserve
+                    ];
+
+                    // Delete the old rule
+                    $rule->delete();
+
+                    // Create new rule with updated amount
+                    $ruleData['amount'] = $request->current_amount;
+                    RecurrenceRule::create($ruleData);
+                }
+            }
+
+            $investment->save(); 
         });
 
 
