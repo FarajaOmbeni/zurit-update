@@ -7,15 +7,28 @@ import InvestmentsTable from '@/Components/Shared/InvestmentsTable.vue';
 import InvestmentChart from '@/Components/Shared/InvestmentChart.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
-import { moneyMarketFunds, bonds, treasuryBills, reits, shares, realEstate } from '@/Components/Variables/investmentTypes';
+import { moneyMarketFunds, bonds, treasuryBills, reits, shares, realEstate, insurances } from '@/Components/Variables/investmentTypes';
 import RealEstateTable from '@/Components/Shared/RealEstateTable.vue';
 import StocksTable from '@/Components/Shared/StocksTable.vue';
+import InsurancesTable from '@/Components/Shared/InsurancesTable.vue';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
 const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other']; 
 const REAL_ESTATE_TYPES = ['residential', 'commercial', 'land'];
 const STOCKS_TYPES = ['NSE', 'reits'];
+const POLICY_TYPES = [
+    'britam_holdings_plc',
+    'jubilee_insurance',
+    'cic_insurance_group',
+    'apa_insurance',
+    'old_mutual_kenya',
+    'sanlam_kenya',
+    'icea_lion_group',
+    'pioneer_assurance',
+    'liberty_life_assurance_kenya',
+    'first_assurance_kenya'
+]
 
 const props = defineProps({
     investments: Array
@@ -49,7 +62,15 @@ const stockInvestments = computed(() => {
     );
 });
 
-console.log(stockInvestments)
+const insurancePolicies = computed(() => {
+    if (!props.investments) {
+        return [];
+    }
+    return props.investments.filter(investment =>
+        POLICY_TYPES.includes(investment.type) || POLICY_TYPES.includes(investment.details_of_investment)
+    );
+});
+
 
 // Create a reactive copy of the investments from props
 const investments = ref([...props.investments]);
@@ -115,6 +136,23 @@ const closeStockModal = () => {
 const closeStockModalOnOutsideClick = (event) => {
     if (event.target.classList.contains('modal-overlay')) {
         closeStockModal();
+    }
+};
+
+// Modal state for adding insurances policies
+const isInsuranceModalOpen = ref(false);
+const openInsuranceModal = () => {
+    isInsuranceModalOpen.value = true;
+};
+const closeInsuranceModal = () => {
+    isStockModalOpen.value = false;
+    newInvestment.reset();
+
+};
+
+const closeInsuranceModalOnOutsideClick = (event) => {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeInsuranceModal();
     }
 };
 
@@ -217,6 +255,7 @@ const newInvestment = useForm({
     committed_amount: '',
     duration_months: '',
     duration_years: '',
+    insurance: 'insurance',
 });
 
 watch(() => newInvestment.type, () => {
@@ -548,6 +587,102 @@ const submitEditStockForm = () => {
         }
     });
 };
+
+// INSURANCE POLICIES
+const selectedProviderPolicies = computed(() => {
+    const provider = insurances.find(i => i.value === newInvestment.type);
+    return provider ? provider.policies : [];
+});
+
+/* 1 ▸ state flags */
+const isEditInsuranceModalOpen = ref(false);
+const editingInsurance = ref(null);  // holds the item currently being edited
+
+/* 2 ▸ inertia-form model
+   – include EVERY field your API expects; you can omit optional ones
+*/
+const editInsuranceForm = useForm({
+    id: '',
+    type: '',
+    details_of_investment: '',
+    frequency_of_return: '',     // monthly / yearly  ❬added❭
+    initial_amount: '',
+    current_amount: '',          // maturity value
+    target_date: '',          // term length      ❬added❭
+    expected_return_rate: '',    // %                ❬added❭
+    start_date: '',
+    description: '',
+    insurance: 'insurance',      // backend flag     ❬added❭
+});
+
+/* 3 ▸ open / close helpers */
+function openEditInsuranceModal(investment) {
+    editingInsurance.value = { ...investment };    
+    isEditInsuranceModalOpen.value = true;
+}
+
+function closeEditInsuranceModal() {
+    isEditInsuranceModalOpen.value = false;
+    editingInsurance.value = null;
+    editInsuranceForm.reset();
+}
+
+/* close when user clicks outside */
+function closeEditInsuranceModalOnOutsideClick(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        closeEditInsuranceModal();
+    }
+}
+
+/* 4 ▸ sync selected investment → form  */
+watch(
+    editingInsurance,
+    (inv) => {
+        if (!inv) return;
+
+        /** If your API sometimes sends null, guard with fallback '' */
+        editInsuranceForm.id = inv.id ?? '';
+        editInsuranceForm.type = inv.type ?? '';
+        editInsuranceForm.details_of_investment = inv.details_of_investment ?? '';
+        editInsuranceForm.frequency_of_return = inv.frequency_of_return ?? '';
+        editInsuranceForm.initial_amount = inv.initial_amount ?? '';
+        editInsuranceForm.current_amount = inv.current_amount ?? '';
+        editInsuranceForm.target_date = inv.target_date
+            ? new Date(inv.target_date).toISOString().split('T')[0]
+            : '';
+        editInsuranceForm.description = inv.description ?? '';
+        editInsuranceForm.expected_return_rate = inv.expected_return_rate ?? '';
+        editInsuranceForm.start_date =
+            inv.start_date
+                ? new Date(inv.start_date).toISOString().split('T')[0]
+                : '';
+        editInsuranceForm.description = inv.description ?? '';
+    },
+    { immediate: true } 
+);
+
+/* 5 ▸ submit handler */
+function submitEditInsuranceForm() {
+    editInsuranceForm.put(route('invest.update', editInsuranceForm.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closeEditInsuranceModal();
+            // optionally refresh the list here (Inertia’s partial reload, etc.)
+            openAlert('success', 'Insurance policy updated successfully!', 5000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors).flat().join(' ');
+            openAlert('danger', errorMessages || 'An error occurred.', 5000);
+        },
+    });
+}
+const selectedProviderEditPolicies = computed(() => {
+    const provider = insurances.find(i => i.value === editInsuranceForm.type);
+    return provider ? provider.policies : [];
+
+});
+
+
 </script>
 
 <template>
@@ -591,6 +726,12 @@ const submitEditStockForm = () => {
                     <StocksTable :investments="stockInvestments" @edit-investment="openEditStockModal"
                         @delete-investment="openDeleteModal" />
                 </div>
+
+                <div v-show="insurancePolicies.length > 0">
+                    <h1 class="text-2xl font-bold text-purple-700">Insurance Policies</h1>
+                    <InsurancesTable :investments="insurancePolicies" @edit-investment="openEditInsuranceModal"
+                        @delete-investment="openDeleteModal" />
+                </div>
             </Sidebar>
         </div>
 
@@ -625,6 +766,10 @@ const submitEditStockForm = () => {
                             class="w-full px-4 py-3 text-left bg-purple-500 hover:bg-opacity-90 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500">
                             Add Stocks Investment
                         </button>
+                        <button @click="openInsuranceModal"
+                            class="w-full px-4 py-3 text-left bg-purple-500 hover:bg-opacity-90 text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            Add Insurance Policy
+                        </button>
                     </div>
                 </div>
 
@@ -657,6 +802,7 @@ const submitEditStockForm = () => {
                                 <option value="select" hidden>Select Type</option>
                                 <option v-for="estate in realEstate" :key="estate.label" :value="estate.value">{{
                                     estate.label }}</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
 
@@ -707,7 +853,7 @@ const submitEditStockForm = () => {
                         <label for="real_estate_notes"
                             class="block text-gray-700 text-xs font-medium mb-1">Description</label>
                         <textarea id="real_estate_notes" v-model="newInvestment.description"
-                            placeholder="e.g., 3-bedroom apartment, 1/4 acre plot"
+                            placeholder="e.g., qwetu homes, kejani homes, 3 bedroom appartment,..."
                             class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                             rows="2"></textarea>
                     </div>
@@ -942,6 +1088,145 @@ const submitEditStockForm = () => {
                         <button type="submit"
                             class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
                             {{ newInvestment.processing ? 'Saving...' : 'Add Stock' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Insurance Policy -->
+        <div v-if="isInsuranceModalOpen" @click="closeInsuranceModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Add Insurance Policy</h3>
+                    <button @click="closeInsuranceModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="submitForm" class="p-4">
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+
+                        <!-- Provider dropdown -->
+                        <div class="col-span-2">
+                            <label for="provider" class="block text-gray-700 text-xs font-medium mb-1">
+                                Provider
+                            </label>
+                            <select id="provider" v-model="newInvestment.type" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="select" hidden>Select Provider</option>
+                                <option v-for="ins in insurances" :key="ins.value" :value="ins.value">
+                                    {{ ins.name }}
+                                </option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Policy Type – shown only when a provider is chosen -->
+                        <div class="col-span-2" v-if="selectedProviderPolicies.length">
+                            <label for="policy_type" class="block text-gray-700 text-xs font-medium mb-1">
+                                Policy Type
+                            </label>
+                            <select id="policy_type" v-model="newInvestment.details_of_investment" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" hidden>Select Policy</option>
+                                <option v-for="p in selectedProviderPolicies" :key="p" :value="p">
+                                    {{ p }}
+                                </option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Premium Frequency -->
+                        <div class="col-span-1">
+                            <label for="premium_frequency" class="block text-gray-700 text-xs font-medium mb-1">
+                                Premium Frequency
+                            </label>
+                            <select id="premium_frequency" v-model="newInvestment.frequency_of_return" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" hidden>Select</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yealy">Yearly</option>
+                            </select>
+                        </div>
+
+                        <!-- Premium Amount -->
+                        <div class="col-span-1">
+                            <label for="premium_amount" class="block text-gray-700 text-xs font-medium mb-1">
+                                Premium Amount
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input id="premium_amount" v-model.number="newInvestment.initial_amount" type="number"
+                                    min="0" class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md
+                 focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                            </div>
+                        </div>
+
+                        <!-- Term Length -->
+                        <div class="col-span-1">
+                            <label for="term_years" class="block text-gray-700 text-xs font-medium mb-1">
+                                Term Length (Years)
+                            </label>
+                            <input id="term_years" v-model.number="newInvestment.duration_years" type="number" min="1"
+                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                        </div>
+
+                        <input type="hidden" value="insurance" v-model="newInvestment.insurance">
+
+                        <!-- Expected Returns -->
+                        <div class="col-span-1">
+                            <label for="expected_returns" class="block text-gray-700 text-xs font-medium mb-1">
+                                Expected Returns (%)
+                            </label>
+                            <div class="relative">
+                                <input id="expected_returns" v-model.number="newInvestment.expected_return_rate"
+                                    type="number" min="0" step="0.01" class="w-full pr-6 pl-2 py-1.5 text-xs border border-gray-300 rounded-md
+                 focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                                <span
+                                    class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-gray-500 text-xs">
+                                    %
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Policy Start Date (optional) -->
+                        <div class="col-span-2">
+                            <label for="policy_start" class="block text-gray-700 text-xs font-medium mb-1">
+                                Policy Start Date
+                            </label>
+                            <input id="policy_start" v-model="newInvestment.start_date" type="date" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" />
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mt-3">
+                        <label for="policy_notes" class="block text-gray-700 text-xs font-medium mb-1">
+                            Description / Notes
+                        </label>
+                        <textarea id="policy_notes" v-model="newInvestment.description"
+                            placeholder="e.g., unit-linked plan, riders, exclusions…" rows="2" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+             focus:outline-none focus:ring-1 focus:ring-purple-500"></textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" @click="closeInsuranceModal" class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700
+             hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md
+             hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            {{ newInvestment.processing ? 'Saving…' : 'Add Policy' }}
                         </button>
                     </div>
                 </form>
@@ -1469,6 +1754,161 @@ const submitEditStockForm = () => {
                 </form>
             </div>
         </div>
+
+        <!-- Edit Insurance Policy -->
+        <div v-if="isEditInsuranceModalOpen" @click="closeEditInsuranceModalOnOutsideClick"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-purple-600 text-white px-3 py-2 flex justify-between items-center">
+                    <h3 class="text-base font-medium">Edit Insurance Policy</h3>
+                    <button @click="closeEditInsuranceModal" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- FORM -->
+                <form @submit.prevent="submitEditInsuranceForm" class="p-4">
+                    <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+                        <!-- Provider -->
+                        <div class="col-span-2">
+                            <label for="edit_provider" class="block text-gray-700 text-xs font-medium mb-1">
+                                Provider
+                            </label>
+                            <select id="edit_provider" v-model="editInsuranceForm.type" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+                   focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" hidden>Select Provider</option>
+                                <option v-for="ins in insurances" :key="ins.value" :value="ins.value">
+                                    {{ ins.name }}
+                                </option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Policy Type -->
+                        <div class="col-span-2">
+                            <label for="edit_policy_type" class="block text-gray-700 text-xs font-medium mb-1">
+                                Policy Type
+                            </label>
+                            <select id="edit_policy_type" v-model="editInsuranceForm.details_of_investment" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+                   focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" hidden>Select Policy</option>
+                                <option v-for="p in selectedProviderEditPolicies" :key="p" :value="p">
+                                    {{ p }}
+                                </option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Premium Frequency -->
+                        <div class="col-span-1">
+                            <label for="edit_premium_freq" class="block text-gray-700 text-xs font-medium mb-1">
+                                Premium Frequency
+                            </label>
+                            <select id="edit_premium_freq" v-model="editInsuranceForm.frequency_of_return" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+                   focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" hidden>Select</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+
+                        <!-- Premium Amount -->
+                        <div class="col-span-1">
+                            <label for="edit_premium_amount" class="block text-gray-700 text-xs font-medium mb-1">
+                                Premium Amount
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input id="edit_premium_amount" v-model.number="editInsuranceForm.initial_amount"
+                                    type="number" min="0" class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md
+                     focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                            </div>
+                        </div>
+
+                        <!-- maturity Date -->
+                        <div class="col-span-1">
+                            <label for="edit_term_years" class="block text-gray-700 text-xs font-medium mb-1">
+                                Maturity Date
+                            </label>
+                            <input id="edit_term_years" v-model.number="editInsuranceForm.target_date" type="date"
+                                min="1" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+                   focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                        </div>
+
+                        <!-- Expected Returns -->
+                        <div class="col-span-1">
+                            <label for="edit_expected_returns" class="block text-gray-700 text-xs font-medium mb-1">
+                                Expected Returns (%)
+                            </label>
+                            <div class="relative">
+                                <input id="edit_expected_returns"
+                                    v-model.number="editInsuranceForm.expected_return_rate" type="number" min="0"
+                                    step="0.01" class="w-full pr-6 pl-2 py-1.5 text-xs border border-gray-300 rounded-md
+                     focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                                <span
+                                    class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-gray-500 text-xs">
+                                    %
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Maturity Value -->
+                        <div class="col-span-2">
+                            <label for="edit_maturity_value" class="block text-gray-700 text-xs font-medium mb-1">
+                                Maturity Value
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-xs">KES</span>
+                                </div>
+                                <input id="edit_maturity_value" v-model.number="editInsuranceForm.current_amount"
+                                    type="number" min="0" class="w-full pl-8 pr-2 py-1.5 text-xs border border-gray-300 rounded-md
+                     focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                            </div>
+                        </div>
+
+                        <!-- Policy Start Date -->
+                        <div class="col-span-2">
+                            <label for="edit_policy_start" class="block text-gray-700 text-xs font-medium mb-1">
+                                Policy Start Date
+                            </label>
+                            <input id="edit_policy_start" v-model="editInsuranceForm.start_date" type="date" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+                   focus:outline-none focus:ring-1 focus:ring-purple-500" />
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mt-3">
+                        <label for="edit_policy_notes" class="block text-gray-700 text-xs font-medium mb-1">
+                            Description / Notes
+                        </label>
+                        <textarea id="edit_policy_notes" v-model="editInsuranceForm.description"
+                            placeholder="e.g., unit-linked plan, riders, exclusions…" rows="2" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+                 focus:outline-none focus:ring-1 focus:ring-purple-500"></textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" @click="closeEditInsuranceModal" class="px-2 py-1 text-xs border border-gray-300 rounded-md text-gray-700
+                 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-2 py-1 text-xs bg-purple-600 text-white rounded-md
+                 hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500">
+                            {{ editInsuranceForm.processing ? 'Updating…' : 'Update Policy' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </AuthenticatedLayout>
 
     <!-- Delete Confirmation Modal -->

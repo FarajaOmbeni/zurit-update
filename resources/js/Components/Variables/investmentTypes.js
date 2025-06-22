@@ -230,3 +230,118 @@ export const shares = [
   { ticker: "UCHM - Uchumi Supermarkets Ltd", price: 0.28 }
 ];
 
+export const insurances = [
+    {
+        name: "Britam Holdings PLC",
+        policies: [
+            "Life insurance",
+            "Health insurance",
+            "General insurance (motor, home, travel)",
+            "Investment-linked plans",
+            "Retirement planning",
+        ],
+        value: "britam_holdings_plc",
+    },
+    {
+        name: "Jubilee Insurance",
+        policies: [
+            "Life insurance",
+            "Health insurance",
+            "General insurance",
+            "Asset management solutions",
+            "Comprehensive health plans",
+            "Personal accident covers",
+            "Pension schemes",
+        ],
+        value: "jubilee_insurance",
+    },
+    {
+        name: "CIC Insurance Group",
+        policies: [
+            "Life insurance",
+            "General insurance",
+            "Health insurance",
+            "Micro insurance",
+            "Solutions for cooperative societies and SMEs",
+        ],
+        value: "cic_insurance_group",
+    },
+    {
+        name: "APA Insurance",
+        policies: [
+            "General insurance (motor, property, marine)",
+            "Health insurance",
+            "Life insurance",
+            "Corporate and individual health plans",
+        ],
+        value: "apa_insurance",
+    },
+    {
+        name: "Old Mutual Kenya",
+        policies: [
+            "Life insurance",
+            "General insurance",
+            "Investment plans",
+            "Retirement solutions",
+            "Education savings plans",
+            "Pension schemes",
+        ],
+        value: "old_mutual_kenya",
+    },
+    {
+        name: "Sanlam Kenya",
+        policies: [
+            "Life insurance",
+            "General insurance",
+            "Investment solutions",
+            "Retirement planning",
+            "Investment-linked insurance products",
+        ],
+        value: "sanlam_kenya",
+    },
+    {
+        name: "ICEA LION Group",
+        policies: [
+            "Life insurance",
+            "General insurance",
+            "Health insurance",
+            "Investment products",
+            "Retirement schemes",
+            "Unit trust investments",
+        ],
+        value: "icea_lion_group",
+    },
+    {
+        name: "Pioneer Assurance",
+        policies: [
+            "Life insurance",
+            "General insurance",
+            "Pension plans",
+            "Education policies",
+            "Savings and last expense cover",
+            "School Fees Plus Policy",
+            "Family Care",
+        ],
+        value: "pioneer_assurance",
+    },
+    {
+        name: "Liberty Life Assurance Kenya",
+        policies: [
+            "Life insurance",
+            "Pension plans",
+            "Investment solutions",
+            "Education savings",
+            "Retirement planning",
+        ],
+        value: "liberty_life_assurance_kenya",
+    },
+    {
+        name: "First Assurance Kenya (Absa Group)",
+        policies: [
+            "General insurance (motor, property)",
+            "Medical insurance",
+            "Group life insurance",
+        ],
+        value: "first_assurance_kenya",
+    },
+];

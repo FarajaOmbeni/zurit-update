@@ -126,7 +126,7 @@ class InvestmentController extends Controller
         $investment->details_of_investment = $request->details_of_investment;
         $investment->description = $request->description;
         $investment->initial_amount = $request->initial_amount;
-        if(in_array($request->type, $fixed_income)){
+        if(in_array($request->type, $fixed_income) || $request->insurance){
             $investment->current_amount = $request->initial_amount;
         } else {
             $investment->current_amount = $request->current_amount;
