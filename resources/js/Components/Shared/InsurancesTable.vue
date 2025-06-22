@@ -63,6 +63,29 @@ function handleDelete(investment: any) {
         }
     })
 }
+/* ── helper utilities ────────────────────────────────────────── */
+function num(v: unknown) {
+    const n = Number(String(v ?? '').replace(/,/g, ''))
+    return isFinite(n) ? n : NaN
+}
+function yearsBetween(startISO?: string) {
+    if (!startISO) return NaN
+    const msPerYear = 1000 * 60 * 60 * 24 * 365.25
+    return (Date.now() - new Date(startISO).getTime()) / msPerYear
+}
+
+/** Compound the *current_amount* at the expected rate
+ *   FV = PV·(1+r)^t   (continuous compounding is overkill here)
+ */
+function calcCurrentValue(policy: any) {
+    const PV = num(policy.current_amount)            // present premium pot
+    const r = num(policy.expected_return_rate) / 100
+    const t = yearsBetween(policy.start_date)       // years since purchase
+
+    if (!PV || !r || !t || isNaN(PV) || isNaN(r) || t <= 0) return 0
+    return PV * (1 + r) ** t
+}
+
 </script>
 
 <template>
@@ -72,19 +95,21 @@ function handleDelete(investment: any) {
         <table class="min-w-full bg-white border border-gray-200">
             <thead class="bg-purple-500 text-white">
                 <tr>
+                    <th class="px-4 py-2 text-left">Purchase Date</th>
                     <th class="px-4 py-2 text-left">Provider</th>
                     <th class="px-4 py-2 text-left">Policy Type</th>
                     <th class="px-4 py-2 text-left">Premium Frequecy</th>
                     <th class="px-4 py-2 text-left">Amount</th>
                     <th class="px-4 py-2 text-right">Maturity Date</th>
                     <th class="px-4 py-2 text-right">Expected&nbsp;Return&nbsp;%</th>
-                    <th class="px-4 py-2 text-right">Maturity&nbsp;Value</th>
+                    <th class="px-4 py-2 text-right">Current Value</th>
                     <th class="px-4 py-2 text-center">Actions</th>
                 </tr>
             </thead>
 
             <tbody class="text-gray-700">
                 <tr v-for="policy in activePolicies" :key="policy.id" class="border-t">
+                    <td class="px-4 py-2">{{ formatDate(policy.start_date) }}</td>
                     <td class="px-4 py-2">{{ providerName(policy.type) }}</td>
                     <td class="px-4 py-2">{{ policy.details_of_investment }}</td>
                     <td class="px-4 py-2">
@@ -98,7 +123,7 @@ function handleDelete(investment: any) {
                         {{ Number(policy.expected_return_rate).toFixed(2) }}%
                     </td>
                     <td class="px-4 py-2 text-right">
-                        {{ formatCurrency(policy.current_amount) }}
+                        {{ formatCurrency(calcCurrentValue(policy)) }}
                     </td>
                     <td class="px-4 py-2 text-center">
                         <button @click="handleEdit(policy)"
@@ -116,8 +141,9 @@ function handleDelete(investment: any) {
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2"></td>
                     <td class="px-4 py-2 text-right"></td>
-                    <td class="px-4 py-2 text-right"></td>
-                    <td class="px-4 py-2 text-right">{{ formatCurrency(totalMaturityValue) }}</td>
+                    <td class="px-4 py-2 text-right">
+                        {{ formatCurrency(totalCurrentValue) }}
+                    </td>
                     <td class="px-4 py-2"></td>
                 </tr>
             </tfoot>

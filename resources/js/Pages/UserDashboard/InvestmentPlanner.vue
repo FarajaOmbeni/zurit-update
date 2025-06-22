@@ -1151,7 +1151,7 @@ const selectedProviderEditPolicies = computed(() => {
                focus:outline-none focus:ring-1 focus:ring-purple-500" required>
                                 <option value="" hidden>Select</option>
                                 <option value="monthly">Monthly</option>
-                                <option value="yealy">Yearly</option>
+                                <option value="yearly">Yearly</option>
                             </select>
                         </div>
 
