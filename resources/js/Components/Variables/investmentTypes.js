@@ -159,11 +159,11 @@ export const treasuryBills = [
 export const reits = [
     {
         name: "ACORN D-REIT",
-        price: 25.4,
+        price: 26.7,
     },
     {
         name: "i-REIT",
-        price: 26.7,
+        price: 22.9,
     },
     {
         name: "ILAM FAHARI",
