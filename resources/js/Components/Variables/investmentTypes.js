@@ -163,7 +163,7 @@ export const reits = [
     },
     {
         name: "i-REIT",
-        price: 22.2,
+        price: 26.7,
     },
     {
         name: "ILAM FAHARI",

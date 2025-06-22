@@ -105,8 +105,9 @@ const totalNetIncome = computed(() =>
                         if (investment.type === 'bills' || investment.type === 'mmf') {
                         return '15%';
                         }
-                        if (investment.type === 'bonds' && duration < 5) { return '15%' ; } else if
-                            (investment.type==='bonds' && duration> 5) {
+        if (investment.details_of_investment === 'Infrastructure Bond') { return '0%' } 
+                        else if (duration < 5) { return '15%' ; } else if
+                            (duration> 5) {
                             return '10%';
                             }
                             })()

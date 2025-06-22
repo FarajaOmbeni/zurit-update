@@ -11,6 +11,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\EventsController;
+use App\Http\Controllers\MarketController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\MarketingController;
@@ -174,6 +175,9 @@ Route::get('/business-support', function() {
 Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
+
+Route::get('/market-data',  [MarketController::class, 'index']);
+Route::put('/market-data',  [MarketController::class, 'update']);
 
 require __DIR__.'/auth.php';
 
