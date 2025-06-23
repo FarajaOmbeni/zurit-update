@@ -900,6 +900,7 @@ const selectedProviderEditPolicies = computed(() => {
                                 <option v-for="reit in reits" :key="reit.name" :value="reit.name">
                                     {{ reit.name }}
                                 </option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
 
