@@ -30,11 +30,11 @@ import ListItem from './Shared/ListItem.vue';
                     </p>
 
                     <div class="font-semibold my-4">
-                        <ListItem name="Individuals" details="gaining control over personal finances" />
-                        <ListItem name="Trustees" details="managing pension and investment decisions" />
-                        <ListItem name="SACCO Directors" details="enhancing financial literacy at the group level" />
-                        <ListItem name="HR Professionals" details="creating financially empowered teams" />
-                        <ListItem name="MSMEs & Corporates" details="driving growth through financial planning" />
+                        <ListItem name="Individuals" details="Gaining control over personal finances" />
+                        <ListItem name="Trustees" details="Managing pension and investment decisions" />
+                        <ListItem name="SACCO Directors" details="Enhancing financial literacy at the group level" />
+                        <ListItem name="HR Professionals" details="Creating financially empowered teams" />
+                        <ListItem name="MSMEs & Corporates" details="Driving growth through financial planning" />
                     </div>
 
                     <p>
