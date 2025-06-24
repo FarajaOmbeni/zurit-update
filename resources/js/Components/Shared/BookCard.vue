@@ -10,7 +10,7 @@
         </button>
 
         <!-- Modal Component -->
-        <BookModal :show="isModalOpen" :book="book" @close="closeModal" />
+        <BookModal :show="isModalOpen" :book="book" @close="closeModal" :user="user"/>
     </div>
 </template>
 
@@ -19,7 +19,11 @@ import { ref } from "vue";
 import BookModal from "./BookModal.vue";
 
 defineProps({
-    book: Object
+    book: Object,
+    user: {
+        type: Object,
+        default: null
+    }
 });
 
 const isModalOpen = ref(false);

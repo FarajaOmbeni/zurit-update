@@ -46,8 +46,8 @@ class ChatpesaStk
         return MpesaPayment::create([
             'user_id'             => $userId,
             'purpose'             => $purpose,
-            'merchant_request_id' => $response['MerchantRequestID'] ?? null,
-            'checkout_request_id' => $response['CheckoutRequestID'] ?? null,
+            'merchant_request_id' => $response['merchant_id'] ?? null,
+            'checkout_request_id' => $response['checkout_id'] ?? null,
             'phone_number'        => $phone,
             'amount'              => $amount,
         ]);
@@ -63,7 +63,28 @@ class ChatpesaStk
 
         Log::info('ALL ZEE DATA:', ['data' => $data]);
 
-        // Mail::to($email)->send(new ZuriScoreReportMail($firstName, $reportUrl));
+        // $body  = data_get($payload, 'Body.stkCallback', []);
+        // $items = collect(data_get($body, 'CallbackMetadata.Item', []))
+        //     ->pluck('Value', 'Name');
+
+        // $payment = MpesaPayment::where(
+        //     'checkout_request_id',
+        //     $body['CheckoutRequestID'] ?? ''
+        // )->first();
+
+        // if (! $payment) {
+        //     Log::warning('Unknown M-PESA callback', $body);
+        //     return;
+        // }
+
+        // $payment->update([
+        //     'result_code'          => $body['ResultCode'],
+        //     'result_desc'          => $body['ResultDesc'],
+        //     'amount'               => $items->get('Amount'),
+        //     'mpesa_receipt_number' => $items->get('MpesaReceiptNumber'),
+        //     'phone_number'         => $items->get('PhoneNumber'),
+        //     'transaction_date'     => $items->get('TransactionDate'),
+        // ]);
 
         // Return a success response
         return response()->json([

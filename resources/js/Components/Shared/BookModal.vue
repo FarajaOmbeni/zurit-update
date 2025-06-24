@@ -70,10 +70,19 @@ const { openAlert, clearAlert, alertState } = useAlert()
 
 const showPaymentModal = ref(false);
 
+const props = defineProps({
+    show: Boolean,
+    book: Object,
+    user: {
+        type: Object,
+        default: null
+    },
+});
+
 const form = useForm({
-    name: '',
-    email: '',
-    confirm_email: '',
+    name: props.user?.name ?? '',
+    email: props.user?.email ?? '',
+    confirm_email: props.user?.email ?? '',
     price: '',
     phone: '',
     title: '',
@@ -100,9 +109,4 @@ function submitForm() {
         }
     });
 }
-
-const props = defineProps({
-    show: Boolean,
-    book: Object
-});
 </script>

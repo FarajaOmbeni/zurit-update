@@ -9,27 +9,27 @@
                 title: 'Thrive',
                 description: 'Your ultimate guide to financial freedom. Clear, concise steps to wealth creation.',
                 price: 10,
-                image: '/images/books/thrive.webp'
-            }" />
+                image: '/images/books/thrive.webp',
+                }" :user="user" />
             <BookCard :book="{
                 title: 'Financial Goal Setting',
                 description: 'Unlock the path to realizing your financial deams with this insightful guide. Dive into the crucial art of goal setting, guided by the wheel of life, to pinpoint your aspirations',
                 price: 350,
-                image: '/images/books/goal_setting.webp'
-            }" />
+                image: '/images/books/goal_setting.webp',
+            }" :user="user" />
             <BookCard :book="{
                 title: 'Transcend',
                 description: 'Navigating the Realities - Beyond the allure of Entrepreneurship',
                 price: 1800,
-                image: '/images/books/transcend.jpg'
-            }" />
+                image: '/images/books/transcend.jpg',
+                 }" :user="user" />
 
             <BookCard :book="{
                 title: 'From Earning to Empowerment',
                 description: 'A guide to financial wellness',
                 price: 350,
-                image: '/images/books/earning.png'
-            }" />
+                image: '/images/books/earning.png',
+                 }" :user="user" />
         </div>
     </div>
     <Footer />
@@ -40,4 +40,13 @@ import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
 import BookCard from '@/Components/Shared/BookCard.vue';
 import { Head } from '@inertiajs/vue3';
+
+const props = defineProps({
+    user: {
+        type: Object,
+        default: null
+    }
+})
+
+console.log("User: ", props.user)
 </script>

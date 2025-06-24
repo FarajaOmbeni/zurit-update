@@ -18,7 +18,8 @@ class BookController extends Controller
     public function index()
     {
         $books = Book::all();
-        return Inertia::render('Books');
+        $user = auth()->user();
+        return Inertia::render('Books', ['user' => $user]);
     }
 
     public function edit($id)
