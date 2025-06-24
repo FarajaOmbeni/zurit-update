@@ -131,7 +131,7 @@ class BookController extends Controller
             amount: $price,
             phone: $phone,
             purpose: $title . ' book',
-            userId: null
+            userId: auth()->user()->id ?? null
         );
 
         // if (! $stk->waitForConfirmation($payment)) {

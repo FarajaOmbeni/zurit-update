@@ -41,6 +41,8 @@ class ChatpesaStk
             ->post($this->baseUrl, $payload)
             ->throw();
 
+        Log::info('RESPONSE:', ['data' => $response]);
+
         return MpesaPayment::create([
             'user_id'             => $userId,
             'purpose'             => $purpose,

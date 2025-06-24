@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Support\MpesaStk;
 use Illuminate\Http\Request;
 use App\Mail\ZuriScoreReportMail;
+use App\Support\ChatpesaStk;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -65,7 +66,7 @@ class ZuriScoreController extends Controller
         return false;
     }
 
-    public function get_report(Request $request, MpesaStk $stk)
+    public function get_report(Request $request, ChatpesaStk $stk)
     {
         $api_url = config('zuriscore.ZURIT_URL');
         $api_username = config('zuriscore.ZURIT_USERNAME');
@@ -91,9 +92,9 @@ class ZuriScoreController extends Controller
             userId: auth()->user()->id
         );
 
-        if (! $stk->waitForConfirmation($payment)) {
-            return back()->withErrors("Transaction Failed. Please try again.");
-        }
+        // if (! $stk->waitForConfirmation($payment)) {
+        //     return back()->withErrors("Transaction Failed. Please try again.");
+        // }
 
         $statement_type = $request->statement_type;
         $statement_password = $request->statement_password;
