@@ -43,8 +43,8 @@ import ListItem from './Shared/ListItem.vue';
                             thrive.</span>
                     </p>
 
-                    <p class="font-bold text-gold-400 mt-4 text-lg sm:text-xl md:text-xl italic">Let’s make money
-                        simple. Let’s make life better.</p>
+                    <p class="font-bold text-gold-400 mt-4 text-lg sm:text-xl md:text-xl italic">Let’s Make Money
+                        Simple. Let’s Make Life Better.</p>
                 </div>
             </div>
 

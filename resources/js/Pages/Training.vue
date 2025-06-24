@@ -66,8 +66,8 @@ const trainings = [
         id: 2,
         type: 'corporate',
         imageUrl: '/images/training/wealthwave.webp',
-        title: 'Wealth Wave Talks',
-        description: 'Join our Wealth Wave Talks program every month to learn essential wealth creation and preservation strategies. This program offers insights into smooth wealth transfer to future generations and includes comprehensive training on wealth building and estate planning.',
+        title: 'Prosperity Circles',
+        description: 'Join our Prosperity Circles which runs every month to learn essential wealth creation and preservation strategies. This program offers insights into smooth wealth transfer to future generations and includes comprehensive training on wealth building and estate planning.',
         details: [
             'Getting it Right with your Investments',
             'Using Property to Build Wealth',
