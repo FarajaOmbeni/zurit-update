@@ -385,8 +385,8 @@ onMounted(async () => {
             { id: 'inhouse1', title: "In-House Training – Employee Wellness", type: "in_house", price: "Ksh 5,000 per person or 45,000 for 10", details: "Custom / On-Demand", location: "Client Premises" },
             { id: 'inhouse2', title: "In-House Training – Retirement Planning", type: "in_house", price: "Tailor-made", details: "Custom / On-Demand", location: "Client Premises" },
 
-            // ────────────────────────────── Free Bi-Weekly Webinar ─────────────────────
-            { id: 'webinar1', title: "Bi-Weekly Webinar", type: "webinar_bi_weekly", price: "Free", location: "Virtual", topic: "Asset-class discussions", details: "Every Tuesday at 7 PM" }
+            // ────────────────────────────── Free Weekly Prosperity Talks ─────────────────────
+            { id: 'webinar1', title: "Weekly Prosperity Talks", type: "webinar_bi_weekly", price: "Free", location: "Virtual", topic: "Asset-class discussions", details: "Every Tuesday at 7 PM" }
         ];
 
 

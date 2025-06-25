@@ -43,7 +43,8 @@
                             <div v-if="training?.price" class="flex text-gold-400 font-bold text-lg"
                                 :class="training?.price2 ? 'flex-col' : 'flex-row items-center'">
                                 <span class="font-medium">Price:</span>
-                                <span :class="training?.price2 ? 'ml-0' : 'ml-2'">Kshs {{ training?.price }}</span>
+                                <span :class="training?.price2 ? 'ml-0' : 'ml-2'"><span v-show="training?.price !== 'FREE'">Kshs</span> {{ training?.price
+                                    }}</span>
                             </div>
 
                             <div v-if="training?.price2" class="flex text-gold-400 font-bold items-center text-lg">
@@ -68,13 +69,13 @@
                                 <span class="font-medium">{{ training?.more_info }}</span>
                             </div>
 
-
-
                             <!-- Enroll button -->
-                            <a :href="training?.link" target="_blank"
-                                class="w-full bg-amber-400 text-gray-900 py-3 rounded-lg font-medium hover:bg-amber-500 transition-colors duration-200">
-                                Enroll Now
-                            </a>
+                            <div>
+                                <a :href="training?.link" target="_blank"
+                                    class="w-full bg-amber-400 text-gray-900 p-3 rounded-lg font-medium hover:bg-amber-500 hover:cursor-pointer transition-colors duration-200">
+                                    Enroll Now
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

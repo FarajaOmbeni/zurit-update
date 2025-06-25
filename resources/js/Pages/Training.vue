@@ -49,7 +49,7 @@ const trainings = [
         id: 1,
         type: 'corporate',
         imageUrl: '/images/training/prosperity.jpg',
-        title: 'Prosperity Masterclass',
+        title: 'Prosperity Fundamentals Masterclass',
         description: 'This masterclass is a 5-week program tailored to individuals, covering the fundamentals of personal finance and investments.',
         details: [
             'Wealth building principles.',
@@ -77,11 +77,12 @@ const trainings = [
         attends: ['This program is ideal for individuals seeking to enhance their financial literacy, wealth creation, and preservation strategies.'],
         duration: '3 hours',
         price: '3,000 per person',
-        more_info: 'This training is done on a MONTHLY basis.'
+        more_info: 'This training is done on a MONTHLY basis.',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/153540946091312633/share',
     },
     {
         id: 3,
-        type: 'quarterly',
+        type: 'monthly',
         imageUrl: '/images/training/fundamentals.webp',
         title: 'Fundamentals of Investments',
         description: 'This is a 5-day intense training for pension trustees focused on grounding them on the fundamentals of investments.',
@@ -97,7 +98,7 @@ const trainings = [
     },
     {
         id: 4,
-        type: 'quarterly',
+        type: 'monthly',
         imageUrl: '/images/training/retirement.webp',
         title: 'Retirement Planning',
         description: 'Immerse yourself in this comprehensive training designed for pension trustees. The course provides a deep dive into retirement planning strategies, helping trustees understand the complexities of retirement income management and long-term investment planning.',
@@ -108,11 +109,12 @@ const trainings = [
         ],
         attends: ['Staff of Corporate institutions, owner management'],
         duration: '5 days',
-        price: '79,000 per person'
+        price: '79,000 per person',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/156257309697246706/share'
     },
     {
         id: 5,
-        type: 'quarterly',
+        type: 'monthly',
         imageUrl: '/images/training/alternative.png',
         title: 'Alternative Investments',
         description: 'Explore the expanding universe of non-traditional assets and learn how to integrate them into institutional portfolios. This course demystifies alternative asset classes—private equity, hedge funds, real estate, infrastructure, commodities, and digital assets; equipping participants with the analytical tools needed to evaluate opportunities, manage risks, and meet long-term liability-matching objectives.',
@@ -143,6 +145,7 @@ const trainings = [
         price: '39,000 per 2 hours per group',
         price2: '74,100 per group',
         price3: '140,790 per group',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/156259861673280717/share',
     },
     {
         id: 7,
@@ -159,6 +162,7 @@ const trainings = [
         price: '39,000 per 2 hours per group',
         price2: '74,100 per group',
         price3: '140,790 per group',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/156257309697246706/share'
     },
     {
         id: 8,
@@ -178,12 +182,13 @@ const trainings = [
             'Anyone looking to take control of their money and make strategic, confident decisions'
         ],
         price: '5,000 per session',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/156260898104673927/share'
     },
     {
         id: 9,
         type: 'free',
         imageUrl: '/images/training/asset_class.webp',
-        title: 'Bi-Weekly Webinar',
+        title: 'Weekly Prosperity talks',
         description: 'Our Asset Classes Training is a specialized program aimed at improving financial literacy and aiding in informed investment decisions. It\'s suitable for both seasoned investors and beginners, providing the necessary knowledge to effectively navigate the complex world of asset classes.',
         details: [
             'Understanding the various asset classes',
@@ -192,15 +197,16 @@ const trainings = [
             'How to create a good portfolio',
         ],
         attends: ['Seasoned investors, beginners, or simply someone curious about the financial world'],
-        price: '0',
-        more_info: 'Conducted through virtual sessions: Enter contact details for more info'
+        price: 'FREE',
+        more_info: 'Conducted through virtual sessions: Enter contact details for more info',
+        link: 'https://dashboard.mailerlite.com/forms/1042116/156261774522320191/share'
     },
     // Add more training items...
 ]
 
 const tabs = [
     { id: 'corporate', label: 'Corporate' },
-    { id: 'quarterly', label: 'Quarterly' },
+    { id: 'monthly', label: 'Monthly' },
     { id: 'in-house', label: 'In-House Training' },
     { id: 'free', label: 'FREE Training' }
 ]
