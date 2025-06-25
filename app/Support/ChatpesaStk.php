@@ -57,12 +57,9 @@ class ChatpesaStk
     /* --------------------------------------------------------------
      |  CALLBACK  →  call from your Route/controller
      |--------------------------------------------------------------*/
-    public function handleCallback(Request $request)
+    public function handleCallback(array $payload)
     {
-        $data = $request->all();
-
-        Log::info('ALL ZEE DATA:', ['data' => $data]);
-
+        Log::info("Payload: ", $payload);
         // $body  = data_get($payload, 'Body.stkCallback', []);
         // $items = collect(data_get($body, 'CallbackMetadata.Item', []))
         //     ->pluck('Value', 'Name');
@@ -86,11 +83,10 @@ class ChatpesaStk
         //     'transaction_date'     => $items->get('TransactionDate'),
         // ]);
 
-        // Return a success response
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Callback received successfully'
-        ], 200);
+        // Optionally fire a single event if successful
+        // if ($payment->isSuccessful()) {
+        //     event(new MpesaPaymentSucceeded($payment));
+        // }
     }
 
     private function formatPhoneNumber(string $phone): string
