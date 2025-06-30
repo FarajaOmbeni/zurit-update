@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class BookController extends Controller
 {
@@ -112,36 +113,23 @@ class BookController extends Controller
         }
     }
 
-    public function payment(Request $request, ChatpesaStk $stk) { //Ignore this error
-        $request->validate([
-            'price' => 'required|integer',
-            'name' => 'required',
-            'email' => 'required|email',
+    public function payment(Request $request, ChatpesaStk $stk)
+    {
+        $validated = $request->validate([
+            'price'         => 'required|integer',
+            'name'          => 'required',
+            'email'         => 'required|email',
             'confirm_email' => 'required|same:email',
-            'phone' => 'required'
+            'phone'         => 'required',
+            'title'         => 'required|string',
         ]);
 
-        $name = $request->name;
-        $email = $request->email;
-        $phone = $request->phone;
-        $address = $request->address;
-        $title = $request->title;
-        $price = $request->price;
-
-        $payment  = $stk->sendStkPush(
-            amount: 10,
-            phone: $phone,
-            purpose: $title . ' book',
-            userId: auth()->user()->id ?? null
+        $payment = $stk->sendStkPush(
+            amount: $validated['price'],
+            phone: $validated['phone'],
+            purpose: $validated['title'] . ' book',
+            userId: auth()->id()
         );
-
-        // if (! $stk->waitForConfirmation($payment)) {
-        //     return back()->withErrors("Transaction Failed. Please try again.");
-        // }
-
-        Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail($name, $email, $title, $phone, $address));
-        Mail::to($email)->send(new UserBuyBookMail($name, $email, $title, $phone));
-
-        return to_route('books.index');
+        return redirect()->route('payments.processing', $payment);
     }
 }

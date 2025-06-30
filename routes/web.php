@@ -1,24 +1,25 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\BlogController;
-use App\Http\Controllers\BookController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\VideoController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
-use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\MarketingController;
-use App\Http\Controllers\MpesaController;
-use App\Http\Controllers\QuestionnaireController;
-use App\Http\Controllers\TestimonialsController;
-use App\Http\Controllers\VideoController;
 use App\Http\Controllers\ZuriScoreController;
+use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\TestimonialsController;
+use App\Http\Controllers\PaymentStatusController;
+use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
@@ -183,5 +184,17 @@ Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.pus
 Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
+// new payment-status routes
+Route::get('/payments/{payment}/processing', [PaymentStatusController::class, 'processing'])
+    ->name('payments.processing');
+
+Route::get('/payments/{payment}/status', [PaymentStatusController::class, 'status'])
+    ->name('payments.status');
+
+Route::inertia('/payments/{payment}/success', 'Payments/Success')
+    ->name('payments.success');
+
+Route::inertia('/payments/{payment}/failed',  'Payments/Failed')
+    ->name('payments.failed');
 
 require __DIR__.'/auth.php';

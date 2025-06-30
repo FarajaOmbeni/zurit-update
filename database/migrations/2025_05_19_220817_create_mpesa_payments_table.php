@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('purpose')->nullable();
             $table->string('merchant_request_id');
             $table->string('checkout_request_id');
-            $table->integer('result_code')->nullable();
-            $table->string('result_desc')->nullable();
+            $table->enum('status', ['pending', 'success', 'failed'])->default('pending')->change();
+            $table->string('reason')->nullable();
             $table->string('phone_number');
             $table->string('amount');
             $table->string('mpesa_receipt_number')->nullable();
