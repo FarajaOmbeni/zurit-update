@@ -129,7 +129,7 @@ class BookController extends Controller
         $price = $request->price;
 
         $payment  = $stk->sendStkPush(
-            amount: $price,
+            amount: 10,
             phone: $phone,
             purpose: $title . ' book',
             userId: auth()->user()->id ?? null
