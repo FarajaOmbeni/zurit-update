@@ -27,6 +27,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'password',
         'coach_id',
+        'subscription_status',
+        'subscription_expires_at',
+        'last_payment_date',
     ];
 
     /**
