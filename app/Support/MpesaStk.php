@@ -127,9 +127,9 @@ class MpesaStk
         ]);
 
         // Optionally fire a single event if successful
-        if ($payment->isSuccessful()) {
-            event(new MpesaPaymentSucceeded($payment));
-        }
+        // if ($payment->isSuccessful()) {
+        //     event(new MpesaPaymentSucceeded($payment));
+        // }
     }
 
     /* --------------------------------------------------------------*/

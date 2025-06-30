@@ -113,23 +113,40 @@ class BookController extends Controller
         }
     }
 
-    public function payment(Request $request, ChatpesaStk $stk)
-    {
-        $validated = $request->validate([
-            'price'         => 'required|integer',
-            'name'          => 'required',
-            'email'         => 'required|email',
+    public function payment(Request $request, ChatpesaStk $stk) { 
+        $request->validate([
+            'price' => 'required|integer',
+            'name' => 'required',
+            'email' => 'required|email',
             'confirm_email' => 'required|same:email',
-            'phone'         => 'required',
-            'title'         => 'required|string',
+            'phone' => 'required'
         ]);
 
-        $payment = $stk->sendStkPush(
-            amount: $validated['price'],
-            phone: $validated['phone'],
-            purpose: $validated['title'] . ' book',
-            userId: auth()->id()
-        );
-        return redirect()->route('payments.processing', $payment);
+        $name = $request->name;
+        $email = $request->email;
+        $phone = $request->phone;
+        $address = $request->address;
+        $title = $request->title;
+        $price = $request->price;
+
+        try {
+            $payment  = $stk->sendStkPush(
+                amount: 10,
+                phone: $phone,
+                purpose: $title . ' book',
+                userId: auth()->user()->id ?? null
+            );
+
+            if (! $stk->waitForConfirmation($payment)) {
+                return back()->withErrors('Transaction failed or timed-out. Please try again.');
+            }
+
+            Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail($name, $email, $title, $phone, $address));
+            Mail::to($email)->send(new UserBuyBookMail($name, $email, $title, $phone));
+
+            return to_route('books.index');
+        } catch (Throwable $e) {
+            return back()->withErrors($e->getMessage());
+        }
     }
 }
