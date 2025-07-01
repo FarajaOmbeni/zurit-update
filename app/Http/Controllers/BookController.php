@@ -137,9 +137,6 @@ class BookController extends Controller
                 userId: auth()->user()->id ?? null
             );
 
-            Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail($name, $email, $title, $phone, $address));
-            Mail::to($email)->send(new UserBuyBookMail($name, $email, $title, $phone));
-
             return to_route('books.index');
         } catch (Throwable $e) {
             return back()->withErrors($e->getMessage());

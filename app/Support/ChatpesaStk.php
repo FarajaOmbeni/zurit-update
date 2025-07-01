@@ -3,9 +3,12 @@
 namespace App\Support;
 
 use Throwable;
+use App\Mail\BuyBookMail;
 use App\Models\MpesaPayment;
+use App\Mail\UserBuyBookMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 class ChatpesaStk
 {
@@ -63,28 +66,70 @@ class ChatpesaStk
      |  CALLBACK  →  call from your Route/controller
      |--------------------------------------------------------------*/
 
+    // public function handleCallback(array $payload)
+    // {
+    //     Log::info("ChatpesaStk : ", $payload);
+
+    //     $payment = MpesaPayment::where('checkout_request_id', $payload['checkout_id'] ?? null)->first();
+
+    //     if (!$payment) {
+    //         $payment = MpesaPayment::create([
+    //             'checkout_request_id' => $payload['checkout_id'] ?? null,
+    //             'merchant_request_id' => $payload['merchant_id'] ?? null,
+    //             'status'              => $payload['status']   ?? 'unknown',
+    //             'reason'              => $payload['reason']   ?? null,
+    //         ]);
+    //     } else {
+    //         $payment->update([
+    //             'status' => $payload['status'],
+    //             'reason' => $payload['reason'],
+    //         ]);
+    //     }
+    // }
+
     public function handleCallback(array $payload)
     {
-        Log::info("ChatpesaStk : ", $payload);
+        Log::info("ChatpesaStk callback:", $payload);
 
         $payment = MpesaPayment::where('checkout_request_id', $payload['checkout_id'] ?? null)->first();
 
         if (!$payment) {
-            $payment = MpesaPayment::create([
-                'checkout_request_id' => $payload['checkout_id'] ?? null,
-                'merchant_request_id' => $payload['merchant_id'] ?? null,
-                'status'              => $payload['status']   ?? 'unknown',
-                'reason'              => $payload['reason']   ?? null,
-            ]);
-        } else {
-            $payment->update([
-                'status' => $payload['status'],
-                'reason' => $payload['reason'],
-            ]);
+            Log::error('Payment not found for callback', ['payload' => $payload]);
+            return;
+        }
+
+        $payment->update([
+            'status' => $payload['status'],
+            'reason' => $payload['reason'] ?? null,
+        ]);
+
+        // Send emails only for successful payments
+        if ($payload['status'] === 'succeeded') {
+            try {
+                // Admin email
+                Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail(
+                    $payment->amount,
+                    $payment->amount,
+                    $payment->amount,
+                    $payment->amount,
+                    $payment->amount
+                ));
+                $customer_email = 'ombenifaraja2000@gmail.com';
+
+                // Customer email
+                Mail::to($customer_email)->send(new UserBuyBookMail(
+                    $payment->amount,
+                    $payment->amount,
+                    $payment->amount,
+                    $payment->amount
+                ));
+
+                Log::info("Confirmation emails sent for payment: " . $payment->id);
+            } catch (\Exception $e) {
+                Log::error('Email sending failed: ' . $e->getMessage());
+            }
         }
     }
-
-
 
     private function formatPhoneNumber(string $phone): string
     {
