@@ -137,10 +137,6 @@ class BookController extends Controller
                 userId: auth()->user()->id ?? null
             );
 
-            if (! $stk->waitForConfirmation($payment)) {
-                return back()->withErrors('Transaction failed or timed-out. Please try again.');
-            }
-
             Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail($name, $email, $title, $phone, $address));
             Mail::to($email)->send(new UserBuyBookMail($name, $email, $title, $phone));
 
