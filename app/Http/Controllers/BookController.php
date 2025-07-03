@@ -136,6 +136,17 @@ class BookController extends Controller
                 purpose: $title . ' book',
                 userId: auth()->user()->id ?? null
             );
+            
+        // Store all user/book data in session with payment ID
+        session()->put("payment_data_{$payment->id}", [
+            'type' => 'book',
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'address' => $address,
+            'book_title' => $title,
+            'price' => $price,
+        ]);
 
             return to_route('books.index');
         } catch (Throwable $e) {

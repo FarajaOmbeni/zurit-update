@@ -6,6 +6,7 @@ use Throwable;
 use App\Mail\BuyBookMail;
 use App\Models\MpesaPayment;
 use App\Mail\UserBuyBookMail;
+use App\Mail\ZuriScoreReportMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -66,27 +67,7 @@ class ChatpesaStk
      |  CALLBACK  →  call from your Route/controller
      |--------------------------------------------------------------*/
 
-    // public function handleCallback(array $payload)
-    // {
-    //     Log::info("ChatpesaStk : ", $payload);
-
-    //     $payment = MpesaPayment::where('checkout_request_id', $payload['checkout_id'] ?? null)->first();
-
-    //     if (!$payment) {
-    //         $payment = MpesaPayment::create([
-    //             'checkout_request_id' => $payload['checkout_id'] ?? null,
-    //             'merchant_request_id' => $payload['merchant_id'] ?? null,
-    //             'status'              => $payload['status']   ?? 'unknown',
-    //             'reason'              => $payload['reason']   ?? null,
-    //         ]);
-    //     } else {
-    //         $payment->update([
-    //             'status' => $payload['status'],
-    //             'reason' => $payload['reason'],
-    //         ]);
-    //     }
-    // }
-
+    // ChatpesaStk.php
     public function handleCallback(array $payload)
     {
         Log::info("ChatpesaStk callback:", $payload);
@@ -103,28 +84,55 @@ class ChatpesaStk
             'reason' => $payload['reason'] ?? null,
         ]);
 
-        // Send emails only for successful payments
         if ($payload['status'] === 'succeeded') {
             try {
-                // Admin email
-                Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail(
-                    $payment->amount,
-                    $payment->amount,
-                    $payment->amount,
-                    $payment->amount,
-                    $payment->amount
-                ));
-                $customer_email = 'ombenifaraja2000@gmail.com';
+                $sessionKey = "payment_data_{$payment->id}";
+                $paymentData = session()->get($sessionKey);
 
-                // Customer email
-                Mail::to($customer_email)->send(new UserBuyBookMail(
-                    $payment->amount,
-                    $payment->amount,
-                    $payment->amount,
-                    $payment->amount
-                ));
+                if (!$paymentData) {
+                    Log::info("Payment data not found for callback", ['payment_id' => $payment->id]);
+                    return;
+                }
 
-                Log::info("Confirmation emails sent for payment: " . $payment->id);
+                switch ($paymentData['type']) {
+                    case 'book':
+                        Log::info("Payment data before session:", $paymentData);
+                        // Fallback data if session missing
+                        $name = $paymentData['name'];
+                        $email = $paymentData['email'];
+                        $phone = $paymentData['phone'] ?? $payment->phone_number;
+                        $address = $paymentData['address'];
+                        $bookTitle = $paymentData['book_title'];
+
+                        // Admin email with full details
+                        Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail(
+                            $name,
+                            $email,
+                            $bookTitle,
+                            $phone,
+                            $address,
+                        ));
+
+                        // Customer email with confirmation
+                        Mail::to($email)->send(new UserBuyBookMail(
+                            $name,
+                            $email,
+                            $bookTitle,
+                            $phone
+                        ));
+                        break;
+                        
+                    case 'zuriscore':
+                        $name = $paymentData['name'];
+                        $email = $paymentData['email'];
+                        $reportUrl = $paymentData['report_url'];
+                        Mail::to($email)->send(new ZuriScoreReportMail($name, $reportUrl));
+                        break;
+                }
+
+                session()->forget($sessionKey);
+                Log::info("Payment data after session: ", session()->get($sessionKey));
+                Log::info("Emails sent for payment: {$payment->id}");
             } catch (\Exception $e) {
                 Log::error('Email sending failed: ' . $e->getMessage());
             }

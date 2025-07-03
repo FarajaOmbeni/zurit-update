@@ -101,12 +101,13 @@ class ZuriScoreController extends Controller
         $file = $request->statement_file;
         $filePath = $file->getPathname();
         $email = urlencode($request->input('email'));
+        $new_callback_url = $callback_url . '?email=' . $email . '?payment_id=' . $payment->id;
 
         $postFields = [
             'statement_type' => $statement_type,
             'password' => $statement_password,
             'file' => new CURLFile($filePath, $file->getMimeType(), $file->getClientOriginalName()),
-            'report_callback_url' => $callback_url . '?email=' . $email
+            'report_callback_url' => $new_callback_url
         ];
 
         $curl = curl_init();
@@ -141,6 +142,7 @@ class ZuriScoreController extends Controller
     public function handleCallback(Request $request)
     {
         $email = $request->query('email');
+        $payment_id = $request->query('payment_id');
         $data = $request->all();
         $reportUrl = $data['reportUrl'];
         $fullName = explode(' ', $data['reportData']['name']);
@@ -149,8 +151,12 @@ class ZuriScoreController extends Controller
         Log::info('Callback for email:', ['email' => $email, 'name'=>$firstName,'reportUrl' => $reportUrl]);
         Log::info('ALL ZEE DATA:', ['data' => $data]);
 
-        Mail::to($email)->send(new ZuriScoreReportMail($firstName, $reportUrl));
-
+        session()->put("payment_data_{$payment_id}", [
+            'type' => 'zuriscore',
+            'name' => $firstName,
+            'report_url' => $reportUrl,
+            'email' => $email,
+        ]);
         // Return a success response
         return response()->json([
             'status' => 'success',

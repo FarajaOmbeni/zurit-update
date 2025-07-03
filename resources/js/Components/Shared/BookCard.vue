@@ -17,8 +17,8 @@
 <script setup>
 import { ref } from "vue";
 import BookModal from "./BookModal.vue";
-
-defineProps({
+import { router } from "@inertiajs/vue3";
+const props = defineProps({
     book: Object,
     user: {
         type: Object,
@@ -29,7 +29,14 @@ defineProps({
 const isModalOpen = ref(false);
 
 const openModal = () => {
-    isModalOpen.value = true;
+    if (props.user) {
+        isModalOpen.value = true;
+    } else {
+        router.get('/login', {
+            // Pass redirect URL as query parameter
+            redirect: window.location.pathname
+        });
+    }
 };
 
 const closeModal = () => {
