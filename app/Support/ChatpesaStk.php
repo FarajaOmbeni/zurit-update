@@ -70,7 +70,7 @@ class ChatpesaStk
     // ChatpesaStk.php
     public function handleCallback(array $payload)
     {
-        Log::info("ChatpesaStk callback:", $payload);
+        Log::info("ChatpesaStk callback:", ['payload: ' => $payload]);
 
         $payment = MpesaPayment::where('checkout_request_id', $payload['checkout_id'] ?? null)->first();
 
@@ -89,6 +89,9 @@ class ChatpesaStk
                 $sessionKey = "payment_data_{$payment->id}";
                 $paymentData = session()->get($sessionKey);
 
+                Log::info("Payment data", ['payment_data' => $paymentData]);
+
+
                 if (!$paymentData) {
                     Log::info("Payment data not found for callback", ['payment_id' => $payment->id]);
                     return;
@@ -96,7 +99,7 @@ class ChatpesaStk
 
                 switch ($paymentData['type']) {
                     case 'book':
-                        Log::info("Payment data before session:", $paymentData);
+                        Log::info("Processing book purchase:", ['payment_data' => $paymentData]);
                         // Fallback data if session missing
                         $name = $paymentData['name'];
                         $email = $paymentData['email'];
@@ -121,8 +124,9 @@ class ChatpesaStk
                             $phone
                         ));
                         break;
-                        
+
                     case 'zuriscore':
+                        Log::info("Processing zurscore purchase:", ['payment_data' => $paymentData]);
                         $name = $paymentData['name'];
                         $email = $paymentData['email'];
                         $reportUrl = $paymentData['report_url'];
@@ -131,10 +135,10 @@ class ChatpesaStk
                 }
 
                 session()->forget($sessionKey);
-                Log::info("Payment data after session: ", session()->get($sessionKey));
-                Log::info("Emails sent for payment: {$payment->id}");
+                Log::info("Payment data after session: ", ['session' => session()->get($sessionKey)]);
+                Log::info("Emails sent for payment: ", ['payment_id' => $payment->id]);
             } catch (\Exception $e) {
-                Log::error('Email sending failed: ' . $e->getMessage());
+                Log::error('Email sending failed: ', ['error' => $e->getMessage()]);
             }
         }
     }

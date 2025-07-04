@@ -10,7 +10,7 @@
         </button>
 
         <!-- Modal Component -->
-        <BookModal :show="isModalOpen" :book="book" @close="closeModal" :user="user"/>
+        <BookModal :show="isModalOpen" :book="book" @close="closeModal" :user="user" />
     </div>
 </template>
 
@@ -29,14 +29,8 @@ const props = defineProps({
 const isModalOpen = ref(false);
 
 const openModal = () => {
-    if (props.user) {
-        isModalOpen.value = true;
-    } else {
-        router.get('/login', {
-            // Pass redirect URL as query parameter
-            redirect: window.location.pathname
-        });
-    }
+    isModalOpen.value = true;
+
 };
 
 const closeModal = () => {

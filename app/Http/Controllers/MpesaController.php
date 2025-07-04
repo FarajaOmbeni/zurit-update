@@ -20,13 +20,4 @@ class MpesaController extends Controller
             return response()->json(['status' => 'error'], 500);
         }
     }
-
-    public function status(MpesaPayment $payment)
-    {
-        return response()->json([
-            'status'   => $payment->status,          // pending | success | failed
-            'reason'   => $payment->reason,
-            'checksum' => $payment->updated_at->timestamp, // lets the UI short-circuit if nothing changed
-        ]);
-    }
 }
