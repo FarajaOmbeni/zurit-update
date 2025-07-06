@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use App\Models\Book;
 use Inertia\Inertia;
 use App\Mail\BuyBookMail;
-use App\Mail\UserBuyBookMail;
-use App\Support\ChatpesaStk;
 use App\Support\MpesaStk;
+use App\Support\ChatpesaStk;
 use Illuminate\Http\Request;
+use App\Mail\UserBuyBookMail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Throwable;
 
 class BookController extends Controller
 {
@@ -138,7 +140,7 @@ class BookController extends Controller
             );
             
         // Store all user/book data in session with payment ID
-        session()->put("payment_data_{$payment->id}", [
+        Cache::put("payment_data_{$payment->id}", [
             'type' => 'book',
             'name' => $name,
             'email' => $email,
@@ -146,7 +148,9 @@ class BookController extends Controller
             'address' => $address,
             'book_title' => $title,
             'price' => $price,
-        ]);
+        ], now()->addMinutes(10));
+        
+        Log::info("Payment data just after payment", ['payment_data' => session()->get("payment_data_{$payment->id}")]);
 
             return to_route('books.index');
         } catch (Throwable $e) {

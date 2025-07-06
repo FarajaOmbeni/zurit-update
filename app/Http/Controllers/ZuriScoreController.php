@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Cache;
 use CURLFile;
 use Inertia\Inertia;
 use App\Support\MpesaStk;
@@ -89,19 +90,23 @@ class ZuriScoreController extends Controller
             amount: $request->statement_duration,
             phone: $request->phone,
             purpose: 'report',
-            userId: auth()->user()->id
+            userId: auth()->user()?->id
         );
 
-        // if (! $stk->waitForConfirmation($payment)) {
-        //     return back()->withErrors("Transaction Failed. Please try again.");
-        // }
+        Cache::put("payment_data_{$payment->id}", [
+            'type' => 'zuriscore',
+            'phone' => $request->phone,
+            'email' => $request->email,
+        ], now()->addMinutes(10));
+
+
 
         $statement_type = $request->statement_type;
         $statement_password = $request->statement_password;
         $file = $request->statement_file;
         $filePath = $file->getPathname();
         $email = urlencode($request->input('email'));
-        $new_callback_url = $callback_url . '?email=' . $email . '?payment_id=' . $payment->id;
+        $new_callback_url = $callback_url . '?email=' . $email . '&payment_id=' . $payment->id;
 
         $postFields = [
             'statement_type' => $statement_type,
@@ -144,19 +149,44 @@ class ZuriScoreController extends Controller
         $email = $request->query('email');
         $payment_id = $request->query('payment_id');
         $data = $request->all();
-        $reportUrl = $data['reportUrl'];
-        $fullName = explode(' ', $data['reportData']['name']);
-        $firstName = $fullName[0];
 
-        Log::info('Callback for email:', ['email' => $email, 'name'=>$firstName,'reportUrl' => $reportUrl]);
-        Log::info('ALL ZEE DATA:', ['data' => $data]);
+        Log::info('ZuriScore callback received:', [
+            'email' => $email,
+            'payment_id' => $payment_id,
+            'data' => $data
+        ]);
 
-        session()->put("payment_data_{$payment_id}", [
-            'type' => 'zuriscore',
+        if (!$payment_id) {
+            Log::error('No payment_id in ZuriScore callback');
+            return response()->json(['status' => 'error', 'message' => 'No payment_id provided'], 400);
+        }
+
+        $reportUrl = $data['reportUrl'] ?? null;
+        $fullName = explode(' ', $data['reportData']['name'] ?? '');
+        $firstName = $fullName[0] ?? '';
+
+        if (!$reportUrl || !$firstName) {
+            Log::error('Missing reportUrl or name in ZuriScore callback', [
+                'reportUrl' => $reportUrl,
+                'firstName' => $firstName
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'Missing required data'], 400);
+        }
+
+        $cacheKey = "payment_data_{$payment_id}";
+        $paymentData = Cache::get($cacheKey) ?? [];
+
+        Log::info('Existing payment data:', ['cacheKey' => $cacheKey, 'paymentData' => $paymentData]);
+
+        $paymentData = array_merge($paymentData, [
             'name' => $firstName,
             'report_url' => $reportUrl,
-            'email' => $email,
         ]);
+
+        Cache::put($cacheKey, $paymentData, now()->addMinutes(10));
+
+        Log::info('Updated payment data:', ['cacheKey' => $cacheKey, 'paymentData' => $paymentData]);
+
         // Return a success response
         return response()->json([
             'status' => 'success',

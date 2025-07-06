@@ -10,6 +10,7 @@ use App\Mail\ZuriScoreReportMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 
 class ChatpesaStk
 {
@@ -73,6 +74,7 @@ class ChatpesaStk
         Log::info("ChatpesaStk callback:", ['payload: ' => $payload]);
 
         $payment = MpesaPayment::where('checkout_request_id', $payload['checkout_id'] ?? null)->first();
+        Log::info("Payment ID", ['payment_id' => $payment->id]);
 
         if (!$payment) {
             Log::error('Payment not found for callback', ['payload' => $payload]);
@@ -86,14 +88,14 @@ class ChatpesaStk
 
         if ($payload['status'] === 'succeeded') {
             try {
-                $sessionKey = "payment_data_{$payment->id}";
-                $paymentData = session()->get($sessionKey);
+                $cacheKey = "payment_data_{$payment->id}";
+                $paymentData = Cache::get($cacheKey);
 
-                Log::info("Payment data", ['payment_data' => $paymentData]);
+                Log::info("Payment data in callback", ["payment_data_{$payment->id}" => $paymentData]);
 
 
                 if (!$paymentData) {
-                    Log::info("Payment data not found for callback", ['payment_id' => $payment->id]);
+                    Log::info("Payment data not found for callback", ["payment_data_{$payment->id}" => $paymentData]);
                     return;
                 }
 
@@ -126,7 +128,8 @@ class ChatpesaStk
                         break;
 
                     case 'zuriscore':
-                        Log::info("Processing zurscore purchase:", ['payment_data' => $paymentData]);
+                        sleep(30);
+                        Log::info("Processing zuriscore purchase:", ['payment_data' => $paymentData]);
                         $name = $paymentData['name'];
                         $email = $paymentData['email'];
                         $reportUrl = $paymentData['report_url'];
@@ -134,8 +137,8 @@ class ChatpesaStk
                         break;
                 }
 
-                session()->forget($sessionKey);
-                Log::info("Payment data after session: ", ['session' => session()->get($sessionKey)]);
+                Cache::forget($cacheKey);
+                Log::info("Payment data after session: ", ['session' => Cache::get($cacheKey)]);
                 Log::info("Emails sent for payment: ", ['payment_id' => $payment->id]);
             } catch (\Exception $e) {
                 Log::error('Email sending failed: ', ['error' => $e->getMessage()]);
