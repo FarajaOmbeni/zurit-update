@@ -40,7 +40,7 @@ Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
-Route::get('/money-quiz', function() {
+Route::get('/money-quiz', function () {
     return Inertia::render('MoneyQuiz');
 })->name('money.quiz');
 Route::get('/advisory', function () {
@@ -115,6 +115,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('calculator.index');
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
+    Route::get('/user/zuriscore/processing/{payment_id}', [ZuriScoreController::class, 'processing'])->name('zuriscore.processing');
+    Route::get('/user/zuriscore/status/{payment_id}', [ZuriScoreController::class, 'checkPaymentStatus'])->name('zuriscore.status');
 
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
@@ -164,13 +166,15 @@ Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget'
 Route::get('/training', [IndexController::class, 'training'])->name('training');
 Route::get('/books', [BookController::class, 'index'])->name('books.index');
 Route::post('/book/buy', [BookController::class, 'payment'])->name('buy.book');
+Route::get('/book/processing/{payment_id}', [BookController::class, 'processing'])->name('book.processing');
+Route::get('/book/status/{payment_id}', [BookController::class, 'checkPaymentStatus'])->name('book.status');
 Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');
-Route::get('/business-support', function() {
+Route::get('/business-support', function () {
     return Inertia::render('BusinessSupport');
 })->name('business.support');
 Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
@@ -185,4 +189,4 @@ Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

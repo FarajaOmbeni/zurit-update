@@ -47,7 +47,7 @@
                 <Input label="Address" placeholder="Enter your address" v-model="form.address" />
                 <Input label="Phone number" placeholder="Safaricom phone number for payment" v-model="form.phone" />
 
-                <p v-show="form.processing" class="font-bold text-sm text-green-500">We have sent an MPESA STK Push to
+                <p v-show="form.processing" class="font-bold text-sm text-green-500">We are sending you an MPESA STK Push to
                     {{ form.phone }}. Input your pin to continue</p>
 
                 <Button type="submit" :processing="form.processing">

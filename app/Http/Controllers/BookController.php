@@ -15,13 +15,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
     public function index()
     {
         $books = Book::all();
-        $user = auth()->user();
+        $user = Auth::user();
         return Inertia::render('Books', ['user' => $user]);
     }
 
@@ -115,7 +116,8 @@ class BookController extends Controller
         }
     }
 
-    public function payment(Request $request, ChatpesaStk $stk) { 
+    public function payment(Request $request, ChatpesaStk $stk)
+    {
         $request->validate([
             'price' => 'required|integer',
             'name' => 'required',
@@ -136,25 +138,56 @@ class BookController extends Controller
                 amount: 10,
                 phone: $phone,
                 purpose: $title . ' book',
-                userId: auth()->user()->id ?? null
+                userId: Auth::id()
             );
-            
-        // Store all user/book data in session with payment ID
-        Cache::put("payment_data_{$payment->id}", [
-            'type' => 'book',
-            'name' => $name,
-            'email' => $email,
-            'phone' => $phone,
-            'address' => $address,
-            'book_title' => $title,
-            'price' => $price,
-        ], now()->addMinutes(10));
-        
-        Log::info("Payment data just after payment", ['payment_data' => session()->get("payment_data_{$payment->id}")]);
 
-            return to_route('books.index');
+            // Store all user/book data in session with payment ID
+            Cache::put("payment_data_{$payment->id}", [
+                'type' => 'book',
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'address' => $address,
+                'book_title' => $title,
+                'price' => $price,
+            ], now()->addMinutes(10));
+
+            Log::info("Payment data just after payment", ['payment_data' => Cache::get("payment_data_{$payment->id}")]);
+
+            // Redirect to processing page with payment ID
+            return redirect()->route('book.processing', ['payment_id' => $payment->id]);
         } catch (Throwable $e) {
             return back()->withErrors($e->getMessage());
         }
+    }
+
+    public function processing($payment_id)
+    {
+        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+
+        // Get cached payment data
+        $paymentData = Cache::get("payment_data_{$payment_id}");
+
+        if (!$paymentData) {
+            return redirect()->route('books.index')->withErrors('Payment session expired.');
+        }
+
+        return Inertia::render('Payments/Processing', [
+            'payment' => $payment,
+            'phone' => $payment->phone_number,
+            'bookTitle' => $paymentData['book_title'] ?? 'Book',
+            'type' => 'book'
+        ]);
+    }
+
+    public function checkPaymentStatus($payment_id)
+    {
+        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+
+        return response()->json([
+            'status' => $payment->status,
+            'reason' => $payment->reason,
+            'payment_id' => $payment->id
+        ]);
     }
 }

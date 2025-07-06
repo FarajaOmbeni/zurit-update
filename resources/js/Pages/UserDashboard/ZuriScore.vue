@@ -60,21 +60,23 @@ function submitForm() {
                         <Input type="text" placeholder="Enter statement password" label="Statement Password (If Needed)"
                             v-model="form.statement_password" />
                         <Select label="Statement Period" select_title="Select duration" :options="[
-                                {label: '1 Month - KES 10', value: 10},
-                                {label: '3 Month - KES 100', value: 100},
-                                {label: '6 Month - KES 200', value: 200},
-                                {label: '1 Year - KES 300', value: 300},
-                                {label: '2 Years - KES 500', value: 500}
-                            ]" v-model="form.statement_duration" />
+                            { label: '1 Month - KES 10', value: 10 },
+                            { label: '3 Month - KES 100', value: 100 },
+                            { label: '6 Month - KES 200', value: 200 },
+                            { label: '1 Year - KES 300', value: 300 },
+                            { label: '2 Years - KES 500', value: 500 }
+                        ]" v-model="form.statement_duration" />
                         <Input label="Email" placeholder="Email address to recieve report" v-model="form.email" />
                         <Input label="Confirm Email" placeholder="Confirm email address"
                             v-model="form.email_confirmation" />
                         <Input label="Pay with" placeholder="Safaricom phone number for payment" v-model="form.phone" />
-                        <p class="text-md italic text-green-500" :class="form.processing ? 'block': 'hidden'">We have sent an STK push to {{ form.phone }}. Confirm to conitnue.</p>
 
                         <Button type="submit" :processing="form.processing">
                             {{ form.processing ? 'Loading...' : 'Submit' }}
                         </Button>
+                        <p v-show="form.processing" class="font-bold text-sm text-green-500">We are sending you an MPESA
+                            STK Push to
+                            {{ form.phone }}. Input your pin to continue</p>
                     </form>
                 </div>
             </Sidebar>

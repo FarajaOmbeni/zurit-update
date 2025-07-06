@@ -11,6 +11,7 @@ use App\Mail\ZuriScoreReportMail;
 use App\Support\ChatpesaStk;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 class ZuriScoreController extends Controller
 {
@@ -90,7 +91,7 @@ class ZuriScoreController extends Controller
             amount: $request->statement_duration,
             phone: $request->phone,
             purpose: 'report',
-            userId: auth()->user()?->id
+            userId: Auth::id()
         );
 
         Cache::put("payment_data_{$payment->id}", [
@@ -141,7 +142,9 @@ class ZuriScoreController extends Controller
         if (isset($responseData->code)) {
             return to_route('zuriscore.index')->withErrors($responseData->message);
         }
-        return to_route('zuriscore.index');
+
+        // Redirect to processing page with payment ID
+        return redirect()->route('zuriscore.processing', ['payment_id' => $payment->id]);
     }
 
     public function handleCallback(Request $request)
@@ -192,5 +195,36 @@ class ZuriScoreController extends Controller
             'status' => 'success',
             'message' => 'Callback received successfully'
         ], 200);
+    }
+
+    public function processing($payment_id)
+    {
+        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+
+        // Ensure user can only view their own payments
+        if (Auth::id() !== $payment->user_id) {
+            abort(403);
+        }
+
+        return Inertia::render('UserDashboard/ZuriScoreProcessing', [
+            'payment' => $payment,
+            'phone' => $payment->phone_number
+        ]);
+    }
+
+    public function checkPaymentStatus($payment_id)
+    {
+        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+
+        // Ensure user can only check their own payments
+        if (Auth::id() !== $payment->user_id) {
+            abort(403);
+        }
+
+        return response()->json([
+            'status' => $payment->status,
+            'reason' => $payment->reason,
+            'payment_id' => $payment->id
+        ]);
     }
 }
