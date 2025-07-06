@@ -10,6 +10,7 @@ use App\Support\MpesaStk;
 use App\Support\ChatpesaStk;
 use Illuminate\Http\Request;
 use App\Mail\UserBuyBookMail;
+use App\Exceptions\InvalidPhoneNumberException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
@@ -156,6 +157,8 @@ class BookController extends Controller
 
             // Redirect to processing page with payment ID
             return redirect()->route('book.processing', ['payment_id' => $payment->id]);
+        } catch (InvalidPhoneNumberException $e) {
+            return back()->withErrors(['phone' => $e->getMessage()]);
         } catch (Throwable $e) {
             return back()->withErrors($e->getMessage());
         }

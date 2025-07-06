@@ -7,6 +7,7 @@ use App\Mail\BuyBookMail;
 use App\Models\MpesaPayment;
 use App\Mail\UserBuyBookMail;
 use App\Mail\ZuriScoreReportMail;
+use App\Exceptions\InvalidPhoneNumberException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -162,8 +163,6 @@ class ChatpesaStk
             return '0' . substr($digits, 3);
         }
 
-        throw new \InvalidArgumentException(
-            "Invalid Kenyan phone number: {$phone} (digits extracted: {$digits})"
-        );
+        throw new InvalidPhoneNumberException($phone, $digits);
     }
 }

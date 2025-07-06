@@ -69,7 +69,9 @@ function submitForm() {
                         <Input label="Email" placeholder="Email address to recieve report" v-model="form.email" />
                         <Input label="Confirm Email" placeholder="Confirm email address"
                             v-model="form.email_confirmation" />
-                        <Input label="Pay with" placeholder="Safaricom phone number for payment" v-model="form.phone" />
+                        <Input label="Pay with" placeholder="e.g., 0712345678 or +254712345678" v-model="form.phone"
+                            :error="form.errors.phone" />
+                        <p class="text-xs text-gray-500 -mt-2">Enter a valid Kenyan phone number (e.g., 0712345678)</p>
 
                         <Button type="submit" :processing="form.processing">
                             {{ form.processing ? 'Loading...' : 'Submit' }}

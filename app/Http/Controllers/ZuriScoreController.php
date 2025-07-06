@@ -9,6 +9,7 @@ use App\Support\MpesaStk;
 use Illuminate\Http\Request;
 use App\Mail\ZuriScoreReportMail;
 use App\Support\ChatpesaStk;
+use App\Exceptions\InvalidPhoneNumberException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
@@ -87,18 +88,22 @@ class ZuriScoreController extends Controller
             'phone' => 'required'
         ]);
 
-        $payment  = $stk->sendStkPush(
-            amount: $request->statement_duration,
-            phone: $request->phone,
-            purpose: 'report',
-            userId: Auth::id()
-        );
+        try {
+            $payment  = $stk->sendStkPush(
+                amount: $request->statement_duration,
+                phone: $request->phone,
+                purpose: 'report',
+                userId: Auth::id()
+            );
 
-        Cache::put("payment_data_{$payment->id}", [
-            'type' => 'zuriscore',
-            'phone' => $request->phone,
-            'email' => $request->email,
-        ], now()->addMinutes(10));
+            Cache::put("payment_data_{$payment->id}", [
+                'type' => 'zuriscore',
+                'phone' => $request->phone,
+                'email' => $request->email,
+            ], now()->addMinutes(10));
+        } catch (InvalidPhoneNumberException $e) {
+            return back()->withErrors(['phone' => $e->getMessage()]);
+        }
 
 
 
