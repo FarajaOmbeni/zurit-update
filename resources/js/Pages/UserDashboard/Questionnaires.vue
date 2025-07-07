@@ -4,13 +4,15 @@ import { Head, useForm, usePage } from '@inertiajs/vue3'
 import Sidebar from '@/Components/Sidebar.vue'
 import { reactive, ref, computed } from 'vue'
 
-const { props: $page } = usePage()
+const props = defineProps({
+    user: Object
+})
 
 // Onboarding Form Data
 const onboardingForm = reactive({
     // Contact Information (auto-populated from auth user)
-    fullName: $page.props.auth.user.name || '',
-    email: $page.props.auth.user.email || '',
+    fullName: props.user.name || '',
+    email: props.user.email || '',
     phone: '',
     // Section A
     dateOfBirth: '', maritalStatus: '', childrenDependents: '',
@@ -29,8 +31,8 @@ const onboardingForm = reactive({
 // Money Personality Form Data
 const personalityForm = reactive({
     // Contact Information (auto-populated from auth user)
-    fullName: $page.props.auth.user.name || '',
-    email: $page.props.auth.user.email || '',
+    fullName: props.user.name || '',
+    email: props.user.email || '',
     phone: '',
     q1: '', q2: '', q3: '', q4: '', q5: '', q6: '', q7: '', q8: '', q9: '', q10: '',
     q11: '', q12: '', q13: '', q14: '', q15: '', q16: '', q17: '', q18: '', q19: '', q20: ''
@@ -39,8 +41,8 @@ const personalityForm = reactive({
 // Risk Tolerance Data
 const riskForm = reactive({
     // Contact Information (auto-populated from auth user)
-    fullName: $page.props.auth.user.name || '',
-    email: $page.props.auth.user.email || '',
+    fullName: props.user.name || '',
+    email: props.user.email || '',
     phone: '',
     q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, q7: 0, q8: 0, q9: 0, q10: 0,
     q11: 0, q12: 0, q13: 0, q14: 0, q15: 0, q16: 0, q17: 0, q18: 0, q19: 0, q20: 0
@@ -54,8 +56,8 @@ const quizScores = ref({
 })
 
 const userInfo = ref({
-    name: $page.props.auth.user.name || '',
-    email: $page.props.auth.user.email || '',
+    name: props.user.name || '',
+    email: props.user.email || '',
     phone: ''
 })
 

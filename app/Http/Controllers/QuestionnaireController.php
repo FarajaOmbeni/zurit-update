@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -9,6 +10,14 @@ use App\Mail\QuestionnaireResponseMail;
 
 class QuestionnaireController extends Controller
 {
+    public function index()
+    {
+        $user = auth()->user();
+        return Inertia::render('UserDashboard/Questionnaires', [
+            'user' => $user
+        ]);
+    }
+
     public function submitQuestionnaire(Request $request)
     {
         // Get all form data
