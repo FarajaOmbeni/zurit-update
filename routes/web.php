@@ -50,6 +50,9 @@ Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
+Route::get('/money-quiz', function () {
+    return Inertia::render('MoneyQuiz');
+})->name('money.quiz');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');
@@ -62,6 +65,12 @@ Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.ema
 Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
 Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscription.plans');
 Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
+
+// Pesapal callback and IPN routes
+Route::get('/subscription/callback', [SubscriptionController::class, 'handleCallback'])->name('subscription.callback');
+Route::get('/pesapal/ipn', [SubscriptionController::class, 'handleIpn'])->name('pesapal.ipn');
+Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])->middleware(['auth'])->name('subscription.cancel');
+Route::post('/subscription/reactivate', [SubscriptionController::class, 'reactivate'])->middleware(['auth'])->name('subscription.reactivate');
 
 Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

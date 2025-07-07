@@ -4,18 +4,15 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
+import { computed } from 'vue';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
 const page = usePage();
 const user = page.props.auth.user || {};
+const subscription = page.props.auth.subscription || {};
 
 const form = useForm({
-    card_number: '',
-    expiry_month: '',
-    expiry_year: '',
-    cvv: '',
-    cardholder_name: '',
     package: 'monthly'
 })
 
@@ -25,42 +22,45 @@ const packages = {
     yearly: { price: 4500, duration: '12 months', label: 'Yearly Subscription', savings: 'Save KES 1,500!' }
 }
 
-// Format card number with spaces
-function formatCardNumber(value) {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-        parts.push(match.substring(i, i + 4));
-    }
-    if (parts.length) {
-        return parts.join(' ');
-    } else {
-        return v;
-    }
-}
-
-// Handle card number input
-function handleCardNumberInput(event) {
-    const formatted = formatCardNumber(event.target.value);
-    form.card_number = formatted;
-}
-
-// Format expiry date
-function handleExpiryInput(event) {
-    let value = event.target.value.replace(/\D/g, '');
-    if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    event.target.value = value;
-}
+// Computed properties
+const isSubscribed = computed(() => subscription.is_active)
+const subscriptionExpiry = computed(() => {
+    if (!subscription.expires_at) return null
+    return new Date(subscription.expires_at).toLocaleDateString()
+})
 
 function handleSubmit() {
     form.post(route('subscribe'), {
-        onSuccess: (response) => {
-            form.reset();
-            openAlert('success', 'Payment processed successfully', 5000);
+        onSuccess: () => {
+            // Inertia::location() will automatically redirect to Pesapal payment page
+            openAlert('success', 'Redirecting to secure payment page...', 3000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors).flat().join(' ');
+            openAlert('danger', errorMessages, 5000);
+        }
+    });
+}
+
+function cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your subscription? You will still have access until your current period expires.')) {
+        useForm().post(route('subscription.cancel'), {
+            onSuccess: () => {
+                openAlert('success', 'Subscription cancelled successfully', 5000);
+                window.location.reload();
+            },
+            onError: (errors) => {
+                const errorMessages = Object.values(errors).flat().join(' ');
+                openAlert('danger', errorMessages, 5000);
+            }
+        });
+    }
+}
+
+function reactivateSubscription() {
+    useForm().post(route('subscription.reactivate'), {
+        onSuccess: () => {
+            openAlert('success', 'Subscription reactivated successfully', 5000);
             window.location.reload();
         },
         onError: (errors) => {
@@ -81,10 +81,68 @@ function handleSubmit() {
         <Sidebar>
             <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                 :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
+
             <!-- Center viewport -->
             <div class="min-h-screen flex items-center justify-center px-4 py-10">
-                <!-- Card: matches original purple Zurit styling -->
-                <div
+                <!-- Already Subscribed State -->
+                <div v-if="isSubscribed"
+                    class="w-full max-w-lg bg-gradient-to-br from-green-800 via-green-700 to-green-600 text-white rounded-2xl shadow-2xl p-8 md:p-10 text-center">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h1 class="text-3xl font-extrabold leading-tight mb-2">
+                            🎉 You're All Set!
+                        </h1>
+                        <p class="text-lg text-white/90">
+                            Welcome to the <span class="text-yellow-300 font-semibold">Prosperity Tools</span>
+                        </p>
+                    </div>
+
+                    <!-- Subscription Details -->
+                    <div class="bg-white/10 rounded-lg p-4 mb-6">
+                        <h3 class="text-lg font-semibold mb-3">Your Subscription</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>Plan:</span>
+                                <span class="font-medium capitalize">{{ subscription.package || 'Active' }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Status:</span>
+                                <span class="font-medium">{{ subscription.status === 'active' ? 'Active' :
+                                    subscription.status }}</span>
+                            </div>
+                            <div v-if="subscriptionExpiry" class="flex justify-between">
+                                <span>Expires:</span>
+                                <span class="font-medium">{{ subscriptionExpiry }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="space-y-3">
+                        <a :href="route('budget.index')"
+                            class="block w-full py-3 px-6 bg-white text-green-800 font-semibold rounded-full shadow hover:bg-gray-100 transition">
+                            🚀 Go to Dashboard
+                        </a>
+
+                        <button v-if="subscription.status === 'active'" @click="cancelSubscription"
+                            class="w-full py-2 px-6 border border-white/50 text-white font-medium rounded-full hover:bg-white/10 transition">
+                            Cancel Subscription
+                        </button>
+
+                        <button v-if="subscription.status === 'cancelled'" @click="reactivateSubscription"
+                            class="w-full py-3 px-6 bg-yellow-500 text-green-800 font-semibold rounded-full shadow hover:bg-yellow-400 transition">
+                            Reactivate Subscription
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subscription Purchase Form -->
+                <div v-else
                     class="w-full max-w-lg bg-gradient-to-br from-purple-800 via-purple-700 to-purple-600 text-white rounded-2xl shadow-2xl p-8 md:p-10 text-center">
                     <!-- Title -->
                     <h1 class="text-4xl font-extrabold leading-tight mb-3">
@@ -104,6 +162,9 @@ function handleSubmit() {
                             planner</li>
                         <li class="flex items-start gap-2"><span class="text-green-300">✔</span> Guided investment
                             calculator</li>
+                        <li class="flex items-start gap-2"><span class="text-green-300">✔</span> Net worth tracking</li>
+                        <li class="flex items-start gap-2"><span class="text-green-300">✔</span> Financial calculators
+                        </li>
                     </ul>
 
                     <!-- Package Selection -->
@@ -161,65 +222,27 @@ function handleSubmit() {
                         </div>
                     </div>
 
-                    <form @submit.prevent="handleSubmit" class="space-y-4">
-                        <!-- Cardholder Name -->
-                        <div>
-                            <input v-model="form.cardholder_name" type="text" placeholder="Cardholder Name"
-                                class="w-full px-4 py-3 rounded-lg border border-purple-300 bg-white text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent shadow-sm disabled:opacity-50"
-                                :disabled="form.processing" required />
-                        </div>
-
-                        <!-- Card Number -->
-                        <div>
-                            <input :value="form.card_number" @input="handleCardNumberInput" type="text"
-                                placeholder="1234 5678 9012 3456" maxlength="19"
-                                class="w-full px-4 py-3 rounded-lg border border-purple-300 bg-white text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent shadow-sm disabled:opacity-50"
-                                :disabled="form.processing" required />
-                        </div>
-
-                        <!-- Expiry and CVV -->
-                        <div class="flex gap-4">
-                            <div class="flex-1">
-                                <input v-model="form.expiry_month" type="text" placeholder="MM" maxlength="2"
-                                    pattern="[0-9]*" inputmode="numeric"
-                                    class="w-full px-4 py-3 rounded-lg border border-purple-300 bg-white text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent shadow-sm disabled:opacity-50"
-                                    :disabled="form.processing" required />
-                            </div>
-                            <div class="flex-1">
-                                <input v-model="form.expiry_year" type="text" placeholder="YY" maxlength="2"
-                                    pattern="[0-9]*" inputmode="numeric"
-                                    class="w-full px-4 py-3 rounded-lg border border-purple-300 bg-white text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent shadow-sm disabled:opacity-50"
-                                    :disabled="form.processing" required />
-                            </div>
-                            <div class="flex-1">
-                                <input v-model="form.cvv" type="text" placeholder="CVV" maxlength="4" pattern="[0-9]*"
-                                    inputmode="numeric"
-                                    class="w-full px-4 py-3 rounded-lg border border-purple-300 bg-white text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent shadow-sm disabled:opacity-50"
-                                    :disabled="form.processing" required />
-                            </div>
-                        </div>
-
-                        <button type="submit" :disabled="form.processing"
-                            :class="[form.processing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-white text-purple-800 hover:bg-purple-50', 'inline-block font-semibold px-6 py-3 rounded-full shadow active:scale-95 transition w-full']">
-                            {{ form.processing ? 'Processing Payment...' : `🎉 Pay KES ${packages[form.package].price} -
-                            Start Subscription` }}
-                        </button>
-                    </form>
+                    <!-- Subscribe Button -->
+                    <button @click="handleSubmit" :disabled="form.processing"
+                        :class="[form.processing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-white text-purple-800 hover:bg-purple-50', 'inline-block font-semibold px-6 py-3 rounded-full shadow active:scale-95 transition w-full']">
+                        {{ form.processing ? 'Processing...' : `🎉 Pay KES ${packages[form.package].price} - Start
+                        Subscription` }}
+                    </button>
 
                     <!-- Confirmation message -->
                     <p class="p-2 text-green-300 mt-4" :class="form.processing ? 'block' : 'hidden'">
-                        Processing your payment securely...
+                        Redirecting to secure payment...
                     </p>
 
                     <!-- Security notice -->
                     <div class="mt-4 flex items-center justify-center gap-2 text-sm text-white/80">
                         <span>🔒</span>
-                        <span>Secure SSL encrypted payment</span>
+                        <span>Secure payment powered by Pesapal</span>
                     </div>
 
                     <p class="mt-3 text-sm text-white/80">
                         {{ form.package === 'yearly' ? 'KES 4,500 for 12 months of unlimited access (Save KES 1,500!)' :
-                        'KES 500 for 1 month of unlimited access' }}
+                            'KES 500 for 1 month of unlimited access' }}
                     </p>
                 </div>
             </div>

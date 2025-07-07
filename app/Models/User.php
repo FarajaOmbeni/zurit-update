@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'subscription_status',
         'subscription_expires_at',
         'last_payment_date',
+        'subscription_package',
     ];
 
     /**
@@ -49,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'subscription_expires_at' => 'datetime',
+        'last_payment_date' => 'datetime',
         'password' => 'hashed',
         'role' => 'integer',
     ];
@@ -139,23 +142,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(MpesaPayment::class);
     }
-
-    public function latestValidSubscription(): ?MpesaPayment
-    {
-        return $this->mpesaPayments()
-            ->where('purpose', 'subscription')
-            ->where('result_code', 0)
-            ->whereNotNull('mpesa_receipt_number')
-            ->orderByDesc('created_at')
-            ->first();
-    }
-
-    public function hasActiveSubscription(): bool
-    {
-        $payment = $this->latestValidSubscription();
-
-        return $payment &&
-            $payment->created_at->greaterThan(now()->subDays(31));
-    }
-
 }

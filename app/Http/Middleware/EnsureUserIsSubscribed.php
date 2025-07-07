@@ -13,18 +13,26 @@ class EnsureUserIsSubscribed
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        // If the user or the subscription test fails, boot them out
-        if (! $user?->hasActiveSubscription()) {
-            return redirect()
-                ->route('subscription.plans')
-                ->with('flash', [
-                    'type' => 'warning',
-                    'message' => 'You need an active subscription to continue.',
-                ]);
+        // Allow admin users to bypass subscription check
+        if ($user && $user->role === 'admin') {
+            return $next($request);
+        }
+
+        // Check if user has active subscription
+        if (
+            !$user ||
+            $user->subscription_status !== 'active' ||
+            !$user->subscription_expires_at ||
+            $user->subscription_expires_at < now()
+        ) {
+
+            // Redirect to subscription page with message
+            return redirect()->route('subscription.plans')
+                ->with('warning', 'Please subscribe to access the Prosperity Tools.');
         }
 
         return $next($request);
