@@ -257,7 +257,10 @@ const prosperityTools = [
     { name: 'Budget Planner', href: '/budget-planner' },
     { name: 'Networth calculator', href: '/networth-calculator' },
     { name: 'Debt Manager', href: '/debt-manager' },
-    { name: 'Investment Planner', href: '/investment-planner' }
+    { name: 'Investment Planner', href: '/investment-planner' },
+    { name: 'Zuriscore', href: '/zuriscore' },
+    { name: 'Calculators', href: '/calculators' },
+    { name: 'Questionnaires', href: '/questionnaires' },
 ]
 
 const services = [

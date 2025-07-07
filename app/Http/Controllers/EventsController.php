@@ -85,6 +85,7 @@ class EventsController extends Controller
     public function eventFeedback(Request $request)
     {
         $request->validate([
+            'userName' => 'string|max:255',
             'eventName' => 'required|string|max:255',
             'logisticsRating' => 'required|string|max:255',
             'clarityRating' => 'required|string|max:255',
@@ -98,6 +99,7 @@ class EventsController extends Controller
             'favoriteSpeaker' => 'required|string|max:255',
         ]);
 
+        $userName = $request->userName;
         $eventName = $request->eventName;
         $logisticsRating = $request->logisticsRating;
         $clarityRating = $request->clarityRating;
@@ -112,7 +114,7 @@ class EventsController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('jmugonyi@zuritconsulting.com')->send(new EventFeedbackMail($eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker));
+            Mail::to('jmugonyi@zuritconsulting.com')->send(new EventFeedbackMail($userName, $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker));
         }
 
         // You can add a success message or redirect here if needed

@@ -24,7 +24,7 @@ class QuestionnaireController extends Controller
         $formData = $request->all();
 
         // Send email to admin
-        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+        Mail::to('jmugonyi@zuritconsulting.com')->send(new QuestionnaireResponseMail($formData));
 
         // Send copy to user
         if (!empty($formData['email'])) {
@@ -42,7 +42,7 @@ class QuestionnaireController extends Controller
         $formData['form_type'] = 'Client Onboarding';
 
         // Send email to admin
-        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+        Mail::to('jmugonyi@zuritconsulting.com')->send(new QuestionnaireResponseMail($formData));
 
         // Send copy to user
         if (!empty($formData['email'])) {
@@ -59,7 +59,7 @@ class QuestionnaireController extends Controller
         $formData['form_type'] = 'Money Personality Assessment';
 
         // Send email to admin
-        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+        Mail::to('jmugonyi@zuritconsulting.com')->send(new QuestionnaireResponseMail($formData));
 
         // Send copy to user
         if (!empty($formData['email'])) {
@@ -94,7 +94,7 @@ class QuestionnaireController extends Controller
         }
 
         // Send email to admin
-        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+        Mail::to('jmugonyi@zuritconsulting.com')->send(new QuestionnaireResponseMail($formData));
 
         // Send copy to user
         if (!empty($formData['email'])) {

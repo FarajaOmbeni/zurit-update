@@ -557,9 +557,9 @@ function contactUs() {
                                     </div>
                                 </div>
 
-                                <button @click="submitOnboarding"
+                                <button @click="submitOnboarding" :disabled="formProcessing"
                                     class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg hover:scale-105 transition-transform">
-                                    Submit Onboarding Form
+                                    {{ formProcessing ? 'Submitting...' : 'Submit Onboarding Form' }}
                                 </button>
                             </div>
                         </details>
@@ -1016,9 +1016,9 @@ function contactUs() {
                                     </div>
                                 </div>
 
-                                <button @click="submitPersonality"
+                                <button @click="submitPersonality" :disabled="formProcessing"
                                     class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg hover:scale-105 transition-transform">
-                                    Submit Personality Assessment
+                                    {{ formProcessing ? 'Submitting...' : 'Submit Personality Assessment' }}
                                 </button>
                             </div>
                         </details>
@@ -1349,9 +1349,9 @@ function contactUs() {
                                     </div>
                                 </div>
 
-                                <button @click="submitRiskTolerance"
+                                <button @click="submitRiskTolerance" :disabled="formProcessing"
                                     class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg hover:scale-105 transition-transform">
-                                    Submit Risk Assessment
+                                    {{ formProcessing ? 'Submitting...' : 'Submit Risk Assessment' }}
                                 </button>
 
                                 <div v-if="showRiskResult"
@@ -1505,9 +1505,9 @@ function contactUs() {
                                     </select>
                                 </div>
 
-                                <button @click="submitMoneyQuiz"
+                                <button @click="submitMoneyQuiz" :disabled="formProcessing"
                                     class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg hover:scale-105 transition-transform">
-                                    Submit Money Quiz
+                                    {{ formProcessing ? 'Submitting...' : 'Submit Money Quiz' }}
                                 </button>
                             </div>
                         </details>

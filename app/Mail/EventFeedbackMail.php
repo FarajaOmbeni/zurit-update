@@ -11,10 +11,11 @@ class EventFeedbackMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker;
+    public $userName, $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker;
 
-    public function __construct($eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker)
+    public function __construct($userName, $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker)
     {
+        $this->userName = (string)$userName;
         $this->eventName = (string)$eventName;
         $this->logisticsRating = (string)$logisticsRating;
         $this->clarityRating = (string)$clarityRating;
@@ -32,6 +33,7 @@ class EventFeedbackMail extends Mailable
     {
         return $this->view('emails.feedback-form')
             ->with([
+                'userName' => $this->userName,
                 'eventName' => $this->eventName,
                 'logisticsRating' => $this->logisticsRating,
                 'clarityRating' => $this->clarityRating,

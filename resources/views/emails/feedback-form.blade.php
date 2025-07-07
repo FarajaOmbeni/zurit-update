@@ -62,6 +62,7 @@
 
 <body>
     <div class="email-container">
+        <h3><b>Name: {{ $userName }}</b></h3>
         <p><b>{{ $eventName }}</b></p>
         <hr>
         <p><b>Question: </b>Please rate the overall organization and logistics of the training sessions (e.g., venue,

@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 
 const partners = ref([
     { id: 1, src: "/images/partners/taaj.webp", alt: "Beyond the Stethoscope" },
+    { id: 1, src: "/images/partners/dtb.png", alt: "Diamond Trust Bank" },
     { id: 2, src: "/images/partners/college-of-insurance.png", alt: "College of Insurance" },
     { id: 3, src: "/images/partners/kozi.png", alt: "Kozi" },
     { id: 4, src: "/images/partners/look-up-tv.webp", alt: "Look-Up TV" },

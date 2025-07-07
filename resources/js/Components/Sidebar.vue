@@ -177,7 +177,7 @@ import {
   CalculatorIcon,
   StopIcon,
   DocumentIcon,
-  BanknotesIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/vue/24/outline';
 
 const iconMap = {
@@ -189,7 +189,7 @@ const iconMap = {
   CalculatorIcon,
   StopIcon,
   DocumentIcon,
-  BanknotesIcon,
+  QuestionMarkCircleIcon,
 };
 
 defineProps({
@@ -265,7 +265,7 @@ const menuItems = [
   },
   {
     title: 'Questionnaires',
-    icon: 'BanknotesIcon',
+    icon: 'QuestionMarkCircleIcon',
     active: currentRoute.startsWith('/user/questionnaires'),
     link: 'questionnaires.index'
   },

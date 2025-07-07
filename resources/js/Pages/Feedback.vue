@@ -8,6 +8,14 @@
             <h2 class="text-lg md:text-2xl font-bold text-center text-purple-800 mb-6">Customer Feedback</h2>
 
             <form @submit.prevent="submit">
+                <!-- User Name (Optional) -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium">Your Name (Optional)</label>
+                    <input v-model="form.userName" type="text"
+                        class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500"
+                        placeholder="Enter your name (optional)" />
+                </div>
+
                 <!-- Event Name -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium">Name of the Event</label>
@@ -198,6 +206,7 @@ const restoreScrollPosition = () => {
 const showSuccess = ref(false);
 
 const form = useForm({
+    userName: '',
     eventName: 'Select Event',
     logisticsRating: 'Select Logistics Rating',
     clarityRating: 'Select Clarity Rating',
