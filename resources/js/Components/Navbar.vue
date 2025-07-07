@@ -264,7 +264,6 @@ const services = [
     { name: 'Training', href: '/training' },
     { name: 'Advisory', href: '/advisory' },
     { name: 'Business Support', href: '/business-support' },
-    { name: 'Money Quiz', href: '/money-quiz' }
 ]
 
 const userMenuItems = [

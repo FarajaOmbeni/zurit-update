@@ -14,10 +14,84 @@ class QuestionnaireController extends Controller
         // Get all form data
         $formData = $request->all();
 
-        // Send email
-        Mail::to('jmugonyi@zuritconsulting.com')->send(new QuestionnaireResponseMail($formData)); 
+        // Send email to admin
+        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+
+        // Send copy to user
+        if (!empty($formData['email'])) {
+            Mail::to($formData['email'])->send(new QuestionnaireResponseMail($formData));
+        }
 
         // You can add a success message or redirect here if needed
-        return redirect()->back()->with('success', 'Questionnaire submitted successfully! We will be in touch.');
+        return redirect()->back()->with('success', 'Questionnaire submitted successfully! A copy has been sent to your email and we will be in touch.');
+    }
+
+    public function submitOnboarding(Request $request)
+    {
+        // Get all form data
+        $formData = $request->all();
+        $formData['form_type'] = 'Client Onboarding';
+
+        // Send email to admin
+        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+
+        // Send copy to user
+        if (!empty($formData['email'])) {
+            Mail::to($formData['email'])->send(new QuestionnaireResponseMail($formData));
+        }
+
+        return redirect()->back()->with('success', 'Onboarding form submitted successfully! A copy has been sent to your email and we will be in touch.');
+    }
+
+    public function submitPersonality(Request $request)
+    {
+        // Get all form data
+        $formData = $request->all();
+        $formData['form_type'] = 'Money Personality Assessment';
+
+        // Send email to admin
+        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+
+        // Send copy to user
+        if (!empty($formData['email'])) {
+            Mail::to($formData['email'])->send(new QuestionnaireResponseMail($formData));
+        }
+
+        return redirect()->back()->with('success', 'Money personality assessment submitted successfully! A copy has been sent to your email and we will be in touch.');
+    }
+
+    public function submitRiskTolerance(Request $request)
+    {
+        // Get all form data
+        $formData = $request->all();
+        $formData['form_type'] = 'Risk Tolerance Assessment';
+
+        // Calculate risk score
+        $totalScore = 0;
+        for ($i = 1; $i <= 20; $i++) {
+            $totalScore += intval($request->input("q{$i}", 0));
+        }
+        $formData['total_score'] = $totalScore;
+
+        // Determine risk profile
+        if ($totalScore >= 65) {
+            $formData['risk_profile'] = 'Aggressive Investor';
+        } elseif ($totalScore >= 45) {
+            $formData['risk_profile'] = 'Moderate Investor';
+        } elseif ($totalScore >= 25) {
+            $formData['risk_profile'] = 'Conservative Investor';
+        } else {
+            $formData['risk_profile'] = 'Ultra Conservative';
+        }
+
+        // Send email to admin
+        Mail::to('ombenifaraja@gmail.com')->send(new QuestionnaireResponseMail($formData));
+
+        // Send copy to user
+        if (!empty($formData['email'])) {
+            Mail::to($formData['email'])->send(new QuestionnaireResponseMail($formData));
+        }
+
+        return redirect()->back()->with('success', 'Risk tolerance assessment submitted successfully! A copy has been sent to your email and we will be in touch.');
     }
 }

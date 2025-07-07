@@ -45,14 +45,26 @@
       <!-- Navigation Links -->
       <nav class="mt-6">
         <div v-for="(item, index) in menuItems" :key="index" class="px-4 py-2">
-          <Link :href="route(item.link)"
-            class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
-            :class="item.active ? 'bg-purple-700' : ''">
-          <span class="text-yellow-400">
-            <component :is="iconMap[item.icon]" class="h-5 w-5" />
-          </span>
-          <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
-          </Link>
+          <div class="relative group">
+            <Link :href="route(item.link)"
+              class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
+              :class="item.active ? 'bg-purple-700' : ''">
+            <span class="text-yellow-400">
+              <component :is="iconMap[item.icon]" class="h-5 w-5" />
+            </span>
+            <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
+            </Link>
+
+            <!-- Tooltip -->
+            <div v-if="!sidebarOpen"
+              class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 transform -translate-y-1/2">
+              {{ item.title }}
+              <!-- Arrow pointing left -->
+              <div
+                class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900">
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -165,6 +177,7 @@ import {
   CalculatorIcon,
   StopIcon,
   DocumentIcon,
+  BanknotesIcon,
 } from '@heroicons/vue/24/outline';
 
 const iconMap = {
@@ -176,6 +189,7 @@ const iconMap = {
   CalculatorIcon,
   StopIcon,
   DocumentIcon,
+  BanknotesIcon,
 };
 
 defineProps({
@@ -248,6 +262,12 @@ const menuItems = [
     icon: 'DocumentIcon',
     active: currentRoute.startsWith('/user/zuriscore'),
     link: 'zuriscore.index'
+  },
+  {
+    title: 'Questionnaires',
+    icon: 'BanknotesIcon',
+    active: currentRoute.startsWith('/user/questionnaires'),
+    link: 'questionnaires.index'
   },
 ]
 

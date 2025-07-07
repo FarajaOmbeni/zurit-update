@@ -39,9 +39,9 @@ Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
-Route::get('/money-quiz', function() {
+Route::get('/money-quiz', function () {
     return Inertia::render('MoneyQuiz');
-})->name('money.quiz');
+})->name('money-quiz');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');
@@ -117,6 +117,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
 
     /////////////////////////////////////////////////////////
+    //////////////////  QUESTIONNAIRES ROUTES /////////////
+    ////////////////////////////////////////////////////////
+    Route::get('/user/questionnaires', function () {
+        return Inertia::render('UserDashboard/Questionnaires');
+    })->name('questionnaires.index');
+    Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
+    Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
+    Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
+
+    /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/admin', [AdminController::class, 'users'])->name('users.index');
@@ -169,7 +179,7 @@ Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');
-Route::get('/business-support', function() {
+Route::get('/business-support', function () {
     return Inertia::render('BusinessSupport');
 })->name('business.support');
 Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
@@ -179,8 +189,8 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
 Route::get('/market-data',  [MarketController::class, 'index']);
 Route::put('/market-data',  [MarketController::class, 'update']);
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
-Route::get('/email', function(){
+Route::get('/email', function () {
     return view('emails.zuriscore-report');
 });

@@ -13,15 +13,17 @@
                             class="hover:text-yellow-400">info@zuritconsulting.com</a></p>
                 </div>
 
-                <!-- Prosperity Tools -->
+                <!-- Prosperity Dashboard -->
                 <div class="space-y-3">
-                    <h2 class="text-lg font-semibold text-yellow-500">Prosperity Tools</h2>
+                    <h2 class="text-lg font-semibold text-yellow-500">Prosperity Dashboard</h2>
                     <Link :href="route('budget')" class="block hover:text-yellow-400">Budget Planner</Link>
                     <Link :href="route('networth')" class="block hover:text-yellow-400">Networth
                     Calculator</Link>
                     <Link :href="route('debt')" class="block hover:text-yellow-400">Debt Manager</Link>
                     <Link :href="route('investment')" class="block hover:text-yellow-400">Investment Planner
                     </Link>
+                    <Link :href="route('goal')" class="block hover:text-yellow-400">Goal Setting</Link>
+                    <Link :href="route('money-quiz')" class="block hover:text-yellow-400">Money Quiz</Link>
                 </div>
 
                 <!-- Quick Links -->
