@@ -5,18 +5,15 @@ namespace App\Http\Controllers;
 use Throwable;
 use App\Models\Book;
 use Inertia\Inertia;
-use App\Mail\BuyBookMail;
-use App\Support\MpesaStk;
+use App\Models\MpesaPayment;
 use App\Support\ChatpesaStk;
 use Illuminate\Http\Request;
-use App\Mail\UserBuyBookMail;
-use App\Exceptions\InvalidPhoneNumberException;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
+use App\Exceptions\InvalidPhoneNumberException;
 
 class BookController extends Controller
 {
@@ -166,7 +163,7 @@ class BookController extends Controller
 
     public function processing($payment_id)
     {
-        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+        $payment = MpesaPayment::findOrFail($payment_id);
 
         // Get cached payment data
         $paymentData = Cache::get("payment_data_{$payment_id}");
@@ -185,7 +182,7 @@ class BookController extends Controller
 
     public function checkPaymentStatus($payment_id)
     {
-        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+        $payment = MpesaPayment::findOrFail($payment_id);
 
         return response()->json([
             'status' => $payment->status,
