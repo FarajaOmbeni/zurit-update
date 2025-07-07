@@ -438,6 +438,14 @@ function calculateMonthlySummary() {
                         <div v-show="hasData" class="flex justify-between">
                             <div>
                                 <h1 class="text-2xl font-semibold text-gray-900"> {{ today }}'s Budget</h1>
+                                <!-- Subscription status indicator -->
+                                <div v-if="$page.props.auth.subscription && $page.props.auth.subscription.is_active" 
+                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Pro Tools Active
+                                </div>
                             </div>
                             <div class="px-6">
                                 <button @click="showBudgetModal = true"
