@@ -66,6 +66,18 @@ class IndexController extends Controller
     {
         return Inertia::render('Training');
     }
+    public function calculators()
+    {
+        return Inertia::render('Calculators');
+    }
+    public function zuriscore()
+    {
+        return Inertia::render('Zuriscore');
+    }
+    public function questionnaires()
+    {
+        return Inertia::render('Questionnaires');
+    }
     public function books()
     {
         return Inertia::render('Books');

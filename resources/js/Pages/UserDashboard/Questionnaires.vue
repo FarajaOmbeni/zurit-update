@@ -152,7 +152,7 @@ function contactUs() {
             <Sidebar>
                 <div class="min-h-screen bg-white p-6 space-y-10">
                     <section class="max-w-6xl mx-auto space-y-6">
-                        <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">Questionnaires</h1>
+                        <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">Prosperity Questionnaires</h1>
 
                         <!-- 1. Onboarding Form -->
                         <details class="border rounded">

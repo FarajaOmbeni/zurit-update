@@ -23,7 +23,7 @@
                     <div class="relative">
                         <button @click="toggleDropdown('prosperityTools')"
                             class="inline-flex items-center text-gray-300 hover:text-gray-100 focus:outline-none">
-                            Prosperity tools
+                            Prosperity dashboard
                             <svg class="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"
