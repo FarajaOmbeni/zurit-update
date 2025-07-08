@@ -33,7 +33,7 @@
             <!-- Meet Our Team -->
             <div class="flex flex-col items-center">
                 <h2 class="font-bold text-3xl mb-6">Meet Our Team</h2>
-                <Profile name="Elizabeth Nkukuu" position="Founder - Team Leader" image="/images/team/liz.webp"
+                <Profile name="Elizabeth Nkukuu" position="Founder - Team Leader" image="/images/team/liz.jpg"
                     linkedin_link="https://www.linkedin.com/in/elizabethnkukuu/" />
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                     <Profile name="Brian Salau" position="Manager" image="/images/team/brian.webp"
@@ -42,10 +42,14 @@
                         linkedin_link="https://www.linkedin.com/in/bgitia/" />
                     <Profile name="Joel Mugonyi" position="Investment Analyst" image="/images/team/joel.png"
                         linkedin_link="https://www.linkedin.com/in/joel-mugonyi-79427323a/" />
+                    <Profile name="Joseph Mukoko" position="Business Growth Coach" image="/images/team/joseph.jpg"
+                        linkedin_link="https://www.linkedin.com/in/josephcmukoko/" />
                     <Profile name="Ombeni Faraja" position="Full Stack Developer" image="/images/team/faraja.webp"
                         linkedin_link="https://www.linkedin.com/in/ombenifaraja/" />
                     <Profile name="Noelle Jentrix" position="Clients Relations" image="/images/team/noelle.webp"
                         linkedin_link="https://www.linkedin.com/in/noel-nabwire-097001265/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" />
+                    <Profile name="Faith Mulinya" position="Clients Relations" image="/images/team/faith.jpg"
+                        linkedin_link="https://www.linkedin.com/in/faith-mulinya-a24580353/" />
                     <Profile name="Tugi Nyatuga" position="Digital Marketing Personnel" image="/images/team/tugi.jpg"
                         linkedin_link="https://www.linkedin.com/in/tugi-nyatuga-b981a4154/?originalSubdomain=ke" />
                 </div>
