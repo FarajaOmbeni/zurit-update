@@ -10,22 +10,27 @@
         </button>
 
         <!-- Modal Component -->
-        <BookModal :show="isModalOpen" :book="book" @close="closeModal" />
+        <BookModal :show="isModalOpen" :book="book" @close="closeModal" :user="user" />
     </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import BookModal from "./BookModal.vue";
-
-defineProps({
-    book: Object
+import { router } from "@inertiajs/vue3";
+const props = defineProps({
+    book: Object,
+    user: {
+        type: Object,
+        default: null
+    }
 });
 
 const isModalOpen = ref(false);
 
 const openModal = () => {
     isModalOpen.value = true;
+
 };
 
 const closeModal = () => {

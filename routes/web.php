@@ -4,20 +4,22 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\MpesaController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\EventsController;
-use App\Http\Controllers\MarketController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ZuriScoreController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\TestimonialsController;
+use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
@@ -115,6 +117,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('calculator.index');
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
+    Route::get('/user/zuriscore/processing/{payment_id}', [ZuriScoreController::class, 'processing'])->name('zuriscore.processing');
+    Route::get('/user/zuriscore/status/{payment_id}', [ZuriScoreController::class, 'checkPaymentStatus'])->name('zuriscore.status');
 
     /////////////////////////////////////////////////////////
     //////////////////  QUESTIONNAIRES ROUTES /////////////
@@ -173,7 +177,10 @@ Route::get('/training', [IndexController::class, 'training'])->name('training');
 Route::get('/calculators', [IndexController::class, 'calculators'])->name('calculators');
 Route::get('/questionnaires', [IndexController::class, 'questionnaires'])->name('questionnaires');
 Route::get('/zuriscore', [IndexController::class, 'zuriscore'])->name('zuriscore');
-Route::get('/books', [IndexController::class, 'books'])->name('books');
+Route::get('/books', [BookController::class, 'index'])->name('books.index');
+Route::post('/book/buy', [BookController::class, 'payment'])->name('buy.book');
+Route::get('/book/processing/{payment_id}', [BookController::class, 'processing'])->name('book.processing');
+Route::get('/book/status/{payment_id}', [BookController::class, 'checkPaymentStatus'])->name('book.status');
 Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
@@ -187,11 +194,12 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
 
-Route::get('/market-data',  [MarketController::class, 'index']);
-Route::put('/market-data',  [MarketController::class, 'update']);
+Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('mpesa-callback');
+Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.push');
+Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('chatpesa-callback');
 
 require __DIR__ . '/auth.php';
-
-Route::get('/email', function () {
-    return view('emails.zuriscore-report');
-});

@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Cache;
 use CURLFile;
 use Inertia\Inertia;
+use App\Support\MpesaStk;
 use Illuminate\Http\Request;
 use App\Mail\ZuriScoreReportMail;
+use App\Support\ChatpesaStk;
+use App\Exceptions\InvalidPhoneNumberException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 class ZuriScoreController extends Controller
 {
@@ -64,7 +69,7 @@ class ZuriScoreController extends Controller
         return false;
     }
 
-    public function get_report(Request $request)
+    public function get_report(Request $request, ChatpesaStk $stk)
     {
         $api_url = config('zuriscore.ZURIT_URL');
         $api_username = config('zuriscore.ZURIT_USERNAME');
@@ -76,22 +81,44 @@ class ZuriScoreController extends Controller
         $request->validate([
             'statement_type' => 'required|string',
             'statement_password' => 'nullable|string',
+            'statement_duration' => 'required|integer',
             'statement_file' => 'required|file|mimes:pdf|max:2048',
             'email' => 'required|email',
             'email_confirmation' => 'required|same:email',
+            'phone' => 'required'
         ]);
+
+        try {
+            $payment  = $stk->sendStkPush(
+                amount: $request->statement_duration,
+                phone: $request->phone,
+                purpose: 'report',
+                userId: Auth::id()
+            );
+
+            Cache::put("payment_data_{$payment->id}", [
+                'type' => 'zuriscore',
+                'phone' => $request->phone,
+                'email' => $request->email,
+            ], now()->addMinutes(10));
+        } catch (InvalidPhoneNumberException $e) {
+            return back()->withErrors(['phone' => $e->getMessage()]);
+        }
+
+
 
         $statement_type = $request->statement_type;
         $statement_password = $request->statement_password;
         $file = $request->statement_file;
         $filePath = $file->getPathname();
         $email = urlencode($request->input('email'));
+        $new_callback_url = $callback_url . '?email=' . $email . '&payment_id=' . $payment->id;
 
         $postFields = [
             'statement_type' => $statement_type,
             'password' => $statement_password,
             'file' => new CURLFile($filePath, $file->getMimeType(), $file->getClientOriginalName()),
-            'report_callback_url' => $callback_url . '?email=' . $email
+            'report_callback_url' => $new_callback_url
         ];
 
         $curl = curl_init();
@@ -120,26 +147,89 @@ class ZuriScoreController extends Controller
         if (isset($responseData->code)) {
             return to_route('zuriscore.index')->withErrors($responseData->message);
         }
-        return to_route('zuriscore.index');
+
+        // Redirect to processing page with payment ID
+        return redirect()->route('zuriscore.processing', ['payment_id' => $payment->id]);
     }
 
     public function handleCallback(Request $request)
     {
         $email = $request->query('email');
+        $payment_id = $request->query('payment_id');
         $data = $request->all();
-        $reportUrl = $data['reportUrl'];
-        $fullName = explode(' ', $data['reportData']['name']);
-        $firstName = $fullName[0];
 
-        Log::info('Callback for email:', ['email' => $email, 'name'=>$firstName,'reportUrl' => $reportUrl]);
-        Log::info('ALL ZEE DATA:', ['data' => $data]);
+        Log::info('ZuriScore callback received:', [
+            'email' => $email,
+            'payment_id' => $payment_id,
+            'data' => $data
+        ]);
 
-        Mail::to($email)->send(new ZuriScoreReportMail($firstName, $reportUrl));
+        if (!$payment_id) {
+            Log::error('No payment_id in ZuriScore callback');
+            return response()->json(['status' => 'error', 'message' => 'No payment_id provided'], 400);
+        }
+
+        $reportUrl = $data['reportUrl'] ?? null;
+        $fullName = explode(' ', $data['reportData']['name'] ?? '');
+        $firstName = $fullName[0] ?? '';
+
+        if (!$reportUrl || !$firstName) {
+            Log::error('Missing reportUrl or name in ZuriScore callback', [
+                'reportUrl' => $reportUrl,
+                'firstName' => $firstName
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'Missing required data'], 400);
+        }
+
+        $cacheKey = "payment_data_{$payment_id}";
+        $paymentData = Cache::get($cacheKey) ?? [];
+
+        Log::info('Existing payment data:', ['cacheKey' => $cacheKey, 'paymentData' => $paymentData]);
+
+        $paymentData = array_merge($paymentData, [
+            'name' => $firstName,
+            'report_url' => $reportUrl,
+        ]);
+
+        Cache::put($cacheKey, $paymentData, now()->addMinutes(10));
+
+        Log::info('Updated payment data:', ['cacheKey' => $cacheKey, 'paymentData' => $paymentData]);
 
         // Return a success response
         return response()->json([
             'status' => 'success',
             'message' => 'Callback received successfully'
         ], 200);
+    }
+
+    public function processing($payment_id)
+    {
+        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+
+        // Ensure user can only view their own payments
+        if (Auth::id() !== $payment->user_id) {
+            abort(403);
+        }
+
+        return Inertia::render('UserDashboard/ZuriScoreProcessing', [
+            'payment' => $payment,
+            'phone' => $payment->phone_number
+        ]);
+    }
+
+    public function checkPaymentStatus($payment_id)
+    {
+        $payment = \App\Models\MpesaPayment::findOrFail($payment_id);
+
+        // Ensure user can only check their own payments
+        if (Auth::id() !== $payment->user_id) {
+            abort(403);
+        }
+
+        return response()->json([
+            'status' => $payment->status,
+            'reason' => $payment->reason,
+            'payment_id' => $payment->id
+        ]);
     }
 }

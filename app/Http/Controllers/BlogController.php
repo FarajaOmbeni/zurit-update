@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blog;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 
-use App\Models\Blog;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
-use Inertia\Inertia;
 
 class BlogController extends Controller
 {
     public function index()
     {
         $blogs = Blog::all();
-        return Inertia::render('Admin/Blogs',[
+        return Inertia::render('Admin/Blogs', [
             'blogs' => $blogs
         ]);
     }
@@ -33,9 +28,9 @@ class BlogController extends Controller
 
         $imagePath = null;
 
-        if($request->hasFile('blog_image')) {
+        if ($request->hasFile('blog_image')) {
             $image = $request->file('blog_image');
-            $imageName = time().'.'.$image->getClientOriginalExtension();
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
             $imagePath = $image->move(storage_path('app/public/blogs'), $imageName);
         }
 
@@ -90,7 +85,7 @@ class BlogController extends Controller
         try {
             $blog = Blog::findOrFail($id);
             $blog->delete();
-            
+
             return to_route('blogs.index');
         } catch (\Exception $e) {
             return redirect(route('blogs.index'))->with('error', [

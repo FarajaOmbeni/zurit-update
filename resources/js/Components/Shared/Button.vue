@@ -19,6 +19,10 @@ const props = defineProps({
   type: {
     type: String,
     default: 'button'
+  },
+  processing: {
+    type: Boolean,
+    default: false
   }
 });
 

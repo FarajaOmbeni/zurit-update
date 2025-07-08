@@ -18,6 +18,7 @@ const form = useForm({
     statement_duration: '',
     email: '',
     email_confirmation: '',
+    phone: '',
 });
 
 const handleFile = (file) => {
@@ -51,19 +52,33 @@ function submitForm() {
                     <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                         :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                     <form @submit.prevent="submitForm" class="space-y-4">
-                        <Select v-model="form.statement_type" label="Statement type" :options="['MPESA', 'Equity Bank']"
+                        <Select v-model="form.statement_type" label="Statement type"
+                            :options="[{ label: 'M-PESA', value: 'MPESA' }, { label: 'Equity Bank', value: 'Equity Bank' }]"
                             select_title="Statement type" />
                         <FileInput label="Upload Statement" v-model="form.statement_file" accept="application/pdf"
-                            @file-selected="handleFile"/>
+                            @file-selected="handleFile" />
                         <Input type="text" placeholder="Enter statement password" label="Statement Password (If Needed)"
                             v-model="form.statement_password" />
-                        <Select label="Statement Period"
-                            :options="['1 month', '3 months', '6 months', '1 year', '2 years']"
-                            v-model="form.statement_duration" select_title="Select duration" />
+                        <Select label="Statement Period" select_title="Select duration" :options="[
+                            { label: '1 Month - KES 10', value: 10 },
+                            { label: '3 Month - KES 100', value: 100 },
+                            { label: '6 Month - KES 200', value: 200 },
+                            { label: '1 Year - KES 300', value: 300 },
+                            { label: '2 Years - KES 500', value: 500 }
+                        ]" v-model="form.statement_duration" />
                         <Input label="Email" placeholder="Email address to recieve report" v-model="form.email" />
                         <Input label="Confirm Email" placeholder="Confirm email address"
                             v-model="form.email_confirmation" />
-                        <Button type="submit"> {{ form.processing ? 'Loading...' : 'Submit' }} </Button>
+                        <Input label="Pay with" placeholder="e.g., 0712345678 or +254712345678" v-model="form.phone"
+                            :error="form.errors.phone" />
+                        <p class="text-xs text-gray-500 -mt-2">Enter a valid Kenyan phone number (e.g., 0712345678)</p>
+
+                        <Button type="submit" :processing="form.processing">
+                            {{ form.processing ? 'Loading...' : 'Submit' }}
+                        </Button>
+                        <p v-show="form.processing" class="font-bold text-sm text-green-500">We are sending you an MPESA
+                            STK Push to
+                            {{ form.phone }}. Input your pin to continue</p>
                     </form>
                 </div>
             </Sidebar>
