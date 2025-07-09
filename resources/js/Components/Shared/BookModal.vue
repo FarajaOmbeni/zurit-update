@@ -47,7 +47,8 @@
                 <Input label="Address" placeholder="Enter your address" v-model="form.address" />
                 <Input label="Phone number" placeholder="e.g., 0712345678 or +254712345678" v-model="form.phone"
                     :error="form.errors.phone" />
-                <p class="text-xs text-gray-500 -mt-2">Enter a valid Kenyan phone number (e.g., 0712345678)</p>
+                <p class="text-xs text-gray-500 -mt-2">Enter a valid Kenyan phone number (e.g., 0712345678 or
+                    0112345678)</p>
 
                 <p v-show="form.processing" class="font-bold text-sm text-green-500">We are sending you an MPESA STK
                     Push to

@@ -90,6 +90,7 @@ class ZuriScoreController extends Controller
 
         try {
             $payment  = $stk->sendStkPush(
+                // amount: 15,
                 amount: $request->statement_duration,
                 phone: $request->phone,
                 purpose: 'report',
@@ -170,6 +171,8 @@ class ZuriScoreController extends Controller
         }
 
         $reportUrl = $data['reportUrl'] ?? null;
+        $reportMonths = $data['periodMonths'] ?? null;
+        $reportDate = $data['receivedOn'] ?? null;
         $fullName = explode(' ', $data['reportData']['name'] ?? '');
         $firstName = $fullName[0] ?? '';
 
@@ -189,6 +192,8 @@ class ZuriScoreController extends Controller
         $paymentData = array_merge($paymentData, [
             'name' => $firstName,
             'report_url' => $reportUrl,
+            'report_months' => $reportMonths,
+            'report_date' => $reportDate,
         ]);
 
         Cache::put($cacheKey, $paymentData, now()->addMinutes(10));

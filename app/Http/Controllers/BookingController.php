@@ -21,12 +21,12 @@ class BookingController extends Controller
         Booking::create($validatedData);
 
         // Send email only if the validation and database insertion are successful
-    Mail::to('info@zuritconsulting.com')->send(new BookingFormMail(
-    $request->input('name'),
-    $request->input('email'),
-    $request->input('booking_datetime'),
-    $request->input('additional_information')
-));
+        Mail::to(config('services.email.admin_email'))->send(new BookingFormMail(
+            $request->input('name'),
+            $request->input('email'),
+            $request->input('booking_datetime'),
+            $request->input('additional_information')
+        ));
 
         // Redirect to the 'training' route or 'training.blade.php' view
         return redirect()->route('training')->with('success', 'Booking submitted successfully!');

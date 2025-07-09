@@ -15,7 +15,7 @@ class MarketingMessageController extends Controller
 {
     public function index()
     {
-        $subscribedUsers = Subscription::all();
+        $subscribedUsers = User::all();
         $allUsers = Marketing_Contact::all();
 
         return view('marketing_admindash', compact('subscribedUsers', 'allUsers'));

@@ -412,13 +412,10 @@ onMounted(() => {
 // e.g., <EditTransactionModal v-if="showEditModal" :transaction="selectedTransaction" @close="showEditModal = false" @saved="fetchAndInitializeData" />
 // <DeleteConfirmationModal v-if="showDeleteModal" :transaction="selectedTransaction" @close="showDeleteModal = false" @confirmed="confirmDelete" />
 
-<<<<<<< HEAD
-=======
-    monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
-}
+monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
+
 
 const showBalances = ref(false)
->>>>>>> mpesa
 </script>
 
 <template>
@@ -691,7 +688,7 @@ const showBalances = ref(false)
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    Math.round(transaction.amount).toLocaleString() }}
+                                                        Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -1046,15 +1043,12 @@ const showBalances = ref(false)
                                 <div class="flex justify-end space-x-2">
                                     <button type="submit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-<<<<<<< HEAD
-                                            transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
-                                    <!-- CHANGED: transactionForm.processing -->
-                                    <button type="button" @click="showEditModal = false"
-=======
-                                        updateTransaction.processing ? 'Saving...' : 'Submit' }}</button>
-                                    <button @click="showEditModal = false"
->>>>>>> mpesa
-                                        class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
+                                         transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
+                                            <!-- CHANGED: transactionForm.processing -->
+                                            <button type="button"
+                                                @click="showEditModal = false"
+                                                class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2
+                                                rounded">Cancel</button>
                                 </div>
                             </form>
                         </div>
@@ -1071,14 +1065,8 @@ const showBalances = ref(false)
                             <div class="flex justify-end space-x-2">
                                 <button type="button" @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-<<<<<<< HEAD
-                                        transactionForm.processing ? 'Deleting...' : 'Delete' }}</button>
-                                <!-- CHANGED: transactionForm.processing -->
-                                <button type="button" @click="showDeleteModal = false"
-=======
                                     confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
->>>>>>> mpesa
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
                         </div>

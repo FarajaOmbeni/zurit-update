@@ -34,11 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-<<<<<<< HEAD
     'rapidapi' => [
         'key' => env('RAPIDAPI_KEY'),
     ],
-=======
     'mpesa' => [
         'env'             => env('MPESA_ENVIRONMENT', 'sandbox'), 
         'short_code'      => env('MPESA_SHORTCODE', '174379'),
@@ -47,7 +45,9 @@ return [
         'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
         'callback'        => env('MPESA_CALLBACK'),                
     ],
+    'email' => [
+        'admin_email' => env('ADMIN_EMAIL', 'ombenifaraja@gmail.com'),
+    ],
 
->>>>>>> mpesa
 
 ];

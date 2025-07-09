@@ -114,7 +114,7 @@ class EventsController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('jmugonyi@zuritconsulting.com')->send(new EventFeedbackMail($userName, $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker));
+            Mail::to(config('services.email.admin_email'))->send(new EventFeedbackMail($userName, $eventName, $logisticsRating, $clarityRating, $relevanceRating, $recommendationLikelihood, $attendanceLikelihood, $valueForMoney, $mostValuable, $areaOfImprovement, $topicSuggestion, $favoriteSpeaker));
         }
 
         // You can add a success message or redirect here if needed
@@ -125,7 +125,7 @@ class EventsController extends Controller
     {
         $event = Event::find($event);
         $event->delete();
-        
+
         return to_route('events.index');
     }
 }

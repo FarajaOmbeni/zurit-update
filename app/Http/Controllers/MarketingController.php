@@ -30,10 +30,10 @@ class MarketingController extends Controller
         $subject = $request->subject;
         $content = $request->content;
 
-        // foreach ($emails as $email) {
-        //     Mail::to($email)->queue(new MarketingMessage($subject, $content));
-        // }
-        Mail::to('ombenifaraja2000@gmail.com')->send(new MarketingMessage($subject, $content));
+        foreach ($emails as $email) {
+            Mail::to($email)->queue(new MarketingMessage($subject, $content));
+        }
+        // Mail::to('ombenifaraja2000@gmail.com')->send(new MarketingMessage($subject, $content));
 
         return to_route('marketing.index');
     }

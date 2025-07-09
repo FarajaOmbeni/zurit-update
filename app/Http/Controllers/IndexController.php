@@ -124,7 +124,7 @@ class IndexController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($name, $email, $message));
+            Mail::to(config('services.email.admin_email'))->send(new ContactFormMail($name, $email, $message));
         }
 
         // You can add a success message or redirect here if needed
@@ -141,7 +141,7 @@ class IndexController extends Controller
 
         // Send email
         if (!isset($request->website)) {
-            Mail::to('jmugonyi@zuritconsulting.com')->send(new ContactFormMail($email, $email, "Kindly get back to me soon!"));
+            Mail::to(config('services.email.admin_email'))->send(new ContactFormMail($email, $email, "Kindly get back to me soon!"));
         }
 
         // You can add a success message or redirect here if needed

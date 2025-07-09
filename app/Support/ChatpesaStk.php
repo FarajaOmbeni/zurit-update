@@ -6,12 +6,13 @@ use Throwable;
 use App\Mail\BuyBookMail;
 use App\Models\MpesaPayment;
 use App\Mail\UserBuyBookMail;
+use App\Mail\ZuriScoreAdminMail;
 use App\Mail\ZuriScoreReportMail;
-use App\Exceptions\InvalidPhoneNumberException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
+use App\Exceptions\InvalidPhoneNumberException;
 
 class ChatpesaStk
 {
@@ -111,7 +112,7 @@ class ChatpesaStk
                         $bookTitle = $paymentData['book_title'];
 
                         // Admin email with full details
-                        Mail::to('ombenifaraja@gmail.com')->send(new BuyBookMail(
+                        Mail::to(config('services.email.admin_email'))->send(new BuyBookMail(
                             $name,
                             $email,
                             $bookTitle,
@@ -129,12 +130,15 @@ class ChatpesaStk
                         break;
 
                     case 'zuriscore':
-                        sleep(30);
+                        sleep(5);
                         Log::info("Processing zuriscore purchase:", ['payment_data' => $paymentData]);
                         $name = $paymentData['name'];
                         $email = $paymentData['email'];
                         $reportUrl = $paymentData['report_url'];
+                        $reportDate = $paymentData['report_date'] ?? now()->format('Y-m-d');
+                        $reportMonths = $paymentData['report_months'] ?? 'N/A';
                         Mail::to($email)->send(new ZuriScoreReportMail($name, $reportUrl));
+                        Mail::to(config('services.email.admin_email'))->send(new ZuriScoreAdminMail($name, $reportDate, $reportMonths));
                         break;
                 }
 
@@ -151,15 +155,15 @@ class ChatpesaStk
     {
         $digits = preg_replace('/\D/', '', $phone);
 
-        if (strlen($digits) === 10 && str_starts_with($digits, '07')) {
+        if (strlen($digits) === 10 && (str_starts_with($digits, '07') || str_starts_with($digits, '01'))) {
             return $digits;
         }
 
-        if (strlen($digits) === 9 && str_starts_with($digits, '7')) {
+        if (strlen($digits) === 9 && (str_starts_with($digits, '7') || str_starts_with($digits, '1'))) {
             return '0' . $digits;
         }
 
-        if (strlen($digits) === 12 && str_starts_with($digits, '2547')) {
+        if (strlen($digits) === 12 && (str_starts_with($digits, '2547') || str_starts_with($digits, '2541'))) {
             return '0' . substr($digits, 3);
         }
 

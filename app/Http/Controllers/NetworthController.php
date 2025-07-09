@@ -25,13 +25,13 @@ class NetworthController extends Controller
         $liabilities = Liability::where('user_id', auth()->id())
             ->select('name', 'amount', 'created_at', 'updated_at')
             ->get();
-            
+
         $fixedIncomeTypes = ['mmf', 'bills', 'bonds', 'other'];
         $investments = Investment::where('user_id', auth()->id())
             ->select(
                 'details_of_investment as name', // Alias to match frontend
-            'type', // Select the 'type' column as it's used in the CASE statement
-            DB::raw("CASE
+                'type', // Select the 'type' column as it's used in the CASE statement
+                DB::raw("CASE
                     WHEN type IN ('" . implode("','", $fixedIncomeTypes) . "') THEN current_amount
                     ELSE initial_amount
                  END AS value")
@@ -114,7 +114,7 @@ class NetworthController extends Controller
         $type = $request->type;
 
         try {
-            Mail::to('info@zuritconsulting.com')->send(new FinancialAssistance($user, $type));
+            Mail::to(config('services.email.admin_email'))->send(new FinancialAssistance($user, $type));
             return response()->json(['success' => true]);
         } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);

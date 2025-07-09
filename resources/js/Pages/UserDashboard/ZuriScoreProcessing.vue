@@ -74,7 +74,7 @@ const getFailureMessage = (reason) => {
     } else if (lowerReason.includes('insufficient')) {
         return 'Payment failed due to insufficient funds. Please ensure you have enough balance and try again.';
     } else if (lowerReason.includes('timeout')) {
-        return 'Payment timed out. Please try again.';
+        return 'Payment timed out. Please try again after 2 minutes.';
     } else {
         return `Payment failed: ${reason || 'Unknown error'}. Please try again.`;
     }
