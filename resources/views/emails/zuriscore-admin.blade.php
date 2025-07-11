@@ -93,7 +93,7 @@
         <table class="info-table">
             <tr>
                 <th>Client Name</th>
-                <td>{{ $clientName  }}</td>
+                <td>{{ $clientName }}</td>
             </tr>
             <tr>
                 <th>Report Months</th>
