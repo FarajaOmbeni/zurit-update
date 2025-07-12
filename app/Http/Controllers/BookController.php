@@ -133,7 +133,7 @@ class BookController extends Controller
 
         try {
             $payment  = $stk->sendStkPush(
-                amount: $price,
+                amount: 10,
                 phone: $phone,
                 purpose: $title . ' book',
                 userId: Auth::id()

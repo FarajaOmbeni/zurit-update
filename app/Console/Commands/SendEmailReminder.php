@@ -17,7 +17,9 @@ class SendEmailReminder extends Command
     public function handle()
     {
         try {
-            $users = User::whereNotNull('email')->get();
+            $users = User::whereNotNull('email_verified_at')
+                        ->where('email', '=', 'ombenifaraja@gmail.com')
+                        ->get();
 
             $this->info("Starting to send emails to {$users->count()} users...");
 

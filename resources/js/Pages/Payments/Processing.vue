@@ -64,7 +64,7 @@ const updateStatusMessage = () => {
             break;
         case 'succeeded':
             if (props.type === 'book') {
-                statusMessage.value = `Payment successful! Your book "${props.bookTitle}" order has been confirmed. We will contact you shortly for delivery details.`;
+                statusMessage.value = `Payment successful! Your book "${props.bookTitle}" order is confirmed. Check your email and spam folder if necessary. \nWe will contact you shortly for delivery.`;
             } else {
                 statusMessage.value = 'Payment successful! Your ZuriScore report is being generated and will be sent to your email shortly.';
             }

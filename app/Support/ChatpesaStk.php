@@ -144,7 +144,7 @@ class ChatpesaStk
 
                 Cache::forget($cacheKey);
                 Log::info("Payment data after session: ", ['session' => Cache::get($cacheKey)]);
-                Log::info("Emails sent for payment: ", ['payment_id' => $payment->id]);
+                Log::info("Emails sent for payment: ", ['payment_id' => $payment->id, 'admin_mail' => config('services.email.admin_email'), 'user_mail' => $email]);
             } catch (\Exception $e) {
                 Log::error('Email sending failed: ', ['error' => $e->getMessage()]);
             }

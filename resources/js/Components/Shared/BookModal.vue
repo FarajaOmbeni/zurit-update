@@ -103,7 +103,6 @@ function submitForm() {
     form.post(route('buy.book'), {
         onSuccess: () => {
             form.reset();
-            openAlert('success', "Book Purchased Succesfully!\nWe will get back to you soon!", 5000);
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)

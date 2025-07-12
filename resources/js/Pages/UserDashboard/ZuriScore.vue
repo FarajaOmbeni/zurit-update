@@ -29,7 +29,6 @@ function submitForm() {
     form.post(route('zuriscore.post'), {
         onSuccess: () => {
             form.reset();
-            openAlert('success', "Report sent successfully!\nWe will get back to you soon!", 5000);
         },
         onError: (errors) => {
             const errorMessages = Object.values(errors)

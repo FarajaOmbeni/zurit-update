@@ -51,7 +51,7 @@ const updateStatusMessage = () => {
             statusType.value = 'info';
             break;
         case 'succeeded':
-            statusMessage.value = 'Payment successful! Your ZuriScore report is being generated and will be sent to your email shortly.';
+            statusMessage.value = 'Payment successful! Your ZuriScore report has been generated. Please check your email, including the spam folder, and mark it as not spam if necessary.';
             statusType.value = 'success';
             break;
         case 'failed':
