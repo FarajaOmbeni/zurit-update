@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\QuestionnaireResponseMail;
 
@@ -12,7 +13,7 @@ class QuestionnaireController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
         return Inertia::render('UserDashboard/Questionnaires', [
             'user' => $user
         ]);
@@ -22,6 +23,11 @@ class QuestionnaireController extends Controller
     {
         // Get all form data
         $formData = $request->all();
+
+        // If this is a money quiz, set the form type if not already set
+        if (!isset($formData['form_type']) && isset($formData['goalSetting1'])) {
+            $formData['form_type'] = 'Money Quiz - Wealth Score Assessment';
+        }
 
         // Send email to admin
         Mail::to(config('services.email.admin_email'))->send(new QuestionnaireResponseMail($formData));

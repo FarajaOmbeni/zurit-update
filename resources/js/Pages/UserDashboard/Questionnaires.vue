@@ -188,37 +188,62 @@ function submitMoneyQuiz() {
 
     formProcessing.value = true
 
-    // Generate summary (already computed)
+    // Generate summary
     const summary = `Your Wealth Score: ${quizResultTitle.value}, Total Score: ${totalQuizScore.value}/30`
 
-    // Show alert with summary
-    openAlert('success', `Money quiz submitted successfully! ${summary}`, 20000)
-
-    // Clear the form
-    clearQuizForm()
-
-    // Close accordion
-    if (quizAccordion.value) {
-        quizAccordion.value.removeAttribute('open')
-    }
-
-    // Reset processing state after a short delay
-    setTimeout(() => {
-        formProcessing.value = false
-    }, 1000)
-}
-
-function contactUs() {
     const form = useForm({
-        name: userInfo.value.name,
+        // Contact information
+        fullName: userInfo.value.name,
         email: userInfo.value.email,
         phone: userInfo.value.phone,
-        message: quizResultMessage.value,
+
+        // Form type
+        form_type: 'Money Quiz - Wealth Score Assessment',
+
+        // Quiz scores
+        goalSetting1: quizScores.value.goalSetting1,
+        goalSetting2: quizScores.value.goalSetting2,
+        investmentPlanning1: quizScores.value.investmentPlanning1,
+        investmentPlanning2: quizScores.value.investmentPlanning2,
+        debtManagement1: quizScores.value.debtManagement1,
+        debtManagement2: quizScores.value.debtManagement2,
+        budgetPlanning1: quizScores.value.budgetPlanning1,
+        budgetPlanning2: quizScores.value.budgetPlanning2,
+        financialKnowledge1: quizScores.value.financialKnowledge1,
+        financialKnowledge2: quizScores.value.financialKnowledge2,
+
+        // Summary information
+        totalScore: totalQuizScore.value,
+        maxScore: 30,
+        wealthLevel: quizResultTitle.value,
+        resultMessage: quizResultMessage.value,
+
+        // Legacy field for backward compatibility
+        message: `${summary} - ${quizResultMessage.value}`
     })
+
     form.post(route('submit.quiz'), {
         onSuccess: () => {
-            showQuizModal.value = false
-            openAlert('success', 'Your information has been sent successfully! We will get back to you soon.', 5000)
+            // Show alert with summary
+            openAlert('success', `Money quiz submitted successfully! ${summary}`, 20000)
+
+            // Clear the form
+            clearQuizForm()
+
+            // Close accordion
+            if (quizAccordion.value) {
+                quizAccordion.value.removeAttribute('open')
+            }
+
+            // Reset processing state after a short delay
+            setTimeout(() => {
+                formProcessing.value = false
+            }, 1000)
+        },
+        onError: (errors) => {
+            formProcessing.value = false
+            console.error('Quiz submission errors:', errors)
+            openAlert('danger', 'There was an error submitting your quiz. Please try again.', 5000)
         }
     })
 }

@@ -479,14 +479,20 @@
             {{-- MONEY QUIZ - WEALTH SCORE ASSESSMENT --}}
             <div class="section">
                 <div class="section-title">💰 Money Quiz - Wealth Score Assessment</div>
-                <p><strong>Respondent:</strong> {{ $formData['name'] ?? 'Anonymous' }}</p>
+                <p><strong>Respondent:</strong> {{ $formData['fullName'] ?? ($formData['name'] ?? 'Anonymous') }}</p>
 
-                @if (isset($formData['message']))
-                    <div class="score-box">
-                        <h3>📊 Assessment Result:</h3>
+                <div class="score-box">
+                    <h3>📊 Assessment Result:</h3>
+                    @if (isset($formData['wealthLevel']) && isset($formData['totalScore']))
+                        <p><strong>Wealth Level:</strong> {{ $formData['wealthLevel'] }}</p>
+                        <p><strong>Total Score:</strong> {{ $formData['totalScore'] ?? 0 }}/{{ $formData['maxScore'] ?? 30 }}</p>
+                        @if (isset($formData['resultMessage']))
+                            <p><strong>Recommendation:</strong> {{ $formData['resultMessage'] }}</p>
+                        @endif
+                    @elseif (isset($formData['message']))
                         <p>{{ $formData['message'] }}</p>
-                    </div>
-                @endif
+                    @endif
+                </div>
 
                 <h3>Detailed Responses:</h3>
                 <ul>
