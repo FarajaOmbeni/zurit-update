@@ -2,11 +2,21 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head, useForm, usePage } from '@inertiajs/vue3'
 import Sidebar from '@/Components/Sidebar.vue'
+import Alert from '@/Components/Shared/Alert.vue'
+import { useAlert } from '@/Components/Composables/useAlert.js'
 import { reactive, ref, computed } from 'vue'
 
 const props = defineProps({
     user: Object
 })
+
+const { alertState, openAlert, clearAlert } = useAlert()
+
+// Refs for controlling accordion state
+const onboardingAccordion = ref(null)
+const personalityAccordion = ref(null)
+const riskAccordion = ref(null)
+const quizAccordion = ref(null)
 
 // Onboarding Form Data
 const onboardingForm = reactive({
@@ -61,11 +71,8 @@ const userInfo = ref({
     phone: ''
 })
 
-// Results and modals
-const showOnboardingResult = ref(false)
-const showPersonalityResult = ref(false)
-const showRiskResult = ref(false)
-const showQuizModal = ref(false)
+// Form processing state
+const formProcessing = ref(false)
 
 // Computed values
 const totalQuizScore = computed(() => Object.values(quizScores.value).reduce((acc, score) => acc + parseInt(score), 0))
@@ -96,36 +103,109 @@ const riskProfile = computed(() => {
 
 // Form submission functions
 function submitOnboarding() {
+    if (formProcessing.value) return
+
+    formProcessing.value = true
     const form = useForm(onboardingForm)
     form.post(route('questionnaires.onboarding'), {
         onSuccess: () => {
-            showOnboardingResult.value = true
-            alert('Onboarding form submitted successfully!')
+            // Generate summary
+            const summary = generateOnboardingSummary()
+
+            // Show alert with summary
+            openAlert('success', `Onboarding form submitted successfully! ${summary}`, 20000)
+
+            // Clear the form
+            clearOnboardingForm()
+
+            // Close accordion
+            if (onboardingAccordion.value) {
+                onboardingAccordion.value.removeAttribute('open')
+            }
+        },
+        onFinish: () => {
+            formProcessing.value = false
         }
     })
 }
 
 function submitPersonality() {
+    if (formProcessing.value) return
+
+    formProcessing.value = true
     const form = useForm(personalityForm)
     form.post(route('questionnaires.personality'), {
         onSuccess: () => {
-            showPersonalityResult.value = true
-            alert('Money personality assessment submitted successfully!')
+            // Generate summary
+            const summary = generatePersonalitySummary()
+
+            // Show alert with summary
+            openAlert('success', `Money personality assessment submitted successfully! ${summary}`, 20000)
+
+            // Clear the form
+            clearPersonalityForm()
+
+            // Close accordion
+            if (personalityAccordion.value) {
+                personalityAccordion.value.removeAttribute('open')
+            }
+        },
+        onFinish: () => {
+            formProcessing.value = false
         }
     })
 }
 
 function submitRiskTolerance() {
+    if (formProcessing.value) return
+
+    formProcessing.value = true
     const form = useForm(riskForm)
     form.post(route('questionnaires.risk'), {
         onSuccess: () => {
-            showRiskResult.value = true
+            // Generate summary (already computed)
+            const summary = `Your Risk Profile: ${riskProfile.value}, Total Score: ${totalRiskScore.value}/80`
+
+            // Show alert with summary
+            openAlert('success', `Risk tolerance assessment submitted successfully! ${summary}`, 20000)
+
+            // Clear the form
+            clearRiskForm()
+
+            // Close accordion
+            if (riskAccordion.value) {
+                riskAccordion.value.removeAttribute('open')
+            }
+        },
+        onFinish: () => {
+            formProcessing.value = false
         }
     })
 }
 
 function submitMoneyQuiz() {
-    showQuizModal.value = true
+    if (formProcessing.value) return
+
+    formProcessing.value = true
+
+    // Generate summary (already computed)
+    const summary = `Your Wealth Score: ${quizResultTitle.value}, Total Score: ${totalQuizScore.value}/30`
+
+    // Show alert with summary
+    openAlert('success', `Money quiz submitted successfully! ${summary}`, 20000)
+
+    // Clear the form
+    clearQuizForm()
+
+    // Close accordion
+    if (quizAccordion.value) {
+        quizAccordion.value.removeAttribute('open')
+    }
+
+    // Reset processing state after a short delay
+    setTimeout(() => {
+        formProcessing.value = false
+    }, 1000)
 }
 
 function contactUs() {
@@ -138,9 +218,129 @@ function contactUs() {
     form.post(route('submit.quiz'), {
         onSuccess: () => {
             showQuizModal.value = false
-            alert('Your information has been sent successfully! We will get back to you soon.')
+            openAlert('success', 'Your information has been sent successfully! We will get back to you soon.', 5000)
         }
     })
+}
+
+// Form clearing functions
+function clearOnboardingForm() {
+    onboardingForm.fullName = props.user.name || ''
+    onboardingForm.email = props.user.email || ''
+    onboardingForm.phone = ''
+    onboardingForm.dateOfBirth = ''
+    onboardingForm.maritalStatus = ''
+    onboardingForm.childrenDependents = ''
+    onboardingForm.occupation = ''
+    onboardingForm.monthlyIncome = ''
+    onboardingForm.monthlyExpenses = ''
+    onboardingForm.residentialStatus = ''
+    onboardingForm.financeTracking = ''
+    onboardingForm.hasBudget = ''
+    onboardingForm.financialComfort = ''
+    onboardingForm.hadAdvisor = ''
+    onboardingForm.discussMoney = ''
+    onboardingForm.assets = []
+    onboardingForm.loans = ''
+    onboardingForm.emergencyFund = ''
+    onboardingForm.goal1 = ''
+    onboardingForm.goal2 = ''
+    onboardingForm.goal3 = ''
+    onboardingForm.goal1Timeline = ''
+    onboardingForm.goal2Timeline = ''
+    onboardingForm.goal3Timeline = ''
+    onboardingForm.motivation = ''
+    onboardingForm.fears = ''
+    onboardingForm.advisoryExpectations = []
+    onboardingForm.communicationPreference = ''
+    onboardingForm.upcomingEvents = ''
+}
+
+function clearPersonalityForm() {
+    personalityForm.fullName = props.user.name || ''
+    personalityForm.email = props.user.email || ''
+    personalityForm.phone = ''
+    for (let i = 1; i <= 20; i++) {
+        personalityForm[`q${i}`] = ''
+    }
+}
+
+function clearRiskForm() {
+    riskForm.fullName = props.user.name || ''
+    riskForm.email = props.user.email || ''
+    riskForm.phone = ''
+    for (let i = 1; i <= 20; i++) {
+        riskForm[`q${i}`] = 0
+    }
+}
+
+function clearQuizForm() {
+    userInfo.value.name = props.user.name || ''
+    userInfo.value.email = props.user.email || ''
+    userInfo.value.phone = ''
+    quizScores.value = {
+        goalSetting1: 0, goalSetting2: 0, investmentPlanning1: 0, investmentPlanning2: 0,
+        debtManagement1: 0, debtManagement2: 0, budgetPlanning1: 0, budgetPlanning2: 0,
+        financialKnowledge1: 0, financialKnowledge2: 0,
+    }
+}
+
+// Summary generation functions
+function generateOnboardingSummary() {
+    const profile = []
+
+    // Age group
+    if (onboardingForm.dateOfBirth) {
+        profile.push(`Age: ${onboardingForm.dateOfBirth}`)
+    }
+
+    // Income level
+    if (onboardingForm.monthlyIncome) {
+        profile.push(`Income: ${onboardingForm.monthlyIncome}`)
+    }
+
+    // Financial comfort level
+    if (onboardingForm.financialComfort) {
+        const comfort = onboardingForm.financialComfort === 'very' ? 'High' :
+            onboardingForm.financialComfort === 'somewhat' ? 'Medium' : 'Low'
+        profile.push(`Financial Comfort: ${comfort}`)
+    }
+
+    return profile.length > 0 ? `Profile: ${profile.join(', ')}` : 'Profile completed successfully!'
+}
+
+function generatePersonalitySummary() {
+    const responses = {}
+
+    // Count responses for each letter
+    for (let i = 1; i <= 20; i++) {
+        const answer = personalityForm[`q${i}`]
+        if (answer) {
+            responses[answer] = (responses[answer] || 0) + 1
+        }
+    }
+
+    // Find dominant personality type
+    const entries = Object.entries(responses)
+    if (entries.length === 0) {
+        return 'Your Money Personality: Balanced Profile'
+    }
+
+    const dominantType = entries.reduce((a, b) =>
+        a[1] > b[1] ? a : b
+    )[0]
+
+    const personalityTypes = {
+        'A': '💾 The Saver - Security-focused',
+        'B': '📊 The Planner - Goal-oriented',
+        'C': '🎉 The Spender - Experience-focused',
+        'D': '📈 The Investor - Growth-focused',
+        'E': '😰 The Worrier - Anxiety-prone'
+    }
+
+    const personalityName = personalityTypes[dominantType] || 'Balanced Profile'
+    const responseCount = responses[dominantType] || 0
+    return `Your Money Personality: ${personalityName} (${responseCount}/20 responses)`
 }
 </script>
 
@@ -149,13 +349,16 @@ function contactUs() {
     <Head title="Questionnaires" />
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
+            <!-- Alert Component -->
+            <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
+                :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
             <Sidebar>
                 <div class="min-h-screen bg-white p-6 space-y-10">
                     <section class="max-w-6xl mx-auto space-y-6">
                         <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">Prosperity Questionnaires</h1>
 
                         <!-- 1. Onboarding Form -->
-                        <details class="border rounded">
+                        <details ref="onboardingAccordion" class="border rounded">
                             <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white font-semibold">
                                 1. Client Onboarding Questionnaire
                             </summary>
@@ -565,7 +768,7 @@ function contactUs() {
                         </details>
 
                         <!-- 2. Money Personality -->
-                        <details class="border rounded">
+                        <details ref="personalityAccordion" class="border rounded">
                             <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white font-semibold">
                                 2. Money Personality Assessment
                             </summary>
@@ -1024,7 +1227,7 @@ function contactUs() {
                         </details>
 
                         <!-- 3. Risk Tolerance -->
-                        <details class="border rounded">
+                        <details ref="riskAccordion" class="border rounded">
                             <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white font-semibold">
                                 3. Risk Tolerance Assessment
                             </summary>
@@ -1354,16 +1557,12 @@ function contactUs() {
                                     {{ formProcessing ? 'Submitting...' : 'Submit Risk Assessment' }}
                                 </button>
 
-                                <div v-if="showRiskResult"
-                                    class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                                    <h4 class="font-bold text-green-800">Your Risk Profile: {{ riskProfile }}</h4>
-                                    <p class="text-green-700">Total Score: {{ totalRiskScore }}/80</p>
-                                </div>
+
                             </div>
                         </details>
 
                         <!-- 4. Money Quiz -->
-                        <details class="border rounded">
+                        <details ref="quizAccordion" class="border rounded">
                             <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white font-semibold">
                                 4. Money Quiz - Wealth Score Assessment
                             </summary>
@@ -1517,17 +1716,6 @@ function contactUs() {
             </Sidebar>
         </div>
 
-        <!-- Money Quiz Result Modal -->
-        <div v-if="showQuizModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">
-                <h3 class="text-xl font-bold mb-4 text-center">{{ quizResultTitle }}</h3>
-                <p class="mb-4 text-center">{{ quizResultMessage }}</p>
-                <p class="text-center">Contact us on +254 759 092 412 to grow or maintain your financial position!</p>
-                <button @click="showQuizModal = false"
-                    class="mt-4 w-full bg-purple-700 text-white px-4 py-2 rounded-lg">Close</button>
-                <button @click="contactUs" class="mt-4 w-full bg-yellow-500 text-white px-4 py-2 rounded-lg">Contact
-                    Us</button>
-            </div>
-        </div>
+
     </AuthenticatedLayout>
 </template>
