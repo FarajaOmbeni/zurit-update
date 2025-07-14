@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('purpose')->nullable();
             $table->string('merchant_request_id');
             $table->string('checkout_request_id');
-            $table->enum('status', ['pending', 'success', 'failed'])->default('pending')->change();
+            $table->enum('status', ['pending', 'succeeded', 'failed'])->default('pending')->change();
             $table->string('reason')->nullable();
             $table->string('phone_number');
             $table->string('amount');
