@@ -157,7 +157,7 @@
 
       <div class="p-6 rounded-lg bg-gray-100 overflow-auto">
         <h1 class="text-2xl font-semibold text-purple-800">{{ title }}</h1>
-        <div class="p-6 rounded-lg bg-gray-100 overflow-auto pb-20 md:pb-6">
+        <div class="lg:p-6 rounded-lg bg-gray-100 overflow-auto pb-20 md:pb-6">
           <slot />
         </div>
       </div>

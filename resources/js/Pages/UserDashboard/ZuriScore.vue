@@ -46,7 +46,7 @@ function submitForm() {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
-                <div class="min-h-screen bg-white p-6">
+                <div class="bg-white p-6">
                     <h1 class="text-2xl font-semibold text-gray-900">Financial Statement Analysis</h1>
                     <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                         :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
