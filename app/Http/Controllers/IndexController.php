@@ -147,4 +147,5 @@ class IndexController extends Controller
         // You can add a success message or redirect here if needed
         return redirect()->back()->with('success', 'Questionnaire submitted successfully! We will be in touch.');
     }
+    
 }
