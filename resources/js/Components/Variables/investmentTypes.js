@@ -228,68 +228,54 @@ export const reits = [
 ];
 
 export const shares = [
-    {
-        ticker: "SCOM - Safaricom PLC",
-        price: 23.5,
-        dividend:
-            "Final Dividend of Kes. 0.65, announced on 09-May-2025, Books Closure: 31-Jul-2025, Payment Date: 31-Aug-2025",
-    },
-    {
-        ticker: "UMME - Umeme Ltd",
-        price: 12.85,
-        dividend:
-            "Interim Dividend of Ush 222, announced on 24-Jun-2025, Books Closure: 14-Jul-2025, Payment Date: 31-Jul-2025",
-    },
-    {
-        ticker: "JUB - Jubilee Holdings Ltd",
-        price: 220.0,
-        dividend:
-            "Final Dividend of Kes. 11.50, announced on 04-Apr-2025, Books Closure: 28-May-2025, Payment Date: 25-Jul-2025",
-    },
-    {
-        ticker: "TOTL - TotalEnergies Marketing Kenya PLC",
-        price: 24.5,
-        dividend:
-            "First & Final Dividend of Kes. 1.92, announced on 30-Apr-2025, Books Closure: 27-Jun-2025, Payment Date: 31-Jul-2025",
-    },
-    {
-        ticker: "KNRE - Kenya Reinsurance Corp. Ltd",
-        price: 1.95,
-        dividend:
-            "Final Dividend of Kes. 0.15, announced on 28-Mar-2025, Books Closure: 20-Jun-2025, Payment Date: 01-Aug-2025",
-    },
-    {
-        ticker: "LBTY - Liberty Kenya Holdings Plc",
-        price: 9.5,
-        dividend:
-            "Final Dividend of Kes. 1.00, Special Dividend of Kes. 0.60, announced on 26-Mar-2025, Books Closure: 14-Jun-2025, Payment Date: 24-Aug-2025",
-    },
-    {
-        ticker: "TPSE - TPS Eastern Africa Plc",
-        price: 14.2,
-        dividend:
-            "First & Final Dividend of Kes. 0.35, announced on 14-May-2025, Books Closure: 26-Jun-2025, Payment Date: 30-Jul-2025",
-    },
-    {
-        ticker: "WTK - Williamson Tea Kenya Plc",
-        price: 205.75,
-        dividend:
-            "First & Final Dividend of Kes. 10.00, announced on 27-Jun-2025, Books Closure: 31-Jul-2025, Payment Date: 02-Sep-2025",
-        bonus: "Ratio of 1:1, announced on 27-Jun-2025, Books Closure: Subject to Approval, Payment Date: Subject to Approval",
-    },
-    {
-        ticker: "NSE - Nairobi Securities Exchange PLC",
-        price: 8.0,
-        dividend:
-            "First & Final Dividend of Kes. 0.32, announced on 28-Mar-2025, Books Closure: 21-May-2025, Payment Date: 31-Jul-2025",
-    },
-    {
-        ticker: "KAPC - Kapchorua Tea Kenya PLC",
-        price: 220.0,
-        dividend:
-            "First & Final Dividend of Kes. 25.00, announced on 27-Jun-2025, Books Closure: 31-Jul-2025, Payment Date: 02-Sep-2025",
-        bonus: "Ratio of 1:1, announced on 27-Jun-2025, Books Closure: Subject to Approval, Payment Date: Subject to Approval",
-    },
+    { ticker: "SCOM - Safaricom PLC", price: 26 },
+    { ticker: "EQTY - Equity Group Holdings Plc", price: 49.65 },
+    { ticker: "EABL - East African Breweries PLC", price: 211.75 },
+    { ticker: "KCB - KCB Group PLC", price: 44.15 },
+    { ticker: "SCBK - Standard Chartered Bank Kenya Ltd", price: 301.25 },
+    { ticker: "ABSA - Absa Bank Kenya PLC", price: 19.90 },
+    { ticker: "COOP - Co-operative Bank of Kenya Ltd", price: 17.05 },
+    { ticker: "NCBA - NCBA Group PLC", price: 63.50 },
+    { ticker: "SBIC - Stanbic Holdings Plc", price: 171 },
+    { ticker: "IMH - I&M Group PLC", price: 36.15 },
+    { ticker: "KEGN - KenGen PLC", price: 7.08 },
+    { ticker: "BAT - British American Tobacco Kenya plc", price: 381 },
+    { ticker: "BKG - BK Group PLC", price: 35.10 },
+    { ticker: "KQ - Kenya Airways Plc", price: 5.32 },
+    { ticker: "UMME - Umeme Ltd", price: 21.25 },
+    { ticker: "DTK - Diamond Trust Bank Kenya Ltd", price: 79.25 },
+    { ticker: "BAMB - Bamburi Cement PLC", price: 54.0 },
+    { ticker: "BRIT - Britam Holdings Plc", price: 8.18 },
+    { ticker: "KPLC - Kenya Power & Lighting Co Ltd", price: 11.05 },
+    { ticker: "JUB - Jubilee Holdings Ltd", price: 226.0 },
+    { ticker: "TOTL - TotalEnergies Marketing Kenya PLC", price: 24.05 },
+    { ticker: "HFCK - HF Group PLC", price: 7.42 },
+    { ticker: "KNRE - Kenya Reinsurance Corp. Ltd", price: 2.26 },
+    { ticker: "KUKZ - Kakuzi PLC", price: 400.0 },
+    { ticker: "CTUM - Centum Investment Co Plc", price: 12.05 },
+    { ticker: "CIC - CIC Insurance Group PLC", price: 3.29 },
+    { ticker: "CRWN - Crown Paints Kenya PLC", price: 37.30 },
+    { ticker: "CARB - Carbacid Investments Plc", price: 20.70 },
+    { ticker: "LBTY - Liberty Kenya Holdings Plc", price: 10.90 },
+    { ticker: "TPSE - TPS Eastern Africa Plc", price: 15.20 },
+    { ticker: "WTK - Williamson Tea Kenya Plc", price: 239.75 },
+    { ticker: "SASN - Sasini PLC", price: 15.75 },
+    { ticker: "PORT - East African Portland Cement PLC", price: 45.05 },
+    { ticker: "NBV - Nairobi Business Ventures PLC", price: 1.85 },
+    { ticker: "KAPC - Kapchorua Tea Kenya PLC", price: 321.50 },
+    { ticker: "CGEN - Car & General (Kenya) Plc", price: 22.05 },
+    { ticker: "UNGA - Unga Group Plc", price: 20.50 },
+    { ticker: "SCAN - WPP Scangroup Plc", price: 2.53 },
+    { ticker: "SMER - Sameer Africa PLC", price: 5.42 },
+    { ticker: "SLAM - Sanlam Kenya Plc", price: 8.00 },
+    { ticker: "LKL - Longhorn Publishers PLC", price: 2.58 },
+    { ticker: "AMAC - Africa Mega Agricorp PLC", price: 56.0 },
+    { ticker: "EGAD - Eaagads Ltd", price: 11.75 },
+    { ticker: "HAFR - Home Afrika Ltd", price: 0.69 },
+    { ticker: "FTGH - FTG Holdings Ltd", price: 1.31 },
+    { ticker: "EVRD - Eveready East Africa PLC", price: 0.92},
+    { ticker: "OCH - Olympia Capital Holdings Ltd", price: 4.25 },
+    { ticker: "UCHM - Uchumi Supermarkets Ltd", price: 0.31 },
 ];
 
 export const insurances = [
