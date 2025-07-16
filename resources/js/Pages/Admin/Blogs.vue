@@ -81,11 +81,11 @@ const tableHeaders = ref([
 ])
 
 const categories = [
-    "Personal Finance & Budgeting",
-    "Investing & Wealth Management",
-    "Business & Entrepreneurship",
-    "Tax & Compliance",
-    "Financial Technology & Trends"
+    { label: "Personal Finance & Budgeting", value: "Personal Finance & Budgeting" },
+    { label: "Investing & Wealth Management", value: "Investing & Wealth Management" },
+    { label: "Business & Entrepreneurship", value: "Business & Entrepreneurship" },
+    { label: "Tax & Compliance", value: "Tax & Compliance" },
+    { label: "Financial Technology & Trends", value: "Financial Technology & Trends" }
 ];
 
 
@@ -137,7 +137,7 @@ const handleSubmit = () => {
                     <form @submit.prevent="handleSubmit">
                         <div>
                             <Input v-model="form.blog_title" label="Title" placeholder="Enter blog title" id="title" />
-                            <Select v-model="form.blog_tag" id="category" :options="categories"
+                            <Select  v-model="form.blog_tag" id="category" :options="categories"
                                 select_title="Select category" label="Category" />
                             <FileInput label="Blog Image" v-model="form.blog_image" accept="image/*"
                                 @file-selected="handleFile" />
