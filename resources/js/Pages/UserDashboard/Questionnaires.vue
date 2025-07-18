@@ -17,6 +17,7 @@ const onboardingAccordion = ref(null)
 const personalityAccordion = ref(null)
 const riskAccordion = ref(null)
 const quizAccordion = ref(null)
+const nextStepAccordion = ref(null)
 
 // Onboarding Form Data
 const onboardingForm = reactive({
@@ -65,6 +66,17 @@ const quizScores = ref({
     financialKnowledge1: 0, financialKnowledge2: 0,
 })
 
+// Next Natural Step Data
+const nextStepForm = reactive({
+    // Contact Information (auto-populated from auth user)
+    fullName: props.user.name || '',
+    email: props.user.email || '',
+    phone: '',
+    // Questions 1-10 with A-E options (arrays to allow multiple selections)
+    q1: [], q2: [], q3: [], q4: [], q5: [],
+    q6: [], q7: [], q8: [], q9: [], q10: []
+})
+
 const userInfo = ref({
     name: props.user.name || '',
     email: props.user.email || '',
@@ -99,6 +111,56 @@ const riskProfile = computed(() => {
     if (totalRiskScore.value >= 45) return '📈 Moderate Investor'
     if (totalRiskScore.value >= 25) return '🛡️ Conservative Investor'
     return '💎 Ultra Conservative'
+})
+
+// Next Natural Step computed values
+const nextStepCounts = computed(() => {
+    const counts = { A: 0, B: 0, C: 0, D: 0, E: 0 }
+
+    for (let i = 1; i <= 10; i++) {
+        const answers = nextStepForm[`q${i}`]
+        if (Array.isArray(answers)) {
+            answers.forEach(answer => {
+                if (counts.hasOwnProperty(answer)) {
+                    counts[answer]++
+                }
+            })
+        }
+    }
+
+    return counts
+})
+
+const nextStepPersona = computed(() => {
+    const counts = nextStepCounts.value
+    const maxCount = Math.max(...Object.values(counts))
+    const dominantLetter = Object.keys(counts).find(key => counts[key] === maxCount)
+
+    const personas = {
+        'A': '🧠 Systems Thinker',
+        'B': '🗣️ Communicator',
+        'C': '👨‍🏫 Mentor/Trainer',
+        'D': '🤝 Connector/Caregiver',
+        'E': '⚠️ Burnout Watch'
+    }
+
+    return personas[dominantLetter] || 'Balanced Profile'
+})
+
+const nextStepDescription = computed(() => {
+    const counts = nextStepCounts.value
+    const maxCount = Math.max(...Object.values(counts))
+    const dominantLetter = Object.keys(counts).find(key => counts[key] === maxCount)
+
+    const descriptions = {
+        'A': 'Strong at planning, organizing, budgeting, and problem-solving. Potential paths: admin support, budgeting coach, operations assistant.',
+        'B': 'Persuasive and confident with people. Paths: customer service trainer, micro-consulting, sales support.',
+        'C': 'Strong in coaching, tutoring, and guiding others. Paths: tutoring, interview prep, life skills trainer.',
+        'D': 'Helpful, nurturing, and service-minded. Paths: event support, hospitality, child care, wellness.',
+        'E': 'Feeling stuck or tired. Needs rest, mindset work, and energy budgeting before starting something new.'
+    }
+
+    return descriptions[dominantLetter] || 'You have a balanced profile across multiple areas.'
 })
 
 // Form submission functions
@@ -248,6 +310,75 @@ function submitMoneyQuiz() {
     })
 }
 
+function submitNextStep() {
+    if (formProcessing.value) return
+
+    formProcessing.value = true
+
+    // Generate summary
+    const counts = nextStepCounts.value
+    const summary = `Your Natural Next Step: ${nextStepPersona.value} - ${nextStepDescription.value}`
+
+    const form = useForm({
+        // Contact information
+        fullName: nextStepForm.fullName,
+        email: nextStepForm.email,
+        phone: nextStepForm.phone,
+
+        // Form type
+        form_type: 'Next Natural Step Assessment',
+
+        // All question responses
+        q1: nextStepForm.q1,
+        q2: nextStepForm.q2,
+        q3: nextStepForm.q3,
+        q4: nextStepForm.q4,
+        q5: nextStepForm.q5,
+        q6: nextStepForm.q6,
+        q7: nextStepForm.q7,
+        q8: nextStepForm.q8,
+        q9: nextStepForm.q9,
+        q10: nextStepForm.q10,
+
+        // Tally results
+        countA: counts.A,
+        countB: counts.B,
+        countC: counts.C,
+        countD: counts.D,
+        countE: counts.E,
+
+        // Final result
+        persona: nextStepPersona.value,
+        description: nextStepDescription.value,
+
+        // Legacy field for backward compatibility
+        message: summary
+    })
+
+    form.post(route('questionnaires.next-step'), {
+        onSuccess: () => {
+            // Show alert with summary
+            openAlert('success', `Next Natural Step assessment submitted successfully! ${summary}`, 20000)
+
+            // Clear the form
+            clearNextStepForm()
+
+            // Close accordion
+            if (nextStepAccordion.value) {
+                nextStepAccordion.value.removeAttribute('open')
+            }
+        },
+        onFinish: () => {
+            formProcessing.value = false
+        },
+        onError: (errors) => {
+            formProcessing.value = false
+            console.error('Next Step submission errors:', errors)
+            openAlert('danger', 'There was an error submitting your assessment. Please try again.', 5000)
+        }
+    })
+}
+
 // Form clearing functions
 function clearOnboardingForm() {
     onboardingForm.fullName = props.user.name || ''
@@ -307,6 +438,15 @@ function clearQuizForm() {
         goalSetting1: 0, goalSetting2: 0, investmentPlanning1: 0, investmentPlanning2: 0,
         debtManagement1: 0, debtManagement2: 0, budgetPlanning1: 0, budgetPlanning2: 0,
         financialKnowledge1: 0, financialKnowledge2: 0,
+    }
+}
+
+function clearNextStepForm() {
+    nextStepForm.fullName = props.user.name || ''
+    nextStepForm.email = props.user.email || ''
+    nextStepForm.phone = ''
+    for (let i = 1; i <= 10; i++) {
+        nextStepForm[`q${i}`] = []
     }
 }
 
@@ -1732,6 +1872,294 @@ function generatePersonalitySummary() {
                                 <button @click="submitMoneyQuiz" :disabled="formProcessing"
                                     class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg hover:scale-105 transition-transform">
                                     {{ formProcessing ? 'Submitting...' : 'Submit Money Quiz' }}
+                                </button>
+                            </div>
+                        </details>
+
+                        <!-- 5. Next Natural Step -->
+                        <details ref="nextStepAccordion" class="border rounded">
+                            <summary class="cursor-pointer select-none p-4 bg-purple-700 text-white font-semibold">
+                                5. Next Natural Step Assessment
+                            </summary>
+                            <div class="p-6 space-y-4">
+                                <p class="text-sm text-gray-600 mb-4">Discover your most natural next step for income
+                                    growth based on your strengths, energy levels, and interests. You can select
+                                    multiple answers for each question.</p>
+
+                                <!-- Contact Information -->
+                                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-4">
+                                    <h3 class="text-lg font-bold text-purple-800 mb-4">📞 Contact Information</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="col-span-1">
+                                            <span class="text-sm font-semibold">Name:</span>
+                                            <input v-model="nextStepForm.fullName" type="text" readonly
+                                                class="w-full border p-2 rounded mt-1 bg-gray-100" />
+                                        </div>
+                                        <div class="col-span-1">
+                                            <span class="text-sm font-semibold">Email:</span>
+                                            <input v-model="nextStepForm.email" type="email" readonly
+                                                class="w-full border p-2 rounded mt-1 bg-gray-100" />
+                                        </div>
+                                        <div class="col-span-1">
+                                            <span class="text-sm font-semibold">Phone Number: <span
+                                                    class="text-red-500">*</span></span>
+                                            <input v-model="nextStepForm.phone" type="tel" required
+                                                class="w-full border p-2 rounded mt-1"
+                                                placeholder="Enter your phone number" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 gap-6">
+                                    <!-- Question 1 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">1. What energizes you most in your daily
+                                            activities?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q1"
+                                                    type="checkbox" value="A" class="mr-2"> A. Organizing systems,
+                                                creating schedules, and solving logistics problems</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q1"
+                                                    type="checkbox" value="B" class="mr-2"> B. Talking with people,
+                                                persuading others, and building relationships</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q1"
+                                                    type="checkbox" value="C" class="mr-2"> C. Teaching, mentoring, and
+                                                helping others grow their skills</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q1"
+                                                    type="checkbox" value="D" class="mr-2"> D. Taking care of others,
+                                                creating comfort, and providing support</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q1"
+                                                    type="checkbox" value="E" class="mr-2"> E. Nothing much energizes me
+                                                right now—I feel tired or stuck</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 2 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">2. When faced with a challenge, what's your first
+                                            instinct?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q2"
+                                                    type="checkbox" value="A" class="mr-2"> A. Break it down into
+                                                manageable steps and create a plan</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q2"
+                                                    type="checkbox" value="B" class="mr-2"> B. Talk it through with
+                                                others and gather different perspectives</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q2"
+                                                    type="checkbox" value="C" class="mr-2"> C. Research best practices
+                                                and share knowledge with others</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q2"
+                                                    type="checkbox" value="D" class="mr-2"> D. Focus on how it affects
+                                                people and find ways to help</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q2"
+                                                    type="checkbox" value="E" class="mr-2"> E. Feel overwhelmed and
+                                                avoid dealing with it</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 3 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">3. What do people usually come to you for help
+                                            with?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q3"
+                                                    type="checkbox" value="A" class="mr-2"> A. Getting organized,
+                                                planning events, or managing their finances</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q3"
+                                                    type="checkbox" value="B" class="mr-2"> B. Communication problems,
+                                                negotiations, or networking advice</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q3"
+                                                    type="checkbox" value="C" class="mr-2"> C. Learning new skills,
+                                                academic help, or career guidance</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q3"
+                                                    type="checkbox" value="D" class="mr-2"> D. Emotional support,
+                                                childcare advice, or health/wellness tips</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q3"
+                                                    type="checkbox" value="E" class="mr-2"> E. People don't usually come
+                                                to me for help</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 4 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">4. In a group project, you naturally...</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q4"
+                                                    type="checkbox" value="A" class="mr-2"> A. Take charge of timelines,
+                                                budgets, and project management</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q4"
+                                                    type="checkbox" value="B" class="mr-2"> B. Handle presentations,
+                                                client communication, and team motivation</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q4"
+                                                    type="checkbox" value="C" class="mr-2"> C. Research, analyze, and
+                                                teach others what you've learned</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q4"
+                                                    type="checkbox" value="D" class="mr-2"> D. Make sure everyone is
+                                                comfortable and the team works well together</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q4"
+                                                    type="checkbox" value="E" class="mr-2"> E. Stay in the background
+                                                and do what's assigned to you</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 5 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">5. Your ideal work environment is...</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q5"
+                                                    type="checkbox" value="A" class="mr-2"> A. Structured, with clear
+                                                processes and measurable outcomes</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q5"
+                                                    type="checkbox" value="B" class="mr-2"> B. Dynamic, with lots of
+                                                interaction and networking opportunities</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q5"
+                                                    type="checkbox" value="C" class="mr-2"> C. Educational, where you
+                                                can continuously learn and teach others</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q5"
+                                                    type="checkbox" value="D" class="mr-2"> D. Caring, focused on
+                                                helping people and making a positive impact</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q5"
+                                                    type="checkbox" value="E" class="mr-2"> E. Low-stress, with minimal
+                                                demands and pressure</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 6 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">6. When learning something new, you prefer to...
+                                        </p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q6"
+                                                    type="checkbox" value="A" class="mr-2"> A. Follow step-by-step
+                                                instructions and create your own system</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q6"
+                                                    type="checkbox" value="B" class="mr-2"> B. Discuss it with others
+                                                and learn through conversation</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q6"
+                                                    type="checkbox" value="C" class="mr-2"> C. Dive deep into research
+                                                and then teach it to someone else</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q6"
+                                                    type="checkbox" value="D" class="mr-2"> D. Learn alongside others in
+                                                a supportive group environment</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q6"
+                                                    type="checkbox" value="E" class="mr-2"> E. Avoid learning new
+                                                things—it feels overwhelming</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 7 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">7. What motivates you most?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q7"
+                                                    type="checkbox" value="A" class="mr-2"> A. Efficiency, order, and
+                                                seeing measurable results</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q7"
+                                                    type="checkbox" value="B" class="mr-2"> B. Recognition, influence,
+                                                and building your reputation</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q7"
+                                                    type="checkbox" value="C" class="mr-2"> C. Growth, mastery, and
+                                                helping others succeed</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q7"
+                                                    type="checkbox" value="D" class="mr-2"> D. Making a difference in
+                                                people's lives and creating harmony</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q7"
+                                                    type="checkbox" value="E" class="mr-2"> E. Just getting through each
+                                                day without stress</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 8 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">8. How do you handle stress or pressure?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q8"
+                                                    type="checkbox" value="A" class="mr-2"> A. Create lists, prioritize
+                                                tasks, and work systematically</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q8"
+                                                    type="checkbox" value="B" class="mr-2"> B. Talk it out with friends,
+                                                network, and seek advice</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q8"
+                                                    type="checkbox" value="C" class="mr-2"> C. Research solutions and
+                                                share what you learn with others</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q8"
+                                                    type="checkbox" value="D" class="mr-2"> D. Focus on helping others,
+                                                which helps you feel better</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q8"
+                                                    type="checkbox" value="E" class="mr-2"> E. Feel overwhelmed and
+                                                struggle to cope effectively</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 9 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">9. What's your current energy level like?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q9"
+                                                    type="checkbox" value="A" class="mr-2"> A. High when working on
+                                                organized, systematic projects</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q9"
+                                                    type="checkbox" value="B" class="mr-2"> B. High when interacting
+                                                with people and building relationships</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q9"
+                                                    type="checkbox" value="C" class="mr-2"> C. High when learning and
+                                                sharing knowledge with others</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q9"
+                                                    type="checkbox" value="D" class="mr-2"> D. High when helping others
+                                                and making them feel better</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q9"
+                                                    type="checkbox" value="E" class="mr-2"> E. Consistently low—I feel
+                                                tired, burned out, or stuck</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question 10 -->
+                                    <div class="border-b pb-4">
+                                        <p class="font-semibold mb-3">10. What would you most enjoy spending time on
+                                            right now?</p>
+                                        <div class="space-y-2 text-sm">
+                                            <label class="flex items-center"><input v-model="nextStepForm.q10"
+                                                    type="checkbox" value="A" class="mr-2"> A. Helping others organize
+                                                their lives, budgets, or businesses</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q10"
+                                                    type="checkbox" value="B" class="mr-2"> B. Building your network,
+                                                promoting services, or consulting others</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q10"
+                                                    type="checkbox" value="C" class="mr-2"> C. Teaching, tutoring, or
+                                                training others in your areas of expertise</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q10"
+                                                    type="checkbox" value="D" class="mr-2"> D. Providing care, support,
+                                                or wellness services to others</label>
+                                            <label class="flex items-center"><input v-model="nextStepForm.q10"
+                                                    type="checkbox" value="E" class="mr-2"> E. Resting and focusing on
+                                                my own recovery and self-care</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Results Preview -->
+                                <div v-if="Object.values(nextStepCounts).some(count => count > 0)"
+                                    class="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-6">
+                                    <h3 class="text-lg font-bold text-purple-800 mb-2">📊 Your Current Results</h3>
+                                    <div class="grid grid-cols-5 gap-2 text-center mb-3">
+                                        <div class="bg-white p-2 rounded"><strong>A:</strong> {{ nextStepCounts.A }}
+                                        </div>
+                                        <div class="bg-white p-2 rounded"><strong>B:</strong> {{ nextStepCounts.B }}
+                                        </div>
+                                        <div class="bg-white p-2 rounded"><strong>C:</strong> {{ nextStepCounts.C }}
+                                        </div>
+                                        <div class="bg-white p-2 rounded"><strong>D:</strong> {{ nextStepCounts.D }}
+                                        </div>
+                                        <div class="bg-white p-2 rounded"><strong>E:</strong> {{ nextStepCounts.E }}
+                                        </div>
+                                    </div>
+                                    <p class="font-semibold text-purple-700">{{ nextStepPersona }}</p>
+                                    <p class="text-sm text-gray-600 mt-1">{{ nextStepDescription }}</p>
+                                </div>
+
+                                <button @click="submitNextStep" :disabled="formProcessing"
+                                    class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg hover:scale-105 transition-transform">
+                                    {{ formProcessing ? 'Submitting...' : 'Submit Next Natural Step Assessment' }}
                                 </button>
                             </div>
                         </details>
