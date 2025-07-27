@@ -23,6 +23,7 @@ use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\CoachController;
+use App\Http\Controllers\CoachAdminController;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
@@ -139,6 +140,21 @@ Route::delete('/user/coach/remove', [CoachController::class, 'removeCoach'])->na
 Route::get('/coach/dashboard', [CoachController::class, 'dashboard'])->name('coach.dashboard');
 Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
 Route::get('/coach/clients', [CoachController::class, 'getClients'])->name('coach.clients');
+
+// Admin Coaching routes
+Route::prefix('admin/coaching')->name('coaching.')->group(function () {
+    Route::get('/', [CoachAdminController::class, 'index'])->name('index');
+    Route::get('/create', [CoachAdminController::class, 'create'])->name('create');
+    Route::post('/', [CoachAdminController::class, 'store'])->name('store');
+    Route::get('/search-users', [CoachAdminController::class, 'searchUsers'])->name('search-users');
+    Route::get('/{id}', [CoachAdminController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [CoachAdminController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [CoachAdminController::class, 'update'])->name('update');
+    Route::delete('/{id}', [CoachAdminController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/clients', [CoachAdminController::class, 'getClients'])->name('clients');
+    Route::post('/{id}/assign-user', [CoachAdminController::class, 'assignUser'])->name('assign-user');
+    Route::post('/{id}/remove-user', [CoachAdminController::class, 'removeUser'])->name('remove-user');
+});
 
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////

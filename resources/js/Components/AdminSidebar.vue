@@ -161,6 +161,12 @@ const menuItems = [
         link: 'events.index',
     },
     {
+        title: 'Coaching',
+        icon: 'HomeIcon',
+        active: currentRoute.startsWith('/admin/coaching'),
+        link: 'coaching.index',
+    },
+    {
         title: 'System Insights',
         icon: 'HomeIcon',
         active: currentRoute.startsWith('/admin/system'),
