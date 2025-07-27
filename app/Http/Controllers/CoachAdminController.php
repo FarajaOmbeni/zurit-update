@@ -8,6 +8,10 @@ use App\Models\Coach;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\CoachAssignmentMail;
+use App\Mail\AdminCoachAssignmentMail;
 
 class CoachAdminController extends Controller
 {
@@ -17,7 +21,7 @@ class CoachAdminController extends Controller
     public function index()
     {
         $coaches = Coach::withCount('users')->get();
-        
+
         return Inertia::render('Admin/Coaching', [
             'coaches' => $coaches,
         ]);
@@ -69,7 +73,7 @@ class CoachAdminController extends Controller
     public function show($id)
     {
         $coach = Coach::with('users')->findOrFail($id);
-        
+
         return Inertia::render('Admin/CoachingShow', [
             'coach' => $coach,
         ]);
@@ -81,7 +85,7 @@ class CoachAdminController extends Controller
     public function edit($id)
     {
         $coach = Coach::findOrFail($id);
-        
+
         return Inertia::render('Admin/CoachingEdit', [
             'coach' => $coach,
         ]);
@@ -173,7 +177,26 @@ class CoachAdminController extends Controller
 
         $user->update(['coach_id' => $coachId]);
 
-        return redirect()->back()->with('success', 'User assigned to coach successfully!');
+        // Send email notification to the user
+        try {
+            Mail::to($user->email)->send(new CoachAssignmentMail($user, $coach));
+        } catch (\Exception $e) {
+            // Log the error but don't fail the assignment
+            Log::error('Failed to send coach assignment email: ' . $e->getMessage());
+        }
+
+        // Send email notification to admin
+        try {
+            $adminEmail = config('services.email.admin_email');
+            if ($adminEmail) {
+                Mail::to($adminEmail)->send(new AdminCoachAssignmentMail($user, $coach));
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the assignment
+            Log::error('Failed to send admin coach assignment email: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'User assigned to coach successfully! Email notifications sent.');
     }
 
     /**
@@ -197,7 +220,7 @@ class CoachAdminController extends Controller
     public function searchUsers(Request $request)
     {
         $query = $request->get('query');
-        
+
         if (empty($query)) {
             return response()->json(['users' => []]);
         }

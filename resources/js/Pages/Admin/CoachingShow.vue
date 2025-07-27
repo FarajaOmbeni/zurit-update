@@ -151,6 +151,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- Confirmation Modals -->
+        <ConfirmationModal :show="showAssignModal" title="Assign Client"
+            message="Are you sure you want to assign this client to the coach?" type="info" confirm-text="Assign Client"
+            @confirm="confirmAssign" @cancel="cancelAssign" />
+
+        <ConfirmationModal :show="showRemoveModal" title="Remove Client"
+            message="Are you sure you want to remove this client from the coach?" type="warning"
+            confirm-text="Remove Client" @confirm="confirmRemove" @cancel="cancelRemove" />
+
+        <!-- Alert -->
+        <Alert v-if="alertState" :type="alertState.type" :message="alertState.message" :duration="alertState.duration"
+            :auto-close="alertState.autoClose" @close="clearAlert" />
     </AdminSidebar>
 </template>
 
@@ -158,14 +171,22 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import AdminSidebar from '@/Components/AdminSidebar.vue';
+import Alert from '@/Components/Shared/Alert.vue';
+import ConfirmationModal from '@/Components/Shared/ConfirmationModal.vue';
+import { useAlert } from '@/Components/Composables/useAlert';
 
 const props = defineProps({
     coach: Object,
 });
 
+const { alertState, openAlert, clearAlert } = useAlert();
 const searchQuery = ref('');
 const searchResults = ref([]);
 const searching = ref(false);
+const showAssignModal = ref(false);
+const showRemoveModal = ref(false);
+const userToAssign = ref(null);
+const clientToRemove = ref(null);
 
 const searchUsers = async () => {
     if (!searchQuery.value.trim()) {
@@ -187,23 +208,58 @@ const searchUsers = async () => {
 };
 
 const assignClient = (userId) => {
-    if (confirm('Are you sure you want to assign this client to the coach?')) {
+    userToAssign.value = userId;
+    showAssignModal.value = true;
+};
+
+const confirmAssign = () => {
+    if (userToAssign.value) {
         router.post(route('coaching.assign-user', props.coach.id), {
-            user_id: userId
+            user_id: userToAssign.value
         }, {
             onSuccess: () => {
+                openAlert('success', 'Client assigned to coach successfully!', 5000);
                 searchResults.value = [];
                 searchQuery.value = '';
+            },
+            onError: (errors) => {
+                openAlert('danger', 'Error assigning client. Please try again.', 5000);
             }
         });
     }
+    showAssignModal.value = false;
+    userToAssign.value = null;
+};
+
+const cancelAssign = () => {
+    showAssignModal.value = false;
+    userToAssign.value = null;
 };
 
 const removeClient = (clientId) => {
-    if (confirm('Are you sure you want to remove this client from the coach?')) {
+    clientToRemove.value = clientId;
+    showRemoveModal.value = true;
+};
+
+const confirmRemove = () => {
+    if (clientToRemove.value) {
         router.post(route('coaching.remove-user', props.coach.id), {
-            user_id: clientId
+            user_id: clientToRemove.value
+        }, {
+            onSuccess: () => {
+                openAlert('success', 'Client removed from coach successfully!', 5000);
+            },
+            onError: (errors) => {
+                openAlert('danger', 'Error removing client. Please try again.', 5000);
+            }
         });
     }
+    showRemoveModal.value = false;
+    clientToRemove.value = null;
+};
+
+const cancelRemove = () => {
+    showRemoveModal.value = false;
+    clientToRemove.value = null;
 };
 </script>

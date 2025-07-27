@@ -109,21 +109,69 @@
                 </div>
             </div>
         </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <ConfirmationModal
+            :show="showDeleteModal"
+            title="Delete Coach"
+            message="Are you sure you want to delete this coach? This action cannot be undone."
+            type="danger"
+            confirm-text="Delete Coach"
+            @confirm="confirmDelete"
+            @cancel="cancelDelete"
+        />
+
+        <!-- Alert -->
+        <Alert 
+            v-if="alertState" 
+            :type="alertState.type" 
+            :message="alertState.message"
+            :duration="alertState.duration" 
+            :auto-close="alertState.autoClose" 
+            @close="clearAlert" 
+        />
     </AdminSidebar>
 </template>
 
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import AdminSidebar from '@/Components/AdminSidebar.vue';
 import Alert from '@/Components/Shared/Alert.vue';
+import ConfirmationModal from '@/Components/Shared/ConfirmationModal.vue';
+import { useAlert } from '@/Components/Composables/useAlert';
 
-defineProps({
+const props = defineProps({
     coaches: Array,
 });
 
+const { alertState, openAlert, clearAlert } = useAlert();
+const showDeleteModal = ref(false);
+const coachToDelete = ref(null);
+
 const deleteCoach = (coachId) => {
-    if (confirm('Are you sure you want to delete this coach?')) {
-        router.delete(route('coaching.destroy', coachId));
+    coachToDelete.value = coachId;
+    showDeleteModal.value = true;
+};
+
+const confirmDelete = () => {
+    if (coachToDelete.value) {
+        router.delete(route('coaching.destroy', coachToDelete.value), {
+            onSuccess: () => {
+                openAlert('success', 'Coach deleted successfully!', 5000);
+            },
+            onError: (errors) => {
+                openAlert('danger', 'Error deleting coach. Please try again.', 5000);
+            }
+        });
     }
+    showDeleteModal.value = false;
+    coachToDelete.value = null;
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    coachToDelete.value = null;
 };
 </script>

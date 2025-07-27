@@ -102,13 +102,26 @@
                 </form>
             </div>
         </div>
+
+        <!-- Alert -->
+        <Alert 
+            v-if="alertState" 
+            :type="alertState.type" 
+            :message="alertState.message"
+            :duration="alertState.duration" 
+            :auto-close="alertState.autoClose" 
+            @close="clearAlert" 
+        />
     </AdminSidebar>
 </template>
 
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminSidebar from '@/Components/AdminSidebar.vue';
+import Alert from '@/Components/Shared/Alert.vue';
+import { useAlert } from '@/Components/Composables/useAlert';
 
+const { alertState, openAlert, clearAlert } = useAlert();
 const form = useForm({
     name: '',
     email: '',
@@ -124,8 +137,12 @@ const handlePhotoChange = (event) => {
 const submit = () => {
     form.post(route('coaching.store'), {
         onSuccess: () => {
+            openAlert('success', 'Coach created successfully!', 5000);
             form.reset();
         },
+        onError: (errors) => {
+            openAlert('danger', 'Error creating coach. Please check the form and try again.', 5000);
+        }
     });
 };
 </script>
