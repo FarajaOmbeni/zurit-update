@@ -269,6 +269,12 @@ const menuItems = [
     active: currentRoute.startsWith('/user/questionnaires'),
     link: 'questionnaires.index'
   },
+  {
+    title: 'Coach',
+    icon: 'UserIcon',
+    active: currentRoute.startsWith('/user/coach'),
+    link: 'coach.index'
+  },
 ]
 
 // Sidebar state - set to false by default

@@ -22,6 +22,7 @@ use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Http\Controllers\CoachController;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
@@ -124,10 +125,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  QUESTIONNAIRES ROUTES /////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/questionnaires', [QuestionnaireController::class, 'index'])->name('questionnaires.index');
-Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
-Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
-Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
-Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+    Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
+    Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
+    Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
+    Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+
+    // Coach routes
+Route::get('/user/coach', [CoachController::class, 'index'])->name('coach.index');
+Route::post('/user/coach/assign', [CoachController::class, 'assignCoach'])->name('coach.assign');
+Route::delete('/user/coach/remove', [CoachController::class, 'removeCoach'])->name('coach.remove');
+
+// Coach Dashboard routes (for coaches to view their clients)
+Route::get('/coach/dashboard', [CoachController::class, 'dashboard'])->name('coach.dashboard');
+Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
+Route::get('/coach/clients', [CoachController::class, 'getClients'])->name('coach.clients');
 
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////

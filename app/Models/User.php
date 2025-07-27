@@ -23,9 +23,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
-        'phone_number',
-        'role',
         'password',
+        'coach_id',
     ];
 
     /**
@@ -96,4 +95,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Transaction::class);
     }
 
+    /**
+     * Get the coach assigned to this user
+     */
+    public function coach()
+    {
+        return $this->belongsTo(Coach::class);
+    }
 }
