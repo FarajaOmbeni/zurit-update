@@ -35,7 +35,7 @@ class AdminCoachAssignmentMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '✅ Coach Assignment Successful - {{ $user->name }} assigned to {{ $coach->name }}',
+            subject: '✅ Coach Assignment Successful - ' . $this->user->name . ' assigned to ' . $this->coach->name,
         );
     }
 

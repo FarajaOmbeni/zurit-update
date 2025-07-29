@@ -46,14 +46,26 @@
             <!-- Navigation Links -->
             <nav class="mt-6 text-sm">
                 <div v-for="(item, index) in menuItems" :key="index" class="px-4 py-2">
-                    <Link :href="route(item.link)"
-                        class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
-                        :class="item.active ? 'bg-purple-700' : ''">
-                    <span class="text-yellow-400">
-                        <component :is="item.icon" class="h-5 w-5" />
-                    </span>
-                    <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
-                    </Link>
+                    <div class="relative group">
+                        <Link :href="route(item.link)"
+                            class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
+                            :class="item.active ? 'bg-purple-700' : ''">
+                        <span class="text-yellow-400">
+                            <component :is="iconMap[item.icon]" class="h-5 w-5" />
+                        </span>
+                        <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
+                        </Link>
+
+                        <!-- Tooltip -->
+                        <div v-if="!sidebarOpen"
+                            class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 transform -translate-y-1/2">
+                            {{ item.title }}
+                            <!-- Arrow pointing left -->
+                            <div
+                                class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </nav>
 
@@ -112,6 +124,29 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import Alert from '@/Components/Shared/Alert.vue';
+import {
+    UserGroupIcon,
+    DocumentTextIcon,
+    CalendarIcon,
+    UserIcon,
+    ChartBarIcon,
+    UserPlusIcon,
+    EnvelopeIcon,
+    ChatBubbleLeftRightIcon,
+    VideoCameraIcon,
+} from '@heroicons/vue/24/outline';
+
+const iconMap = {
+    UserGroupIcon,
+    DocumentTextIcon,
+    CalendarIcon,
+    UserIcon,
+    ChartBarIcon,
+    UserPlusIcon,
+    EnvelopeIcon,
+    ChatBubbleLeftRightIcon,
+    VideoCameraIcon,
+};
 
 defineProps({
     title: String,
@@ -144,55 +179,55 @@ onUnmounted(() => {
 const menuItems = [
     {
         title: 'Users',
-        icon: 'HomeIcon',
+        icon: 'UserGroupIcon',
         active: currentRoute.startsWith('/admin/users'),
         link: 'users.index',
     },
     {
         title: 'Blogs',
-        icon: 'HomeIcon',
+        icon: 'DocumentTextIcon',
         active: currentRoute.startsWith('/admin/blogs'),
         link: 'blogs.index',
     },
     {
         title: 'Events',
-        icon: 'HomeIcon',
+        icon: 'CalendarIcon',
         active: currentRoute.startsWith('/admin/events'),
         link: 'events.index',
     },
     {
         title: 'Coaching',
-        icon: 'HomeIcon',
+        icon: 'UserIcon',
         active: currentRoute.startsWith('/admin/coaching'),
         link: 'coaching.index',
     },
     {
         title: 'System Insights',
-        icon: 'HomeIcon',
+        icon: 'ChartBarIcon',
         active: currentRoute.startsWith('/admin/system'),
         link: 'system.index',
     },
     {
         title: 'Add Users',
-        icon: 'HomeIcon',
+        icon: 'UserPlusIcon',
         active: currentRoute.startsWith('/admin/add-users'),
         link: 'add-users.index',
     },
     {
         title: 'Marketing Emails',
-        icon: 'HomeIcon',
+        icon: 'EnvelopeIcon',
         active: currentRoute.startsWith('/admin/marketing'),
         link: 'marketing.index',
     },
     {
         title: 'Add Testimonials',
-        icon: 'HomeIcon',
+        icon: 'ChatBubbleLeftRightIcon',
         active: currentRoute.startsWith('/admin/testimonials'),
         link: 'testimonials.index',
     },
     {
         title: 'Manage Videos',
-        icon: 'HomeIcon',
+        icon: 'VideoCameraIcon',
         active: currentRoute.startsWith('/admin/videos'),
         link: 'videos.index',
     },
