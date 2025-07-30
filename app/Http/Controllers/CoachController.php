@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\Coach;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\CoachDeassignmentMail;
+use App\Mail\AdminCoachDeassignmentMail;
 
 class CoachController extends Controller
 {
@@ -38,9 +42,37 @@ class CoachController extends Controller
     public function removeCoach()
     {
         $user = Auth::user();
-        $user->update(['coach_id' => null]);
+        $coach = $user->coach;
 
-        return redirect()->back()->with('success', 'Coach removed successfully!');
+        if ($coach) {
+            // Store coach info before removing the relationship
+            $coachInfo = $coach->toArray();
+
+            $user->update(['coach_id' => null]);
+
+            // Send email notification to the user
+            try {
+                Mail::to($user->email)->send(new CoachDeassignmentMail($user, $coach));
+            } catch (\Exception $e) {
+                // Log the error but don't fail the deassignment
+                Log::error('Failed to send coach deassignment email: ' . $e->getMessage());
+            }
+
+            // Send email notification to admin
+            try {
+                $adminEmail = config('services.email.admin_email');
+                if ($adminEmail) {
+                    Mail::to($adminEmail)->send(new AdminCoachDeassignmentMail($user, $coach));
+                }
+            } catch (\Exception $e) {
+                // Log the error but don't fail the deassignment
+                Log::error('Failed to send admin coach deassignment email: ' . $e->getMessage());
+            }
+
+            return redirect()->back()->with('success', 'Coach removed successfully! Email notifications sent.');
+        }
+
+        return redirect()->back()->with('error', 'No coach assigned to remove.');
     }
 
     // Coach Dashboard - for coaches to view their clients

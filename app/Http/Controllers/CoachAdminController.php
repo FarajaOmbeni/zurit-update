@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\CoachAssignmentMail;
 use App\Mail\AdminCoachAssignmentMail;
+use App\Mail\CoachDeassignmentMail;
+use App\Mail\AdminCoachDeassignmentMail;
 
 class CoachAdminController extends Controller
 {
@@ -208,10 +210,34 @@ class CoachAdminController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
+        $coach = Coach::findOrFail($coachId);
         $user = User::findOrFail($request->user_id);
+
+        // Store coach info before removing the relationship
+        $coachInfo = $coach->toArray();
+
         $user->update(['coach_id' => null]);
 
-        return redirect()->back()->with('success', 'User removed from coach successfully!');
+        // Send email notification to the user
+        try {
+            Mail::to($user->email)->send(new CoachDeassignmentMail($user, $coach));
+        } catch (\Exception $e) {
+            // Log the error but don't fail the deassignment
+            Log::error('Failed to send coach deassignment email: ' . $e->getMessage());
+        }
+
+        // Send email notification to admin
+        try {
+            $adminEmail = config('services.email.admin_email');
+            if ($adminEmail) {
+                Mail::to($adminEmail)->send(new AdminCoachDeassignmentMail($user, $coach));
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't fail the deassignment
+            Log::error('Failed to send admin coach deassignment email: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'User removed from coach successfully! Email notifications sent.');
     }
 
     /**
