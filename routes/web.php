@@ -128,7 +128,9 @@ Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'subm
 Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
 Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
 Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+});
 
+Route::middleware(['auth', 'admin'])->group(function () {
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
     ////////////////////////////////////////////////////////

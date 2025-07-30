@@ -82,15 +82,23 @@
                         <div v-if="activeDropdown === 'user'"
                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                             @click.outside="closeDropdowns">
-                            <Link v-for="item in userMenuItems" :key="item.href" :href="item.href" :method="item.href === '/logout' ? 'post' : 'get'"
+                            <!-- Show Admin Dashboard if user is admin -->
+                            <template v-if="user.role === 1">
+                                <Link href="/admin"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Admin Dashboard
+                                </Link>
+                            </template>
+                            <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
+                                :method="item.href === '/logout' ? 'post' : 'get'"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            {{ item.name }}
+                                {{ item.name }}
                             </Link>
                         </div>
                     </div>
                     <Link v-else :href="route('login')"
                         class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-900 hover:bg-gray-100">
-                    Log in
+                        Log in
                     </Link>
                 </div>
 
@@ -211,7 +219,8 @@
                                 </svg>
                             </button>
                             <div v-if="activeMobileAccordion === 'user'" class="pl-4 space-y-1 mt-1">
-                                <Link v-for="item in userMenuItems" :key="item.href" :href="item.href" :method="item.href === '/logout' ? 'post' : 'get'"
+                                <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
+                                    :method="item.href === '/logout' ? 'post' : 'get'"
                                     class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                                     @click="isMobileMenuOpen = false">
                                 {{ item.name }}
