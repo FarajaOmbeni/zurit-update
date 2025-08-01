@@ -10,7 +10,7 @@
                     <!-- Coach Photo -->
                     <div class="flex-shrink-0">
                         <div v-if="coach.photo" class="w-24 h-24 rounded-full overflow-hidden">
-                            <img :src="coach.photo" :alt="coach.name" class="w-full h-full object-cover">
+                            <img :src="`/storage/coaches/${coach.photo}`" :alt="coach.name" class="w-full h-full object-cover">
                         </div>
                         <div v-else class="w-24 h-24 rounded-full bg-purple-200 flex items-center justify-center">
                             <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor"
@@ -191,6 +191,7 @@ const props = defineProps({
     coach: Object,
     availableCoaches: Array,
 });
+console.log(props.coach);
 
 const showContactInfo = ref(false);
 

@@ -56,12 +56,13 @@ class CoachAdminController extends Controller
 
         $data = $request->all();
 
-        // Handle photo upload
+        $imagePath = null;
+
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
-            $photoName = time() . '_' . $photo->getClientOriginalName();
-            $photo->storeAs('public/coaches', $photoName);
-            $data['photo'] = 'storage/coaches/' . $photoName;
+            $photoName = time() . '.' . $photo->getClientOriginalExtension();
+            $imagePath = $photo->move(storage_path('app/public/coaches'), $photoName);
+            $data['photo'] = basename($imagePath);
         }
 
         Coach::create($data);

@@ -25,7 +25,7 @@
                     <div class="flex items-center space-x-4 mb-4">
                         <div
                             class="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                            <img v-if="coach.photo" :src="coach.photo" :alt="coach.name"
+                            <img v-if="coach.photo" :src="`/storage/coaches/${coach.photo}`" :alt="coach.name"
                                 class="w-full h-full object-cover" />
                             <svg v-else class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
