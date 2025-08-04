@@ -78,15 +78,18 @@ class CoachController extends Controller
     // Coach Dashboard - for coaches to view their clients
     public function dashboard()
     {
-        $coach = Auth::user();
+        $user = Auth::user();
+
+        $coach = Coach::where('email', $user->email)->get();
+
+        $coachId = $coach->first()->id;
 
         // Get all clients assigned to this coach
-        $clients = User::where('coach_id', $coach->id)
-            ->withCount(['goals', 'investments'])
+        $clients = User::where('coach_id', $coachId)
             ->get();
 
         return Inertia::render('Coach/Home', [
-            'coach' => $coach,
+            'coach' => $user,
             'clients' => $clients,
         ]);
     }
@@ -97,7 +100,6 @@ class CoachController extends Controller
         $coach = Auth::user();
         $client = User::where('id', $clientId)
             ->where('coach_id', $coach->id)
-            ->with(['goals', 'investments', 'debts', 'transactions'])
             ->firstOrFail();
 
         return Inertia::render('Coach/ClientProfile', [
@@ -111,7 +113,6 @@ class CoachController extends Controller
     {
         $coach = Auth::user();
         $clients = User::where('coach_id', $coach->id)
-            ->withCount(['goals', 'investments'])
             ->get();
 
         return response()->json($clients);

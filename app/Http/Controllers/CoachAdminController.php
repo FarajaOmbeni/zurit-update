@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use App\Models\Coach;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use App\Models\Coach;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Mail\CoachAccountMail;
 use App\Mail\CoachAssignmentMail;
-use App\Mail\AdminCoachAssignmentMail;
 use App\Mail\CoachDeassignmentMail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdminCoachAssignmentMail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\AdminCoachDeassignmentMail;
+use Illuminate\Support\Facades\Validator;
 
 class CoachAdminController extends Controller
 {
@@ -63,6 +65,23 @@ class CoachAdminController extends Controller
             $photoName = time() . '.' . $photo->getClientOriginalExtension();
             $imagePath = $photo->move(storage_path('app/public/coaches'), $photoName);
             $data['photo'] = basename($imagePath);
+        }
+
+        $existingUser = User::where('email', $data['email'])->first();
+
+        if (!$existingUser) {
+            $generatedPassword = Str::random(10);
+
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($generatedPassword),
+                'role' => '2'
+            ]);
+
+            Mail::to($user->email)->send(new CoachAccountMail($user, $generatedPassword));
+        } else {
+            Log::info("User with email {$data['email']} already exists. Skipping coach account creation.");
         }
 
         Coach::create($data);
@@ -161,7 +180,7 @@ class CoachAdminController extends Controller
     public function getClients($id)
     {
         $coach = Coach::findOrFail($id);
-        $clients = $coach->users()->withCount(['goals', 'investments'])->get();
+        $clients = $coach->users()->get();
 
         return response()->json($clients);
     }

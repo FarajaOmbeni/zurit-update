@@ -1,5 +1,6 @@
 <template>
     <Sidebar title="Coach Dashboard">
+        <Head title="Clients" />
         <div class="space-y-6">
             <!-- Coach Profile Section -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -83,7 +84,7 @@
                             </div>
 
                             <!-- Action Buttons -->
-                            <div class="flex space-x-2">
+                            <!-- <div class="flex space-x-2">
                                 <button @click="viewClientProfile(client)"
                                     class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors">
                                     View Profile
@@ -92,11 +93,11 @@
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
                                     Contact
                                 </button>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Client Progress Summary -->
-                        <div class="mt-3 pt-3 border-t border-gray-200">
+                        <!-- <div class="mt-3 pt-3 border-t border-gray-200">
                             <div class="grid grid-cols-2 gap-4 text-sm">
                                 <div class="text-center">
                                     <div class="font-semibold text-purple-600">{{ client.goals_count || 0 }}</div>
@@ -107,7 +108,7 @@
                                     <div class="text-gray-500">Investments</div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
@@ -147,7 +148,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <!-- <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center">
                         <div class="p-3 rounded-full bg-green-100">
                             <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +161,7 @@
                             <p class="text-2xl font-semibold text-gray-900">{{ totalGoals }}</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </Sidebar>
@@ -169,11 +170,13 @@
 <script setup>
 import { ref, computed } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
+import { Head } from '@inertiajs/vue3';
 
 const props = defineProps({
     coach: Object,
     clients: Array,
 });
+console.log(props.clients)
 
 const totalGoals = computed(() => {
     return props.clients.reduce((total, client) => total + (client.goals_count || 0), 0);

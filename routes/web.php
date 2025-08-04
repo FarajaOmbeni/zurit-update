@@ -230,4 +230,6 @@ Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
 
+Route::get('/coach', [CoachController::class, 'dashboard']);
+
 require __DIR__ . '/auth.php';
