@@ -89,6 +89,12 @@
                                     Admin Dashboard
                                 </Link>
                             </template>
+                            <template v-if="user.role === 2">
+                                <Link href="/coach"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Coach Dashboard
+                                </Link>
+                            </template>
                             <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
                                 :method="item.href === '/logout' ? 'post' : 'get'"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

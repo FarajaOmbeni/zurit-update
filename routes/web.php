@@ -24,15 +24,9 @@ use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\CreateMeetingController;
 use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
-use App\Http\Controllers\ElearningController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\CourseMaterialController;
-use App\Http\Controllers\QuizController;
-use App\Http\Controllers\ElearningQuizController;
-use App\Http\Controllers\CertificateController;
-Route::get('/', [IndexController::class, 'index'])->name('home');
 
+Route::get('/', [IndexController::class, 'index'])->name('home');
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
@@ -75,13 +69,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/budget/budgets', [BudgetController::class, 'budgets'])->name('budget.budgets');
     Route::post('addIncome', [BudgetController::class, 'storeIncome'])->name('income.store');
     Route::put('/income/{id}', [BudgetController::class, 'updateIncome'])->name('income.edit');
-    // Edit past-month income without touching recurrence rule
-    Route::put('/income/past/{id}', [BudgetController::class, 'updatePastIncome'])->name('income.past.edit');
     Route::delete('/income/{id}', [BudgetController::class, 'destroyIncome'])->name('income.destroy');
     Route::post('addExpense', [BudgetController::class, 'storeExpense'])->name('expense.store');
     Route::put('/expense/{id}', [BudgetController::class, 'updateExpense'])->name('expense.edit');
-    // Edit past-month expense without touching recurrence rule
-    Route::put('/expense/past/{id}', [BudgetController::class, 'updatePastExpense'])->name('expense.past.edit');
     Route::delete('/expense/{id}', [BudgetController::class, 'destroyExpense'])->name('expense.destroy');
 
     /////////////////////////////////////////////////////////
@@ -128,19 +118,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/calculators', function () {
         return Inertia::render('UserDashboard/Calculators');
     })->name('calculator.index');
-
-    /////////////////////////////////////////////////////////
-    //////////////////  E-LEARNING ROUTES ///////////////////////
-    ////////////////////////////////////////////////////////
-    Route::prefix('elearning')->group(function () {
-    Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
-    Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
-    Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
-    Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
-    Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
-    Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
-    Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
-});
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
     Route::get('/user/zuriscore/processing/{payment_id}', [ZuriScoreController::class, 'processing'])->name('zuriscore.processing');
@@ -150,23 +127,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  QUESTIONNAIRES ROUTES /////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/questionnaires', [QuestionnaireController::class, 'index'])->name('questionnaires.index');
-        Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
-        Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
-        Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
-        Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+    Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
+    Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
+    Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
+    Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
 
-    // Coach routes
+    // Coach routes (public to authenticated users)
     Route::get('/user/coach', [CoachController::class, 'index'])->name('coach.index');
     Route::post('/user/coach/assign', [CoachController::class, 'assignCoach'])->name('coach.assign');
     Route::delete('/user/coach/remove', [CoachController::class, 'removeCoach'])->name('coach.remove');
-    // routes/api.php
-    Route::post('/coach/meetings', CreateMeetingController::class)->middleware('auth');
 
-
-
-    // Coach Dashboard routes (for coaches to view their clients)
-    Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
-    Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
+    // Coach-only routes
+    Route::middleware(['coach'])->group(function () {
+        Route::post('/coach/meetings', CreateMeetingController::class)->name('coach.meetings.create');
+        Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
+        Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
+    });
 
     // Admin Coaching routes
     Route::prefix('admin/coaching')->name('coaching.')->group(function () {
@@ -182,9 +158,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{id}/assign-user', [CoachAdminController::class, 'assignUser'])->name('assign-user');
         Route::post('/{id}/remove-user', [CoachAdminController::class, 'removeUser'])->name('remove-user');
     });
-});
 
-Route::middleware(['auth', 'admin'])->group(function () {
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
@@ -219,42 +193,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
     Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
-
-    Route::prefix('admin')->group(function () {
-        Route::get('/courses', [CourseController::class, 'index'])->name('admin.courses.index');
-        Route::get('/courses/create-main', [CourseController::class, 'createMain'])->name('admin.courses.create-main');
-        Route::get('/courses/create', [CourseController::class, 'create'])->name('admin.courses.create');
-        Route::post('/courses', [CourseController::class, 'store'])->name('admin.courses.store');
-        Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
-        Route::put('/courses/{course}', [CourseController::class, 'update'])->name('admin.courses.update');
-        Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
-        
-        // Quiz routes
-        Route::get('/quizzes', [QuizController::class, 'index'])->name('admin.quizzes.index');
-        Route::get('/quizzes/create', [QuizController::class, 'create'])->name('admin.quizzes.create');
-        Route::post('/quizzes', [QuizController::class, 'store'])->name('admin.quizzes.store');
-        Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy'])->name('admin.quizzes.destroy');
-    });
-
-    // PDF viewing route with custom headers
-    // Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])
-    //     ->middleware(\App\Http\Middleware\PreventPDFDownload::class)
-    //     ->name('course-materials.show');
-    
-    Route::middleware(['web', 'auth'])->group(function() {
-    Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])
-        ->name('course-materials.show');
 });
-
- // New PDF viewer route
-    Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])
-        ->name('course-materials.viewer');
-});
-    /////////////////////////////////////////////////////////
-    //////////////////  Elearning    ///////////////////////
-    ////////////////////////////////////////////////////////
-
-
 
 Route::get('/terms-and-conditions', function () {
     return Inertia::render('TermsAndConditions');
