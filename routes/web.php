@@ -8,6 +8,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\DebtController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CoachController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\MpesaController;
 use App\Http\Controllers\VideoController;
@@ -17,8 +18,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ZuriScoreController;
+use App\Http\Controllers\CoachAdminController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\TestimonialsController;
+use App\Http\Controllers\CreateMeetingController;
 use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -128,10 +131,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  QUESTIONNAIRES ROUTES /////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/questionnaires', [QuestionnaireController::class, 'index'])->name('questionnaires.index');
-    Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
-    Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
-    Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
-    Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+        Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
+        Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
+        Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
+        Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+
+    // Coach routes
+    Route::get('/user/coach', [CoachController::class, 'index'])->name('coach.index');
+    Route::post('/user/coach/assign', [CoachController::class, 'assignCoach'])->name('coach.assign');
+    Route::delete('/user/coach/remove', [CoachController::class, 'removeCoach'])->name('coach.remove');
+    // routes/api.php
+    Route::post('/coach/meetings', CreateMeetingController::class)->middleware('auth');
+
+
+
+    // Coach Dashboard routes (for coaches to view their clients)
+    Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
+    Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
+
+    // Admin Coaching routes
+    Route::prefix('admin/coaching')->name('coaching.')->group(function () {
+        Route::get('/', [CoachAdminController::class, 'index'])->name('index');
+        Route::get('/create', [CoachAdminController::class, 'create'])->name('create');
+        Route::post('/', [CoachAdminController::class, 'store'])->name('store');
+        Route::get('/search-users', [CoachAdminController::class, 'searchUsers'])->name('search-users');
+        Route::get('/{id}', [CoachAdminController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [CoachAdminController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [CoachAdminController::class, 'update'])->name('update');
+        Route::delete('/{id}', [CoachAdminController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/clients', [CoachAdminController::class, 'getClients'])->name('clients');
+        Route::post('/{id}/assign-user', [CoachAdminController::class, 'assignUser'])->name('assign-user');
+        Route::post('/{id}/remove-user', [CoachAdminController::class, 'removeUser'])->name('remove-user');
+    });
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -208,5 +239,4 @@ Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.pus
 Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
-
 require __DIR__ . '/auth.php';
