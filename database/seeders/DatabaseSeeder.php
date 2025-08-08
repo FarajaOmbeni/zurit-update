@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             DebtSeeder::class,
             AssetSeeder::class,
             LiabilitySeeder::class,
+            CoursesTableSeeder::class,
         ]);
     }
 }
