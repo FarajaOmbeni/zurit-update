@@ -3,6 +3,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
 import { ref, computed, onMounted, watch } from 'vue';
+import Alert from '@/Components/Shared/Alert.vue';
+import { useAlert } from '@/Components/Composables/useAlert';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import { formatDate } from '@/Components/Composables/useDateFormat';
 import IncomeExpenseTrendChart from '@/Components/IncomeExpenseTrendChart.vue';
@@ -15,6 +17,20 @@ const props = defineProps({
 // State for month selection
 const currentMonth = ref(null);
 const availableMonths = ref([]);
+
+// Alerts
+const { alertState, openAlert, clearAlert } = useAlert();
+
+// Editing past expenses/incomes without touching recurrence rules
+const showEditModal = ref(false);
+const editTarget = ref(null);
+const isEditingIncome = ref(false);
+const editTxnForm = useForm({
+    category: '',
+    description: '',
+    amount: '',
+    transaction_date: ''
+});
 
 // Computed property for transactions filtered by the selected month
 const filteredTransactions = computed(() => {
@@ -186,6 +202,59 @@ function getMonthIndex(monthName) {
 function selectMonth(monthName) {
     currentMonth.value = monthName;
 }
+
+// Helpers for month comparison
+function parseMonthYearToDate(monthYear) {
+    if (!monthYear) return null;
+    const [monthName, yearStr] = monthYear.split(' ');
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+    const mi = months.indexOf(monthName);
+    const year = parseInt(yearStr, 10);
+    if (mi === -1 || isNaN(year)) return null;
+    return new Date(year, mi, 1);
+}
+
+const isPastSelectedMonth = computed(() => {
+    const sel = parseMonthYearToDate(currentMonth.value);
+    if (!sel) return false;
+    const now = new Date();
+    const currentStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    return sel < currentStart;
+});
+
+function openEditTxn(txn) {
+    editTarget.value = txn;
+    isEditingIncome.value = txn.type === 'income';
+    editTxnForm.category = txn.category || '';
+    editTxnForm.description = txn.description || '';
+    editTxnForm.amount = txn.amount ?? '';
+    const d = txn.transaction_date ? new Date(txn.transaction_date) : new Date();
+    editTxnForm.transaction_date = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+    showEditModal.value = true;
+}
+
+function closeEditTxn() {
+    showEditModal.value = false;
+    editTarget.value = null;
+}
+
+function submitEditTxn() {
+    if (!editTarget.value) return;
+    const routeName = isEditingIncome.value ? 'income.past.edit' : 'expense.past.edit';
+    editTxnForm.put(route(routeName, editTarget.value.id), {
+        onSuccess: () => {
+            showEditModal.value = false;
+            openAlert('success', 'Transaction updated successfully', 5000);
+            // Refresh to reflect server data; could be optimized later
+            window.location.reload();
+        },
+        onError: (errors) => {
+            const errorMessage = Object.values(errors || {}).flat().join(' ') || 'Failed to update transaction';
+            openAlert('danger', errorMessage, 5000);
+        }
+    });
+}
 </script>
 
 <template>
@@ -196,6 +265,8 @@ function selectMonth(monthName) {
             <Sidebar>
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
+                            :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                         <div v-show="hasData" class="flex justify-between">
                             <div>
                                 <h1 class="text-2xl font-semibold text-gray-900"> {{ currentMonth }}'s Budget</h1>
@@ -254,7 +325,7 @@ function selectMonth(monthName) {
                             <IncomeExpenseTrendChart :transactions="props.data.transactions" />
                         </div>
 
-                        <div v-show="hasData" class="mt-12">
+                        <!-- <div v-show="hasData" class="mt-12">
                             <h2 class="text-xl font-bold text-gray-900 text-center">Your Income - {{ currentMonth }}
                             </h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
@@ -290,10 +361,10 @@ function selectMonth(monthName) {
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Montly Budget Section -->
-                        <div v-show="hasData" class="mt-12">
+                        <!-- <div v-show="hasData" class="mt-12">
                             <h2 class="text-xl font-bold text-gray-900 text-center">Your Budget - {{
                                 currentMonth }}</h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
@@ -329,7 +400,7 @@ function selectMonth(monthName) {
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </div> -->
 
                         <div v-show="hasData" class="mt-12">
                             <h2 class="text-xl font-bold text-center text-gray-900">All Transactions - {{ currentMonth
@@ -357,8 +428,13 @@ function selectMonth(monthName) {
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    Math.round(transaction.amount).toLocaleString() }}
+                                                        Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
+                                                <button v-if="isPastSelectedMonth" type="button"
+                                                    @click="openEditTxn(transaction)"
+                                                    class="ml-3 inline-flex items-center rounded-md bg-blue-600 px-3 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                                                    Edit
+                                                </button>
                                             </div>
                                         </div>
                                     </li>
@@ -380,6 +456,46 @@ function selectMonth(monthName) {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <!-- Edit Past Transaction (Income/Expense) Modal -->
+                        <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-black/50" @click="closeEditTxn"></div>
+                            <div class="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit {{ isEditingIncome ? 'Income'
+                                    : 'Expense' }} (Past Month)</h3>
+                                <form @submit.prevent="submitEditTxn" class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Category</label>
+                                        <input v-model="editTxnForm.category" type="text"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <input v-model="editTxnForm.description" type="text"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Amount</label>
+                                        <input v-model="editTxnForm.amount" type="number" step="0.01" min="0"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Date</label>
+                                        <input v-model="editTxnForm.transaction_date" type="date"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                                    </div>
+                                    <div class="mt-6 flex justify-end gap-3">
+                                        <button type="button" @click="closeEditTxn"
+                                            class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">Cancel</button>
+                                        <button type="submit"
+                                            class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                                            :disabled="editTxnForm.processing">
+                                            <span v-if="editTxnForm.processing">Saving...</span>
+                                            <span v-else>Save</span>
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
