@@ -10,13 +10,25 @@ trait AdminRedirectTrait
     /**
      * Redirect user based on their role
      */
-    protected function redirectBasedOnRole(string $route = 'budget.index', string $adminRoute = 'users.index', array $parameters = []): RedirectResponse
-    {
-        // Check if user is admin (role = 1) and redirect accordingly
-        if (Auth::user()->role == 1) {
-            return redirect()->intended(route($adminRoute, $parameters, absolute: false));
+    protected function redirectBasedOnRole(
+        string $userRoute = 'budget.index',
+        string $adminRoute = 'users.index',
+        string $coachRoute = 'coach.dashboard',
+        array $parameters = []
+    ): RedirectResponse {
+        $role = Auth::user()->role ?? null;
+
+        // role 1 → admin
+        if ($role === 1) {
+            return redirect()->route($adminRoute, $parameters);
         }
 
-        return redirect()->intended(route($route, $parameters, absolute: false));
+        // role 2 → coach
+        if ($role === 2) {
+            return redirect()->route($coachRoute, $parameters);
+        }
+
+        // default (role 0 or null) → user budget
+        return redirect()->route($userRoute, $parameters);
     }
 }
