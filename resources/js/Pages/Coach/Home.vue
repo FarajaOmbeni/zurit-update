@@ -1,5 +1,6 @@
 <template>
     <Sidebar title="Coach Dashboard">
+
         <Head title="Clients" />
         <div class="space-y-6">
             <!-- Coach Profile Section -->
@@ -84,31 +85,17 @@
                             </div>
 
                             <!-- Action Buttons -->
-                            <!-- <div class="flex space-x-2">
+                            <div class="flex space-x-2">
                                 <button @click="viewClientProfile(client)"
                                     class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm transition-colors">
                                     View Profile
                                 </button>
-                                <button @click="contactClient(client)"
+                                <button @click="scheduleMeeting(client)"
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    Contact
+                                    Schedule a meeting
                                 </button>
-                            </div> -->
-                        </div>
-
-                        <!-- Client Progress Summary -->
-                        <!-- <div class="mt-3 pt-3 border-t border-gray-200">
-                            <div class="grid grid-cols-2 gap-4 text-sm">
-                                <div class="text-center">
-                                    <div class="font-semibold text-purple-600">{{ client.goals_count || 0 }}</div>
-                                    <div class="text-gray-500">Goals</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="font-semibold text-blue-600">{{ client.investments_count || 0 }}</div>
-                                    <div class="text-gray-500">Investments</div>
-                                </div>
                             </div>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
 
@@ -147,36 +134,53 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-green-100">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500">Active Goals</p>
-                            <p class="text-2xl font-semibold text-gray-900">{{ totalGoals }}</p>
-                        </div>
-                    </div>
-                </div> -->
             </div>
         </div>
+
+        <!-- Schedule Meeting Modal -->
+        <transition name="fade">
+            <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Schedule Meeting with {{ selectedClient.name }}
+                    </h3>
+                    <form @submit.prevent="submitMeeting" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Client Email</label>
+                            <input type="email" v-model="form.email" disabled
+                                class="w-full border rounded-lg p-2 bg-gray-100 text-gray-600" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input type="date" v-model="form.date" required
+                                class="w-full border rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                            <input type="time" v-model="form.time" required
+                                class="w-full border rounded-lg p-2 focus:ring-purple-500 focus:border-purple-500" />
+                        </div>
+                        <div class="flex justify-end space-x-2 pt-4">
+                            <button type="button" @click="closeModal"
+                                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">Cancel</button>
+                            <button type="submit"
+                                class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </transition>
     </Sidebar>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 
 const props = defineProps({
     coach: Object,
     clients: Array,
 });
-console.log(props.clients)
 
 const totalGoals = computed(() => {
     return props.clients.reduce((total, client) => total + (client.goals_count || 0), 0);
@@ -191,13 +195,54 @@ const formatDate = (dateString) => {
     });
 };
 
+// Navigation & modal state
 const viewClientProfile = (client) => {
-    // Navigate to client profile page
     window.location.href = `/coach/client/${client.id}`;
 };
 
-const contactClient = (client) => {
-    // Open contact modal or navigate to messaging
-    console.log('Contact client:', client.name);
+const isModalOpen = ref(false);
+const selectedClient = ref({});
+const form = reactive({
+    email: '',
+    date: '',
+    time: ''
+});
+
+const scheduleMeeting = (client) => {
+    selectedClient.value = client;
+    form.email = client.email;
+    form.date = '';
+    form.time = '';
+    isModalOpen.value = true;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+};
+
+const submitMeeting = () => {
+  router.post('/coach/meetings', {
+      client_id: selectedClient.value.id,
+      date: form.date,
+      time: form.time,
+  }, {
+      onSuccess: () => {
+          closeModal();
+          toast.success('Meeting created and invite sent!');
+      },
+      onError: () => toast.error('Could not create meeting'),
+  });
 };
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

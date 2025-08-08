@@ -104,4 +104,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Coach::class);
     }
+
+    public function coachProfile()
+    {
+        return $this->hasOne(Coach::class, 'email', 'email');
+    }
 }

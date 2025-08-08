@@ -97,16 +97,27 @@ class CoachController extends Controller
     // View specific client profile
     public function viewClient($clientId)
     {
-        $coach = Auth::user();
-        $client = User::where('id', $clientId)
-            ->where('coach_id', $coach->id)
+        // 1. Resolve the coach *record* (from coaches table) that belongs to this login
+        $coach = Coach::where('email', Auth::user()->email)->firstOrFail();
+
+        // 2. Pull the client linked to that coach
+        $client = User::with(['incomes', 'expenses', 'goals', 'investments', 'debts'])
+            ->where('id', $clientId)
+            ->where('coach_id', $coach->id)   // now comparing like-with-like
             ->firstOrFail();
 
+        $assets      = $client->investments->sum('current_value');
+        $liabilities = $client->debts->sum('outstanding_balance');
+        $netWorth    = $assets - $liabilities;
+
         return Inertia::render('Coach/ClientProfile', [
-            'coach' => $coach,
-            'client' => $client,
+            'client'   => $client,
+            'netWorth' => $netWorth,
         ]);
     }
+
+
+
 
     // Get coach's client list for API
     public function getClients()
