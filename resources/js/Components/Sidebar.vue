@@ -78,9 +78,9 @@
               <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">More</span>
             </button>
 
-            <!-- More dropdown: position depends on sidebar width -->
+            <!-- More dropdown: open above the More button -->
             <div v-if="moreMenuOpen" :class="[
-              sidebarOpen ? 'absolute left-0 top-full mt-2' : 'absolute left-full ml-2 top-1/2 transform -translate-y-1/2',
+              'absolute left-0 bottom-full mb-2',
               'w-48 bg-white rounded-md shadow-lg py-1 z-50'
             ]">
               <Link v-for="(item, index) in hiddenMenuItems" :key="index" :href="route(item.link)"
