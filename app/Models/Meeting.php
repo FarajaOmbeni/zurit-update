@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Meeting extends Model
 {
@@ -14,4 +15,24 @@ class Meeting extends Model
         'start_url',
         'start_time',
     ];
+
+    protected $casts = [
+        'start_time' => 'datetime',
+    ];
+
+    /**
+     * The coach who scheduled the meeting.
+     */
+    public function coach(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'coach_id');
+    }
+
+    /**
+     * The client who will attend the meeting.
+     */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
 }

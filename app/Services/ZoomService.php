@@ -9,15 +9,21 @@ class ZoomService
 {
     protected function accessToken(): string
     {
-        $resp = Http::asForm()->post('https://zoom.us/oauth/token', [
-            'grant_type'    => 'account_credentials',
-            'account_id'    => config('services.zoom.account_id'),
-        ])->withBasicAuth(
-            config('services.zoom.client_id'),
-            config('services.zoom.client_secret')
-        );
+        $response = Http::asForm()
+            ->withBasicAuth(
+                config('services.zoom.client_id'),
+                config('services.zoom.client_secret')
+            )
+            ->post('https://zoom.us/oauth/token', [
+                'grant_type' => 'account_credentials',
+                'account_id' => config('services.zoom.account_id'),
+            ]);
 
-        return $resp->json('access_token');
+        if ($response->failed()) {
+            throw new \RuntimeException('Unable to obtain Zoom access token: ' . $response->body());
+        }
+
+        return (string) $response->json('access_token');
     }
 
     public function createMeeting(array $payload): array
@@ -26,6 +32,10 @@ class ZoomService
 
         $response = Http::withToken($token)
             ->post(config('services.zoom.base') . '/users/me/meetings', $payload);
+
+        if ($response->failed()) {
+            throw new \RuntimeException('Zoom meeting creation failed: ' . $response->body());
+        }
 
         return $response->json();
     }
