@@ -113,47 +113,32 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import {
     UsersIcon,
+    UserGroupIcon,
     DocumentTextIcon,
     CalendarDaysIcon,
+    CalendarIcon,
+    UserIcon,
     ChartBarIcon,
     UserPlusIcon,
     EnvelopeIcon,
     StarIcon,
+    ChatBubbleLeftRightIcon,
     VideoCameraIcon,
 } from '@heroicons/vue/24/outline';
 import Alert from '@/Components/Shared/Alert.vue';
-import {
-    UserGroupIcon,
-    DocumentTextIcon,
-    CalendarIcon,
-    UserIcon,
-    ChartBarIcon,
-    UserPlusIcon,
-    EnvelopeIcon,
-    ChatBubbleLeftRightIcon,
-    VideoCameraIcon,
-} from '@heroicons/vue/24/outline';
-
-const iconMap = {
-    UserGroupIcon,
-    DocumentTextIcon,
-    CalendarIcon,
-    UserIcon,
-    ChartBarIcon,
-    UserPlusIcon,
-    EnvelopeIcon,
-    ChatBubbleLeftRightIcon,
-    VideoCameraIcon,
-};
 
 const iconMap = {
     UsersIcon,
+    UserGroupIcon,
     DocumentTextIcon,
     CalendarDaysIcon,
+    CalendarIcon,
+    UserIcon,
     ChartBarIcon,
     UserPlusIcon,
     EnvelopeIcon,
     StarIcon,
+    ChatBubbleLeftRightIcon,
     VideoCameraIcon,
 };
 
