@@ -142,7 +142,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // Coach Dashboard routes (for coaches to view their clients)
-    Route::get('/coach/dashboard', [CoachController::class, 'dashboard'])->name('coach.dashboard');
+    Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
     Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
 
     // Admin Coaching routes
@@ -233,7 +233,4 @@ Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.pus
 Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
-
-Route::get('/coach', [CoachController::class, 'dashboard']);
-
 require __DIR__ . '/auth.php';

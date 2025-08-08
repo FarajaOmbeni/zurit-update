@@ -1,5 +1,5 @@
 <template>
-    <Sidebar title="Coach Dashboard">
+    <CoachSidebar title="Coach Dashboard">
 
         <Head title="Clients" />
         <div class="space-y-6">
@@ -169,12 +169,12 @@
                 </div>
             </div>
         </transition>
-    </Sidebar>
+    </CoachSidebar>
 </template>
 
 <script setup>
 import { ref, reactive, computed } from 'vue';
-import Sidebar from '@/Components/Sidebar.vue';
+import CoachSidebar from '@/Components/CoachSidebar.vue';
 import { Head, router } from '@inertiajs/vue3';
 
 const props = defineProps({
