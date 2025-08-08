@@ -16,9 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Register the admin middleware
+        // Register the admin and coach middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminRoleMiddleware::class,
+            'coach' => \App\Http\Middleware\CoachRoleMiddleware::class,
         ]);
 
         //

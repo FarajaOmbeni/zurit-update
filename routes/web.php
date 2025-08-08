@@ -155,18 +155,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
         Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
 
-    // Coach routes
+    // Coach routes (protected by 'coach' middleware)
+    Route::middleware(['auth', 'coach'])->group(function () {
+        // Coach Dashboard routes (for coaches to view their clients)
+        Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
+        Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
+        // Coach meetings
+        Route::post('/coach/meetings', CreateMeetingController::class);
+    });
+
+    // User-coach assignment routes (for users, not coaches)
     Route::get('/user/coach', [CoachController::class, 'index'])->name('coach.index');
     Route::post('/user/coach/assign', [CoachController::class, 'assignCoach'])->name('coach.assign');
     Route::delete('/user/coach/remove', [CoachController::class, 'removeCoach'])->name('coach.remove');
-    // routes/api.php
-    Route::post('/coach/meetings', CreateMeetingController::class)->middleware('auth');
-
-
-
-    // Coach Dashboard routes (for coaches to view their clients)
-    Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
-    Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
 
     // Admin Coaching routes
     Route::prefix('admin/coaching')->name('coaching.')->group(function () {
