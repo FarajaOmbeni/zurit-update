@@ -33,14 +33,17 @@ class CoachController extends Controller
             'coach_id' => 'required|exists:coaches,id',
         ]);
 
+        /** @var User $user */
         $user = Auth::user();
-        $user->update(['coach_id' => $request->coach_id]);
+        $user->coach_id = $request->coach_id;
+        $user->save();
 
         return redirect()->back()->with('success', 'Coach assigned successfully!');
     }
 
     public function removeCoach()
     {
+        /** @var User $user */
         $user = Auth::user();
         $coach = $user->coach;
 
@@ -48,7 +51,8 @@ class CoachController extends Controller
             // Store coach info before removing the relationship
             $coachInfo = $coach->toArray();
 
-            $user->update(['coach_id' => null]);
+            $user->coach_id = null;
+            $user->save();
 
             // Send email notification to the user
             try {
@@ -97,22 +101,72 @@ class CoachController extends Controller
     // View specific client profile
     public function viewClient($clientId)
     {
-        // 1. Resolve the coach *record* (from coaches table) that belongs to this login
+        // 1. Resolve the coach record (from coaches table) that belongs to this login
         $coach = Coach::where('email', Auth::user()->email)->firstOrFail();
 
-        // 2. Pull the client linked to that coach
-        $client = User::with(['incomes', 'expenses', 'goals', 'investments', 'debts'])
+        // 2. Pull the client linked to that coach with all relevant relations
+        $client = User::with([
+            'incomes',
+            'expenses',
+            'transactions',
+            'goals',
+            'investments',
+            'debts',
+            'assets',
+            'liabilities',
+        ])
             ->where('id', $clientId)
-            ->where('coach_id', $coach->id)   // now comparing like-with-like
+            ->where('coach_id', $coach->id)
             ->firstOrFail();
 
-        $assets      = $client->investments->sum('current_value');
-        $liabilities = $client->debts->sum('outstanding_balance');
-        $netWorth    = $assets - $liabilities;
+        // Prepare lightweight assets/liabilities for charts/tables
+        $assetsBasic = $client->assets->map(fn($a) => [
+            'name'  => $a->name,
+            'value' => (float) $a->value,
+        ])->values();
+
+        // Include investments as part of assets for net worth visualizations
+        $fixedIncomeTypes = ['mmf', 'bills', 'bonds', 'other'];
+        $investmentAssets = $client->investments->map(function ($inv) use ($fixedIncomeTypes) {
+            $value = in_array($inv->type, $fixedIncomeTypes, true)
+                ? (float) $inv->current_amount
+                : (float) $inv->initial_amount;
+            return [
+                'name'  => $inv->details_of_investment,
+                'value' => $value,
+            ];
+        })->values();
+
+        $assetsBasic = $assetsBasic->concat($investmentAssets)->values();
+
+        // Debts outstanding amount contributes to liabilities for net worth view
+        $debtsAsLiabilities = $client->debts->map(fn($d) => [
+            'name'   => $d->name,
+            'amount' => (float) max(($d->initial_amount - $d->current_amount), 0),
+        ])->values();
+
+        $liabilitiesBasic = $client->liabilities->map(fn($l) => [
+            'name'   => $l->name,
+            'amount' => (float) $l->amount,
+        ])->values()->concat($debtsAsLiabilities)->values();
+
+        $totalAssets = $assetsBasic->sum('value');
+        $totalLiabilities = $liabilitiesBasic->sum('amount');
+        $netWorth = $totalAssets - $totalLiabilities;
 
         return Inertia::render('Coach/ClientProfile', [
-            'client'   => $client,
-            'netWorth' => $netWorth,
+            'client'        => $client,
+            // Data buckets for reusing existing UserDashboard components in read-only contexts
+            'incomes'       => $client->incomes,
+            'expenses'      => $client->expenses,
+            'transactions'  => $client->transactions,
+            'goals'         => $client->goals,
+            'investments'   => $client->investments,
+            'debts'         => $client->debts,
+            // Simplified assets/liabilities for charts/tables
+            'assetsBasic'      => $assetsBasic,
+            'liabilitiesBasic' => $liabilitiesBasic,
+            'netWorth'      => $netWorth,
         ]);
     }
 
