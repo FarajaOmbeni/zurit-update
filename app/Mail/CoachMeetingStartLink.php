@@ -15,7 +15,7 @@ class CoachMeetingStartLink extends Mailable
 
     public function build()
     {
-        return $this->subject('Start your coaching session')
+        return $this->subject('Your coaching session is scheduled')
             ->markdown('emails.coach_meeting_start');
     }
 }
