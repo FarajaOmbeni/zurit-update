@@ -16,12 +16,15 @@ use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
+use App\Http\Controllers\ElearningController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ZuriScoreController;
 use App\Http\Controllers\CoachAdminController;
 use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\CreateMeetingController;
+use App\Http\Controllers\ElearningQuizController;
 use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -157,6 +160,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/clients', [CoachAdminController::class, 'getClients'])->name('clients');
         Route::post('/{id}/assign-user', [CoachAdminController::class, 'assignUser'])->name('assign-user');
         Route::post('/{id}/remove-user', [CoachAdminController::class, 'removeUser'])->name('remove-user');
+    });
+
+    /////////////////////////////////////////////////////////
+    //////////////////  E-LEARNING ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::prefix('elearning')->group(function () {
+        Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
+        Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
+        Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
+        Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
+        Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
+        Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
+        Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
     });
 
     /////////////////////////////////////////////////////////
