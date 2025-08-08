@@ -7,7 +7,9 @@ use App\Models\Meeting;
 use Illuminate\Http\Request;
 use App\Services\ZoomService;
 use App\Mail\ClientMeetingInvite;
+use App\Mail\CoachMeetingStartLink;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 class CreateMeetingController extends Controller
 {
@@ -19,14 +21,14 @@ class CreateMeetingController extends Controller
             'time'      => 'required',
         ]);
 
-        $start = Carbon::parse($request->date . ' ' . $request->time, auth()->user()->timezone ?? 'UTC')
+        $start = Carbon::parse($request->date . ' ' . $request->time, Auth::user()->timezone ?? 'UTC')
             ->toIso8601String();
 
         $zoomPayload = [
             'topic'      => 'Coaching Session',
             'type'       => 2,   // scheduled
             'start_time' => $start,
-            'timezone'   => auth()->user()->timezone ?? 'UTC',
+            'timezone'   => Auth::user()->timezone ?? 'UTC',
             'duration'   => 60,
             'settings'   => [
                 'join_before_host' => true,
@@ -38,7 +40,7 @@ class CreateMeetingController extends Controller
 
         // Persist in DB (simplified)
         $meeting = Meeting::create([
-            'coach_id'     => auth()->id(),
+            'coach_id'     => Auth::id(),
             'client_id'    => $request->client_id,
             'zoom_id'      => $zoomMeeting['id'],
             'join_url'     => $zoomMeeting['join_url'],
@@ -50,6 +52,10 @@ class CreateMeetingController extends Controller
         Mail::to($meeting->client->email)
             ->queue(new ClientMeetingInvite($meeting));
 
-        return response()->json($meeting);
+        // Email coach with start URL
+        Mail::to($meeting->coach->email)
+            ->queue(new CoachMeetingStartLink($meeting));
+
+        return to_route('coach.dashboard');
     }
 }

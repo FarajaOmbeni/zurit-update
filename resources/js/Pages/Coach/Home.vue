@@ -3,6 +3,8 @@
 
         <Head title="Clients" />
         <div class="space-y-6">
+            <Alert v-if="alert.show" :type="alert.type" :message="alert.message" :auto-close="true" :duration="4000"
+                @close="alert.show = false" />
             <!-- Coach Profile Section -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex items-start space-x-6">
@@ -162,8 +164,10 @@
                         <div class="flex justify-end space-x-2 pt-4">
                             <button type="button" @click="closeModal"
                                 class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">Cancel</button>
-                            <button type="submit"
-                                class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white">Save</button>
+                            <button type="submit" :disabled="saving" class="px-4 py-2 rounded-lg text-white"
+                                :class="saving ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'">
+                                {{ saving ? 'Saving...' : 'Save' }}
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -176,6 +180,7 @@
 import { ref, reactive, computed } from 'vue';
 import CoachSidebar from '@/Components/CoachSidebar.vue';
 import { Head, router } from '@inertiajs/vue3';
+import Alert from '@/Components/Shared/Alert.vue'
 
 const props = defineProps({
     coach: Object,
@@ -207,6 +212,8 @@ const form = reactive({
     date: '',
     time: ''
 });
+const saving = ref(false)
+const alert = reactive({ show: false, type: 'success', message: '' })
 
 const scheduleMeeting = (client) => {
     selectedClient.value = client;
@@ -221,17 +228,27 @@ const closeModal = () => {
 };
 
 const submitMeeting = () => {
-  router.post('/coach/meetings', {
-      client_id: selectedClient.value.id,
-      date: form.date,
-      time: form.time,
-  }, {
-      onSuccess: () => {
-          closeModal();
-          toast.success('Meeting created and invite sent!');
-      },
-      onError: () => toast.error('Could not create meeting'),
-  });
+    saving.value = true
+    router.post('/coach/meetings', {
+        client_id: selectedClient.value.id,
+        date: form.date,
+        time: form.time,
+    }, {
+        onSuccess: () => {
+            closeModal();
+            alert.type = 'success'
+            alert.message = 'Meeting created and invite sent!'
+            alert.show = true
+        },
+        onError: () => {
+            alert.type = 'danger'
+            alert.message = 'Could not create meeting'
+            alert.show = true
+        },
+        onFinish: () => {
+            saving.value = false
+        }
+    });
 };
 </script>
 
