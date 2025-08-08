@@ -1,5 +1,5 @@
 <template>
-    <Sidebar :title="`Client: ${client.name}`">
+    <CoachSidebar :title="`Client: ${client.name}`">
 
         <Head :title="`${client.name} • Profile`" />
 
@@ -96,13 +96,13 @@
                 </div>
             </div>
         </div>
-    </Sidebar>
+    </CoachSidebar>
 </template>
 
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
-import Sidebar from '@/Components/Sidebar.vue';
+import CoachSidebar from '@/Components/CoachSidebar.vue';
 import NetworthChart from '@/Components/Shared/NetworthChart.vue';
 import DebtsTable from '@/Components/Shared/DebtsTable.vue';
 import AssetsTable from '@/Components/Shared/AssetsTable.vue';
