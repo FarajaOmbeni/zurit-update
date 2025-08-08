@@ -203,7 +203,6 @@ import {
   DocumentIcon,
   QuestionMarkCircleIcon,
   AcademicCapIcon,
-  AcademicCapIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/outline';
 
