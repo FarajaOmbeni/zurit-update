@@ -24,9 +24,15 @@ use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\CreateMeetingController;
 use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\QuestionnaireController;
+use App\Http\Controllers\ElearningController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CourseMaterialController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\ElearningQuizController;
+use App\Http\Controllers\CertificateController;
 Route::get('/', [IndexController::class, 'index'])->name('home');
+
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
@@ -122,6 +128,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/calculators', function () {
         return Inertia::render('UserDashboard/Calculators');
     })->name('calculator.index');
+
+    /////////////////////////////////////////////////////////
+    //////////////////  E-LEARNING ROUTES ///////////////////////
+    ////////////////////////////////////////////////////////
+    Route::prefix('elearning')->group(function () {
+    Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
+    Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
+    Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
+    Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
+    Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
+    Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
+    Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
+});
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
     Route::get('/user/zuriscore/processing/{payment_id}', [ZuriScoreController::class, 'processing'])->name('zuriscore.processing');
@@ -200,7 +219,42 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
     Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
+
+    Route::prefix('admin')->group(function () {
+        Route::get('/courses', [CourseController::class, 'index'])->name('admin.courses.index');
+        Route::get('/courses/create-main', [CourseController::class, 'createMain'])->name('admin.courses.create-main');
+        Route::get('/courses/create', [CourseController::class, 'create'])->name('admin.courses.create');
+        Route::post('/courses', [CourseController::class, 'store'])->name('admin.courses.store');
+        Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
+        Route::put('/courses/{course}', [CourseController::class, 'update'])->name('admin.courses.update');
+        Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
+        
+        // Quiz routes
+        Route::get('/quizzes', [QuizController::class, 'index'])->name('admin.quizzes.index');
+        Route::get('/quizzes/create', [QuizController::class, 'create'])->name('admin.quizzes.create');
+        Route::post('/quizzes', [QuizController::class, 'store'])->name('admin.quizzes.store');
+        Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy'])->name('admin.quizzes.destroy');
+    });
+
+    // PDF viewing route with custom headers
+    // Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])
+    //     ->middleware(\App\Http\Middleware\PreventPDFDownload::class)
+    //     ->name('course-materials.show');
+    
+    Route::middleware(['web', 'auth'])->group(function() {
+    Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])
+        ->name('course-materials.show');
 });
+
+ // New PDF viewer route
+    Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])
+        ->name('course-materials.viewer');
+});
+    /////////////////////////////////////////////////////////
+    //////////////////  Elearning    ///////////////////////
+    ////////////////////////////////////////////////////////
+
+
 
 Route::get('/terms-and-conditions', function () {
     return Inertia::render('TermsAndConditions');

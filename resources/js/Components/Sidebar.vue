@@ -203,6 +203,7 @@ import {
   DocumentIcon,
   QuestionMarkCircleIcon,
   AcademicCapIcon,
+  AcademicCapIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/outline';
 
@@ -287,6 +288,12 @@ const menuItems = [
     icon: 'CalculatorIcon',
     active: currentRoute.startsWith('/user/calculators'),
     link: 'calculator.index'
+  },
+  {
+    title: 'E-Learning',
+    icon: 'AcademicCapIcon',
+    active: currentRoute.startsWith('/elearning'),
+    link: 'elearning.landing'
   },
   {
     title: 'Zuri Score',

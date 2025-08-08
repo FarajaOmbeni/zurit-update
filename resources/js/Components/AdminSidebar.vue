@@ -90,6 +90,56 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- New "Add Course" Section -->
+                <div class="px-4 py-2 border-t border-purple-700 mt-2">
+                    <h3 v-if="sidebarOpen" class="text-xs uppercase text-purple-300 tracking-wider mb-2">
+                        Course Management
+                    </h3>
+                    <Link :href="route('admin.courses.create-main')"
+                        class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
+                        :class="currentRoute.startsWith('/admin/courses/create-main') ? 'bg-purple-700' : ''">
+                    <span class="text-green-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                    <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">Create Main Course</span>
+                    </Link>
+                    
+                    <Link :href="route('admin.courses.create')"
+                        class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors mt-2"
+                        :class="currentRoute.startsWith('/admin/courses/create') && !currentRoute.startsWith('/admin/courses/create-main') ? 'bg-purple-700' : ''">
+                    <span class="text-yellow-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </span>
+                    <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">Add Sub-Course</span>
+                    </Link>
+                    
+                    <Link :href="route('admin.courses.index')"
+                        class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors mt-2"
+                        :class="currentRoute.startsWith('/admin/courses') && !currentRoute.startsWith('/admin/courses/create') ? 'bg-purple-700' : ''">
+                    <span class="text-yellow-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                    </span>
+                    <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">Manage Courses</span>
+                    </Link>
+                    
+                    <Link :href="route('admin.quizzes.index')"
+                        class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors mt-2"
+                        :class="currentRoute.startsWith('/admin/quizzes') ? 'bg-purple-700' : ''">
+                    <span class="text-green-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                    <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">Manage Quizzes</span>
+                    </Link>
+                </div>
             </nav>
 
             <!-- User Profile -->
@@ -291,3 +341,5 @@ const toggleSidebar = () => {
     sidebarOpen.value = !sidebarOpen.value;
 };
 </script>
+
+
