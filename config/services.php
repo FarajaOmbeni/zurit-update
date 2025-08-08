@@ -48,6 +48,13 @@ return [
     'email' => [
         'admin_email' => env('ADMIN_EMAIL', 'ombenifaraja@gmail.com'),
     ],
+    'zoom' => [
+        'account_id' => env('ZOOM_ACCOUNT_ID'),
+        'client_id'  => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+        'base' => env('ZOOM_API_BASE', 'https://api.zoom.us/v2'),
+    ],
+
 
 
 ];

@@ -370,7 +370,9 @@ const calculateAmortizedBond = () => {
                                     Calculate
                                 </button>
                                 <p v-if="mm.result !== null" class="font-semibold text-green-600">
-                                    Estimated Value after {{ mm.months }} months: {{ formatCurrency(mm.result) }}
+                                    Total contributions: {{ formatCurrency((mm.initial || 0) + (mm.monthly || 0) * (mm.months || 0)) }}<br>
+                                    Net profit: {{ formatCurrency((mm.result || 0) - ((mm.initial || 0) + (mm.monthly || 0) * (mm.months || 0))) }}<br>
+                                    Gross revenue after {{ mm.months }} months: {{ formatCurrency(mm.result || 0) }}
                                 </p>
                             </div>
                         </details>

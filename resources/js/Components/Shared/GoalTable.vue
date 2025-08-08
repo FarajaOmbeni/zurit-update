@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody class="text-gray-700">
-                <tr v-for="goal in goals" :key="goal.goal_id" class="border-t">
+                <tr v-for="goal in goals" :key="goal.id || goal.goal_id" class="border-t">
                     <td class="px-4 py-2">{{ goal.name }}</td>
                     <td class="px-4 py-2">{{ formatDate(goal.target_date) }}</td>
                     <td class="px-4 py-2 text-right">{{ formatCurrency(goal.target_amount) }}</td>
@@ -29,8 +29,8 @@
 
 <script setup>
 import { computed } from 'vue';
-import { formatDate } from '@/composables/useDateFormat'; // Your date helper
-import { formatCurrency } from '@/composables/useCurrencyFormat'; // Your currency helper
+import { formatDate } from '@/Components/Composables/useDateFormat';
+import { formatCurrency } from '@/Components/Composables/useFormatCurrency';
 
 const props = defineProps({
     goals: {

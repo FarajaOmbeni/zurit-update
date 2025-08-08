@@ -28,10 +28,11 @@ class QuestionnaireResponseMail extends Mailable
     public function envelope(): Envelope
     {
         // Determine subject based on form type
-        $subject = match($this->formData['form_type'] ?? null) {
+        $subject = match ($this->formData['form_type'] ?? null) {
             'Client Onboarding' => '📋 New Client Onboarding Form Submission',
             'Money Personality Assessment' => '🧠 Money Personality Assessment Response',
             'Risk Tolerance Assessment' => '⚖️ Risk Tolerance Assessment Response',
+            'Next Natural Step Assessment' => '🚀 Next Natural Step Assessment Response',
             default => '💰 Money Quiz Response'
         };
 

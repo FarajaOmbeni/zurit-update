@@ -475,6 +475,136 @@
                     </ul>
                 </div>
             </div>
+        @elseif(isset($formData['form_type']) && $formData['form_type'] === 'Next Natural Step Assessment')
+            {{-- NEXT NATURAL STEP ASSESSMENT --}}
+            <div class="section">
+                <div class="section-title">🚀 Next Natural Step Assessment</div>
+                <p><strong>Respondent:</strong> {{ $formData['fullName'] ?? 'Anonymous' }}</p>
+
+                <div class="score-box">
+                    <h3>🎯 Assessment Results:</h3>
+                    <p><strong>Persona:</strong> <span class="answer">{{ $formData['persona'] ?? 'N/A' }}</span></p>
+                    <p><strong>Description:</strong> {{ $formData['description'] ?? 'N/A' }}</p>
+
+                    <h4>Letter Counts:</h4>
+                    <ul>
+                        <li>A (Systems Thinker): {{ $formData['countA'] ?? 0 }}</li>
+                        <li>B (Communicator): {{ $formData['countB'] ?? 0 }}</li>
+                        <li>C (Mentor/Trainer): {{ $formData['countC'] ?? 0 }}</li>
+                        <li>D (Connector/Caregiver): {{ $formData['countD'] ?? 0 }}</li>
+                        <li>E (Burnout Watch): {{ $formData['countE'] ?? 0 }}</li>
+                    </ul>
+                </div>
+
+                <h3>Detailed Responses:</h3>
+                <ul>
+                    @php
+                        $nextStepQuestions = [
+                            1 => 'What energizes you most in your daily activities?',
+                            2 => 'When faced with a challenge, what\'s your first instinct?',
+                            3 => 'What do people usually come to you for help with?',
+                            4 => 'In a group project, you naturally...',
+                            5 => 'Your ideal work environment is...',
+                            6 => 'When learning something new, you prefer to...',
+                            7 => 'What motivates you most?',
+                            8 => 'How do you handle stress or pressure?',
+                            9 => 'What\'s your current energy level like?',
+                            10 => 'What would you most enjoy spending time on right now?',
+                        ];
+
+                        $nextStepOptions = [
+                            'A' => [
+                                1 => 'Organizing systems, creating schedules, and solving logistics problems',
+                                2 => 'Break it down into manageable steps and create a plan',
+                                3 => 'Getting organized, planning events, or managing their finances',
+                                4 => 'Take charge of timelines, budgets, and project management',
+                                5 => 'Structured, with clear processes and measurable outcomes',
+                                6 => 'Follow step-by-step instructions and create your own system',
+                                7 => 'Efficiency, order, and seeing measurable results',
+                                8 => 'Create lists, prioritize tasks, and work systematically',
+                                9 => 'High when working on organized, systematic projects',
+                                10 => 'Helping others organize their lives, budgets, or businesses',
+                            ],
+                            'B' => [
+                                1 => 'Talking with people, persuading others, and building relationships',
+                                2 => 'Talk it through with others and gather different perspectives',
+                                3 => 'Communication problems, negotiations, or networking advice',
+                                4 => 'Handle presentations, client communication, and team motivation',
+                                5 => 'Dynamic, with lots of interaction and networking opportunities',
+                                6 => 'Discuss it with others and learn through conversation',
+                                7 => 'Recognition, influence, and building your reputation',
+                                8 => 'Talk it out with friends, network, and seek advice',
+                                9 => 'High when interacting with people and building relationships',
+                                10 => 'Building your network, promoting services, or consulting others',
+                            ],
+                            'C' => [
+                                1 => 'Teaching, mentoring, and helping others grow their skills',
+                                2 => 'Research best practices and share knowledge with others',
+                                3 => 'Learning new skills, academic help, or career guidance',
+                                4 => 'Research, analyze, and teach others what you\'ve learned',
+                                5 => 'Educational, where you can continuously learn and teach others',
+                                6 => 'Dive deep into research and then teach it to someone else',
+                                7 => 'Growth, mastery, and helping others succeed',
+                                8 => 'Research solutions and share what you learn with others',
+                                9 => 'High when learning and sharing knowledge with others',
+                                10 => 'Teaching, tutoring, or training others in your areas of expertise',
+                            ],
+                            'D' => [
+                                1 => 'Taking care of others, creating comfort, and providing support',
+                                2 => 'Focus on how it affects people and find ways to help',
+                                3 => 'Emotional support, childcare advice, or health/wellness tips',
+                                4 => 'Make sure everyone is comfortable and the team works well together',
+                                5 => 'Caring, focused on helping people and making a positive impact',
+                                6 => 'Learn alongside others in a supportive group environment',
+                                7 => 'Making a difference in people\'s lives and creating harmony',
+                                8 => 'Focus on helping others, which helps you feel better',
+                                9 => 'High when helping others and making them feel better',
+                                10 => 'Providing care, support, or wellness services to others',
+                            ],
+                            'E' => [
+                                1 => 'Nothing much energizes me right now—I feel tired or stuck',
+                                2 => 'Feel overwhelmed and avoid dealing with it',
+                                3 => 'People don\'t usually come to me for help',
+                                4 => 'Stay in the background and do what\'s assigned to you',
+                                5 => 'Low-stress, with minimal demands and pressure',
+                                6 => 'Avoid learning new things—it feels overwhelming',
+                                7 => 'Just getting through each day without stress',
+                                8 => 'Feel overwhelmed and struggle to cope effectively',
+                                9 => 'Consistently low—I feel tired, burned out, or stuck',
+                                10 => 'Resting and focusing on my own recovery and self-care',
+                            ],
+                        ];
+                    @endphp
+
+                    @for ($i = 1; $i <= 10; $i++)
+                        @if (isset($formData["q{$i}"]) && is_array($formData["q{$i}"]))
+                            <li>
+                                <strong>{{ $i }}. {{ $nextStepQuestions[$i] }}</strong><br>
+                                <span class="answer">
+                                    @foreach ($formData["q{$i}"] as $answer)
+                                        {{ $answer }}. {{ $nextStepOptions[$answer][$i] ?? 'Answer not found' }}
+                                        @if (!$loop->last)
+                                            |
+                                        @endif
+                                    @endforeach
+                                </span>
+                            </li>
+                        @endif
+                    @endfor
+                </ul>
+
+                <div class="score-box">
+                    <p><strong>Persona Guide:</strong></p>
+                    <ul>
+                        <li><strong>Systems Thinker:</strong> Planning, organizing, budgeting, problem-solving paths
+                        </li>
+                        <li><strong>Communicator:</strong> Customer service, consulting, sales support paths</li>
+                        <li><strong>Mentor/Trainer:</strong> Tutoring, coaching, training paths</li>
+                        <li><strong>Connector/Caregiver:</strong> Event support, hospitality, wellness paths</li>
+                        <li><strong>Burnout Watch:</strong> Rest and recovery recommendations</li>
+                    </ul>
+                </div>
+            </div>
         @else
             {{-- MONEY QUIZ - WEALTH SCORE ASSESSMENT --}}
             <div class="section">
@@ -485,7 +615,8 @@
                     <h3>📊 Assessment Result:</h3>
                     @if (isset($formData['wealthLevel']) && isset($formData['totalScore']))
                         <p><strong>Wealth Level:</strong> {{ $formData['wealthLevel'] }}</p>
-                        <p><strong>Total Score:</strong> {{ $formData['totalScore'] ?? 0 }}/{{ $formData['maxScore'] ?? 30 }}</p>
+                        <p><strong>Total Score:</strong>
+                            {{ $formData['totalScore'] ?? 0 }}/{{ $formData['maxScore'] ?? 30 }}</p>
                         @if (isset($formData['resultMessage']))
                             <p><strong>Recommendation:</strong> {{ $formData['resultMessage'] }}</p>
                         @endif
@@ -565,7 +696,8 @@
                             <li>
                                 <strong>{{ $question }}</strong><br>
                                 <span class="answer">{{ $quizOptions[$key][$formData[$key]] ?? 'Answer not found' }}
-                                    ({{ $formData[$key] }} points)</span>
+                                    ({{ $formData[$key] }} points)
+                                </span>
                             </li>
                         @endif
                     @endforeach

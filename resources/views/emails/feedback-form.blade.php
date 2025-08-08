@@ -108,7 +108,7 @@
         <p><b>Answer: </b>{{ $topicSuggestion }}</p>
         <hr>
 
-        <p><b>Question: </b>Who was your favourite trainor/trainors?
+        <p><b>Question: </b>Who was your favourite trainer/speaker?
         </p>
         <p><b>Answer: </b>{{ $favoriteSpeaker }}</p>
         <hr>
