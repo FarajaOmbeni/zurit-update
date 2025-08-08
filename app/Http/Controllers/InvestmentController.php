@@ -133,17 +133,23 @@ class InvestmentController extends Controller
         }
         $investment->frequency_of_return = $request->frequency_of_return;
         $investment->expected_return_rate = $request->expected_return_rate;
+
+        // Determine if this is a bill investment
+        $isBill = false;
         if ($request->details_of_investment == '91-Day Treasury Bill') {
             $investment->start_date = Carbon::now();
             $investment->target_date = Carbon::now()->addDays(91);
+            $isBill = true;
         }
         else if ($request->details_of_investment == '182-Day Treasury Bill') {
             $investment->start_date = Carbon::now();
             $investment->target_date = Carbon::now()->addDays(182);
+            $isBill = true;
         }
         else if ($request->details_of_investment == '364-Day Treasury Bill') {
             $investment->start_date = Carbon::now();
             $investment->target_date = Carbon::now()->addDays(364);
+            $isBill = true;
         }
         else {
             $investment->start_date = $request->start_date;
@@ -152,7 +158,12 @@ class InvestmentController extends Controller
 
         $investment->save();
 
-        $this->storeInitialInvestment($investment, $request->initial_amount, $request->start_date);
+        // If the investment is a bill, use now() as the transaction date for the initial investment
+        if ($isBill) {
+            $this->storeInitialInvestment($investment, $request->initial_amount, Carbon::now());
+        } else {
+            $this->storeInitialInvestment($investment, $request->initial_amount, $request->start_date);
+        }
 
         if ($request->boolean('commitment')) {
             $this->storeRecurrentExpense($investment, $request->committed_amount);

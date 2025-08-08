@@ -131,8 +131,15 @@ const handleSubmit = () => {
                             <Input v-model="form.name" label="Event Name" placeholder="Enter the name of the event"
                                 id="name" />
                             <Input type="date" v-model="form.date" label="Date" id="date" />
-                            <Select v-model="form.price" select_title="Free or Paid?" label="Free or Paid?"
-                                :options="['Free', 'Paid']" />
+                            <Select
+                                v-model="form.price"
+                                select_title="Free or Paid?"
+                                label="Free or Paid?"
+                                :options="[
+                                    { value: 'Free', label: 'Free' },
+                                    { value: 'Paid', label: 'Paid' }
+                                ]"
+                            />
                             <FileInput label="Event Image" v-model="form.image" accept="image/*"
                                 @file-selected="handleFile" />
                             <Input v-model="form.registration_link" label="Registration Link" id="link" />

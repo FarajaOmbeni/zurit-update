@@ -75,9 +75,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/budget/budgets', [BudgetController::class, 'budgets'])->name('budget.budgets');
     Route::post('addIncome', [BudgetController::class, 'storeIncome'])->name('income.store');
     Route::put('/income/{id}', [BudgetController::class, 'updateIncome'])->name('income.edit');
+    // Edit past-month income without touching recurrence rule
+    Route::put('/income/past/{id}', [BudgetController::class, 'updatePastIncome'])->name('income.past.edit');
     Route::delete('/income/{id}', [BudgetController::class, 'destroyIncome'])->name('income.destroy');
     Route::post('addExpense', [BudgetController::class, 'storeExpense'])->name('expense.store');
     Route::put('/expense/{id}', [BudgetController::class, 'updateExpense'])->name('expense.edit');
+    // Edit past-month expense without touching recurrence rule
+    Route::put('/expense/past/{id}', [BudgetController::class, 'updatePastExpense'])->name('expense.past.edit');
     Route::delete('/expense/{id}', [BudgetController::class, 'destroyExpense'])->name('expense.destroy');
 
     /////////////////////////////////////////////////////////
@@ -146,10 +150,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  QUESTIONNAIRES ROUTES /////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/questionnaires', [QuestionnaireController::class, 'index'])->name('questionnaires.index');
-    Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
-    Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
-    Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
-    Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+        Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
+        Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
+        Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
+        Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
 
     // Coach routes
     Route::get('/user/coach', [CoachController::class, 'index'])->name('coach.index');
@@ -178,7 +182,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{id}/assign-user', [CoachAdminController::class, 'assignUser'])->name('assign-user');
         Route::post('/{id}/remove-user', [CoachAdminController::class, 'removeUser'])->name('remove-user');
     });
+});
 
+Route::middleware(['auth', 'admin'])->group(function () {
     /////////////////////////////////////////////////////////
     //////////////////  ADMIN ROUTES ///////////////////////
     ////////////////////////////////////////////////////////

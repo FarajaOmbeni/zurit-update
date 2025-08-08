@@ -58,7 +58,7 @@
                             class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
                             :class="item.active ? 'bg-purple-700' : ''">
                         <span class="text-yellow-400">
-                            <component :is="iconMap[item.icon]" class="h-5 w-5" />
+                            <component :is="iconMap[iconMap[item.icon]]" class="h-5 w-5" />
                         </span>
                         <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
                         </Link>
@@ -130,6 +130,16 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
+import {
+    UsersIcon,
+    DocumentTextIcon,
+    CalendarDaysIcon,
+    ChartBarIcon,
+    UserPlusIcon,
+    EnvelopeIcon,
+    StarIcon,
+    VideoCameraIcon,
+} from '@heroicons/vue/24/outline';
 import Alert from '@/Components/Shared/Alert.vue';
 import {
     UserGroupIcon,
@@ -152,6 +162,17 @@ const iconMap = {
     UserPlusIcon,
     EnvelopeIcon,
     ChatBubbleLeftRightIcon,
+    VideoCameraIcon,
+};
+
+const iconMap = {
+    UsersIcon,
+    DocumentTextIcon,
+    CalendarDaysIcon,
+    ChartBarIcon,
+    UserPlusIcon,
+    EnvelopeIcon,
+    StarIcon,
     VideoCameraIcon,
 };
 
@@ -193,6 +214,7 @@ const menuItems = [
     {
         title: 'Blogs',
         icon: 'DocumentTextIcon',
+        icon: 'DocumentTextIcon',
         active: currentRoute.startsWith('/admin/blogs'),
         link: 'blogs.index',
     },
@@ -211,17 +233,20 @@ const menuItems = [
     {
         title: 'System Insights',
         icon: 'ChartBarIcon',
+        icon: 'ChartBarIcon',
         active: currentRoute.startsWith('/admin/system'),
         link: 'system.index',
     },
     {
         title: 'Add Users',
         icon: 'UserPlusIcon',
+        icon: 'UserPlusIcon',
         active: currentRoute.startsWith('/admin/add-users'),
         link: 'add-users.index',
     },
     {
         title: 'Marketing Emails',
+        icon: 'EnvelopeIcon',
         icon: 'EnvelopeIcon',
         active: currentRoute.startsWith('/admin/marketing'),
         link: 'marketing.index',

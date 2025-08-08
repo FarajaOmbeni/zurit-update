@@ -106,9 +106,9 @@
       "resources/js/app.js"
     ]
   },
-  "_Footer-BmpELnNS.css": {
-    "file": "assets/Footer-BmpELnNS.css",
-    "src": "_Footer-BmpELnNS.css"
+  "_Footer-B2IyOY6E.css": {
+    "file": "assets/Footer-B2IyOY6E.css",
+    "src": "_Footer-B2IyOY6E.css"
   },
   "_Footer-G3MtClO6.js": {
     "file": "assets/Footer-G3MtClO6.js",
@@ -118,7 +118,7 @@
       "__plugin-vue_export-helper-DlAUqK2U.js"
     ],
     "css": [
-      "assets/Footer-BmpELnNS.css"
+      "assets/Footer-B2IyOY6E.css"
     ]
   },
   "_GuestLayout-DmpK9In2.js": {
@@ -1291,6 +1291,7 @@
     "dynamicImports": [
       "resources/js/Pages/About.vue",
       "resources/js/Pages/Admin/AddUsers.vue",
+      "resources/js/Pages/Admin/AdminInvestmentTypes.vue",
       "resources/js/Pages/Admin/Blogs.vue",
       "resources/js/Pages/Admin/Books.vue",
       "resources/js/Pages/Admin/Coaching.vue",
