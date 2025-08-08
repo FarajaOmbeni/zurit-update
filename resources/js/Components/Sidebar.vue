@@ -44,7 +44,7 @@
 
       <!-- Navigation Links -->
       <nav class="mt-6">
-        <div v-for="(item, index) in menuItems" :key="index" class="px-4 py-2">
+        <div v-for="(item, index) in visibleMenuItems" :key="index" class="px-4 py-2">
           <div class="relative group">
             <Link :href="route(item.link)"
               class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
@@ -64,6 +64,31 @@
                 class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900">
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- More Button as 8th item -->
+        <div v-if="hiddenMenuItems.length" class="px-4 py-2">
+          <div class="relative group" @click.stop>
+            <button @click="toggleMoreMenu"
+              class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors w-full">
+              <span class="text-yellow-400">
+                <component :is="iconMap['EllipsisHorizontalIcon']" class="h-5 w-5" />
+              </span>
+              <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">More</span>
+            </button>
+
+            <!-- More dropdown: position depends on sidebar width -->
+            <div v-if="moreMenuOpen" :class="[
+              sidebarOpen ? 'absolute left-0 top-full mt-2' : 'absolute left-full ml-2 top-1/2 transform -translate-y-1/2',
+              'w-48 bg-white rounded-md shadow-lg py-1 z-50'
+            ]">
+              <Link v-for="(item, index) in hiddenMenuItems" :key="index" :href="route(item.link)"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-200" @click="moreMenuOpen = false">
+              {{ item.title }}
+              </Link>
+            </div>
+
           </div>
         </div>
       </nav>
@@ -179,6 +204,7 @@ import {
   DocumentIcon,
   QuestionMarkCircleIcon,
   AcademicCapIcon,
+  EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/outline';
 
 const iconMap = {
@@ -192,6 +218,7 @@ const iconMap = {
   DocumentIcon,
   QuestionMarkCircleIcon,
   AcademicCapIcon,
+  EllipsisHorizontalIcon,
 };
 
 defineProps({
@@ -201,6 +228,7 @@ defineProps({
 const dropdownOpen = ref(false);
 const page = usePage();
 const currentRoute = page.url;
+const moreMenuOpen = ref(false);
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value;
@@ -214,11 +242,13 @@ const closeDropdown = (e) => {
 // Add event listener when component is mounted
 onMounted(() => {
   document.addEventListener('click', closeDropdown);
+  document.addEventListener('click', closeMoreMenu);
 });
 
 // Clean up event listener when component is unmounted
 onUnmounted(() => {
   document.removeEventListener('click', closeDropdown);
+  document.removeEventListener('click', closeMoreMenu);
 });
 
 // Menu items with icons (using heroicons)
@@ -277,12 +307,12 @@ const menuItems = [
     active: currentRoute.startsWith('/user/questionnaires'),
     link: 'questionnaires.index'
   },
-  {
+  ...((page.props.auth?.role !== 2) ? [{
     title: 'Coach',
     icon: 'UserIcon',
     active: currentRoute.startsWith('/user/coach'),
     link: 'coach.index'
-  },
+  }] : []),
 ]
 
 // Sidebar state - set to false by default
@@ -297,6 +327,18 @@ const mobileMenuOpen = ref(false)
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+// Visible and hidden menu partitions
+const visibleMenuItems = menuItems.slice(0, 7)
+const hiddenMenuItems = menuItems.slice(7)
+
+const toggleMoreMenu = () => {
+  moreMenuOpen.value = !moreMenuOpen.value
+}
+
+const closeMoreMenu = () => {
+  moreMenuOpen.value = false
 }
 
 // Extended menu: Home, Profile, other leftover items
