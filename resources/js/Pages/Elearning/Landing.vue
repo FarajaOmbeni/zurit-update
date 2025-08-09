@@ -8,7 +8,7 @@
                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
             >
                 <div class="absolute inset-0 bg-black bg-opacity-10 z-10"></div>
-                <div class="container mx-auto pt-20 px-8 relative z-20 max-w-6xl text-center">
+                <div class="max-w-6xl mx-auto pt-16 md:pt-20 px-4 sm:px-6 lg:px-8 relative z-20 text-center">
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
                         Financial Literacy
                         <span class="block bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent">Made Simple</span>
@@ -20,8 +20,8 @@
                     <div class="flex justify-center gap-4 mb-12 flex-wrap">
                         <button 
                             @click="$inertia.visit(route('elearning.courses'))"
-                            class="px-8 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
-                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); filter: brightness(1.1);"
+                            class="px-8 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
                         >
                             Browse All Courses
                         </button>
@@ -31,7 +31,7 @@
 
             <!-- Featured Courses Section -->
             <section class="py-24 bg-gray-50">
-                <div class="container mx-auto px-6 max-w-6xl">
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="text-center mb-16">
                         <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Featured Courses</h2>
                         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -43,7 +43,7 @@
                         <div
                             v-for="course in featuredCourses"
                             :key="course.id"
-                            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all hover:-translate-y-2 hover:shadow-lg flex flex-col h-full"
+                            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500 flex flex-col h-full"
                         >
                             <div class="p-6 pb-0 flex justify-between items-start">
                                 <span 
@@ -88,10 +88,8 @@
                             <div class="p-6 pt-0 mt-auto">
                                 <button
                                     @click="$inertia.visit(route('elearning.courses'))"
-                                    class="w-full px-4 py-2 border-2 font-medium rounded-lg transition-colors hover:text-white"
+                                    class="w-full px-4 py-2 border-2 font-medium rounded-lg transition-colors hover:text-white hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600"
                                     style="border-color: #667eea; color: #667eea;"
-                                    onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'"
-                                    onmouseout="this.style.background='transparent'"
                                 >
                                     Explore Courses
                                 </button>
@@ -103,11 +101,11 @@
 
             <!-- Features Section -->
             <section class="py-24 bg-white">
-                <div class="container mx-auto px-6 max-w-6xl">
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                         <div class="text-center">
                             <div 
-                                class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 text-white"
+                                class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 text-white shadow-lg"
                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
                             >
                                 <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -120,7 +118,7 @@
                         
                         <div class="text-center">
                             <div 
-                                class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 text-white"
+                                class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 text-white shadow-lg"
                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
                             >
                                 <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -134,7 +132,7 @@
                         
                         <div class="text-center">
                             <div 
-                                class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 text-white"
+                                class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 text-white shadow-lg"
                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
                             >
                                 <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
