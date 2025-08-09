@@ -4,10 +4,10 @@
     <div class="bg-gray-50 min-h-screen">
         <!-- Navigation -->
             <div class="bg-white pt-6 pb-6 border-b border-gray-200">
-            <div class="max-w-6xl mx-auto px-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <button
                     @click="$inertia.visit(route('elearning.courses'))"
-                    class="inline-flex items-center gap-2 bg-transparent border-none cursor-pointer text-base font-semibold px-4 py-2 rounded-lg transition-all duration-200 hover:bg-gray-50"
+                    class="inline-flex items-center gap-2 bg-transparent border-none cursor-pointer text-base font-semibold px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
                     style="color: #667eea;"
                 >
                     <svg
@@ -26,11 +26,11 @@
 
         <!-- Course Hero Section -->
         <div 
-            class="text-white py-16"
+            class="text-white py-12 md:py-16"
             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
         >
-            <div class="max-w-6xl mx-auto px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-16 items-start">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-12 md:gap-16 items-start">
                     <div class="hero-main">
                         <h1 class="text-4xl lg:text-5xl font-bold mb-6 leading-tight">{{ course.title }}</h1>
                         <p class="text-lg leading-relaxed opacity-95">
@@ -83,16 +83,16 @@
 
         <!-- Course Content Section -->
         <div class="py-16 bg-gray-50">
-            <div class="max-w-6xl mx-auto px-8">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 gap-12">
                     <div class="main-content">
                         <div class="materials-section mb-8">
                             <h2 class="text-3xl font-semibold text-gray-800 mb-8">Course Materials</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                                 <div
                                     v-for="material in course.materials"
                                     :key="material.id"
-                                    class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
+                                    class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500"
                                 >
                                     <div class="flex items-center gap-3 mb-5">
                                         <svg
@@ -116,7 +116,7 @@
                                     <div class="flex justify-end">
                                         <button
                                                 @click="openPdfInNewTab(material, $event)"
-                                            class="text-white border-none py-2.5 px-5 rounded-lg font-medium text-sm cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                                            class="w-full md:w-auto text-white border-none py-2.5 px-5 rounded-lg font-medium text-sm cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
                                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
                                         >
                                             View PDF
