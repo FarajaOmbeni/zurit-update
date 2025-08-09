@@ -140,7 +140,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
     Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
     Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
-});
+}
+);
+
+    Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])->name('course-materials.show');
+    Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])->name('course-materials.viewer');
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
     Route::get('/user/zuriscore/processing/{payment_id}', [ZuriScoreController::class, 'processing'])->name('zuriscore.processing');
@@ -242,14 +246,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     //     ->middleware(\App\Http\Middleware\PreventPDFDownload::class)
     //     ->name('course-materials.show');
     
-    Route::middleware(['web', 'auth'])->group(function() {
-    Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])
-        ->name('course-materials.show');
-});
 
- // New PDF viewer route
-    Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])
-        ->name('course-materials.viewer');
 });
     /////////////////////////////////////////////////////////
     //////////////////  Elearning    ///////////////////////
