@@ -50,11 +50,11 @@ class CreateMeetingController extends Controller
 
         // Dispatch email
         Mail::to($meeting->client->email)
-            ->queue(new ClientMeetingInvite($meeting));
+            ->send(new ClientMeetingInvite($meeting));
 
         // Email coach with start URL
         Mail::to($meeting->coach->email)
-            ->queue(new CoachMeetingStartLink($meeting));
+            ->send(new CoachMeetingStartLink($meeting));
 
         return to_route('coach.dashboard');
     }
