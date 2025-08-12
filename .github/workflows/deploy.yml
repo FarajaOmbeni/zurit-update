@@ -6,7 +6,7 @@ on:
 jobs:
   web-deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Get the latest code
         uses: actions/checkout@v3
@@ -14,8 +14,10 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2.1'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, openssl, tokenizer, xml, ctype, json, fileinfo
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo_mysql, fileinfo
+          tools: composer:v2
+          coverage: none
           
       - name: Setup Node
         uses: actions/setup-node@v4
