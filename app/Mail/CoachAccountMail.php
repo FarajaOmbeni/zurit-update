@@ -15,14 +15,16 @@ class CoachAccountMail extends Mailable
 
     public $user;
     public $password;
+    public $isExisting;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user, $password)
+    public function __construct($user, $password = null)
     {
         $this->user = $user;
         $this->password = $password;
+        $this->isExisting = empty($password);
     }
 
     /**
@@ -30,8 +32,10 @@ class CoachAccountMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = 'Welcome to the Coach Portal!';
+
         return new Envelope(
-            subject: 'Welcome to the Coach Portal!',
+            subject: $subject,
         );
     }
 

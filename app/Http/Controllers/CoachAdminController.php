@@ -78,10 +78,15 @@ class CoachAdminController extends Controller
                 'password' => bcrypt($generatedPassword),
                 'role' => '2'
             ]);
+            $user->markEmailAsVerified();
 
             Mail::to($user->email)->send(new CoachAccountMail($user, $generatedPassword));
         } else {
-            Log::info("User with email {$data['email']} already exists. Skipping coach account creation.");
+            $existingUser->update([
+                'role' => '2'
+            ]);
+            Log::info("User with email {$data['email']} already exists. Coach role ensured.");
+            Mail::to($existingUser->email)->send(new CoachAccountMail($existingUser));
         }
 
         Coach::create($data);

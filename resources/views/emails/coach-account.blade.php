@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,25 +56,42 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="header">
-        <h1>Welcome to the Coach Portal!</h1>
-        <p>Your account has been created successfully.</p>
+        @if (!isset($isExisting) || !$isExisting)
+            <h1>Welcome to the Coach Portal!</h1>
+            <p>Your account has been created successfully.</p>
+        @else
+            <h1>Welcome to the Coach Portal!</h1>
+            <p>Your coach access has been enabled.</p>
+        @endif
     </div>
 
     <div class="content">
         <h2>Hello {{ $user->name }},</h2>
-        <p>We're excited to welcome you as a coach! You can now log in to your account using the credentials below:</p>
 
-        <div class="info-card">
-            <p><strong>Email: {{ $user->email }}</strong> a</p>
-            <p><strong>Temporary Password: {{ $password }}</strong> a</p>
-        </div>
+        @if (!isset($isExisting) || !$isExisting)
+            <p>We're excited to welcome you as a coach! You can now log in to your account using the credentials below:
+            </p>
 
-        <p style="margin-top: 20px;">
-            For your security, please visit this <strong><a href="{{ route('password.request') }}" class="btn">link</a></strong>.
-        </p>
+            <div class="info-card">
+                <p><strong>Email: {{ $user->email }}</strong></p>
+                <p><strong>Temporary Password: {{ $password }}</strong></p>
+            </div>
+
+            <p style="margin-top: 20px;">
+                For your security, please visit this <strong><a href="{{ route('password.request') }}"
+                        class="btn">link</a></strong>.
+            </p>
+        @else
+            <p>Welcome aboard as a coach! Your account already exists with Zurit Consulting. Please use your existing
+                credentials to log in.</p>
+            <div class="info-card">
+                <p><strong>Email: {{ $user->email }}</strong></p>
+            </div>
+        @endif
 
         <div style="text-align: center;">
             <a href="{{ route('login') }}" class="btn">Log In Now</a>
@@ -82,7 +100,8 @@
         <p>If you have any questions or need help, feel free to contact the Zurit admin team.</p>
 
         <p>Best regards,<br>
-        <strong>Zurit Admin System</strong></p>
+            <strong>Zurit Admin System</strong>
+        </p>
     </div>
 
     <div class="footer">
@@ -91,4 +110,5 @@
     </div>
 
 </body>
+
 </html>
