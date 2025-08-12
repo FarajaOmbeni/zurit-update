@@ -41,11 +41,17 @@
         .btn {
             display: inline-block;
             background: #6f42c1;
-            color: white;
+            color: #fff !important;
             padding: 12px 25px;
-            text-decoration: none;
+            text-decoration: none !important;
             border-radius: 5px;
             margin: 20px 0;
+            border: none;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            /* For Gmail compatibility */
+            mso-padding-alt: 0;
         }
 
         .footer {
@@ -80,11 +86,6 @@
                 <p><strong>Email: {{ $user->email }}</strong></p>
                 <p><strong>Temporary Password: {{ $password }}</strong></p>
             </div>
-
-            <p style="margin-top: 20px;">
-                For your security, please visit this <strong><a href="{{ route('password.request') }}"
-                        class="btn">link</a></strong>.
-            </p>
         @else
             <p>Welcome aboard as a coach! Your account already exists with Zurit Consulting. Please use your existing
                 credentials to log in.</p>
@@ -97,6 +98,12 @@
             <a href="{{ route('login') }}" class="btn">Log In Now</a>
         </div>
 
+        <b>
+            <p style="margin-top: 20px;">
+                To reset your password, please visit this <strong><a
+                        href="{{ route('password.request') }}">link</a></strong>.
+            </p>
+        </b>
         <p>If you have any questions or need help, feel free to contact the Zurit admin team.</p>
 
         <p>Best regards,<br>
