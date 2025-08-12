@@ -45,15 +45,58 @@
 
             <!-- Navigation Links -->
             <nav class="mt-6 text-sm">
-                <div v-for="(item, index) in menuItems" :key="index" class="px-4 py-2">
-                    <Link :href="route(item.link)"
-                        class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
-                        :class="item.active ? 'bg-purple-700' : ''">
-                    <span class="text-yellow-400">
-                        <component :is="iconMap[item.icon]" class="h-5 w-5" />
-                    </span>
-                    <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
-                    </Link>
+                <div v-for="(item, index) in visibleMenuItems" :key="index" class="px-4 py-2">
+                    <div class="relative group">
+                        <Link :href="route(item.link)"
+                            class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
+                            :class="item.active ? 'bg-purple-700' : ''">
+                        <span class="text-yellow-400">
+                            <component :is="iconMap[item.icon]" class="h-5 w-5" />
+                        </span>
+                        <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
+                        </Link>
+
+                        <!-- Tooltip for collapsed sidebar -->
+                        <div v-if="!sidebarOpen"
+                            class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 transform -translate-y-1/2">
+                            {{ item.title }}
+                            <div
+                                class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- More Button as 8th item -->
+                <div v-if="hiddenMenuItems.length" class="px-4 py-2">
+                    <div class="relative" @click.stop>
+                        <button @click="toggleMoreMenu"
+                            class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors w-full">
+                            <span class="text-yellow-400">
+                                <component :is="iconMap['EllipsisHorizontalIcon']" class="h-5 w-5" />
+                            </span>
+                            <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">More</span>
+                        </button>
+
+                        <div v-if="moreMenuOpen" :class="[
+                            'absolute left-0 bottom-full mb-2',
+                            'w-56 bg-white rounded-md shadow-lg py-1 z-50'
+                        ]">
+                            <Link v-for="(item, index) in hiddenMenuItems" :key="index" :href="route(item.link)"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-200"
+                                @click="moreMenuOpen = false">
+                            {{ item.title }}
+                            </Link>
+
+                            <!-- Course management links inside More -->
+                            <div class="my-1 border-t border-gray-200"></div>
+                            <Link v-for="(item, index) in courseMoreItems" :key="'cm-' + index" :href="route(item.link)"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-200"
+                                @click="moreMenuOpen = false">
+                            {{ item.title }}
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </nav>
 
@@ -113,25 +156,35 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import {
     UsersIcon,
+    UserGroupIcon,
     DocumentTextIcon,
     CalendarDaysIcon,
+    CalendarIcon,
+    UserIcon,
     ChartBarIcon,
     UserPlusIcon,
     EnvelopeIcon,
     StarIcon,
+    ChatBubbleLeftRightIcon,
     VideoCameraIcon,
+    EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/outline';
 import Alert from '@/Components/Shared/Alert.vue';
 
 const iconMap = {
     UsersIcon,
+    UserGroupIcon,
     DocumentTextIcon,
     CalendarDaysIcon,
+    CalendarIcon,
+    UserIcon,
     ChartBarIcon,
     UserPlusIcon,
     EnvelopeIcon,
     StarIcon,
+    ChatBubbleLeftRightIcon,
     VideoCameraIcon,
+    EllipsisHorizontalIcon,
 };
 
 defineProps({
@@ -141,6 +194,7 @@ defineProps({
 const dropdownOpen = ref(false);
 const page = usePage();
 const currentRoute = page.url;
+const moreMenuOpen = ref(false);
 
 const toggleDropdown = () => {
     dropdownOpen.value = !dropdownOpen.value;
@@ -154,11 +208,13 @@ const closeDropdown = (e) => {
 // Add event listener when component is mounted
 onMounted(() => {
     document.addEventListener('click', closeDropdown);
+    document.addEventListener('click', closeMoreMenu);
 });
 
 // Clean up event listener when component is unmounted
 onUnmounted(() => {
     document.removeEventListener('click', closeDropdown);
+    document.removeEventListener('click', closeMoreMenu);
 });
 
 // Menu items with icons (using heroicons)
@@ -172,6 +228,7 @@ const menuItems = [
     {
         title: 'Blogs',
         icon: 'DocumentTextIcon',
+        icon: 'DocumentTextIcon',
         active: currentRoute.startsWith('/admin/blogs'),
         link: 'blogs.index',
     },
@@ -182,7 +239,14 @@ const menuItems = [
         link: 'events.index',
     },
     {
+        title: 'Coaching',
+        icon: 'UserIcon',
+        active: currentRoute.startsWith('/admin/coaching'),
+        link: 'coaching.index',
+    },
+    {
         title: 'System Insights',
+        icon: 'ChartBarIcon',
         icon: 'ChartBarIcon',
         active: currentRoute.startsWith('/admin/system'),
         link: 'system.index',
@@ -190,11 +254,13 @@ const menuItems = [
     {
         title: 'Add Users',
         icon: 'UserPlusIcon',
+        icon: 'UserPlusIcon',
         active: currentRoute.startsWith('/admin/add-users'),
         link: 'add-users.index',
     },
     {
         title: 'Marketing Emails',
+        icon: 'EnvelopeIcon',
         icon: 'EnvelopeIcon',
         active: currentRoute.startsWith('/admin/marketing'),
         link: 'marketing.index',
@@ -208,8 +274,40 @@ const menuItems = [
     {
         title: 'Manage Videos',
         icon: 'VideoCameraIcon',
+        icon: 'VideoCameraIcon',
         active: currentRoute.startsWith('/admin/videos'),
         link: 'videos.index',
+    },
+]
+
+const visibleMenuItems = menuItems.slice(0, 7)
+const hiddenMenuItems = menuItems.slice(7)
+
+const toggleMoreMenu = () => {
+    moreMenuOpen.value = !moreMenuOpen.value
+}
+
+const closeMoreMenu = () => {
+    moreMenuOpen.value = false
+}
+
+// Course management items to include in More menu
+const courseMoreItems = [
+    {
+        title: 'Create Main Course',
+        link: 'admin.courses.create-main',
+    },
+    {
+        title: 'Add Sub-Course',
+        link: 'admin.courses.create',
+    },
+    {
+        title: 'Manage Courses',
+        link: 'admin.courses.index',
+    },
+    {
+        title: 'Manage Quizzes',
+        link: 'admin.quizzes.index',
     },
 ]
 

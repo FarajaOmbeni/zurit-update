@@ -38,6 +38,13 @@ return [
             'report' => false,
         ],
 
+        'course_materials' => [
+            'driver' => 'local',
+            'root' => storage_path('app/course_materials'),
+            'visibility' => 'private',
+            'throw' => true,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone_number',
         'role',
         'password',
+        'coach_id',
     ];
 
     /**
@@ -96,4 +97,38 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Transaction::class);
     }
 
+    // A user has many quiz attempts
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function canViewMaterial(CourseMaterial $material): bool
+    {
+        // Basic implementation - adjust according to your business logic
+        return true; // Replace with your actual authorization logic
+        
+        // Example implementations:
+        // 1. If all authenticated users can view:
+        // return true;
+        
+        // 2. If you have course enrollment:
+        // return $this->enrolledCourses()->where('course_id', $material->course_id)->exists();
+        
+        // 3. If you have role-based access:
+        // return $this->hasRole('student') || $this->hasRole('teacher');
+    }
+
+    /**
+     * Get the coach assigned to this user
+     */
+    public function coach()
+    {
+        return $this->belongsTo(Coach::class);
+    }
+
+    public function coachProfile()
+    {
+        return $this->hasOne(Coach::class, 'email', 'email');
+    }
 }

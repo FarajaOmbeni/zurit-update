@@ -82,6 +82,13 @@
                         <div v-if="activeDropdown === 'user'"
                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                             @click.outside="closeDropdowns">
+                            <!-- Show Coach Dashboard if user is coach -->
+                            <template v-if="user.role === 2">
+                                <Link href="/coach"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Coach Dashboard
+                                </Link>
+                            </template>
                             <!-- Show Admin Dashboard if user is admin -->
                             <template v-if="user.role === 1">
                                 <Link href="/admin"
