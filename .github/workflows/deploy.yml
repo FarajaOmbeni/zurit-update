@@ -33,20 +33,6 @@ jobs:
           npm ci
           npm run build
 
-      - name: Pre-deploy clear (build from clean state)
-        run: |
-          php artisan cache:clear
-          php artisan config:clear
-          php artisan route:clear
-          php artisan view:clear
-
-      # Optional: create a build id for debugging
-      - name: Write build info
-        run: |
-          COMMIT=$(git rev-parse --short HEAD)
-          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "{\"commit\":\"$COMMIT\",\"built_at\":\"$DATE\"}" > public/build-info.json
-
       - name: 📂 FTP deploy artifact
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -64,8 +50,6 @@ jobs:
             storage/framework/sessions/*
             storage/framework/views/*
             .env
-          # If you see weird leftovers, consider:
-          # dangerous-clean-slate: true
 
       - name: Run post-deploy tasks on server
         uses: appleboy/ssh-action@master
@@ -75,15 +59,14 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/your_user/your_real_docroot
+            cd /home/zuriuhqx/zuritconsulting.com
             php artisan down || true
-            # vendor is already deployed; if you prefer installing server-side, run composer install here instead
-            php artisan migrate --force
-            php artisan permission:cache-reset || true
             php artisan cache:clear
             php artisan config:clear
             php artisan route:clear
             php artisan view:clear
-            php -r "if (function_exists('opcache_reset')){ opcache_reset(); }"
+            php artisan permission:cache-reset || true
+            php artisan migrate --force
+            php -r 'function_exists("opcache_reset") && opcache_reset();'
             php artisan optimize
             php artisan up
