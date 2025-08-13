@@ -1,40 +1,73 @@
-name: Deploy Laravel Project on push
+name: Deploy Laravel + Vue (Namecheap)
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+
 jobs:
-  web-deploy:
-    name: Deploy
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get the latest code
-        uses: actions/checkout@v3
-        
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, openssl, tokenizer, xml, ctype, json, fileinfo
-          
-      - name: Install Dependencies
+          extensions: mbstring, bcmath, pdo_mysql, openssl, tokenizer, xml, ctype, fileinfo
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install PHP deps (production)
         run: |
-          rm -rf vendor composer.lock
-          composer install --no-dev --optimize-autoloader --no-interaction || exit 1
-        
-      - name: 📂 Sync files
+          composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+      - name: Build frontend (Vite)
+        run: |
+          npm ci
+          npm run build
+
+      - name: Pre-deploy clear (build from clean state)
+        run: |
+          php artisan cache:clear
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
+
+      # Optional: create a build id for debugging
+      - name: Write build info
+        run: |
+          COMMIT=$(git rev-parse --short HEAD)
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "{\"commit\":\"$COMMIT\",\"built_at\":\"$DATE\"}" > public/build-info.json
+
+      - name: 📂 FTP deploy artifact
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /
+          server-dir: /home/your_user/your_real_docroot/   # <- set this precisely
           exclude: |
-            .env
-            .git
+            .git*
             .github
-            
-      - name: Execute migrations on the server
+            node_modules
+            tests
+            storage/logs/*
+            storage/framework/cache/data/*
+            storage/framework/sessions/*
+            storage/framework/views/*
+            .env
+          # If you see weird leftovers, consider:
+          # dangerous-clean-slate: true
+
+      - name: Run post-deploy tasks on server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -42,11 +75,15 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/zuriuhqx/zuritconsulting.com
-            git pull origin master
-            composer dump-autoload
+            cd /home/your_user/your_real_docroot
+            php artisan down || true
+            # vendor is already deployed; if you prefer installing server-side, run composer install here instead
             php artisan migrate --force
-            npm run build
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+            php artisan permission:cache-reset || true
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            php -r "if (function_exists('opcache_reset')){ opcache_reset(); }"
+            php artisan optimize
+            php artisan up
