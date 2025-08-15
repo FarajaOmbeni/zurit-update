@@ -20,7 +20,7 @@ import ListItem from './Shared/ListItem.vue';
             <div class="flex flex-col max-w-2xl">
                 <div class="">
                     <h1 class="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-extrabold">
-                        Welcome to <span class="text-gold-400">Zurit Consulting.</span>
+                        Welcome to <span class="text-gold-400">Zurit Consulting</span>
                     </h1>
 
                     <!-- Description -->

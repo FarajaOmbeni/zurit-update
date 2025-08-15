@@ -1,8 +1,8 @@
-name: Deploy Laravel Project on push
+name: Deploy on test domain
 on:
   push:
     branches:
-      - test-branch
+      - master
 jobs:
   web-deploy:
     name: Deploy
@@ -21,18 +21,6 @@ jobs:
         run: |
           rm -rf vendor composer.lock
           composer install --no-dev --optimize-autoloader --no-interaction || exit 1
-        
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /
-          exclude: |
-            .env
-            .git
-            .github
             
       - name: Execute migrations on the server
         uses: appleboy/ssh-action@master
@@ -42,7 +30,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/zuriuhqx/app.zuritconsulting.com
+            cd /home/zuriuhqx/zuritconsulting.com
             git pull origin test-branch
             composer dump-autoload
             php artisan migrate --force

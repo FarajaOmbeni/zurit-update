@@ -1,0 +1,1 @@
+function t(n){const r=Number(n);return isNaN(r)?"KES 0":new Intl.NumberFormat("en-KE",{style:"currency",currency:"KES",currencyDisplay:"code",minimumFractionDigits:0,maximumFractionDigits:0}).format(r)}export{t as f};
