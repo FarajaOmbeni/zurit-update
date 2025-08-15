@@ -2,7 +2,7 @@ name: Deploy on test domain
 on:
   push:
     branches:
-      - master
+      - test-branch
 jobs:
   web-deploy:
     name: Deploy
