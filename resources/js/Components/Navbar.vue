@@ -63,7 +63,7 @@
                         </div>
                     </div>
 
-                    <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
+                    <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Books</Link>
                     <Link href="/blogs" class="text-gray-300 hover:text-gray-100">Blogs</Link>
                     <Link href="/feedback" class="text-gray-300 hover:text-gray-100">Feedback</Link>
 
@@ -196,7 +196,7 @@
                         <Link href="/books"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                        Buy Book
+                        Buy Books
                         </Link>
                         <Link href="/blogs"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
