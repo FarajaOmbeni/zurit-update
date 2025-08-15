@@ -63,7 +63,7 @@
                         </div>
                     </div>
 
-                    <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
+                    <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Books</Link>
                     <Link href="/blogs" class="text-gray-300 hover:text-gray-100">Blogs</Link>
                     <Link href="/feedback" class="text-gray-300 hover:text-gray-100">Feedback</Link>
 
@@ -84,28 +84,26 @@
                             @click.outside="closeDropdowns">
                             <!-- Show Coach Dashboard if user is coach -->
                             <template v-if="user.role === 2">
-                                <Link href="/coach"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Coach Dashboard
+                                <Link href="/coach" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Coach Dashboard
                                 </Link>
                             </template>
                             <!-- Show Admin Dashboard if user is admin -->
                             <template v-if="user.role === 1">
-                                <Link href="/admin"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Admin Dashboard
+                                <Link href="/admin" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Admin Dashboard
                                 </Link>
                             </template>
                             <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
                                 :method="item.href === '/logout' ? 'post' : 'get'"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ item.name }}
+                            {{ item.name }}
                             </Link>
                         </div>
                     </div>
                     <Link v-else :href="route('login')"
                         class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-900 hover:bg-gray-100">
-                        Log in
+                    Log in
                     </Link>
                 </div>
 
@@ -198,7 +196,7 @@
                         <Link href="/books"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                        Buy Book
+                        Buy Books
                         </Link>
                         <Link href="/blogs"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
@@ -226,6 +224,18 @@
                                 </svg>
                             </button>
                             <div v-if="activeMobileAccordion === 'user'" class="pl-4 space-y-1 mt-1">
+                                <!-- Show Coach Dashboard if user is coach -->
+                                <template v-if="user.role === 2">
+                                    <Link href="/coach" class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
+                                    Coach Dashboard
+                                    </Link>
+                                </template>
+                                <!-- Show Admin Dashboard if user is admin -->
+                                <template v-if="user.role === 1">
+                                    <Link href="/admin" class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
+                                    Admin Dashboard
+                                    </Link>
+                                </template>
                                 <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
                                     :method="item.href === '/logout' ? 'post' : 'get'"
                                     class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
