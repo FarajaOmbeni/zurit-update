@@ -196,7 +196,7 @@
                         <Link href="/books"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
-                        Buy Bookss
+                        Buy Books
                         </Link>
                         <Link href="/blogs"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
