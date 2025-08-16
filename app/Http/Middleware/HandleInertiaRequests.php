@@ -39,9 +39,10 @@ class HandleInertiaRequests extends Middleware
                     'status' => $user->subscription_status ?? 'inactive',
                     'expires_at' => $user->subscription_expires_at,
                     'package' => $user->subscription_package,
-                    'is_active' => $user->subscription_status === 'active' &&
-                        $user->subscription_expires_at &&
-                        $user->subscription_expires_at > now(),
+                    // Consider access active as long as not expired, regardless of status
+                    'is_active' => $user->subscription_expires_at && $user->subscription_expires_at > now(),
+                    // Explicit flag to indicate cancelled but still within access window
+                    'is_within_grace' => ($user->subscription_status === 'cancelled') && $user->subscription_expires_at && $user->subscription_expires_at > now(),
                 ] : null,
             ],
         ];

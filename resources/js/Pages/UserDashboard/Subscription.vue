@@ -165,6 +165,8 @@ function reactivateSubscription() {
                         <li class="flex items-start gap-2"><span class="text-green-300">✔</span> Net worth tracking</li>
                         <li class="flex items-start gap-2"><span class="text-green-300">✔</span> Financial calculators
                         </li>
+                        <li class="flex items-start gap-2"><span class="text-green-300">✔</span> E‑learning on achieving
+                            financial freedom</li>
                     </ul>
 
                     <!-- Package Selection -->
