@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\User;
+use App\Models\Subscription;
 use App\Services\PesapalService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -38,85 +39,92 @@ class ProcessSubscriptionRenewals extends Command
     public function handle()
     {
         $isDryRun = $this->option('dry-run');
-        
+
         if ($isDryRun) {
             $this->info('Running in DRY-RUN mode - no actual changes will be made');
         }
 
-        // Find users whose subscriptions expire in the next 3 days
-        $expiringUsers = User::where('subscription_status', 'active')
-            ->where('subscription_expires_at', '>', now())
-            ->where('subscription_expires_at', '<=', now()->addDays(3))
-            ->whereNotNull('subscription_package')
-            ->get();
-
-        $this->info("Found {$expiringUsers->count()} users with expiring subscriptions");
+        // Find subscriptions that need renewal
+        $subscriptionsForRenewal = Subscription::forRenewal()->get();
+        $this->info("Found {$subscriptionsForRenewal->count()} subscriptions ready for renewal");
 
         $renewedCount = 0;
         $failedCount = 0;
 
-        foreach ($expiringUsers as $user) {
+        foreach ($subscriptionsForRenewal as $subscription) {
             try {
-                $this->processUserRenewal($user, $isDryRun);
+                $this->processSubscriptionRenewal($subscription, $isDryRun);
                 $renewedCount++;
             } catch (\Exception $e) {
                 $failedCount++;
-                $this->error("Failed to renew subscription for user {$user->email}: {$e->getMessage()}");
-                
+                $this->error("Failed to renew subscription {$subscription->id} for user {$subscription->user->email}: {$e->getMessage()}");
+
                 Log::error('Subscription renewal failed', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $subscription->user_id,
+                    'email' => $subscription->user->email,
                     'error' => $e->getMessage()
                 ]);
             }
         }
 
         // Find and expire overdue subscriptions
-        $overdueUsers = User::where('subscription_status', 'active')
-            ->where('subscription_expires_at', '<', now())
-            ->get();
+        $expiredSubscriptions = Subscription::expired()->get();
+        $this->info("Found {$expiredSubscriptions->count()} expired subscriptions");
 
-        $this->info("Found {$overdueUsers->count()} users with overdue subscriptions");
-
-        foreach ($overdueUsers as $user) {
+        foreach ($expiredSubscriptions as $subscription) {
             if (!$isDryRun) {
-                $user->update(['subscription_status' => 'expired']);
+                $subscription->expire();
                 Log::info('Subscription expired', [
-                    'user_id' => $user->id,
-                    'email' => $user->email
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $subscription->user_id,
+                    'email' => $subscription->user->email
                 ]);
             }
-            $this->info("Expired subscription for {$user->email}");
+            $this->info("Expired subscription {$subscription->id} for {$subscription->user->email}");
+        }
+
+        // Check for failed renewal attempts
+        $failedRenewals = Subscription::failedRenewals(3)->get();
+        $this->info("Found {$failedRenewals->count()} subscriptions with failed renewal attempts");
+
+        foreach ($failedRenewals as $subscription) {
+            if (!$isDryRun) {
+                $subscription->update(['auto_renew' => false]);
+                Log::warning('Subscription auto-renewal disabled after multiple failures', [
+                    'subscription_id' => $subscription->id,
+                    'user_id' => $subscription->user_id,
+                    'renewal_attempts' => $subscription->renewal_attempts
+                ]);
+            }
+            $this->warn("Disabled auto-renewal for subscription {$subscription->id} after {$subscription->renewal_attempts} failed attempts");
         }
 
         $this->info("Renewal process completed:");
         $this->info("- Successfully processed: {$renewedCount}");
         $this->info("- Failed: {$failedCount}");
-        $this->info("- Expired: {$overdueUsers->count()}");
+        $this->info("- Expired: {$expiredSubscriptions->count()}");
+        $this->info("- Failed renewals disabled: {$failedRenewals->count()}");
 
         return Command::SUCCESS;
     }
 
     /**
-     * Process renewal for a single user
+     * Process renewal for a single subscription
      */
-    private function processUserRenewal(User $user, bool $isDryRun)
+    private function processSubscriptionRenewal(Subscription $subscription, bool $isDryRun)
     {
-        $package = $user->subscription_package;
-        
-        if (!$package) {
-            throw new \Exception('User has no subscription package defined');
-        }
+        $user = $subscription->user;
 
-        $this->info("Processing renewal for {$user->email} (package: {$package})");
+        $this->info("Processing renewal for subscription {$subscription->id} - {$user->email} (package: {$subscription->package})");
 
         if ($isDryRun) {
-            $this->info("DRY-RUN: Would create renewal order for {$user->email}");
+            $this->info("DRY-RUN: Would create renewal order for subscription {$subscription->id}");
             return;
         }
 
-        // Create renewal order
-        $orderResponse = $this->pesapalService->createSubscriptionOrder($user, $package, 'RENEWAL_' . strtoupper(uniqid()));
+        // Create renewal order using the PesapalService
+        $orderResponse = $this->pesapalService->createRenewalOrder($subscription);
 
         if (!$orderResponse || !isset($orderResponse['order_tracking_id'])) {
             throw new \Exception('Failed to create renewal order');
@@ -124,17 +132,13 @@ class ProcessSubscriptionRenewals extends Command
 
         // Log the renewal attempt
         Log::info('Subscription renewal initiated', [
+            'subscription_id' => $subscription->id,
             'user_id' => $user->id,
             'email' => $user->email,
-            'package' => $package,
+            'package' => $subscription->package,
             'order_tracking_id' => $orderResponse['order_tracking_id']
         ]);
 
-        // Note: In a real implementation, you might want to:
-        // 1. Store the order tracking ID for later verification
-        // 2. Send an email notification to the user
-        // 3. Set up a follow-up check to verify payment completion
-        
-        $this->info("Renewal order created for {$user->email} (Order: {$orderResponse['order_tracking_id']})");
+        $this->info("Renewal order created for subscription {$subscription->id} (Order: {$orderResponse['order_tracking_id']})");
     }
 }

@@ -62,7 +62,6 @@ Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])->
 Route::post('/subscription/reactivate', [SubscriptionController::class, 'reactivate'])->middleware(['auth'])->name('subscription.reactivate');
 
 Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     /////////////////////////////////////////////////////////
@@ -159,6 +158,9 @@ Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
     Route::get('/admin/videos', [VideoController::class, 'index'])->name('videos.index');
     Route::post('/admin/videos', [VideoController::class, 'store'])->name('videos.store');
 });
+
+Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['auth', 'verified'])->name('profile.edit');
+
 
 Route::get('/terms-and-conditions', function () {
     return Inertia::render('TermsAndConditions');

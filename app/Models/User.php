@@ -106,4 +106,50 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(MpesaPayment::class);
     }
+
+    // User subscription relationships
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->latest();
+    }
+
+    public function latestSubscription()
+    {
+        return $this->hasOne(Subscription::class)->latest();
+    }
+
+    // Subscription helper methods
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription()->exists();
+    }
+
+    public function getSubscriptionStatus(): string
+    {
+        $subscription = $this->activeSubscription;
+
+        if (!$subscription) {
+            return 'inactive';
+        }
+
+        if ($subscription->is_expired) {
+            return 'expired';
+        }
+
+        return $subscription->status;
+    }
+
+    public function isSubscriptionExpiring(int $days = 3): bool
+    {
+        $subscription = $this->activeSubscription;
+        return $subscription && $subscription->days_until_expiry <= $days;
+    }
 }
