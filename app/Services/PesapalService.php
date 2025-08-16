@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use App\Models\Subscription;
 
 class PesapalService
 {
@@ -135,7 +136,8 @@ class PesapalService
             $payload = [
                 'id' => $orderData['order_id'],
                 'currency' => 'KES',
-                'amount' => (float) $orderData['amount'],
+                // 'amount' => (float) $orderData['amount'],
+                'amount' => 10,
                 'description' => $orderData['description'],
                 'callback_url' => $orderData['callback_url'],
                 'notification_id' => $ipnId,
@@ -267,6 +269,9 @@ class PesapalService
         $packageData = $packages[$package];
         $orderId = $orderId ?: 'SUB_' . strtoupper(uniqid());
 
+        // Create subscription record to track this transaction
+        $subscription = Subscription::createForUser($user, $package, $orderId);
+
         // Clean and format phone number
         $phone = $user->phone_number ?? '';
         if ($phone && !str_starts_with($phone, '+254')) {
@@ -285,7 +290,7 @@ class PesapalService
             'order_id' => $orderId,
             'amount' => $packageData['price'],
             'description' => $packageData['name'] . ' - Zurit Prosperity Tools',
-            'callback_url' => config('pesapal.PESAPAL_CALLBACK_URL'),
+            'callback_url' => route('subscription.callback'),
             'email' => $user->email,
             'phone' => $phone,
             'first_name' => $firstName,
@@ -293,6 +298,81 @@ class PesapalService
             'address' => 'Nairobi, Kenya'
         ];
 
-        return $this->submitOrder($orderData);
+        try {
+            $orderResponse = $this->submitOrder($orderData);
+
+            // Update subscription with Pesapal order details
+            $subscription->update([
+                'order_tracking_id' => $orderResponse['order_tracking_id'] ?? null,
+                'order_merchant_reference' => $orderResponse['order_merchant_reference'] ?? null,
+                'pesapal_response' => $orderResponse,
+            ]);
+
+            return $orderResponse;
+        } catch (\Exception $e) {
+            // Mark subscription as failed
+            $subscription->update([
+                'status' => 'failed',
+                'payment_status' => 'failed',
+                'notes' => 'Order creation failed: ' . $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Process subscription payment completion
+     */
+    public function completeSubscriptionPayment(string $orderTrackingId, array $paymentData): bool
+    {
+        $subscription = Subscription::findByTrackingId($orderTrackingId);
+
+        if (!$subscription) {
+            Log::error('Subscription not found for tracking ID', [
+                'order_tracking_id' => $orderTrackingId
+            ]);
+            return false;
+        }
+
+        // Activate the subscription
+        $subscription->activate($paymentData);
+
+        Log::info('Subscription activated successfully', [
+            'subscription_id' => $subscription->id,
+            'user_id' => $subscription->user_id,
+            'package' => $subscription->package,
+            'expires_at' => $subscription->expires_at,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Create renewal order for existing subscription
+     */
+    public function createRenewalOrder(Subscription $subscription): array
+    {
+        $user = $subscription->user;
+        $renewalSubscription = $subscription->createRenewalSubscription();
+
+        try {
+            $orderResponse = $this->createSubscriptionOrder($user, $subscription->package, $renewalSubscription->order_id);
+
+            Log::info('Renewal order created', [
+                'original_subscription_id' => $subscription->id,
+                'renewal_subscription_id' => $renewalSubscription->id,
+                'order_tracking_id' => $orderResponse['order_tracking_id'] ?? null,
+            ]);
+
+            return $orderResponse;
+        } catch (\Exception $e) {
+            $subscription->incrementRenewalAttempt([
+                'error' => $e->getMessage(),
+                'renewal_subscription_id' => $renewalSubscription->id,
+            ]);
+
+            throw $e;
+        }
     }
 }

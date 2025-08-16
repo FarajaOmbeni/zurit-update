@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Services\PesapalService;
 use App\Models\User;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use App\Mail\SubscriptionMail;
 use App\Mail\UserSubscriptionMail;
@@ -116,11 +117,16 @@ class SubscriptionController extends Controller
             $user = Auth::user();
 
             if (strtolower($paymentStatus) === 'completed') {
-                // Payment successful - activate subscription
-                $this->activateSubscription($user, $orderTrackingId, $status);
+                // Payment successful - activate subscription using new tracking system
+                $success = $this->pesapalService->completeSubscriptionPayment($orderTrackingId, $status);
 
-                return redirect()->route('budget.index')
-                    ->with('success', 'Subscription activated successfully! Welcome to Prosperity Tools.');
+                if ($success) {
+                    return redirect()->route('budget.index')
+                        ->with('success', 'Subscription activated successfully! Welcome to Prosperity Tools.');
+                } else {
+                    return redirect()->route('subscription.plans')
+                        ->withErrors('Unable to activate subscription. Please contact support.');
+                }
             } else {
                 // Payment failed or pending
                 $message = $paymentStatus === 'Failed'
@@ -173,8 +179,8 @@ class SubscriptionController extends Controller
             $paymentStatus = $status['payment_status_description'] ?? '';
 
             if (strtolower($paymentStatus) === 'completed') {
-                // Find user by order reference or email from the transaction
-                $this->processCompletedPayment($orderTrackingId, $status);
+                // Process completed payment using new tracking system
+                $this->pesapalService->completeSubscriptionPayment($orderTrackingId, $status);
             }
 
             return response('OK', 200);
