@@ -47,7 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'role' => 'integer',  // Add this line
+        'role' => 'integer',
     ];
 
     // A user has many incomes

@@ -139,7 +139,7 @@
 
                     <!-- Header with Close Button -->
                     <div class="flex justify-between items-center px-4 py-3 border-b border-purple-700">
-                        <h2 class="text-lg font-semibold">Menu</h2>
+                        <h2 class="text-lg font-semibold">Zurit Consulting</h2>
                         <button @click="toggleMobileMenu" class="text-white hover:text-yellow-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" stroke-width="2">
@@ -174,10 +174,12 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
 import {
     UserIcon,
+    HomeIcon,
 } from '@heroicons/vue/24/outline';
 
 const iconMap = {
     UserIcon,
+    HomeIcon,
 };
 
 defineProps({
@@ -209,6 +211,12 @@ onUnmounted(() => {
 
 // Menu items with icons (using heroicons)
 const menuItems = [
+    {
+        title: 'Home',
+        icon: 'HomeIcon',
+        active: currentRoute.startsWith('/home'),
+        link: 'home',
+    },
     {
         title: 'Clients',
         icon: 'UserIcon',
