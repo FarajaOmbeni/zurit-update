@@ -416,6 +416,9 @@ monthlyBalance.value = monthlyIncome.value - monthlyExpenses.value;
 
 
 const showBalances = ref(false)
+
+// Pricing alert state
+const showPricingAlert = ref(true)
 </script>
 
 <template>
@@ -460,36 +463,17 @@ const showBalances = ref(false)
                                 </button>
                             </div>
                         </div>
+                        <!-- Pricing Alert -->
+                        <Alert v-if="showPricingAlert" type="info"
+                            message="[UPDATE] Our budget tools will start charging on September 1st, but you'll get a 30-day free trial! After that, it's just KES 500/month or KES 4,500/year. Start budgeting today!"
+                            :dismissible="true" @close="showPricingAlert = false" />
+
+                        <!-- Regular alerts from useAlert composable -->
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                             :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
 
                         <div v-if="hasData" class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
-                            <!-- <div class="bg-white overflow-hidden shadow rounded-lg">
-                                <div class="px-4 py-5 sm:p-6">
-                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Income</dt>
-                                    <dd class="mt-1 text-3xl font-semibold text-green-600">KES {{
-                                        monthlyIncome.toLocaleString() }}</dd>
-                                </div>
-                            </div>
-
-                            <div class="bg-white overflow-hidden shadow rounded-lg">
-                                <div class="px-4 py-5 sm:p-6">
-                                    <dt class="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                                    <dd class="mt-1 text-3xl font-semibold text-red-500">KES {{
-                                        monthlyExpenses.toLocaleString() }}</dd>
-                                </div>
-                            </div>
-
-                            <div class="bg-white overflow-hidden shadow rounded-lg">
-                                <div class="px-4 py-5 sm:p-6">
-                                    <dt class="text-sm font-medium text-gray-500 truncate">Balance</dt>
-                                    <dd class="mt-1 text-3xl font-semibold"
-                                        :class="monthlyBalance >= 0 ? 'text-green-600' : 'text-red-600'">
-                                        KES {{ monthlyBalance.toLocaleString() }}
-                                    </dd>
-                                </div>
-                            </div> -->
                             <!-- Total Income -->
                             <dd class="mt-1 text-3xl font-semibold text-green-600">
                                 <span :class="{ 'blur-md': !showBalances }">
@@ -1043,11 +1027,9 @@ const showBalances = ref(false)
                                 <div class="flex justify-end space-x-2">
                                     <button type="submit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                         transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
-                                            <!-- CHANGED: transactionForm.processing -->
-                                            <button type="button"
-                                                @click="showEditModal = false"
-                                                class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2
+                                            transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
+                                    <!-- CHANGED: transactionForm.processing -->
+                                    <button type="button" @click="showEditModal = false" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2
                                                 rounded">Cancel</button>
                                 </div>
                             </form>
@@ -1065,7 +1047,7 @@ const showBalances = ref(false)
                             <div class="flex justify-end space-x-2">
                                 <button type="button" @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
