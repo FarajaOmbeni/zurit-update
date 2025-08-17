@@ -47,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'role' => 'integer',  // Add this line
     ];
 
     // A user has many incomes
@@ -107,14 +108,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         // Basic implementation - adjust according to your business logic
         return true; // Replace with your actual authorization logic
-        
+
         // Example implementations:
         // 1. If all authenticated users can view:
         // return true;
-        
+
         // 2. If you have course enrollment:
         // return $this->enrolledCourses()->where('course_id', $material->course_id)->exists();
-        
+
         // 3. If you have role-based access:
         // return $this->hasRole('student') || $this->hasRole('teacher');
     }

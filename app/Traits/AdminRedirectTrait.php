@@ -19,12 +19,12 @@ trait AdminRedirectTrait
         $role = Auth::user()->role ?? null;
 
         // role 1 → admin
-        if ($role === 1) {
+        if ($role == 1) {
             return redirect()->route($adminRoute, $parameters);
         }
 
         // role 2 → coach
-        if ($role === 2) {
+        if ($role == 2) {
             return redirect()->route($coachRoute, $parameters);
         }
 
