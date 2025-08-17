@@ -226,13 +226,15 @@
                             <div v-if="activeMobileAccordion === 'user'" class="pl-4 space-y-1 mt-1">
                                 <!-- Show Coach Dashboard if user is coach -->
                                 <template v-if="user.role === 2">
-                                    <Link href="/coach" class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
+                                    <Link href="/coach"
+                                        class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
                                     Coach Dashboard
                                     </Link>
                                 </template>
                                 <!-- Show Admin Dashboard if user is admin -->
                                 <template v-if="user.role === 1">
-                                    <Link href="/admin" class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
+                                    <Link href="/admin"
+                                        class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
                                     Admin Dashboard
                                     </Link>
                                 </template>
