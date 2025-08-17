@@ -18,7 +18,7 @@ class EnsureUserIsSubscribed
 		$user = $request->user();
 
 		// Allow admin users to bypass subscription check
-		if ($user && $user->role === 'admin') {
+		if ($user && $user->role == 1) {
 			return $next($request);
 		}
 
