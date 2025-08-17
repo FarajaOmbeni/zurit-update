@@ -1,9 +1,13 @@
+# --- Force HTTPS for any host ---
 <IfModule mod_rewrite.c>
-    RewriteEngine on
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ public/$1 [L]
+RewriteEngine On
+
+# If not already HTTPS, redirect to HTTPS (preserve host & path)
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Avoid rewriting /public twice and keep your original rule working
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ public/$1 [L]
 </IfModule>
-<Files .env>
-    order allow,deny
-    Deny from all
-</Files>
