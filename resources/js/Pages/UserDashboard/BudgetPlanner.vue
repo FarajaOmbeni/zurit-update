@@ -464,9 +464,9 @@ const showPricingAlert = ref(true)
                             </div>
                         </div>
                         <!-- Pricing Alert -->
-                        <Alert v-if="showPricingAlert" type="info"
+                        <!-- <Alert v-if="showPricingAlert" type="info"
                             message="[UPDATE] Our budget tools will start charging on September 1st, but you'll get a 30-day free trial! After that, it's just KES 500/month or KES 4,500/year. Start budgeting today!"
-                            :dismissible="true" @close="showPricingAlert = false" />
+                            :dismissible="true" @close="showPricingAlert = false" /> -->
 
                         <!-- Regular alerts from useAlert composable -->
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
