@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Coach;
 use App\Models\User;
+use App\Models\Meeting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -167,6 +168,35 @@ class CoachController extends Controller
             'assetsBasic'      => $assetsBasic,
             'liabilitiesBasic' => $liabilitiesBasic,
             'netWorth'      => $netWorth,
+        ]);
+    }
+
+    // Coach Meetings - for coaches to view all their meetings
+    public function meetings()
+    {
+        $user = Auth::user();
+
+        // Get all meetings for this coach with client information
+        $meetings = Meeting::with(['client'])
+            ->where('coach_id', $user->id)
+            ->orderBy('start_time', 'desc')
+            ->get()
+            ->map(function ($meeting) {
+                return [
+                    'id' => $meeting->id,
+                    'client_name' => $meeting->client->name,
+                    'client_email' => $meeting->client->email,
+                    'start_time' => $meeting->start_time,
+                    'zoom_id' => $meeting->zoom_id,
+                    'join_url' => $meeting->join_url,
+                    'start_url' => $meeting->start_url,
+                    'status' => $meeting->start_time > now() ? 'upcoming' : 'completed',
+                ];
+            });
+
+        return Inertia::render('Coach/Meetings', [
+            'coach' => $user,
+            'meetings' => $meetings,
         ]);
     }
 

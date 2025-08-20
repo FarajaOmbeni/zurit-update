@@ -175,11 +175,13 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import {
     UserIcon,
     HomeIcon,
+    CalendarDaysIcon,
 } from '@heroicons/vue/24/outline';
 
 const iconMap = {
     UserIcon,
     HomeIcon,
+    CalendarDaysIcon,
 };
 
 defineProps({
@@ -220,8 +222,14 @@ const menuItems = [
     {
         title: 'Clients',
         icon: 'UserIcon',
-        active: currentRoute.startsWith('/coach'),
+        active: currentRoute.startsWith('/coach') && !currentRoute.startsWith('/coach/meetings'),
         link: 'coach.dashboard',
+    },
+    {
+        title: 'Meetings',
+        icon: 'CalendarDaysIcon',
+        active: currentRoute.startsWith('/coach/meetings'),
+        link: 'coach.meetings',
     },
 ]
 

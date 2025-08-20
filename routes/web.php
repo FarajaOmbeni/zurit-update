@@ -31,6 +31,7 @@ use App\Http\Controllers\CourseMaterialController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ElearningQuizController;
 use App\Http\Controllers\CertificateController;
+
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
 
@@ -132,16 +133,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /////////////////////////////////////////////////////////
     //////////////////  E-LEARNING ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
-    Route::prefix('elearning')->group(function () {
-    Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
-    Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
-    Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
-    Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
-    Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
-    Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
-    Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
-}
-);
+    Route::prefix('elearning')->group(
+        function () {
+            Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
+            Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
+            Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
+            Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
+            Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
+            Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
+            Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
+        }
+    );
 
     Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])->name('course-materials.show');
     Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])->name('course-materials.viewer');
@@ -154,10 +156,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //////////////////  QUESTIONNAIRES ROUTES /////////////
     ////////////////////////////////////////////////////////
     Route::get('/user/questionnaires', [QuestionnaireController::class, 'index'])->name('questionnaires.index');
-        Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
-        Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
-        Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
-        Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
+    Route::post('/questionnaires/onboarding', [QuestionnaireController::class, 'submitOnboarding'])->name('questionnaires.onboarding');
+    Route::post('/questionnaires/personality', [QuestionnaireController::class, 'submitPersonality'])->name('questionnaires.personality');
+    Route::post('/questionnaires/risk', [QuestionnaireController::class, 'submitRiskTolerance'])->name('questionnaires.risk');
+    Route::post('/questionnaires/next-step', [QuestionnaireController::class, 'submitNextStep'])->name('questionnaires.next-step');
 
     // Coach routes (protected by 'coach' middleware)
     Route::middleware(['auth', 'coach'])->group(function () {
@@ -165,6 +167,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/coach', [CoachController::class, 'dashboard'])->name('coach.dashboard');
         Route::get('/coach/client/{clientId}', [CoachController::class, 'viewClient'])->name('coach.client.view');
         // Coach meetings
+        Route::get('/coach/meetings', [CoachController::class, 'meetings'])->name('coach.meetings');
         Route::post('/coach/meetings', CreateMeetingController::class);
     });
 
@@ -233,7 +236,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
         Route::put('/courses/{course}', [CourseController::class, 'update'])->name('admin.courses.update');
         Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
-        
+
         // Quiz routes
         Route::get('/quizzes', [QuizController::class, 'index'])->name('admin.quizzes.index');
         Route::get('/quizzes/create', [QuizController::class, 'create'])->name('admin.quizzes.create');
@@ -245,12 +248,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])
     //     ->middleware(\App\Http\Middleware\PreventPDFDownload::class)
     //     ->name('course-materials.show');
-    
+
 
 });
-    /////////////////////////////////////////////////////////
-    //////////////////  Elearning    ///////////////////////
-    ////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+//////////////////  Elearning    ///////////////////////
+////////////////////////////////////////////////////////
 
 
 
