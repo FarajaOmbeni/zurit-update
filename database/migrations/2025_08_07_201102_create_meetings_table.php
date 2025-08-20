@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('client_id')->constrained('users')->onDelete('cascade');
 
             $table->string('zoom_id')->unique();
-            $table->string('join_url');
-            $table->string('start_url');
+            $table->string('join_url', 1000);
+            $table->string('start_url', 1000);
             $table->timestamp('start_time');
             $table->timestamps();
         });

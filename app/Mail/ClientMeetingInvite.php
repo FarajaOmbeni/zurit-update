@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Meeting;
+use App\Services\IcsService;
 
 class ClientMeetingInvite extends Mailable
 {
@@ -16,7 +17,13 @@ class ClientMeetingInvite extends Mailable
 
     public function build()
     {
+        $icsService = new IcsService();
+        $icsContent = $icsService->generateIcsFile($this->meeting);
+
         return $this->subject('Your coaching session is booked!')
-            ->markdown('emails.meeting_invite');
+            ->markdown('emails.meeting_invite')
+            ->attachData($icsContent, 'coaching-session.ics', [
+                'mime' => 'text/calendar'
+            ]);
     }
 }

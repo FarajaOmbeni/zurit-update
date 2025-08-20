@@ -1,15 +1,15 @@
 @component('mail::message')
-    # Your session is scheduled
+# Your session is scheduled
 
-    Hi <b>{{ $meeting->coach->name }}</b>,
+Hi **{{ $meeting->coach->name }}**,
 
-    Your coaching session with <b>{{ $meeting->client->name }}</b> is scheduled for
-    <b>{{ $meeting->start_time->format('F j, Y \\a\\t g:i A') }}</b>.
+Your coaching session with **{{ $meeting->client->name }}** is scheduled for
+**{{ $meeting->start_time->format('F j, Y \\a\\t g:i A') }}**.
 
-    @component('mail::button', ['url' => $meeting->start_url])
-        Start Zoom Meeting
-    @endcomponent
+@component('mail::button', ['url' => $meeting->start_url])
+    Start Zoom Meeting
+@endcomponent
 
-    Thanks,
-    {{ config('app.name') }}
+Thanks,
+{{ config('app.name') }}
 @endcomponent
