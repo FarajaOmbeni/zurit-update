@@ -1,8 +1,6 @@
 <template>
-    <div>
-        <ul class="list-disc list-inside py-1">
-            <li class="text-gold-300">{{ name }}: <span class="text-white">{{ details }}</span></li>
-        </ul>
+    <div class="py-1">
+        <span class="text-gold-300">{{ name }}: <span class="text-white">{{ details }}</span></span>
     </div>
 </template>
 
