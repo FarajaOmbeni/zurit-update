@@ -13,37 +13,37 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "pwa_images/zurit-512-512.png",
+      "src": "pwa_images/icons/zurit-512-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "pwa_images/zurit-48-48.png",
+      "src": "pwa_images/icons/zurit-48-48.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "pwa_images/zurit-72-72.png",
+      "src": "pwa_images/icons/zurit-72-72.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "pwa_images/zurit-96-96.png",
+      "src": "pwa_images/icons/zurit-96-96.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "pwa_images/zurit-144-144.png",
+      "src": "pwa_images/icons/zurit-144-144.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "pwa_images/zurit-192-192.png",
+      "src": "pwa_images/icons/zurit-192-192.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -63,6 +63,253 @@
       "platform": "play",
       "url": "https://play.google.com/store/apps/details?id=com.rgb.principlesoffinance",
       "id": ""
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Budget",
+      "url": "https://zuritconsulting.com/user/budget",
+      "description": "Budget Planner Tool"
+    },
+    {
+      "name": "ZuritScore",
+      "url": "https://zuritconsulting.com/user/zuriscore",
+      "description": "Financial Audit from Mpesa statement"
+    },
+    {
+      "name": "Debt Manager",
+      "url": "https://zuritconsulting.com/user/debt",
+      "description": "Debt Manager"
+    },
+    {
+      "name": "Goal Setting",
+      "url": "https://zuritconsulting.com/user/goal",
+      "description": "Goal Setting Tool"
+    },
+    {
+      "name": "Investments Planner",
+      "url": "https://zuritconsulting.com/user/invest",
+      "description": "Investment planner tool"
+    },
+    {
+      "name": "Calculators",
+      "url": "https://zuritconsulting.com/user/calculators",
+      "description": "Tools to help you visualize your revenue on investments you plan to start"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "pwa_images/screenshots/budget/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Budget Planner"
+    },
+    {
+      "src": "pwa_images/screenshots/budget/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Budget Planner"
+    },
+    {
+      "src": "pwa_images/screenshots/budget/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Budget Planner"
+    },
+    {
+      "src": "pwa_images/screenshots/budget/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Budget Planner"
+    },
+    {
+      "src": "pwa_images/screenshots/budget/android-launchericon-192-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Budget Planner"
+    },
+    {
+      "src": "pwa_images/screenshots/budget/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Budget Planner"
+    },
+
+    {
+      "src": "pwa_images/screenshots/calculators/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculators"
+    },
+    {
+      "src": "pwa_images/screenshots/calculators/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculators"
+    },
+    {
+      "src": "pwa_images/screenshots/calculators/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculators"
+    },
+    {
+      "src": "pwa_images/screenshots/calculators/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculators"
+    },
+    {
+      "src": "pwa_images/screenshots/calculators/android-launchericon-192-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculators"
+    },
+    {
+      "src": "pwa_images/screenshots/calculators/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calculators"
+    },
+
+    {
+      "src": "pwa_images/screenshots/debt/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Debt Manager"
+    },
+    {
+      "src": "pwa_images/screenshots/debt/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Debt Manager"
+    },
+    {
+      "src": "pwa_images/screenshots/debt/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Debt Manager"
+    },
+    {
+      "src": "pwa_images/screenshots/debt/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Debt Manager"
+    },
+    {
+      "src": "pwa_images/screenshots/debt/android-launchericon-192-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Debt Manager"
+    },
+    {
+      "src": "pwa_images/screenshots/debt/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Debt Manager"
+    },
+
+    {
+      "src": "pwa_images/screenshots/goal/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Goal Setting"
+    },
+    {
+      "src": "pwa_images/screenshots/goal/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Goal Setting"
+    },
+    {
+      "src": "pwa_images/screenshots/goal/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Goal Setting"
+    },
+    {
+      "src": "pwa_images/screenshots/goal/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Goal Setting"
+    },
+    {
+      "src": "pwa_images/screenshots/goal/android-launchericon-192-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Goal Setting"
+    },
+    {
+      "src": "pwa_images/screenshots/goal/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Goal Setting"
+    },
+    {
+      "src": "pwa_images/screenshots/home/android-launchericon-48-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage"
+    },
+    {
+      "src": "pwa_images/screenshots/home/android-launchericon-72-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage"
+    },
+    {
+      "src": "pwa_images/screenshots/home/android-launchericon-96-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage"
+    },
+    {
+      "src": "pwa_images/screenshots/home/android-launchericon-144-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage"
+    },
+    {
+      "src": "pwa_images/screenshots/home/android-launchericon-192-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage"
+    },
+    {
+      "src": "pwa_images/screenshots/home/android-launchericon-512-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Homepage"
     }
   ]
 }
