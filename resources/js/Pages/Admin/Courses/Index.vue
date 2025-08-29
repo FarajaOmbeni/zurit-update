@@ -112,7 +112,7 @@
                                         Add Quiz
                                       </button>
                                       <button
-                                        @click="$inertia.visit(route('admin.courses.edit', { course: subCourse.id }))"
+                                        @click="$inertia.visit(route('admin.subcourses.edit', { subcourse: subCourse.id }))"
                                         class="text-purple-600 hover:text-purple-900 text-sm"
                                       >
                                         Edit

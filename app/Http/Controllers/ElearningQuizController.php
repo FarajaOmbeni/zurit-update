@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
+use App\Models\Subcourse;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Inertia\Inertia;
 
 class ElearningQuizController extends Controller
 {
-    public function show(Course $course)
+    public function show(Subcourse $course)
     {
         $quiz = $course->quizzes()->with(['questions.choices'])->first();
         
@@ -70,9 +70,9 @@ class ElearningQuizController extends Controller
             'course' => [
                 'id' => $course->id,
                 'title' => $course->title,
-                'parent' => $course->parent ? [
-                    'id' => $course->parent->id,
-                    'title' => $course->parent->title
+                'parent' => $course->course ? [
+                    'id' => $course->course->id,
+                    'title' => $course->course->title
                 ] : null
             ],
             'latestAttempt' => $latestAttempt ? [
@@ -85,7 +85,7 @@ class ElearningQuizController extends Controller
         ]);
     }
 
-    public function submit(Request $request, Course $course)
+    public function submit(Request $request, Subcourse $course)
     {
         $quiz = $course->quizzes()->with(['questions.choices'])->first();
         
@@ -152,7 +152,7 @@ class ElearningQuizController extends Controller
         return redirect()->route('elearning.quiz.results', ['course' => $course->id]);
     }
 
-    public function results(Course $course)
+    public function results(Subcourse $course)
     {
         // Get results from session or latest attempt
         $sessionResults = session('quiz_results');
@@ -161,7 +161,7 @@ class ElearningQuizController extends Controller
             // If no session data, get the latest attempt
             $latestAttempt = QuizAttempt::where('user_id', auth()->id())
                 ->whereHas('quiz', function ($query) use ($course) {
-                    $query->where('course_id', $course->id);
+                    $query->where('subcourse_id', $course->id);
                 })
                 ->latest()
                 ->first();
@@ -210,23 +210,23 @@ class ElearningQuizController extends Controller
             'course' => [
                 'id' => $course->id,
                 'title' => $course->title,
-                'parent' => $course->parent ? [
-                    'id' => $course->parent->id,
-                    'title' => $course->parent->title
+                'parent' => $course->course ? [
+                    'id' => $course->course->id,
+                    'title' => $course->course->title
                 ] : null
             ]
         ]);
     }
 
-    private function isQuizUnlocked(Course $course)
+    private function isQuizUnlocked(Subcourse $course)
     {
-        // If this is the first sub-course (order = 1 or lowest order), it's always unlocked
-        $mainCourse = $course->parent;
+        // Unlock by sequence of subcourses ordered by id
+        $mainCourse = $course->course;
         if (!$mainCourse) {
-            return true; // Main courses are always unlocked
+            return true; // Safety: treat as unlocked
         }
 
-        $allSubCourses = $mainCourse->subCourses()->orderBy('order')->get();
+        $allSubCourses = $mainCourse->subCourses()->orderBy('id')->get();
         $currentCourseIndex = $allSubCourses->search(function ($subCourse) use ($course) {
             return $subCourse->id === $course->id;
         });
@@ -237,10 +237,14 @@ class ElearningQuizController extends Controller
         }
 
         // Check if the previous sub-course quiz was passed
-        $previousSubCourse = $allSubCourses[$currentCourseIndex - 1];
+        $previousSubCourse = $allSubCourses[$currentCourseIndex - 1] ?? null;
+        if (!$previousSubCourse) {
+            return true;
+        }
+
         $previousAttempt = QuizAttempt::where('user_id', auth()->id())
             ->whereHas('quiz', function ($query) use ($previousSubCourse) {
-                $query->where('course_id', $previousSubCourse->id);
+                $query->where('subcourse_id', $previousSubCourse->id);
             })
             ->latest()
             ->first();

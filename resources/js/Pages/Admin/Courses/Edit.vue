@@ -37,7 +37,7 @@
 
             <!-- Parent Course Selection - only for sub-courses -->
             <div v-if="course.parent_id" class="mb-6">
-              <label for="parent_id" class="block text-sm font-medium text-gray-700">Parent Course (Optional)</label>
+              <label for="parent_id" class="block text_sm font-medium text-gray-700">Parent Course (Optional)</label>
               <select
                 v-model="form.parent_id"
                 id="parent_id"
@@ -198,20 +198,14 @@ const handleFileChange = (event, index) => {
 };
 
 const submit = () => {
-  console.log('Submitting form:', {
-    title: form.title,
-    isMainCourse: !props.course.parent_id,
-    courseData: props.course
-  });
-
-  // For main courses, only send title
   if (!props.course.parent_id) {
-  form.put(route('admin.courses.update', { course: props.course.id }), {
-    preserveScroll: true,
-    onSuccess: () => form.reset()
-  });
+    // main course
+    form.put(route('admin.courses.update', { course: props.course.id }), {
+      preserveScroll: true,
+      onSuccess: () => form.reset()
+    });
   } else {
-    // For sub-courses, use a separate form with all the data
+    // subcourse
     const subCourseData = {
       title: form.title,
       description: form.description,
@@ -221,32 +215,14 @@ const submit = () => {
           title: material.title,
           existing_file: material.existing_file
         };
-        
-        // Include id for existing materials
-        if (material.id) {
-          cleanMaterial.id = material.id;
-        }
-        
-        // Only include file if it's actually a file (not null)
-        if (material.file) {
-          cleanMaterial.file = material.file;
-        }
-        
+        if (material.id) cleanMaterial.id = material.id;
+        if (material.file) cleanMaterial.file = material.file;
         return cleanMaterial;
       })
     };
 
-    console.log('Sub-course data being sent:', subCourseData);
-
-    // Use Inertia's put method with the data object
-    router.put(route('admin.courses.update', { course: props.course.id }), subCourseData, {
-      preserveScroll: true,
-      onSuccess: () => {
-        console.log('Sub-course updated successfully');
-      },
-      onError: (errors) => {
-        console.log('Errors:', errors);
-      }
+    router.put(route('admin.subcourses.update', { subcourse: props.course.id }), subCourseData, {
+      preserveScroll: true
     });
   }
 };

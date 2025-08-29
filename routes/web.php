@@ -230,8 +230,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/courses/create-main', [CourseController::class, 'createMain'])->name('admin.courses.create-main');
         Route::get('/courses/create', [CourseController::class, 'create'])->name('admin.courses.create');
         Route::post('/courses', [CourseController::class, 'store'])->name('admin.courses.store');
+        // Split edit/update routes
         Route::get('/courses/{course}/edit', [CourseController::class, 'edit'])->name('admin.courses.edit');
         Route::put('/courses/{course}', [CourseController::class, 'update'])->name('admin.courses.update');
+        Route::get('/subcourses/{subcourse}/edit', [CourseController::class, 'editSubcourse'])->name('admin.subcourses.edit');
+        Route::put('/subcourses/{subcourse}', [CourseController::class, 'updateSubcourse'])->name('admin.subcourses.update');
         Route::delete('/courses/{course}', [CourseController::class, 'destroy'])->name('admin.courses.destroy');
         
         // Quiz routes
@@ -262,7 +265,6 @@ Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goa
 Route::get('/investment-planner', [IndexController::class, 'investment'])->name('investment');
 Route::get('/networth-calculator', [IndexController::class, 'networth'])->name('networth');
 Route::get('/debt-manager', [IndexController::class, 'debt'])->name('debt');
-Route::get('/budget-planner', [IndexController::class, 'budget'])->name('budget');
 Route::get('/training', [IndexController::class, 'training'])->name('training');
 Route::get('/calculators', [IndexController::class, 'calculators'])->name('calculators');
 Route::get('/questionnaires', [IndexController::class, 'questionnaires'])->name('questionnaires');
@@ -283,6 +285,7 @@ Route::get('/business-support', function () {
 Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
+
 
 Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])

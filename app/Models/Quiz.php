@@ -12,14 +12,14 @@ class Quiz extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_id',
+        'subcourse_id',
         'title',
         'description'
     ];
 
-    public function course(): BelongsTo
+    public function subcourse(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Subcourse::class);
     }
 
     public function questions(): HasMany
