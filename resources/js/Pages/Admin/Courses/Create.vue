@@ -56,22 +56,6 @@
               </p>
             </div>
 
-            <div class="mb-6">
-              <label for="order" class="block text-sm font-medium text-gray-700">Order (Sequence)</label>
-              <input
-                v-model="form.order"
-                type="number"
-                id="order"
-                min="1"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm"
-                required
-              >
-              <p class="mt-1 text-sm text-gray-500">Enter the sequence number for this sub-course (1 = first, 2 = second, etc.)</p>
-              <p v-if="form.errors.order" class="mt-2 text-sm text-red-600">
-                {{ form.errors.order }}
-              </p>
-            </div>
-
             <!-- Document Upload Section -->
             <div class="mb-6">
               <h3 class="text-md font-medium text-gray-700 mb-4">Study Materials</h3>
@@ -167,7 +151,6 @@ const form = useForm({
   title: '',
   description: '',
   parent_id: '',
-  order: 1,
   materials: [{
     title: '',
     file: null,

@@ -19,11 +19,6 @@ class CertificateController extends Controller
         
         $user = Auth::user();
         
-        // Verify this is a main course (parent_id is null)
-        if ($course->parent_id !== null) {
-            return redirect()->back()->with('error', 'Certificates can only be generated for main courses.');
-        }
-        
         // Get all sub-courses for this main course
         $subCourses = $course->subCourses;
         
@@ -38,7 +33,7 @@ class CertificateController extends Controller
         foreach ($subCourses as $subCourse) {
             $latestAttempt = QuizAttempt::where('user_id', $user->id)
                 ->whereHas('quiz', function ($query) use ($subCourse) {
-                    $query->where('course_id', $subCourse->id);
+                    $query->where('subcourse_id', $subCourse->id);
                 })
                 ->latest()
                 ->first();
@@ -60,7 +55,7 @@ class CertificateController extends Controller
         foreach ($subCourses as $subCourse) {
             $latestAttempt = QuizAttempt::where('user_id', $user->id)
                 ->whereHas('quiz', function ($query) use ($subCourse) {
-                    $query->where('course_id', $subCourse->id);
+                    $query->where('subcourse_id', $subCourse->id);
                 })
                 ->latest()
                 ->first();
@@ -83,12 +78,12 @@ class CertificateController extends Controller
             'certificate_id' => 'CERT-' . strtoupper(substr(md5($user->id . $course->id . now()->timestamp), 0, 8)),
         ];
         
-        // Generate PDF
+        // Generate PDF and stream inline
         $pdf = Pdf::loadView('certificates.course-completion', $certificateData);
         $pdf->setPaper('A4', 'landscape');
         
         $filename = 'Certificate_' . str_replace(' ', '_', $course->title) . '_' . str_replace(' ', '_', $user->name) . '.pdf';
         
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 } 

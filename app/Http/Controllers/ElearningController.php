@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\Subcourse;
 use App\Models\QuizAttempt;
 use Inertia\Inertia;
 
@@ -11,15 +12,14 @@ class ElearningController extends Controller
     public function landing()
     {
         return Inertia::render('Elearning/Landing', [
-            'featuredCourses' => Course::whereNull('parent_id')->with(['subCourses'])->limit(3)->get()
+            'featuredCourses' => Course::with(['subCourses'])->limit(3)->get()
         ]);
     }
 
     public function index()
     {
-        $courses = Course::whereNull('parent_id')
-            ->with(['subCourses' => function ($query) {
-                $query->orderBy('order', 'asc')->orderBy('id', 'asc');
+        $courses = Course::with(['subCourses' => function ($query) {
+                $query->orderBy('id', 'asc');
             }, 'subCourses.materials'])
             ->get();
         
@@ -34,7 +34,7 @@ class ElearningController extends Controller
                 if (auth()->check()) {
                     $latestAttempt = QuizAttempt::where('user_id', auth()->id())
                         ->whereHas('quiz', function ($query) use ($subCourse) {
-                            $query->where('course_id', $subCourse->id);
+                            $query->where('subcourse_id', $subCourse->id);
                         })
                         ->latest()
                         ->first();
@@ -61,14 +61,12 @@ class ElearningController extends Controller
             $mainCourse->completion_progress = $totalSubCourses > 0 ? round(($completedSubCourses / $totalSubCourses) * 100, 2) : 0;
         }
 
-
-
         return Inertia::render('Elearning/Courses', [
             'courses' => $courses
         ]);
     }
 
-    public function show(Course $course)
+    public function show(Subcourse $course)
     {
         return Inertia::render('Elearning/Course', [
             'course' => $course,

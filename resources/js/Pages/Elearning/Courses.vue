@@ -223,7 +223,7 @@
 
                                                 <!-- Actions -->
                                                 <div class="order-2 sm:order-1 sm:col-start-2 ml-0 sm:ml-6 flex flex-col gap-2 sm:gap-3 w-full sm:w-auto">
-                                                    <div class="flex gap-2 sm:gap-3 flex-col sm:flex-row w-full">
+                                                    <div class="flex gap-2 sm:gap-3 flex-col sm:flex-row w_full">
                                                         <button
                                                             @click="handleLearningClick(subCourse)"
                                                             class="inline-flex items-center justify-center gap-2 px-4 py-2 sm:px-6 sm:py-3 text-sm font-semibold rounded-lg text-white shadow-lg transition-all duration-200 tracking-wide bg-gradient-to-r from-indigo-500 to-purple-600 hover:shadow-xl hover:-translate-y-0.5 w-full sm:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-white"
@@ -325,7 +325,8 @@
 
 <script>
 import Sidebar from "@/Components/Sidebar.vue";
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { router } from '@inertiajs/vue3';
 
 export default {
     components: { Sidebar },
@@ -334,6 +335,22 @@ export default {
     },
     setup() {
         const expandedCourses = ref([]);
+        const STORAGE_EXPANDED_KEY = 'elearning.courses.expanded.local';
+
+        const saveExpanded = () => {
+            try {
+                localStorage.setItem(STORAGE_EXPANDED_KEY, JSON.stringify(expandedCourses.value || []));
+            } catch (e) {}
+        };
+
+        const restoreExpanded = () => {
+            try {
+                const raw = localStorage.getItem(STORAGE_EXPANDED_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) expandedCourses.value = parsed;
+            } catch (e) {}
+        };
 
         const toggleCourse = (courseId) => {
             const index = expandedCourses.value.indexOf(courseId);
@@ -342,6 +359,7 @@ export default {
             } else {
                 expandedCourses.value.push(courseId);
             }
+            saveExpanded();
         };
 
         const getQuizButtonText = (subCourse) => {
@@ -355,16 +373,23 @@ export default {
         };
 
         const handleLearningClick = (subCourse) => {
-            window.location.href = route('elearning.course', { course: subCourse.id });
+            saveExpanded();
+            router.visit(route('elearning.course', { course: subCourse.id }));
         };
 
         const handleQuizClick = (subCourse) => {
-            window.location.href = route('elearning.quiz', { course: subCourse.id });
+            saveExpanded();
+            router.visit(route('elearning.quiz', { course: subCourse.id }));
         };
 
         const downloadCertificate = (mainCourse) => {
-            window.location.href = route('elearning.certificate', { course: mainCourse.id });
+            const url = route('elearning.certificate', { course: mainCourse.id });
+            window.open(url, '_blank');
         };
+
+        onMounted(() => {
+            restoreExpanded();
+        });
 
         return {
             expandedCourses,

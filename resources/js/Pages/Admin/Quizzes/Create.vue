@@ -25,12 +25,12 @@
                     <div class="grid grid-cols-1 gap-6">
                         <!-- Course Selection -->
                         <div>
-                            <label for="course_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="subcourse_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 Select Sub-Course *
                             </label>
                             <select
-                                id="course_id"
-                                v-model="form.course_id"
+                                id="subcourse_id"
+                                v-model="form.subcourse_id"
                                 class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                 required
                             >
@@ -43,8 +43,8 @@
                                     {{ course.full_title }}
                                 </option>
                             </select>
-                            <p v-if="form.errors.course_id" class="mt-1 text-sm text-red-600">
-                                {{ form.errors.course_id }}
+                            <p v-if="form.errors.subcourse_id" class="mt-1 text-sm text-red-600">
+                                {{ form.errors.subcourse_id }}
                             </p>
                         </div>
 
@@ -245,7 +245,7 @@ const props = defineProps({
 });
 
 const form = useForm({
-    course_id: '',
+    subcourse_id: '',
     title: '',
     description: '',
     questions: []

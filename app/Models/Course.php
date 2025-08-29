@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Course extends Model
 {
@@ -14,9 +13,7 @@ class Course extends Model
     protected $fillable = [
         'title',
         'slug',
-        'description',
-        'parent_id',
-        'order'
+        'description'
     ];
 
     protected static function booted()
@@ -30,33 +27,8 @@ class Course extends Model
         });
     }
 
-    public function materials(): HasMany
-    {
-        return $this->hasMany(CourseMaterial::class);
-    }
-
-    public function quizzes(): HasMany
-    {
-        return $this->hasMany(Quiz::class);
-    }
-
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(Course::class, 'parent_id');
-    }
-
     public function subCourses(): HasMany
     {
-        return $this->hasMany(Course::class, 'parent_id');
-    }
-
-    public function isMainCourse(): bool
-    {
-        return is_null($this->parent_id);
-    }
-
-    public function isSubCourse(): bool
-    {
-        return !is_null($this->parent_id);
+        return $this->hasMany(Subcourse::class);
     }
 }

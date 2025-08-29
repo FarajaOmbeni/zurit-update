@@ -10,17 +10,23 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable()->constrained('courses')->onDelete('cascade');
+            $table->string('title');
+            $table->string('slug')->unique();
+            $table->timestamps();
+        });
+
+        Schema::create('subcourses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->integer('order')->default(0);
             $table->string('slug')->unique();
             $table->timestamps();
         });
 
         Schema::create('course_materials', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('course_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subcourse_id')->constrained('subcourses')->onDelete('cascade');
             $table->string('title');
             $table->string('file_path'); // Stores the path to the PDF file
             $table->string('file_name'); // Original file name
@@ -32,6 +38,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('course_materials');
+        Schema::dropIfExists('subcourses');
         Schema::dropIfExists('courses');
     }
 };

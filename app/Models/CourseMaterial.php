@@ -11,16 +11,16 @@ class CourseMaterial extends Model
     use HasFactory;
 
     protected $fillable = [
-        'course_id',
+        'subcourse_id',
         'title',
         'file_path',
         'file_name',
         'file_size'
     ];
 
-    public function course(): BelongsTo
+    public function subcourse(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Subcourse::class);
     }
 
 protected $hidden = [

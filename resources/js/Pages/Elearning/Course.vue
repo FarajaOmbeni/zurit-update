@@ -6,7 +6,7 @@
             <div class="bg-white pt-6 pb-6 border-b border-gray-200">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <button
-                    @click="$inertia.visit(route('elearning.courses'))"
+                    @click="goBack()"
                     class="inline-flex items-center gap-2 bg-transparent border-none cursor-pointer text-base font-semibold px-4 py-2 rounded-lg transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
                     style="color: #667eea;"
                 >
@@ -143,6 +143,13 @@ export default {
         materials: Array,
     },
     methods: {
+        goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                this.$inertia.visit(route('elearning.courses'), { preserveScroll: true });
+            }
+        },
         openPdfInNewTab(material, event) {
   // Prevent default behavior
   event.preventDefault();
