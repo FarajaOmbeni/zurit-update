@@ -1,6 +1,14 @@
 <template>
     <AdminSidebar title="Create Quiz">
         <div class="px-4 sm:px-6 lg:px-8">
+            <Alert 
+                v-if="alertState" 
+                :type="alertState.type" 
+                :message="alertState.message" 
+                :duration="alertState.duration" 
+                :auto-close="alertState.autoClose" 
+                @close="clearAlert" 
+            />
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
                     <h1 class="text-xl font-semibold text-gray-900">Create Quiz</h1>
@@ -196,6 +204,8 @@
 import AdminSidebar from '@/Components/AdminSidebar.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useAlert } from '@/Components/Composables/useAlert';
+import Alert from '@/Components/Shared/Alert.vue';
 
 const props = defineProps({
     subCourses: Array,
@@ -242,6 +252,20 @@ const removeChoice = (questionIndex, choiceIndex) => {
 };
 
 const submit = () => {
-    form.post(route('admin.quizzes.store'));
+    form.post(route('admin.quizzes.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+        openAlert('success', 'Quiz created successfully', 5000);
+            form.reset();
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+
+            console.log(errorMessages);
+            openAlert('danger', errorMessages, 5000);
+        }
+    });
 };
 </script>
