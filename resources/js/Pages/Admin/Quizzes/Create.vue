@@ -204,8 +204,10 @@
 import AdminSidebar from '@/Components/AdminSidebar.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { useAlert } from '@/Components/Composables/useAlert';
 import Alert from '@/Components/Shared/Alert.vue';
+import { useAlert } from '@/Components/Composables/useAlert';
+
+const { alertState, openAlert, clearAlert } = useAlert();
 
 const props = defineProps({
     subCourses: Array,
