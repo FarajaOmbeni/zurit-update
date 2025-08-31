@@ -51,9 +51,6 @@ Route::get('/feedback', [IndexController::class, 'feedback'])->name('feedback');
 Route::get('/blogs', [IndexController::class, 'blogs'])->name('blogs');
 Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
-Route::get('/money-quiz', function () {
-    return Inertia::render('MoneyQuiz');
-})->name('money-quiz');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');

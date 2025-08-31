@@ -2,8 +2,12 @@
 
     <Head title="Advisory" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-36 mb-24">
-        <div class="text-2xl md:ml-8 md:text-4xl lg:text-7xl md:text-left text-center font-bold lg:mb-6">
+        <div
+            class="flex justify-center gap-4 text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-left font-bold lg:mb-6">
             Get Business <span class="text-yellow-600">Support Today</span>
         </div>
         <div class="max-w-6xl mx-auto p-6">
@@ -40,6 +44,7 @@ import TrainingModal from '@/Components/Shared/TrainingModal.vue'
 import EnrollModal from '@/Components/Shared/EnrollModal.vue'
 import Footer from '@/Components/Footer.vue'
 import Navbar from '@/Components/Navbar.vue'
+import BackButton from '@/Components/Shared/BackButton.vue'
 import { Head } from '@inertiajs/vue3'
 
 // Sample data structure with more details

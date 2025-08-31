@@ -1,9 +1,13 @@
 <template>
-    <Head title="Training"/>
+
+    <Head title="Training" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-36 mb-24">
-        <div class="text-2xl md:ml-8 md:text-4xl lg:text-7xl md:text-left text-center font-bold lg:mb-6">Our
-            <span class="text-yellow-600">Training Categories</span>
+        <div class="flex justify-center text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-left font-bold lg:mb-6">Our
+            Training Categories
         </div>
         <div class="max-w-6xl mx-auto p-6">
             <!-- Navigation Tabs -->
@@ -41,6 +45,7 @@ import TrainingModal from '@/Components/Shared/TrainingModal.vue'
 import EnrollModal from '@/Components/Shared/EnrollModal.vue'
 import Footer from '@/Components/Footer.vue'
 import Navbar from '@/Components/Navbar.vue'
+import BackButton from '@/Components/Shared/BackButton.vue'
 import { Head } from '@inertiajs/vue3'
 
 // Sample data structure with more details
@@ -49,7 +54,7 @@ const trainings = [
         id: 1,
         type: 'corporate',
         imageUrl: '/images/training/prosperity.jpg',
-        title: 'Prosperity Fundamentals Masterclass',
+        title: 'Prosperity Fundamentals',
         description: 'This masterclass is a 5-week program tailored to individuals, covering the fundamentals of personal finance and investments.',
         details: [
             'Wealth building principles.',

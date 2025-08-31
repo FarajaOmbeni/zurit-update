@@ -2,6 +2,9 @@
 
     <Head title="Blogs" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-32 mb-24 md:mx-4">
         <h1
             class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-start font-bold text-purple-700 mb-4 text-center">
@@ -53,6 +56,7 @@ import { defineProps } from 'vue'
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
 import BlogCard from '@/Components/Shared/BlogCard.vue';
+import BackButton from '@/Components/Shared/BackButton.vue';
 import { formatDate } from '@/Components/Composables/useDateFormat';
 
 const props = defineProps({

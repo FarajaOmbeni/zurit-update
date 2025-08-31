@@ -1,6 +1,9 @@
 <template>
 
     <Head title="Calendar" />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="p-4 bg-gray-100 min-h-screen">
         <h1 class="text-3xl font-bold text-purple-700 mb-6 text-center">Zurit Consulting Events</h1>
 
@@ -90,6 +93,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
+import BackButton from '@/Components/Shared/BackButton.vue';
 
 const allEvents = ref([]);
 const loading = ref(true);

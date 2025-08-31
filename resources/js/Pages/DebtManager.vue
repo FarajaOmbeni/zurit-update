@@ -1,6 +1,10 @@
 <template>
+
     <Head title="Debt Manager" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-[7rem]">
 
         <ToolCardBig title="What is a Debt Manager?"
@@ -28,7 +32,9 @@
         </div>
 
         <div class="flex justify-center mb-12">
-            <ToolFoot title="Debt Management Made Simple" description="At Zurit, we simplify debt management. Our tool provides: Clear overview of your debts, Customized repayment strategies, and Real-time tracking of debt reduction" buttonText="Go to Debt Manager" buttonLink="/user/debt" />
+            <ToolFoot title="Debt Management Made Simple"
+                description="At Zurit, we simplify debt management. Our tool provides: Clear overview of your debts, Customized repayment strategies, and Real-time tracking of debt reduction"
+                buttonText="Go to Debt Manager" buttonLink="/user/debt" />
         </div>
 
     </div>
@@ -42,6 +48,7 @@ import ToolCardBig from '@/Components/Shared/ToolCardBig.vue';
 import WhyUseTool from '@/Components/Shared/WhyUseTool.vue';
 import HowItWorksCard from '@/Components/Shared/HowItWorksCard.vue';
 import ToolFoot from '@/Components/Shared/ToolFoot.vue';
+import BackButton from '@/Components/Shared/BackButton.vue';
 import { Head } from '@inertiajs/vue3';
 
 </script>
