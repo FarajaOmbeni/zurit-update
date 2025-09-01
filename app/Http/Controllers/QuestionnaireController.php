@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\QuestionnaireResponseMail;
+use App\Models\User;
 
 class QuestionnaireController extends Controller
 {
@@ -19,10 +20,24 @@ class QuestionnaireController extends Controller
         ]);
     }
 
+    /**
+     * Check if phone number exists and save it if it doesn't
+     */
+    private function checkAndSavePhoneNumber($phone)
+    {
+        $phone = trim((string) $phone);
+        if ($phone === '' || !Auth::check()) return;
+
+        Auth::user()->update(['phone' => $phone]);
+    }
+
     public function submitQuestionnaire(Request $request)
     {
         // Get all form data
         $formData = $request->all();
+
+        // Check and save phone number if provided
+        $this->checkAndSavePhoneNumber($formData['phone'] ?? null);
 
         // If this is a money quiz, set the form type if not already set
         if (!isset($formData['form_type']) && isset($formData['goalSetting1'])) {
@@ -47,6 +62,9 @@ class QuestionnaireController extends Controller
         $formData = $request->all();
         $formData['form_type'] = 'Client Onboarding';
 
+        // Check and save phone number if provided
+        $this->checkAndSavePhoneNumber($formData['phone'] ?? null);
+
         // Send email to admin
         Mail::to(config('services.email.admin_email'))->send(new QuestionnaireResponseMail($formData));
 
@@ -64,6 +82,9 @@ class QuestionnaireController extends Controller
         $formData = $request->all();
         $formData['form_type'] = 'Money Personality Assessment';
 
+        // Check and save phone number if provided
+        $this->checkAndSavePhoneNumber($formData['phone'] ?? null);
+
         // Send email to admin
         Mail::to(config('services.email.admin_email'))->send(new QuestionnaireResponseMail($formData));
 
@@ -80,6 +101,9 @@ class QuestionnaireController extends Controller
         // Get all form data
         $formData = $request->all();
         $formData['form_type'] = 'Risk Tolerance Assessment';
+
+        // Check and save phone number if provided
+        $this->checkAndSavePhoneNumber($formData['phone'] ?? null);
 
         // Calculate risk score
         $totalScore = 0;
@@ -116,9 +140,12 @@ class QuestionnaireController extends Controller
         $formData = $request->all();
         $formData['form_type'] = 'Next Natural Step Assessment';
 
+        // Check and save phone number if provided
+        $this->checkAndSavePhoneNumber($formData['phone'] ?? null);
+
         // Parse the checkbox arrays and calculate counts
         $counts = ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0];
-        
+
         for ($i = 1; $i <= 10; $i++) {
             $answers = $request->input("q{$i}", []);
             if (is_array($answers)) {
