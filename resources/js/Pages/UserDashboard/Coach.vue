@@ -55,10 +55,10 @@
                                 class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
                                 Contact Coach
                             </button>
-                            <button @click="removeCoach"
+                            <!-- <button @click="removeCoach"
                                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
                                 Remove Coach
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                 </div>
@@ -174,6 +174,17 @@
                                 and goals.
                             </p>
                         </div>
+                    <div class="flex justify-center mt-8">
+                        <button
+                            @click="sendCoachRequest"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded shadow transition duration-200"
+                        >
+                            Send Request for a Coach
+                        </button>
+                    </div>
+                    <div v-if="requestSent" class="mt-4 text-green-600 text-center font-medium">
+                        Your request has been sent! Our admin will contact you soon.
+                    </div>
                     </div>
                 </div>
             </div>
@@ -195,13 +206,28 @@ console.log(props.coach);
 
 const showContactInfo = ref(false);
 
-const removeCoach = () => {
-    const form = useForm({});
+// const removeCoach = () => {
+//     const form = useForm({});
 
-    form.delete(route('coach.remove'), {
+//     form.delete(route('coach.remove'), {
+//         onSuccess: () => {
+//             // Coach will be removed from the page
+//         }
+//     });
+// };
+const requestSent = ref(false);
+
+const sendCoachRequest = () => {
+    const form = useForm({});
+    form.post(route('coach.request'), {
         onSuccess: () => {
-            // Coach will be removed from the page
+            requestSent.value = true;
+        },
+        onError: () => {
+            // Optionally handle error, e.g. show a message
+            requestSent.value = false;
         }
     });
 };
+
 </script>

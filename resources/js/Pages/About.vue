@@ -20,7 +20,7 @@
                     build simple systems,
                     and follow through with confidence.
                 </p>
-                <h4 class="font-semibold text-3xl mt-4 mb-6">What Sets Us Apart</h4>
+                <h4 class="font-semibold text-3xl mt-4 mb-6 text-center">What Sets Us Apart</h4>
                 <ul class="list-disc pl-6 text-gray-700 text-2xl space-y-2">
                     <li><b>Seasoned experts:</b> real-world experience across personal finance, governance, and
                         investments.</li>
@@ -55,6 +55,21 @@
                         linkedin_link="https://www.linkedin.com/in/faith-mulinya-a24580353/" />
                     <Profile name="Tugi Nyatuga" position="Digital Marketing Specialist" image="/images/team/tugi.jpg"
                         linkedin_link="https://www.linkedin.com/in/tugi-nyatuga-b981a4154/?originalSubdomain=ke" />
+                </div>
+            </div>
+
+            <!-- Coaches -->
+            <div class="flex flex-col items-center">
+                <h2 class="font-bold text-3xl mb-6">Independent Financial Coaches</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+                    <Profile name="Kyesubire Talitwala-Greigg" position="Coach" image="/images/team/kyesubire.jpg"
+                        linkedin_link="https://www.linkedin.com/in/kyesubire/" />
+                    <Profile name="Bryan Gitia" position="Investment Specialist" image="/images/team/gitia.webp"
+                        linkedin_link="https://www.linkedin.com/in/bgitia/" />
+                    <Profile name="Victor Muguna" position="Coach" image="/images/team/victor_muguna.jpg"
+                        linkedin_link="https://www.linkedin.com/in/victor-muguna-7669409a/" />
+                    <Profile name="Victor Namunyu" position="Coach" image="/images/team/victor_namunyu.jpg"
+                        linkedin_link="https://www.linkedin.com/in/victor-namunyu-fmva%C2%AE-a818b2159/" />
                 </div>
             </div>
         </div>

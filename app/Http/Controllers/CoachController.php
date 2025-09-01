@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use App\Models\Coach;
 use App\Models\User;
+use Inertia\Inertia;
+use App\Models\Coach;
 use App\Models\Meeting;
+use Illuminate\Http\Request;
+use App\Mail\CoachRequestMail;
+use App\Mail\CoachDeassignmentMail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
-use App\Mail\CoachDeassignmentMail;
 use App\Mail\AdminCoachDeassignmentMail;
 
 class CoachController extends Controller
@@ -211,5 +212,12 @@ class CoachController extends Controller
             ->get();
 
         return response()->json($clients);
+    }
+
+    public function requestCoach(Request $request)
+    {
+        Mail::to(config('services.email.admin_email'))->send(new CoachRequestMail($request));
+
+        return redirect()->back()->with('success', 'Coach request sent successfully!');
     }
 }

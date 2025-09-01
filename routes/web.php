@@ -127,6 +127,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('UserDashboard/Calculators');
     })->name('calculator.index');
 
+    Route::post('/user/coach/request', [CoachController::class, 'requestCoach'])->name('coach.request');
+
     /////////////////////////////////////////////////////////
     //////////////////  E-LEARNING ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
