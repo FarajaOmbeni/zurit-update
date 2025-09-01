@@ -1,6 +1,8 @@
 <template>
     <CoachSidebar title="My Meetings">
+
         <Head title="Meetings" />
+        <DashboardBackButton />
         <div class="bg-white rounded-lg shadow-lg">
             <!-- Header -->
             <div class="border-b border-gray-200 px-6 py-4">
@@ -170,6 +172,7 @@
 
 <script setup>
 import CoachSidebar from '@/Components/CoachSidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import { ref, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 

@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, defineProps, ref } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import DebtCard from '@/Components/Shared/DebtCard.vue';
 import DebtsTable from '@/Components/Shared/DebtsTable.vue';
 import Alert from '@/Components/Shared/Alert.vue';
@@ -92,6 +93,7 @@ const closeModalOnOutsideClick = (event) => {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <div class="container mx-auto p-4">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold text-purple-700">Your Debts</h1>

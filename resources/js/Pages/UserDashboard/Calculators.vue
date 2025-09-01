@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import Sidebar from '@/Components/Sidebar.vue'
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue'
 import { reactive, ref } from 'vue'
 import { formatCurrency } from '@/Components/Composables/useFormatCurrency'
 
@@ -197,6 +198,7 @@ const calculateAmortizedBond = () => {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <div class="min-h-screen bg-white p-6 space-y-10">
                     <section class="max-w-2xl mx-auto space-y-6">
                         <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">
@@ -314,10 +316,14 @@ const calculateAmortizedBond = () => {
                                     </thead>
                                     <tbody>
                                         <tr class="font-bold" v-for="row in debt.schedule" :key="row.period">
-                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ row.period }}</td>
-                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ formatCurrency(row.principal) }}</td>
-                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ formatCurrency(row.interest) }}</td>
-                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ formatCurrency(row.balance) }}</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{ row.period }}
+                                            </td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{
+                                                formatCurrency(row.principal) }}</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{
+                                                formatCurrency(row.interest) }}</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-right">{{
+                                                formatCurrency(row.balance) }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -370,8 +376,10 @@ const calculateAmortizedBond = () => {
                                     Calculate
                                 </button>
                                 <p v-if="mm.result !== null" class="font-semibold text-green-600">
-                                    Total contributions: {{ formatCurrency((mm.initial || 0) + (mm.monthly || 0) * (mm.months || 0)) }}<br>
-                                    Net profit: {{ formatCurrency((mm.result || 0) - ((mm.initial || 0) + (mm.monthly || 0) * (mm.months || 0))) }}<br>
+                                    Total contributions: {{ formatCurrency((mm.initial || 0) + (mm.monthly || 0) *
+                                    (mm.months || 0)) }}<br>
+                                    Net profit: {{ formatCurrency((mm.result || 0) - ((mm.initial || 0) + (mm.monthly ||
+                                    0) * (mm.months || 0))) }}<br>
                                     Gross revenue after {{ mm.months }} months: {{ formatCurrency(mm.result || 0) }}
                                 </p>
                             </div>

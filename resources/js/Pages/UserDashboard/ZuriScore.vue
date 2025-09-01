@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import Input from '@/Components/Shared/Input.vue';
 import Button from '@/Components/Shared/Button.vue';
 import Select from '@/Components/Shared/Select.vue';
@@ -46,6 +47,7 @@ function submitForm() {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <div class="bg-white p-6">
                     <h1 class="text-2xl font-semibold text-gray-900">Financial Statement Analysis</h1>
                     <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"

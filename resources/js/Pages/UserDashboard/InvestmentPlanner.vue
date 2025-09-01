@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed, watch, onMounted } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import InvestmentsTable from '@/Components/Shared/InvestmentsTable.vue';
 import InvestmentChart from '@/Components/Shared/InvestmentChart.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
@@ -14,7 +15,7 @@ import InsurancesTable from '@/Components/Shared/InsurancesTable.vue';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
-const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other']; 
+const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other'];
 const REAL_ESTATE_TYPES = ['residential', 'commercial', 'land'];
 const STOCKS_TYPES = ['NSE', 'reits'];
 const POLICY_TYPES = [
@@ -617,7 +618,7 @@ const editInsuranceForm = useForm({
 
 /* 3 ▸ open / close helpers */
 function openEditInsuranceModal(investment) {
-    editingInsurance.value = { ...investment };    
+    editingInsurance.value = { ...investment };
     isEditInsuranceModalOpen.value = true;
 }
 
@@ -658,7 +659,7 @@ watch(
                 : '';
         editInsuranceForm.description = inv.description ?? '';
     },
-    { immediate: true } 
+    { immediate: true }
 );
 
 /* 5 ▸ submit handler */
@@ -691,6 +692,7 @@ const selectedProviderEditPolicies = computed(() => {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <div class="flex justify-between items-center mb-6">

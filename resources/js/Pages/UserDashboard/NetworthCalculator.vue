@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import NetWorthChart from '@/Components/Shared/NetworthChart.vue';
 import AssetsTable from '@/Components/Shared/AssetsTable.vue';
 import LiabilitiesTable from '@/Components/Shared/LiabilitiesTable.vue';
@@ -18,7 +19,7 @@ const props = defineProps({
     liabilities: Array,
 });
 
-console.log(typeof(props.liabilities))
+console.log(typeof (props.liabilities))
 
 // Modal control
 const assetModalOpen = ref(false);
@@ -99,6 +100,7 @@ const submitLiability = () => {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <!-- Action Buttons -->

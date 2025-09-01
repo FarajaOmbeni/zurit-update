@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import Alert from '@/Components/Shared/Alert.vue';
@@ -427,6 +428,7 @@ const showPricingAlert = ref(true)
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div v-show="hasData" class="flex justify-between">

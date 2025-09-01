@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head, useForm, usePage } from '@inertiajs/vue3'
 import Sidebar from '@/Components/Sidebar.vue'
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue'
 import Alert from '@/Components/Shared/Alert.vue'
 import { useAlert } from '@/Components/Composables/useAlert.js'
 import { reactive, ref, computed } from 'vue'
@@ -518,6 +519,7 @@ function generatePersonalitySummary() {
             <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                 :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
             <Sidebar>
+                <DashboardBackButton />
                 <div class="min-h-screen bg-white p-6 space-y-10">
                     <section class="max-w-6xl mx-auto space-y-6">
                         <h1 class="text-center text-4xl font-bold text-purple-600 mb-8">Prosperity Check-in</h1>
