@@ -1,6 +1,6 @@
 <template>
     <Head title="E-Learning" />
-    <Sidebar title="E-Learning">
+    <ElearningSidebar title="E-Learning">
         <div class="min-h-screen">
             <!-- Hero Section -->
             <header 
@@ -146,14 +146,14 @@
                 </div>
             </section>
         </div>
-    </Sidebar>
+    </ElearningSidebar>
 </template>
 
 <script>
-import Sidebar from '@/Components/Sidebar.vue';
+import ElearningSidebar from '@/Components/ElearningSidebar.vue';
 
 export default {
-    components: { Sidebar },
+    components: { ElearningSidebar },
     props: {
         featuredCourses: Array,
     },
