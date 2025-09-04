@@ -466,9 +466,11 @@ const showPricingAlert = ref(true)
                             </div>
                         </div>
                         <!-- Pricing Alert -->
-                        <!-- <Alert v-if="showPricingAlert" type="info"
-                            message="[UPDATE] Our budget tools will start charging on September 1st, but you'll get a 30-day free trial! After that, it's just KES 500/month or KES 4,500/year. Start budgeting today!"
-                            :dismissible="true" @close="showPricingAlert = false" /> -->
+                        <Alert v-if="showPricingAlert" type="info" message="✨ Great news! You're on a 3-month free trial of our budgeting tools — no charges until December 1st.
+After that, you can continue your journey for just KES 500/month or KES 4,500/year.
+
+Start using the tools today and enjoy stress-free budgeting! 💡" :dismissible="true"
+                            @close="showPricingAlert = false" />
 
                         <!-- Regular alerts from useAlert composable -->
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
@@ -674,7 +676,7 @@ const showPricingAlert = ref(true)
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                        Math.round(transaction.amount).toLocaleString() }}
+                                                    Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -1029,7 +1031,7 @@ const showPricingAlert = ref(true)
                                 <div class="flex justify-end space-x-2">
                                     <button type="submit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                            transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
+                                        transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
                                     <!-- CHANGED: transactionForm.processing -->
                                     <button type="button" @click="showEditModal = false" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2
                                                 rounded">Cancel</button>
@@ -1049,7 +1051,7 @@ const showPricingAlert = ref(true)
                             <div class="flex justify-end space-x-2">
                                 <button type="button" @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
