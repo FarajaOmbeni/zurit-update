@@ -64,8 +64,6 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                     <Profile name="Kyesubire Talitwala-Greigg" position="Coach" image="/images/team/kyesubire.jpg"
                         linkedin_link="https://www.linkedin.com/in/kyesubire/" />
-                    <Profile name="Bryan Gitia" position="Investment Specialist" image="/images/team/gitia.webp"
-                        linkedin_link="https://www.linkedin.com/in/bgitia/" />
                     <Profile name="Victor Muguna" position="Coach" image="/images/team/victor_muguna.jpg"
                         linkedin_link="https://www.linkedin.com/in/victor-muguna-7669409a/" />
                     <Profile name="Victor Namunyu" position="Coach" image="/images/team/victor_namunyu.jpg"
