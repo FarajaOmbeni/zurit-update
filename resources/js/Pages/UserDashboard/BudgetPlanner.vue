@@ -433,11 +433,24 @@ const showPricingAlert = ref(true)
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div v-show="hasData" class="flex justify-between">
                             <div class="flex items-center justify-between mb-4 gap-2">
-                                <h1 class="text-2xl font-semibold text-gray-900">
-                                    {{ today }}'s Budget
-                                </h1>
+                                <div>
+                                    <h1 class="text-2xl font-semibold text-gray-900">
+                                        {{ today }}'s Budget
+                                    </h1>
+                                    <!-- Subscription status indicator -->
+                                    <div v-if="$page.props.auth.subscription && $page.props.auth.subscription.package"
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        {{ $page.props.auth.subscription.package === 'trial' ? 'Free Trial Active' :
+                                            'Pro Tools Active' }}
+                                    </div>
+                                </div>
                                 <!-- Toggle Button -->
-                                <button @click="showBalances = !showBalances" class="text-gray-600 hover:text-gray-800">
+                                <button @click="showBalances = !showBalances" class="text-gray-600 hover:text-gray-800 ml-4">
                                     <svg v-if="!showBalances" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -456,19 +469,8 @@ const showPricingAlert = ref(true)
                                             d="M6.1 6.1l11.8 11.8" />
                                     </svg>
                                 </button>
-                            <div>
-                                <h1 class="text-2xl font-semibold text-gray-900"> {{ today }}'s Budget</h1>
-                                <!-- Subscription status indicator -->
-                                <div v-if="$page.props.auth.subscription && $page.props.auth.subscription.package" 
-                                     class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
-                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    {{ $page.props.auth.subscription.package === 'trial' ? 'Free Trial Active' : 'Pro Tools Active' }}
-                                </div>
                             </div>
-
-                            <div class="px-6">
+                            <div class="px-6 flex items-center">
                                 <button @click="showBudgetModal = true"
                                     class="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition duration-150">
                                     View Budget
@@ -686,7 +688,7 @@ Start using the tools today and enjoy stress-free budgeting! 💡" :dismissible=
                                                 <div :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
                                                     class="font-medium">
                                                     {{ transaction.type === 'income' ? '+' : '-' }} KES {{
-                                                    Math.round(transaction.amount).toLocaleString() }}
+                                                        Math.round(transaction.amount).toLocaleString() }}
                                                 </div>
                                                 <!-- Edit Button -->
                                                 <button @click="openEditModal(transaction)"
@@ -1041,7 +1043,7 @@ Start using the tools today and enjoy stress-free budgeting! 💡" :dismissible=
                                 <div class="flex justify-end space-x-2">
                                     <button type="submit"
                                         class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">{{
-                                        transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
+                                            transactionForm.processing ? 'Saving...' : 'Submit' }}</button>
                                     <!-- CHANGED: transactionForm.processing -->
                                     <button type="button" @click="showEditModal = false" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2
                                                 rounded">Cancel</button>
@@ -1061,7 +1063,7 @@ Start using the tools today and enjoy stress-free budgeting! 💡" :dismissible=
                             <div class="flex justify-end space-x-2">
                                 <button type="button" @click="confirmDelete"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">{{
-                                    confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
+                                        confirmDelete.processing ? 'Deleting...' : 'Delete' }}</button>
                                 <button @click="showDeleteModal = false"
                                     class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">Cancel</button>
                             </div>
