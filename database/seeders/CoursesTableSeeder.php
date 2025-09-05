@@ -12,39 +12,27 @@ class CoursesTableSeeder extends Seeder
         $courses = [
             [
                 'title' => 'Personal Budgeting Basics',
-                'description' => 'Learn how to create and maintain a personal budget to manage your finances effectively.',
-                'thumbnail' => 'budgeting.jpg',
-                'is_active' => true
+                'slug' => 'personal-budgeting-basics'
             ],
             [
                 'title' => 'Understanding Credit Scores',
-                'description' => 'Discover how credit scores work and how to improve yours for better financial opportunities.',
-                'thumbnail' => 'credit-score.jpg',
-                'is_active' => true
+                'slug' => 'understanding-credit-scores'
             ],
             [
                 'title' => 'Smart Saving Strategies',
-                'description' => 'Explore different saving methods and how to make your money work harder for you.',
-                'thumbnail' => 'saving.jpg',
-                'is_active' => true
+                'slug' => 'smart-saving-strategies'
             ],
             [
                 'title' => 'Introduction to Investing',
-                'description' => 'Learn the fundamentals of investing and how to start growing your wealth.',
-                'thumbnail' => 'investing.jpg',
-                'is_active' => true
+                'slug' => 'introduction-to-investing'
             ],
             [
                 'title' => 'Debt Management 101',
-                'description' => 'Understand different types of debt and strategies to manage and reduce what you owe.',
-                'thumbnail' => 'debt.jpg',
-                'is_active' => true
+                'slug' => 'debt-management-101'
             ],
             [
                 'title' => 'Tax Fundamentals',
-                'description' => 'Get familiar with basic tax concepts and how to prepare for tax season.',
-                'thumbnail' => 'taxes.jpg',
-                'is_active' => true
+                'slug' => 'tax-fundamentals'
             ]
         ];
 
