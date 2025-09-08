@@ -7,7 +7,7 @@ import Input from '@/Components/Shared/Input.vue';
 import Select from '@/Components/Shared/Select.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
-import { PlusIcon, BuildingOfficeIcon, CurrencyDollarIcon, CalendarIcon } from '@heroicons/vue/24/outline';
+import { PlusIcon, BuildingOfficeIcon, BanknotesIcon, CalendarIcon } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -115,8 +115,8 @@ function navigateToStep(step) {
                 <DashboardBackButton />
 
                 <div class="max-w-6xl mx-auto p-6">
-                    <Alert v-if="alertState && alertState.show" :type="alertState.type" :message="alertState.message"
-                        @close="clearAlert" />
+                    <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
+                        :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
 
                     <!-- Header -->
                     <div class="flex justify-between items-center mb-8">
@@ -265,7 +265,7 @@ function navigateToStep(step) {
 
                                     <div class="flex items-center space-x-6 text-sm text-gray-500">
                                         <div class="flex items-center space-x-1">
-                                            <CurrencyDollarIcon class="w-4 h-4" />
+                                            <BanknotesIcon class="w-4 h-4" />
                                             <span>{{ formatCurrency(asset.value) }}</span>
                                         </div>
                                         <div class="flex items-center space-x-1">

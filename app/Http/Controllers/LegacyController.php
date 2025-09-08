@@ -80,6 +80,150 @@ class LegacyController extends Controller
         ]);
     }
 
+    public function storeBeneficiary(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'national_id' => 'nullable|string|max:20',
+            'relationship' => 'nullable|string|max:100',
+            'is_minor' => 'boolean',
+            'contact' => 'nullable|string|max:255',
+        ]);
+
+        $beneficiary = Beneficiary::create([
+            'user_id' => auth()->id(),
+            'full_name' => $request->full_name,
+            'national_id' => $request->national_id,
+            'relationship' => $request->relationship,
+            'is_minor' => $request->is_minor ?? false,
+            'contact' => $request->contact,
+        ]);
+
+        return back()->with('success', 'Beneficiary added successfully');
+    }
+
+    public function storeAssetAllocation(Request $request)
+    {
+        $request->validate([
+            'asset_id' => 'required|exists:assets,id',
+            'beneficiary_allocations' => 'required|array|min:1',
+            'beneficiary_allocations.*.beneficiary_id' => 'required|exists:beneficiaries,id',
+            'beneficiary_allocations.*.percentage' => 'required|numeric|min:0|max:100',
+            'beneficiary_allocations.*.conditions' => 'nullable|string|max:500',
+            'beneficiary_allocations.*.contingent_of' => 'nullable|exists:beneficiaries,id',
+        ]);
+
+        $user = auth()->user();
+        $assetId = $request->asset_id;
+
+        // Verify asset belongs to user
+        $asset = Asset::where('id', $assetId)
+            ->where('user_id', $user->id)
+            ->where('is_legacy', true)
+            ->firstOrFail();
+
+        // Check if this is an update (existing allocations exist)
+        $existingAllocations = AssetBeneficiaryAllocation::where('asset_id', $assetId)->count();
+        $isUpdate = $existingAllocations > 0;
+
+        // Validate beneficiary ownership (ensure all beneficiaries belong to the user)
+        $beneficiaryIds = collect($request->beneficiary_allocations)->pluck('beneficiary_id')->unique();
+        $userBeneficiaries = Beneficiary::where('user_id', $user->id)
+            ->whereIn('id', $beneficiaryIds)
+            ->count();
+
+        if ($userBeneficiaries !== $beneficiaryIds->count()) {
+            return back()->withErrors(['allocation' => 'One or more selected beneficiaries do not belong to you.']);
+        }
+
+        // Calculate total percentage for validation
+        $totalPercentage = collect($request->beneficiary_allocations)
+            ->sum('percentage');
+
+        if (abs($totalPercentage - 100) > 0.01) {
+            return back()->withErrors(['allocation' => "Asset '{$asset->name}' allocations must total 100%. Current total: {$totalPercentage}%"]);
+        }
+
+        // Validate no duplicate beneficiaries for the same asset
+        $duplicateBeneficiaries = collect($request->beneficiary_allocations)
+            ->duplicates('beneficiary_id');
+
+        if ($duplicateBeneficiaries->isNotEmpty()) {
+            return back()->withErrors(['allocation' => 'Each beneficiary can only be allocated once per asset.']);
+        }
+
+        DB::transaction(function () use ($assetId, $request, $isUpdate) {
+            // Clear existing allocations for this asset
+            $deletedCount = AssetBeneficiaryAllocation::where('asset_id', $assetId)->delete();
+
+            // Create new allocations
+            foreach ($request->beneficiary_allocations as $allocation) {
+                AssetBeneficiaryAllocation::create([
+                    'asset_id' => $assetId,
+                    'beneficiary_id' => $allocation['beneficiary_id'],
+                    'percentage' => $allocation['percentage'],
+                    'conditions' => $allocation['conditions'] ?? null,
+                    'contingent_of' => $allocation['contingent_of'] ?? null,
+                ]);
+            }
+
+            // Log the operation for audit purposes
+            \Log::info('Asset allocation ' . ($isUpdate ? 'updated' : 'created'), [
+                'user_id' => auth()->id(),
+                'asset_id' => $assetId,
+                'is_update' => $isUpdate,
+                'deleted_allocations' => $deletedCount,
+                'new_allocations' => count($request->beneficiary_allocations)
+            ]);
+        });
+
+        $message = $isUpdate
+            ? 'Asset allocation updated successfully'
+            : 'Asset allocation saved successfully';
+
+        return back()->with('success', $message);
+    }
+
+    public function getAssetAllocationStatus(Request $request)
+    {
+        $request->validate([
+            'asset_id' => 'required|exists:assets,id'
+        ]);
+
+        $user = auth()->user();
+        $assetId = $request->asset_id;
+
+        // Verify asset belongs to user
+        $asset = Asset::where('id', $assetId)
+            ->where('user_id', $user->id)
+            ->where('is_legacy', true)
+            ->firstOrFail();
+
+        $allocations = AssetBeneficiaryAllocation::where('asset_id', $assetId)
+            ->with('beneficiary')
+            ->get();
+
+        $totalPercentage = $allocations->sum('percentage');
+        $isComplete = abs($totalPercentage - 100) < 0.01;
+
+        return response()->json([
+            'has_allocations' => $allocations->count() > 0,
+            'allocations_count' => $allocations->count(),
+            'total_percentage' => $totalPercentage,
+            'is_complete' => $isComplete,
+            'allocations' => $allocations->map(function ($allocation) {
+                return [
+                    'id' => $allocation->id,
+                    'beneficiary_id' => $allocation->beneficiary_id,
+                    'beneficiary_name' => $allocation->beneficiary->full_name,
+                    'percentage' => $allocation->percentage,
+                    'conditions' => $allocation->conditions,
+                    'contingent_of' => $allocation->contingent_of,
+                ];
+            })
+        ]);
+    }
+
     public function saveAllocations(Request $request)
     {
         $request->validate([

@@ -322,7 +322,10 @@ Route::prefix('user/legacy')->name('legacy.')->middleware(['auth', 'verified', '
     Route::get('/assets', [App\Http\Controllers\LegacyController::class, 'assets'])->name('assets');
     Route::post('/assets', [App\Http\Controllers\LegacyController::class, 'storeAsset'])->name('assets.store');
     Route::get('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'beneficiaries'])->name('beneficiaries');
+    Route::post('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'storeBeneficiary'])->name('beneficiaries.store');
     Route::post('/allocations', [App\Http\Controllers\LegacyController::class, 'saveAllocations'])->name('allocations.save');
+    Route::post('/asset-allocation', [App\Http\Controllers\LegacyController::class, 'storeAssetAllocation'])->name('asset-allocation.store');
+    Route::get('/asset-allocation-status', [App\Http\Controllers\LegacyController::class, 'getAssetAllocationStatus'])->name('asset-allocation.status');
     Route::get('/fiduciaries', [App\Http\Controllers\LegacyController::class, 'fiduciaries'])->name('fiduciaries');
     Route::post('/fiduciaries', [App\Http\Controllers\LegacyController::class, 'saveFiduciaries'])->name('fiduciaries.save');
     Route::get('/insurance-audit', [App\Http\Controllers\LegacyController::class, 'insurance'])->name('insurance');
