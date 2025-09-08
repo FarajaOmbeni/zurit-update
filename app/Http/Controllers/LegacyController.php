@@ -335,7 +335,7 @@ class LegacyController extends Controller
             ->whereIn('type', ['insurance', 'pension'])
             ->get();
 
-        return Inertia::render('UserDashboard/Legacy/InsuranceAudit', [
+        return Inertia::render('UserDashboard/Legacy/Insurance', [
             'insuranceInvestments' => $insuranceInvestments
         ]);
     }
