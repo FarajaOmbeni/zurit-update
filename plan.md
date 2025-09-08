@@ -173,20 +173,3 @@ Navigation: Card/Link to `route('legacy.landing')` from main dashboard.
 12. Reports: install PDF package; create Blade templates; implement `generate()`.
 13. UX: add nav entry to `Legacy & Estate Planning`.
 14. QA: test STK end-to-end; callback; entitlement; allocation validation; PDF outputs.
-
----
-
-## Acceptance criteria (Phase 1)
-- One-off payment via STK unlocks Legacy for the user; accessible without subscription.
-- Users can add legacy assets; create beneficiaries; allocate per asset with total = 100; set fiduciaries.
-- Insurance audit lists policies/pensions and allows beneficiary/renewal capture.
-- Reports generate and download as watermarked PDFs; pack includes all relevant sections.
-- Admin can see who has access (and when granted).
-
-## Phase 1.5 / 2 (optional)
-- PIN + 2FA gate for viewing PDFs; detailed audit logs.
-- Word (.docx) generation for Will; redaction options for shared versions.
-- Reminder scheduler for premiums/renewals via email/SMS/WhatsApp.
-
-
-

@@ -312,4 +312,23 @@ Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.pus
 Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
+
+/////////////////////////////////////////////////////////
+//////////////////  LEGACY & ESTATE PLANNING ROUTES ///
+/////////////////////////////////////////////////////////
+Route::prefix('user/legacy')->name('legacy.')->middleware(['auth', 'verified', 'subscribed'])->group(function () {
+    // Legacy Module Routes
+    Route::get('/', [App\Http\Controllers\LegacyController::class, 'assets'])->name('landing');
+    Route::get('/assets', [App\Http\Controllers\LegacyController::class, 'assets'])->name('assets');
+    Route::post('/assets', [App\Http\Controllers\LegacyController::class, 'storeAsset'])->name('assets.store');
+    Route::get('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'beneficiaries'])->name('beneficiaries');
+    Route::post('/allocations', [App\Http\Controllers\LegacyController::class, 'saveAllocations'])->name('allocations.save');
+    Route::get('/fiduciaries', [App\Http\Controllers\LegacyController::class, 'fiduciaries'])->name('fiduciaries');
+    Route::post('/fiduciaries', [App\Http\Controllers\LegacyController::class, 'saveFiduciaries'])->name('fiduciaries.save');
+    Route::get('/insurance-audit', [App\Http\Controllers\LegacyController::class, 'insurance'])->name('insurance');
+    Route::post('/insurance-audit', [App\Http\Controllers\LegacyController::class, 'saveInsurance'])->name('insurance.save');
+    Route::get('/review', [App\Http\Controllers\LegacyController::class, 'review'])->name('review');
+    Route::post('/generate', [App\Http\Controllers\LegacyController::class, 'generate'])->name('generate');
+});
+
 require __DIR__ . '/auth.php';
