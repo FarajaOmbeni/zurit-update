@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
 import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import Input from '@/Components/Shared/Input.vue';
@@ -458,20 +458,6 @@ if (beneficiaries.value.length === 0) {
     addBeneficiary();
 }
 
-// Navigation function for progress indicator
-function navigateToStep(step) {
-    const routes = {
-        'assets': route('legacy.assets'),
-        'beneficiaries': route('legacy.beneficiaries'),
-        'fiduciaries': route('legacy.fiduciaries'),
-        'insurance': route('legacy.insurance'),
-        'review': route('legacy.review')
-    };
-
-    if (routes[step]) {
-        window.location.href = routes[step];
-    }
-}
 </script>
 
 <template>
@@ -500,54 +486,54 @@ function navigateToStep(step) {
                     <div class="mb-8">
                         <div class="flex items-center space-x-4">
                             <!-- Step 1: Assets (Completed) -->
-                            <div class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity"
-                                @click="navigateToStep('assets')">
-                                <div
-                                    class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-green-700 transition-colors">
-                                    ✓</div>
-                                <span
-                                    class="text-green-600 font-medium hover:text-green-700 transition-colors">Assets</span>
-                            </div>
+                            <Link :href="route('legacy.assets')"
+                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
+                            <div
+                                class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-green-700 transition-colors">
+                                ✓</div>
+                            <span
+                                class="text-green-600 font-medium hover:text-green-700 transition-colors">Assets</span>
+                            </Link>
                             <div class="w-12 h-px bg-green-600"></div>
 
                             <!-- Step 2: Beneficiaries (Current) -->
-                            <div class="flex items-center space-x-2 cursor-pointer"
-                                @click="navigateToStep('beneficiaries')">
-                                <div
-                                    class="bg-purple-500 w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                    2</div>
-                                <span class="text-purple-600 font-medium">Beneficiaries</span>
-                            </div>
+                            <Link :href="route('legacy.beneficiaries')"
+                                class="flex items-center space-x-2 cursor-pointer">
+                            <div
+                                class="bg-purple-500 w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                2</div>
+                            <span class="text-purple-600 font-medium">Beneficiaries</span>
+                            </Link>
                             <div class="w-12 h-px bg-gray-300"></div>
 
                             <!-- Step 3: Fiduciaries -->
-                            <div class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity"
-                                @click="navigateToStep('fiduciaries')">
-                                <div
-                                    class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                    3</div>
-                                <span class="text-gray-500 hover:text-purple-600 transition-colors">Fiduciaries</span>
-                            </div>
+                            <Link :href="route('legacy.fiduciaries')"
+                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
+                            <div
+                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
+                                3</div>
+                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Fiduciaries</span>
+                            </Link>
                             <div class="w-12 h-px bg-gray-300"></div>
 
                             <!-- Step 4: Insurance -->
-                            <div class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity"
-                                @click="navigateToStep('insurance')">
-                                <div
-                                    class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                    4</div>
-                                <span class="text-gray-500 hover:text-purple-600 transition-colors">Insurance</span>
-                            </div>
+                            <Link :href="route('legacy.insurance')"
+                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
+                            <div
+                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
+                                4</div>
+                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Insurance</span>
+                            </Link>
                             <div class="w-12 h-px bg-gray-300"></div>
 
                             <!-- Step 5: Review -->
-                            <div class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity"
-                                @click="navigateToStep('review')">
-                                <div
-                                    class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                    5</div>
-                                <span class="text-gray-500 hover:text-purple-600 transition-colors">Review</span>
-                            </div>
+                            <Link :href="route('legacy.review')"
+                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
+                            <div
+                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
+                                5</div>
+                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Review</span>
+                            </Link>
                         </div>
                     </div>
 
@@ -724,10 +710,10 @@ function navigateToStep(step) {
                         <p class="text-gray-600 mb-6">
                             Please go back to the assets step and add some assets first.
                         </p>
-                        <button @click="window.location.href = route('legacy.assets')"
+                        <Link :href="route('legacy.assets')"
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
-                            Go to Assets
-                        </button>
+                        Go to Assets
+                        </Link>
                     </div>
                 </div>
             </Sidebar>
