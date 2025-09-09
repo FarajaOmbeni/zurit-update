@@ -35,9 +35,9 @@ use App\Http\Controllers\CertificateController;
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', function () {
+    return redirect()->route('msme.dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/about', [IndexController::class, 'about'])->name('about');
 Route::get('/goal-setting', [IndexController::class, 'goal_setting'])->name('goal');
@@ -298,3 +298,56 @@ Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
 require __DIR__ . '/auth.php';
+
+// MSME Financial Management Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Main MSME Dashboard
+    Route::get('/msme/dashboard', [App\Http\Controllers\MsmeController::class, 'dashboard'])->name('msme.dashboard');
+    Route::get('/msme/business-setup', [App\Http\Controllers\MsmeController::class, 'businessSetup'])->name('msme.business-setup');
+    Route::post('/msme/business-profile', [App\Http\Controllers\MsmeController::class, 'updateBusinessProfile'])->name('msme.business-profile.update');
+    Route::get('/msme/reports', [App\Http\Controllers\MsmeController::class, 'reports'])->name('msme.reports');
+    Route::post('/msme/generate-report', [App\Http\Controllers\MsmeController::class, 'generateReport'])->name('msme.generate-report');
+
+    // Cashflow Management
+    Route::prefix('msme/cashflow')->name('cashflow.')->group(function () {
+        Route::get('/', [App\Http\Controllers\CashflowController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\CashflowController::class, 'store'])->name('store');
+        Route::put('/{cashflowEntry}', [App\Http\Controllers\CashflowController::class, 'update'])->name('update');
+        Route::delete('/{cashflowEntry}', [App\Http\Controllers\CashflowController::class, 'destroy'])->name('destroy');
+        Route::get('/analytics', [App\Http\Controllers\CashflowController::class, 'analytics'])->name('analytics');
+        Route::post('/bulk-import', [App\Http\Controllers\CashflowController::class, 'bulkImport'])->name('bulk-import');
+    });
+
+    // Pricing Models
+    Route::prefix('msme/pricing')->name('pricing.')->group(function () {
+        Route::get('/', [App\Http\Controllers\PricingModelController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\PricingModelController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\PricingModelController::class, 'store'])->name('store');
+        Route::get('/{pricingModel}', [App\Http\Controllers\PricingModelController::class, 'show'])->name('show');
+        Route::get('/{pricingModel}/edit', [App\Http\Controllers\PricingModelController::class, 'edit'])->name('edit');
+        Route::put('/{pricingModel}', [App\Http\Controllers\PricingModelController::class, 'update'])->name('update');
+        Route::delete('/{pricingModel}', [App\Http\Controllers\PricingModelController::class, 'destroy'])->name('destroy');
+        Route::post('/calculator', [App\Http\Controllers\PricingModelController::class, 'calculator'])->name('calculator');
+        Route::post('/apply-template', [App\Http\Controllers\PricingModelController::class, 'applyTemplate'])->name('apply-template');
+        Route::get('/{pricingModel}/export', [App\Http\Controllers\PricingModelController::class, 'exportAnalysis'])->name('export');
+        Route::post('/compare', [App\Http\Controllers\PricingModelController::class, 'compare'])->name('compare');
+    });
+
+    // Profit & Loss
+    Route::prefix('msme/profit-loss')->name('profit-loss.')->group(function () {
+        Route::get('/', [App\Http\Controllers\ProfitLossController::class, 'index'])->name('index');
+        Route::post('/generate', [App\Http\Controllers\ProfitLossController::class, 'generate'])->name('generate');
+        Route::get('/{profitLossRecord}', [App\Http\Controllers\ProfitLossController::class, 'show'])->name('show');
+        Route::put('/{profitLossRecord}', [App\Http\Controllers\ProfitLossController::class, 'update'])->name('update');
+        Route::delete('/{profitLossRecord}', [App\Http\Controllers\ProfitLossController::class, 'destroy'])->name('destroy');
+    });
+
+    // Balance Sheet
+    Route::prefix('msme/balance-sheet')->name('balance-sheet.')->group(function () {
+        Route::get('/', [App\Http\Controllers\BalanceSheetController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\BalanceSheetController::class, 'store'])->name('store');
+        Route::get('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'show'])->name('show');
+        Route::put('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'update'])->name('update');
+        Route::delete('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'destroy'])->name('destroy');
+    });
+});

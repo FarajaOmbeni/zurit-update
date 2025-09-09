@@ -281,6 +281,7 @@ const activeMobileAccordion = ref(null)
    Static nav data
 -------------------------------------------------- */
 const prosperityTools = [
+    { name: 'MSME Dashboard', href: '/msme/dashboard' },
     { name: 'Goal Setting', href: '/goal-setting' },
     { name: 'Budget Planner', href: '/budget-planner' },
     { name: 'Networth calculator', href: '/networth-calculator' },
@@ -298,6 +299,7 @@ const services = [
 ]
 
 const userMenuItems = [
+    { name: 'MSME Dashboard', href: '/msme/dashboard' },
     { name: 'Prosperity Dashboard', href: '/user/budget' },
     { name: 'Profile', href: '/profile' },
     { name: 'Log Out', href: '/logout' }

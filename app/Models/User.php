@@ -132,4 +132,48 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Coach::class, 'email', 'email');
     }
+
+    // MSME Financial Management Relationships
+
+    // A user has one business profile
+    public function businessProfile()
+    {
+        return $this->hasOne(BusinessProfile::class);
+    }
+
+    // A user has many cashflow entries
+    public function cashflowEntries()
+    {
+        return $this->hasMany(CashflowEntry::class);
+    }
+
+    // A user has many profit & loss records
+    public function profitLossRecords()
+    {
+        return $this->hasMany(ProfitLossRecord::class);
+    }
+
+    // A user has many balance sheet records
+    public function balanceSheetRecords()
+    {
+        return $this->hasMany(BalanceSheetRecord::class);
+    }
+
+    // A user has many pricing models
+    public function pricingModels()
+    {
+        return $this->hasMany(PricingModel::class);
+    }
+
+    // A user has many business plans
+    public function businessPlans()
+    {
+        return $this->hasMany(BusinessPlan::class);
+    }
+
+    // A user has many financial projections
+    public function financialProjections()
+    {
+        return $this->hasMany(FinancialProjection::class);
+    }
 }
