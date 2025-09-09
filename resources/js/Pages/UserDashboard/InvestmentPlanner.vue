@@ -146,7 +146,7 @@ const openInsuranceModal = () => {
     isInsuranceModalOpen.value = true;
 };
 const closeInsuranceModal = () => {
-    isStockModalOpen.value = false;
+    isInsuranceModalOpen.value = false;
     newInvestment.reset();
 
 };
