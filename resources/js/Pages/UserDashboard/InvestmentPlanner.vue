@@ -1178,9 +1178,11 @@ const selectedProviderEditPolicies = computed(() => {
                             <label for="term_years" class="block text-gray-700 text-xs font-medium mb-1">
                                 Term Length (Years)
                             </label>
-                            <input id="term_years" v-model.number="newInvestment.duration_years" type="number" min="1"
-                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
-               focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                            <select id="term_years" v-model="newInvestment.duration_years" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" disabled selected>Select Years</option>
+                                <option v-for="year in 31" :key="year" :value="year">{{ year }}</option>
+                            </select>
                         </div>
 
                         <input type="hidden" value="insurance" v-model="newInvestment.insurance">
@@ -1349,16 +1351,20 @@ const selectedProviderEditPolicies = computed(() => {
                             <div class="flex gap-2">
                                 <!-- Years -->
                                 <div class="flex-1">
-                                    <input type="number" min="0" v-model="newInvestment.duration_years"
-                                        placeholder="Years"
+                                    <select v-model="newInvestment.duration_years"
                                         class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
+                                        <option value="" disabled selected>Years</option>
+                                        <option v-for="year in 31" :key="year - 1" :value="year - 1">{{ year - 1 }}</option>
+                                    </select>
                                 </div>
 
-                                <!-- Months -->
                                 <div class="flex-1">
-                                    <input type="number" min="0" max="11" v-model="newInvestment.duration_months"
-                                        placeholder="Months"
+                                    <select v-model="newInvestment.duration_months"
                                         class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
+                                        <option value="" disabled selected>Months</option>
+                                        <option v-for="month in 12" :key="month - 1" :value="month - 1">{{ month - 1 }}
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
