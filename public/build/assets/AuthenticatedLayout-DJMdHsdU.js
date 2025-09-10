@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/AuthenticatedLayout-DJMdHsdU.js
-import{_ as o}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{b as a,o as s,a as e,E as r}from"./app-DEPE5jf6.js";const n={},c={class:"bg-gray-100"};function l(t,_){return s(),a("div",null,[e("div",c,[e("main",null,[r(t.$slots,"default")])])])}const f=o(n,[["render",l]]);export{f as A};
-========
-import{_ as o}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{b as a,o as s,a as e,E as r}from"./app-C9eKbMCQ.js";const n={},c={class:"bg-gray-100"};function l(t,_){return s(),a("div",null,[e("div",c,[e("main",null,[r(t.$slots,"default")])])])}const f=o(n,[["render",l]]);export{f as A};
->>>>>>>> test-branch:public/build/assets/AuthenticatedLayout-ChCsD__Y.js
