@@ -136,8 +136,7 @@ class PesapalService
             $payload = [
                 'id' => $orderData['order_id'],
                 'currency' => 'KES',
-                // 'amount' => (float) $orderData['amount'],
-                'amount' => 10,
+                'amount' => (float) $orderData['amount'],
                 'description' => $orderData['description'],
                 'callback_url' => $orderData['callback_url'],
                 'notification_id' => $ipnId,
