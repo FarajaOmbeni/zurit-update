@@ -10,9 +10,13 @@ const props = defineProps({
     users: Number,
     blogs: Number,
     subscribed: Number,
+    totalSubscriptions: Number,
+    activeSubscriptions: Number,
+    monthlyRevenue: Number,
+    yearlyRevenue: Number,
+    mrrEquivalent: Number,
 })
 
-console.log(props)
 const dataCount = [props.users, props.blogs, props.subscribed]
 
 // Chart data
@@ -48,6 +52,42 @@ const chartOptions = ref({
                     <AdminCard title="Blogs" :number="props.blogs" />
                     <AdminCard title="Subscribed" :number="props.subscribed" />
                 </div>
+
+                <!-- Subscription Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h2 class="text-lg font-semibold mb-4">Subscription Overview</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-sm text-gray-500">Total Subscriptions</div>
+                                <div class="text-2xl font-bold">{{ props.totalSubscriptions?.toLocaleString?.() ?? props.totalSubscriptions }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Active Subscriptions</div>
+                                <div class="text-2xl font-bold">{{ props.activeSubscriptions?.toLocaleString?.() ?? props.activeSubscriptions }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Monthly Revenue (KES)</div>
+                                <div class="text-2xl font-bold">KES {{ (props.monthlyRevenue ?? 0).toLocaleString() }}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500">Yearly Revenue (KES)</div>
+                                <div class="text-2xl font-bold">KES {{ (props.yearlyRevenue ?? 0).toLocaleString() }}</div>
+                            </div>
+                            <div class="col-span-2">
+                                <div class="text-sm text-gray-500">MRR Equivalent (KES)</div>
+                                <div class="text-2xl font-bold">KES {{ (props.mrrEquivalent ?? 0).toLocaleString() }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h2 class="text-lg font-semibold mb-4">Quick Chart</h2>
+                        <div class="h-64">
+                            <BarChart :chartData="chartData" :chartOptions="chartOptions" />
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mx-auto max-w-[90%] mt-14">
                     <BarChart :chartData="chartData" :chartOptions="chartOptions" />
                 </div>

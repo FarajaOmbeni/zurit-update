@@ -29,11 +29,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
                 'role' => $request->user() ? $request->user()->role : null,
+                'subscribed' => $request->user()?->hasActiveSubscription(),
+                'user' => $user,
+                'subscription' => $user ? [
+                    'status' => $user->subscription_status ?? 'inactive',
+                    'expires_at' => $user->subscription_expires_at,
+                    'package' => $user->subscription_package,
+                    // Consider access active as long as not expired, regardless of status
+                    'is_active' => $user->subscription_expires_at && $user->subscription_expires_at > now(),
+                    // Explicit flag to indicate cancelled but still within access window
+                    'is_within_grace' => ($user->subscription_status === 'cancelled') && $user->subscription_expires_at && $user->subscription_expires_at > now(),
+                ] : null,
             ],
             'csrf_token' => csrf_token(),
         ];

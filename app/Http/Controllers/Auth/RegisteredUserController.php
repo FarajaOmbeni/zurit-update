@@ -42,6 +42,10 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
+            // Three-month free trial on signup
+            'subscription_status' => 'trial',
+            'subscription_expires_at' => now()->addMonths(3),
+            'subscription_package' => 'trial',
         ]);
 
         event(new Registered($user));
