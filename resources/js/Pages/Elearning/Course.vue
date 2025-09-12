@@ -115,11 +115,37 @@
                                     </div>
                                     <div class="flex justify-end">
                                         <button
-                                                @click="openPdfInNewTab(material, $event)"
-                                            class="w-full md:w-auto text-white border-none py-2.5 px-5 rounded-lg font-medium text-sm cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
+                                            @click="openPdfInNewTab(material, $event)"
+                                            :disabled="isLoading(material.id)"
+                                            class="w-full md:w-auto text-white border-none py-2.5 px-5 rounded-lg font-medium text-sm cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 flex items-center justify-center gap-2"
+                                            :class="{ 'opacity-70 cursor-not-allowed': isLoading(material.id) }"
                                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
                                         >
-                                            View PDF
+                                            <!-- Loading spinner -->
+                                            <svg 
+                                                v-if="isLoading(material.id)"
+                                                class="animate-spin h-4 w-4 text-white" 
+                                                xmlns="http://www.w3.org/2000/svg" 
+                                                fill="none" 
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle 
+                                                    class="opacity-25" 
+                                                    cx="12" 
+                                                    cy="12" 
+                                                    r="10" 
+                                                    stroke="currentColor" 
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path 
+                                                    class="opacity-75" 
+                                                    fill="currentColor" 
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            
+                                            <!-- Button text -->
+                                            <span>{{ isLoading(material.id) ? 'Opening...' : 'View PDF' }}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -142,6 +168,11 @@ export default {
     course: Object,
         materials: Array,
     },
+    data() {
+        return {
+            loadingMaterials: new Set() // Track which materials are loading
+        };
+    },
     methods: {
         goBack() {
             if (window.history.length > 1) {
@@ -151,17 +182,33 @@ export default {
             }
         },
         openPdfInNewTab(material, event) {
-  // Prevent default behavior
-  event.preventDefault();
-  
-  // Create the viewer URL
-  const viewerUrl = route('course-materials.viewer', { 
-    material: material.id,
-    t: Date.now() // Cache buster
-  });
+            // Prevent default behavior
+            event.preventDefault();
+            
+            // Set loading state
+            this.loadingMaterials.add(material.id);
+            
+            // Create the viewer URL
+            const viewerUrl = route('course-materials.viewer', { 
+                material: material.id,
+                t: Date.now() // Cache buster
+            });
 
-  // Open in new tab (same window)
-  window.open(viewerUrl, '_blank');
+            // Open in new tab
+            const newWindow = window.open(viewerUrl, '_blank');
+            
+            // Remove loading state after a short delay (window opening)
+            setTimeout(() => {
+                this.loadingMaterials.delete(material.id);
+            }, 1000);
+            
+            // Also remove loading state if window couldn't open
+            if (!newWindow) {
+                this.loadingMaterials.delete(material.id);
+            }
+        },
+        isLoading(materialId) {
+            return this.loadingMaterials.has(materialId);
         },
     },
 };

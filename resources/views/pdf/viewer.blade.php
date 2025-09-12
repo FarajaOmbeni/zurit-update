@@ -49,6 +49,41 @@
             height: auto;
             display: block;
         }
+        
+        /* Loading spinner styles */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            min-height: 400px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #666;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -58,7 +93,14 @@
     </div>
     
     <div id="viewer-container">
-        <div id="pdf-container"></div>
+        <!-- Loading spinner -->
+        <div id="loading-container" class="loading-container">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading PDF...</div>
+        </div>
+        
+        <!-- PDF content -->
+        <div id="pdf-container" class="hidden"></div>
     </div>
 
     <script>
@@ -67,12 +109,17 @@
         
         // Get DOM elements
         const container = document.getElementById('pdf-container');
+        const loadingContainer = document.getElementById('loading-container');
         
         // Load and render PDF
         (async function() {
             try {
                 const loadingTask = pdfjsLib.getDocument('{{ route("course-materials.show", $material->id) }}');
                 const pdfDoc = await loadingTask.promise;
+                
+                // Hide loading spinner and show PDF container
+                loadingContainer.classList.add('hidden');
+                container.classList.remove('hidden');
                 
                 // Render all pages
                 for (let i = 1; i <= pdfDoc.numPages; i++) {
@@ -101,6 +148,9 @@
                 }
                 
             } catch (err) {
+                // Hide loading spinner and show error
+                loadingContainer.classList.add('hidden');
+                container.classList.remove('hidden');
                 container.innerHTML = `<div style="color: #333; padding: 20px; text-align: center;">Error loading PDF: ${err.message}</div>`;
                 console.error('PDF loading error:', err);
             }

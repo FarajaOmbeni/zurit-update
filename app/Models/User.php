@@ -138,7 +138,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Coach::class, 'email', 'email');
     }
-<<<<<<< HEAD
 
     // MSME Financial Management Relationships
 
@@ -182,7 +181,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function financialProjections()
     {
         return $this->hasMany(FinancialProjection::class);
-=======
+    }
+
     public function mpesaPayments()
     {
         return $this->hasMany(MpesaPayment::class);
@@ -232,6 +232,5 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $subscription = $this->activeSubscription;
         return $subscription && $subscription->days_until_expiry <= $days;
->>>>>>> master
     }
 }
