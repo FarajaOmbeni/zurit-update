@@ -12,7 +12,8 @@ class Beneficiary extends Model
         'national_id',
         'relationship',
         'is_minor',
-        'contact',
+        'email',
+        'phone_number',
     ];
 
     protected $casts = [

@@ -34,7 +34,8 @@ const beneficiaryForm = useForm({
     national_id: '',
     relationship: '',
     is_minor: false,
-    contact: '',
+    email: '',
+    phone_number: '',
 });
 
 function resetBeneficiaryForm() {
@@ -77,7 +78,8 @@ function editBeneficiary(beneficiary) {
     beneficiaryForm.national_id = beneficiary.national_id || '';
     beneficiaryForm.relationship = beneficiary.relationship || '';
     beneficiaryForm.is_minor = !!beneficiary.is_minor;
-    beneficiaryForm.contact = beneficiary.contact || '';
+    beneficiaryForm.email = beneficiary.email || '';
+    beneficiaryForm.phone_number = beneficiary.phone_number || '';
     showForm.value = true;
 }
 
@@ -364,8 +366,13 @@ function formatCurrency(value) {
                             <div class="grid md:grid-cols-2 gap-4">
                                 <Input v-model="beneficiaryForm.relationship" label="Relationship (Optional)"
                                     placeholder="e.g., Spouse, Child" :error="beneficiaryForm.errors.relationship" />
-                                <Input v-model="beneficiaryForm.contact" label="Contact (Optional)"
-                                    placeholder="Email or Phone" :error="beneficiaryForm.errors.contact" />
+                                <Input v-model="beneficiaryForm.email" type="email" label="Email (Optional)"
+                                    placeholder="example@email.com" :error="beneficiaryForm.errors.email" />
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <Input v-model="beneficiaryForm.phone_number" label="Phone (Optional)"
+                                    placeholder="07xx xxx xxx" :error="beneficiaryForm.errors.phone_number" />
                             </div>
 
                             <div class="flex items-center space-x-2">
@@ -414,8 +421,10 @@ function formatCurrency(value) {
                                         <div class="text-gray-600 mb-3">
                                             <div v-if="b.national_id"><span class="text-gray-500">ID:</span> {{
                                                 b.national_id }}</div>
-                                            <div v-if="b.contact"><span class="text-gray-500">Contact:</span> {{
-                                                b.contact }}</div>
+                                            <div v-if="b.email"><span class="text-gray-500">Email:</span> {{
+                                                b.email }}</div>
+                                            <div v-if="b.phone_number"><span class="text-gray-500">Phone:</span> {{
+                                                b.phone_number }}</div>
                                             <div><span class="text-gray-500">Minor:</span> {{ b.is_minor ? 'Yes' : 'No'
                                             }}</div>
                                         </div>

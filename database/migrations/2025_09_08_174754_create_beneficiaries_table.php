@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('national_id')->nullable();
             $table->string('relationship')->nullable();
             $table->boolean('is_minor')->default(false);
-            $table->string('contact')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone_number')->nullable();
             $table->timestamps();
         });
     }

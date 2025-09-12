@@ -138,7 +138,8 @@ class LegacyController extends Controller
             'national_id' => 'nullable|string|max:20',
             'relationship' => 'nullable|string|max:100',
             'is_minor' => 'boolean',
-            'contact' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
         ]);
 
         $beneficiary = Beneficiary::create([
@@ -147,7 +148,8 @@ class LegacyController extends Controller
             'national_id' => $request->national_id,
             'relationship' => $request->relationship,
             'is_minor' => $request->is_minor ?? false,
-            'contact' => $request->contact,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
         ]);
 
         return back()->with('success', 'Beneficiary added successfully');
@@ -160,7 +162,8 @@ class LegacyController extends Controller
             'national_id' => 'nullable|string|max:20',
             'relationship' => 'nullable|string|max:100',
             'is_minor' => 'boolean',
-            'contact' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
         ]);
 
         $beneficiary = Beneficiary::where('id', $id)
@@ -172,7 +175,8 @@ class LegacyController extends Controller
             'national_id' => $request->national_id,
             'relationship' => $request->relationship,
             'is_minor' => $request->is_minor ?? false,
-            'contact' => $request->contact,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
         ]);
 
         return back()->with('success', 'Beneficiary updated successfully');
