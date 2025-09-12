@@ -359,20 +359,26 @@ function formatCurrency(value) {
                             <div class="grid md:grid-cols-2 gap-4">
                                 <Input v-model="beneficiaryForm.full_name" label="Full Name"
                                     placeholder="e.g., Jane Doe" :error="beneficiaryForm.errors.full_name" required />
-                                <Input v-model="beneficiaryForm.national_id" label="National ID (Optional)"
-                                    placeholder="ID Number" :error="beneficiaryForm.errors.national_id" />
+                                <Input v-model="beneficiaryForm.national_id"
+                                    :label="beneficiaryForm.is_minor ? 'National ID (Optional)' : 'National ID (Required)'"
+                                    placeholder="ID Number" :error="beneficiaryForm.errors.national_id"
+                                    :required="!beneficiaryForm.is_minor" />
                             </div>
 
                             <div class="grid md:grid-cols-2 gap-4">
                                 <Input v-model="beneficiaryForm.relationship" label="Relationship (Optional)"
                                     placeholder="e.g., Spouse, Child" :error="beneficiaryForm.errors.relationship" />
-                                <Input v-model="beneficiaryForm.email" type="email" label="Email (Optional)"
-                                    placeholder="example@email.com" :error="beneficiaryForm.errors.email" />
+                                <Input v-model="beneficiaryForm.email" type="email"
+                                    :label="beneficiaryForm.is_minor ? 'Email (Optional)' : 'Email (Required)'"
+                                    placeholder="example@email.com" :error="beneficiaryForm.errors.email"
+                                    :required="!beneficiaryForm.is_minor" />
                             </div>
 
                             <div class="grid md:grid-cols-2 gap-4">
-                                <Input v-model="beneficiaryForm.phone_number" label="Phone (Optional)"
-                                    placeholder="07xx xxx xxx" :error="beneficiaryForm.errors.phone_number" />
+                                <Input v-model="beneficiaryForm.phone_number"
+                                    :label="beneficiaryForm.is_minor ? 'Phone (Optional)' : 'Phone (Required)'"
+                                    placeholder="07xx xxx xxx" :error="beneficiaryForm.errors.phone_number"
+                                    :required="!beneficiaryForm.is_minor" />
                             </div>
 
                             <div class="flex items-center space-x-2">
