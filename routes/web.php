@@ -325,6 +325,8 @@ Route::prefix('user/legacy')->name('legacy.')->middleware(['auth', 'verified', '
     Route::delete('/assets/{id}', [App\Http\Controllers\LegacyController::class, 'destroyAsset'])->name('assets.destroy');
     Route::get('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'beneficiaries'])->name('beneficiaries');
     Route::post('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'storeBeneficiary'])->name('beneficiaries.store');
+    Route::put('/beneficiaries/{id}', [App\Http\Controllers\LegacyController::class, 'updateBeneficiary'])->name('beneficiaries.update');
+    Route::delete('/beneficiaries/{id}', [App\Http\Controllers\LegacyController::class, 'destroyBeneficiary'])->name('beneficiaries.destroy');
     Route::post('/allocations', [App\Http\Controllers\LegacyController::class, 'saveAllocations'])->name('allocations.save');
     Route::post('/asset-allocation', [App\Http\Controllers\LegacyController::class, 'storeAssetAllocation'])->name('asset-allocation.store');
     Route::delete('/asset-allocation/{allocation}', [App\Http\Controllers\LegacyController::class, 'deleteAssetAllocation'])->name('asset-allocation.delete');

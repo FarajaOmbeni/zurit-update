@@ -92,8 +92,11 @@ class LegacyController extends Controller
             ->where('is_legacy', true)
             ->firstOrFail();
 
-        // Delete related allocations first
-        AssetBeneficiaryAllocation::where('asset_id', $id)->delete();
+        // Prevent deletion if allocations exist
+        $existingAllocations = AssetBeneficiaryAllocation::where('asset_id', $id)->count();
+        if ($existingAllocations > 0) {
+            return back()->withErrors(['asset' => 'This asset has beneficiary allocations and cannot be deleted. Remove all allocations first.']);
+        }
 
         $asset->delete();
 
@@ -144,6 +147,48 @@ class LegacyController extends Controller
         return back()->with('success', 'Beneficiary added successfully');
     }
 
+    public function updateBeneficiary(Request $request, $id)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'national_id' => 'nullable|string|max:20',
+            'relationship' => 'nullable|string|max:100',
+            'is_minor' => 'boolean',
+            'contact' => 'nullable|string|max:255',
+        ]);
+
+        $beneficiary = Beneficiary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $beneficiary->update([
+            'full_name' => $request->full_name,
+            'national_id' => $request->national_id,
+            'relationship' => $request->relationship,
+            'is_minor' => $request->is_minor ?? false,
+            'contact' => $request->contact,
+        ]);
+
+        return back()->with('success', 'Beneficiary updated successfully');
+    }
+
+    public function destroyBeneficiary($id)
+    {
+        $beneficiary = Beneficiary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        // Prevent deletion if beneficiary is allocated to any asset
+        $hasAllocations = AssetBeneficiaryAllocation::where('beneficiary_id', $id)->exists();
+        if ($hasAllocations) {
+            return back()->withErrors(['beneficiary' => 'This beneficiary has allocations and cannot be deleted. Remove their allocations first.']);
+        }
+
+        $beneficiary->delete();
+
+        return back()->with('success', 'Beneficiary deleted successfully');
+    }
+
     public function storeAssetAllocation(Request $request)
     {
         $request->validate([
@@ -178,12 +223,12 @@ class LegacyController extends Controller
             return back()->withErrors(['allocation' => 'One or more selected beneficiaries do not belong to you.']);
         }
 
-        // Calculate total percentage for validation
+        // Calculate total percentage for validation (allow up to 100%)
         $totalPercentage = collect($request->beneficiary_allocations)
             ->sum('percentage');
 
-        if (abs($totalPercentage - 100) > 0.01) {
-            return back()->withErrors(['allocation' => "Asset '{$asset->name}' allocations must total 100%. Current total: {$totalPercentage}%"]);
+        if ($totalPercentage > 100.01) {
+            return back()->withErrors(['allocation' => "Asset '{$asset->name}' allocations cannot exceed 100%. Current total: {$totalPercentage}%"]);
         }
 
         // Validate no duplicate beneficiaries for the same asset
@@ -341,12 +386,12 @@ class LegacyController extends Controller
                     ->where('is_legacy', true)
                     ->firstOrFail();
 
-                // Calculate total percentage for validation
+                // Calculate total percentage for validation (allow up to 100%)
                 $totalPercentage = collect($assetAllocation['beneficiary_allocations'])
                     ->sum('percentage');
 
-                if (abs($totalPercentage - 100) > 0.01) {
-                    throw new \Exception("Asset '{$asset->name}' allocations must total 100%. Current total: {$totalPercentage}%");
+                if ($totalPercentage > 100.01) {
+                    throw new \Exception("Asset '{$asset->name}' allocations cannot exceed 100%. Current total: {$totalPercentage}%");
                 }
 
                 // Clear existing allocations for this asset
