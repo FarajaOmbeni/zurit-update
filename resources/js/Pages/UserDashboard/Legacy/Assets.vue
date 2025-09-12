@@ -94,6 +94,16 @@ function formatDate(date) {
     });
 }
 
+function formatDateForInput(date) {
+    if (!date) return '';
+    // Convert date to YYYY-MM-DD format for HTML date input
+    const dateObj = new Date(date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 function getAssetTypeLabel(type) {
     const assetType = assetTypes.find(t => t.value === type);
     return assetType ? assetType.label : type;
@@ -117,7 +127,7 @@ function editAsset(asset) {
     form.type = asset.type;
     form.description = asset.description || '';
     form.value = asset.value;
-    form.acquisition_date = asset.acquisition_date || '';
+    form.acquisition_date = asset.acquisition_date ? formatDateForInput(asset.acquisition_date) : '';
     showForm.value = true;
 }
 
