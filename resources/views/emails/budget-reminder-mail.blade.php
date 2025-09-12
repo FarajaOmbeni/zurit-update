@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Goal Contribution Reminder</title>
+    <title>Budget Update Reminder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,18 +74,18 @@
 
         <h2>Hello {{ $user->name }},</h2>
         <p>
-            Just a quick reminder from the Zurit Consulting team — every step counts when it comes to reaching your
-            financial goals.
+            It's time to review and update your budget! Regular budget monitoring is key to maintaining financial health
+            and staying on track with your financial goals.
         </p>
         <p>
-            Have you made a contribution toward your goal this week? Your Goal Setting Tool makes it easy to track and
-            stay committed. Small, consistent progress leads to big achievements.
+            Take a few minutes to review your income, expenses, and spending patterns. This helps you identify areas
+            where you can save more and ensure you're making the most of your money.
         </p>
         <p>
-            Take a moment now to contribute and see how close you are to your target!
+            Update your budget now to keep your financial plan current and effective!
         </p>
 
-        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/user/goal">Contribute Now</a>
+        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/user/budget">Update Budget</a>
 
         <div class="footer">
             <p>© {{ date('Y') }} Zurit Consulting. All rights reserved.</p>

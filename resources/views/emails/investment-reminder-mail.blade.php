@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Goal Contribution Reminder</title>
+    <title>Investment Portfolio Review Reminder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,18 +74,18 @@
 
         <h2>Hello {{ $user->name }},</h2>
         <p>
-            Just a quick reminder from the Zurit Consulting team — every step counts when it comes to reaching your
-            financial goals.
+            It's time to review your investment portfolio! Regular portfolio monitoring helps you stay informed about
+            your investments' performance and make necessary adjustments.
         </p>
         <p>
-            Have you made a contribution toward your goal this week? Your Goal Setting Tool makes it easy to track and
-            stay committed. Small, consistent progress leads to big achievements.
+            Take a moment to check your investment performance, review your asset allocation, and consider if any
+            rebalancing or new investments align with your financial goals.
         </p>
         <p>
-            Take a moment now to contribute and see how close you are to your target!
+            Review your portfolio now to ensure your investments are working effectively for your financial future!
         </p>
 
-        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/user/goal">Contribute Now</a>
+        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/user/investments">Review Portfolio</a>
 
         <div class="footer">
             <p>© {{ date('Y') }} Zurit Consulting. All rights reserved.</p>
