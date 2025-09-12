@@ -28,11 +28,17 @@ class LegacyController extends Controller
         $user = auth()->user();
         $legacyAssets = Asset::where('user_id', $user->id)
             ->where('is_legacy', true)
+            ->with(['beneficiaryAllocations.beneficiary'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $beneficiaries = Beneficiary::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('UserDashboard/Legacy/Assets', [
-            'assets' => $legacyAssets
+            'assets' => $legacyAssets,
+            'beneficiaries' => $beneficiaries,
         ]);
     }
 

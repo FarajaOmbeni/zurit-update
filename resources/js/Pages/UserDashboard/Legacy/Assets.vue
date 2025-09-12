@@ -8,10 +8,14 @@ import Select from '@/Components/Shared/Select.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
 import { PlusIcon, BuildingOfficeIcon, BanknotesIcon, CalendarIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
     assets: {
+        type: Array,
+        default: () => []
+    },
+    beneficiaries: {
         type: Array,
         default: () => []
     }
@@ -22,6 +26,14 @@ const showForm = ref(false);
 const showDeleteModal = ref(false);
 const editingAsset = ref(null);
 const assetToDelete = ref(null);
+
+// Allocation modal state (per-asset)
+const showAllocationModal = ref(false);
+const allocationLoading = ref(false);
+const selectedAsset = ref(null);
+const allocationEntries = ref([]); // [{ beneficiary_id, percentage }]
+const beneficiaryOptions = computed(() => props.beneficiaries.map(b => ({ value: b.id, label: b.full_name })));
+const allocationTotal = computed(() => allocationEntries.value.reduce((sum, e) => sum + (parseFloat(e.percentage) || 0), 0));
 
 const form = useForm({
     name: '',
@@ -113,6 +125,20 @@ function getTotalValue() {
     return props.assets.reduce((total, asset) => total + parseFloat(asset.value || 0), 0);
 }
 
+function getAssetAllocations(asset) {
+    const rel = asset.beneficiary_allocations || asset.beneficiaryAllocations || [];
+    return rel.map(a => ({
+        id: a.id,
+        beneficiary_id: a.beneficiary_id || a.beneficiary?.id,
+        beneficiary_name: a.beneficiary?.full_name,
+        percentage: a.percentage,
+    })).filter(a => a.beneficiary_id);
+}
+
+function getAllocatedAssetsCount() {
+    return props.assets.filter(a => getAssetAllocations(a).length > 0).length;
+}
+
 function continueToBeneficiaries() {
     if (props.assets.length === 0) {
         openAlert('warning', 'Please add at least one asset before proceeding to beneficiaries.', 5000);
@@ -165,6 +191,82 @@ function cancelDelete() {
     assetToDelete.value = null;
 }
 
+async function openAllocationModal(asset) {
+    selectedAsset.value = asset;
+    allocationEntries.value = getAssetAllocations(asset).map(a => ({
+        beneficiary_id: a.beneficiary_id,
+        percentage: a.percentage,
+    }));
+    showAllocationModal.value = true;
+
+    // Also try fetching latest from server
+    allocationLoading.value = true;
+    try {
+        const url = route('legacy.asset-allocation.status') + `?asset_id=${asset.id}`;
+        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (response.ok) {
+            const data = await response.json();
+            allocationEntries.value = (data.allocations || []).map(a => ({
+                beneficiary_id: a.beneficiary_id,
+                percentage: a.percentage,
+            }));
+        }
+    } catch (e) {
+        // ignore; we already seeded from props
+    } finally {
+        allocationLoading.value = false;
+    }
+}
+
+function addAllocationRow() {
+    allocationEntries.value.push({ beneficiary_id: null, percentage: 0 });
+}
+
+function removeAllocationRow(index) {
+    allocationEntries.value.splice(index, 1);
+}
+
+function validateAllocations() {
+    const ids = allocationEntries.value.map(e => e.beneficiary_id).filter(Boolean);
+    const unique = new Set(ids);
+    if (ids.length !== unique.size) {
+        openAlert('danger', 'Each beneficiary can only be allocated once per asset.', 8000);
+        return false;
+    }
+    if (allocationTotal.value > 100.01) {
+        openAlert('danger', `Total allocation cannot exceed 100%. Current: ${allocationTotal.value}%`, 8000);
+        return false;
+    }
+    allocationEntries.value = allocationEntries.value.filter(e => e.beneficiary_id != null);
+    return true;
+}
+
+function saveAllocations() {
+    if (!selectedAsset.value) return;
+    if (!validateAllocations()) return;
+
+    const payload = {
+        asset_id: selectedAsset.value.id,
+        beneficiary_allocations: allocationEntries.value.map(e => ({
+            beneficiary_id: e.beneficiary_id,
+            percentage: Number(e.percentage) || 0,
+        }))
+    };
+
+    const allocForm = useForm(payload);
+    allocForm.post(route('legacy.asset-allocation.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showAllocationModal.value = false;
+            openAlert('success', 'Allocations saved successfully!', 5000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors).flat().join(' ');
+            openAlert('danger', errorMessages || 'Could not save allocations.', 10000);
+        }
+    });
+}
+
 </script>
 
 <template>
@@ -194,6 +296,9 @@ function cancelDelete() {
                             <div class="text-sm text-gray-500 mb-1">Total Asset Value</div>
                             <div class="text-2xl font-bold text-green-600">
                                 {{ formatCurrency(getTotalValue()) }}
+                            </div>
+                            <div class="text-sm text-gray-500 mt-1">
+                                {{ getAllocatedAssetsCount() }}/{{ assets.length }} assets allocated
                             </div>
                         </div>
                     </div>
@@ -337,6 +442,34 @@ function cancelDelete() {
                                                 <span>{{ formatDate(asset.acquisition_date) }}</span>
                                             </div>
                                         </div>
+                                        <!-- Allocations list -->
+                                        <div class="mt-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <div class="text-sm text-gray-600">
+                                                    <span class="font-medium">Allocations:</span>
+                                                    <span>
+                                                        {{ getAssetAllocations(asset).length > 0 ? '' : 'None yet' }}
+                                                    </span>
+                                                </div>
+                                                <button @click="openAllocationModal(asset)" type="button"
+                                                    class="text-purple-700 hover:text-purple-800 text-sm font-medium">
+                                                    Manage Allocations
+                                                </button>
+                                            </div>
+                                            <div v-if="getAssetAllocations(asset).length > 0" class="space-y-1">
+                                                <div v-for="alloc in getAssetAllocations(asset)"
+                                                    :key="alloc.beneficiary_id"
+                                                    class="flex items-center justify-between text-sm">
+                                                    <span class="text-gray-700">{{ alloc.beneficiary_name }}</span>
+                                                    <span class="text-gray-900 font-medium">{{ alloc.percentage
+                                                        }}%</span>
+                                                </div>
+                                                <div class="text-xs text-gray-500 mt-1">
+                                                    Total: {{getAssetAllocations(asset).reduce((s, a) => s +
+                                                    (parseFloat(a.percentage)||0), 0) }}%
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Action Buttons -->
@@ -418,4 +551,58 @@ function cancelDelete() {
             </div>
         </div>
     </AuthenticatedLayout>
+    <!-- Allocation Modal -->
+    <div v-if="showAllocationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-xl w-full mx-4">
+            <div class="p-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Manage Allocations</h3>
+                    <p class="text-gray-600 text-sm">Asset: <strong>{{ selectedAsset?.name }}</strong></p>
+                </div>
+
+                <div class="flex items-center justify-between mb-3">
+                    <div class="text-sm text-gray-600">
+                        Total: <strong :class="allocationTotal > 100 ? 'text-red-600' : 'text-gray-900'">{{
+                            allocationTotal }}%</strong>
+                        <span class="ml-2">(Partial allocations allowed. Do not exceed 100%.)</span>
+                    </div>
+                    <button @click="addAllocationRow" type="button"
+                        class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold py-2 px-3 rounded-lg transition-colors duration-200">
+                        + Add Row
+                    </button>
+                </div>
+
+                <div v-if="allocationLoading" class="text-gray-600 text-sm mb-4">Loading current allocations...</div>
+
+                <div class="space-y-3 max-h-80 overflow-y-auto mb-4">
+                    <div v-for="(entry, idx) in allocationEntries" :key="idx"
+                        class="grid md:grid-cols-6 gap-2 items-end">
+                        <div class="md:col-span-4">
+                            <Select v-model="entry.beneficiary_id" label="Beneficiary" :options="beneficiaryOptions"
+                                :error="''" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <Input v-model="entry.percentage" type="number" step="0.01" min="0" max="100" label="%" />
+                        </div>
+                        <div class="md:col-span-6 flex justify-end">
+                            <button @click="removeAllocationRow(idx)" type="button"
+                                class="text-red-600 hover:text-red-700 text-sm">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button @click="saveAllocations" :disabled="allocationLoading"
+                        class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                        Save Allocations
+                    </button>
+                    <button @click="showAllocationModal = false"
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Allocation Modal -->
 </template>
