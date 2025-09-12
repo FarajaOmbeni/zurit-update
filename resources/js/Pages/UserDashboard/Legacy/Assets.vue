@@ -462,11 +462,11 @@ function saveAllocations() {
                                                     class="flex items-center justify-between text-sm">
                                                     <span class="text-gray-700">{{ alloc.beneficiary_name }}</span>
                                                     <span class="text-gray-900 font-medium">{{ alloc.percentage
-                                                        }}%</span>
+                                                    }}%</span>
                                                 </div>
                                                 <div class="text-xs text-gray-500 mt-1">
                                                     Total: {{getAssetAllocations(asset).reduce((s, a) => s +
-                                                    (parseFloat(a.percentage)||0), 0) }}%
+                                                        (parseFloat(a.percentage) || 0), 0)}}%
                                                 </div>
                                             </div>
                                         </div>

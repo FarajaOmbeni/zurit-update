@@ -271,7 +271,7 @@ function formatCurrency(value) {
                                 Step 2: Your Beneficiaries
                             </h1>
                             <p class="text-gray-600">
-                                Manage your beneficiaries and allocate assets to them.
+                                Manage your beneficiaries.
                             </p>
                         </div>
 
@@ -432,11 +432,6 @@ function formatCurrency(value) {
 
                                     <!-- Action Buttons -->
                                     <div class="flex items-center space-x-2 ml-4">
-                                        <button @click="openAllocationModal(b)"
-                                            class="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200"
-                                            title="Manage Allocations">
-                                            Allocate
-                                        </button>
                                         <button @click="editBeneficiary(b)"
                                             class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                                             title="Edit Beneficiary">
