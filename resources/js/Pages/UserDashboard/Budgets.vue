@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
@@ -263,6 +264,7 @@ function submitEditTxn() {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
@@ -404,7 +406,7 @@ function submitEditTxn() {
 
                         <div v-show="hasData" class="mt-12">
                             <h2 class="text-xl font-bold text-center text-gray-900">All Transactions - {{ currentMonth
-                                }}</h2>
+                            }}</h2>
                             <div class="mt-4 bg-white shadow rounded-lg">
                                 <!-- Transaction List -->
                                 <ul class="divide-y divide-gray-200">

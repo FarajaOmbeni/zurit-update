@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import { ref, computed, onMounted, watch } from 'vue';
 import BudgetBarChart from '@/Components/Shared/BudgetBarChart.vue';
 import Alert from '@/Components/Shared/Alert.vue';
@@ -427,15 +428,29 @@ const showPricingAlert = ref(true)
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <div class="py-6">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div v-show="hasData" class="flex justify-between">
                             <div class="flex items-center justify-between mb-4 gap-2">
-                                <h1 class="text-2xl font-semibold text-gray-900">
-                                    {{ today }}'s Budget
-                                </h1>
+                                <div>
+                                    <h1 class="text-2xl font-semibold text-gray-900">
+                                        {{ today }}'s Budget
+                                    </h1>
+                                    <!-- Subscription status indicator -->
+                                    <div v-if="$page.props.auth.subscription && $page.props.auth.subscription.package"
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        {{ $page.props.auth.subscription.package === 'trial' ? 'Free Trial Active' :
+                                            'Pro Tools Active' }}
+                                    </div>
+                                </div>
                                 <!-- Toggle Button -->
-                                <button @click="showBalances = !showBalances" class="text-gray-600 hover:text-gray-800">
+                                <button @click="showBalances = !showBalances" class="text-gray-600 hover:text-gray-800 ml-4">
                                     <svg v-if="!showBalances" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -455,8 +470,7 @@ const showPricingAlert = ref(true)
                                     </svg>
                                 </button>
                             </div>
-
-                            <div class="px-6">
+                            <div class="px-6 flex items-center">
                                 <button @click="showBudgetModal = true"
                                     class="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition duration-150">
                                     View Budget
@@ -464,9 +478,11 @@ const showPricingAlert = ref(true)
                             </div>
                         </div>
                         <!-- Pricing Alert -->
-                        <!-- <Alert v-if="showPricingAlert" type="info"
-                            message="[UPDATE] Our budget tools will start charging on September 1st, but you'll get a 30-day free trial! After that, it's just KES 500/month or KES 4,500/year. Start budgeting today!"
-                            :dismissible="true" @close="showPricingAlert = false" /> -->
+                        <Alert v-if="showPricingAlert" type="info" message="✨ Great news! You're on a 3-month free trial of our budgeting tools — no charges until December 1st.
+After that, you can continue your journey for just KES 500/month or KES 4,500/year.
+
+Start using the tools today and enjoy stress-free budgeting! 💡" :dismissible="true"
+                            @close="showPricingAlert = false" />
 
                         <!-- Regular alerts from useAlert composable -->
                         <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"

@@ -23,7 +23,6 @@
                     <Link :href="route('investment')" class="block hover:text-yellow-400">Investment Planner
                     </Link>
                     <Link :href="route('goal')" class="block hover:text-yellow-400">Goal Setting</Link>
-                    <Link :href="route('money-quiz')" class="block hover:text-yellow-400">Money Quiz</Link>
                 </div>
 
                 <!-- Quick Links -->

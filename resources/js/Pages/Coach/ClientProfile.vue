@@ -2,7 +2,7 @@
     <CoachSidebar :title="`Client: ${client.name}`">
 
         <Head :title="`${client.name} • Profile`" />
-
+        <DashboardBackButton />
         <div class="space-y-6">
             <!-- Basic info -->
             <div class="bg-white rounded-lg shadow p-6">
@@ -103,6 +103,7 @@
 import { Head } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import CoachSidebar from '@/Components/CoachSidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import NetworthChart from '@/Components/Shared/NetworthChart.vue';
 import DebtsTable from '@/Components/Shared/DebtsTable.vue';
 import AssetsTable from '@/Components/Shared/AssetsTable.vue';

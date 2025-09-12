@@ -2,6 +2,7 @@
     <CoachSidebar title="Coach Dashboard">
 
         <Head title="Clients" />
+        <DashboardBackButton />
         <div class="space-y-6">
             <Alert v-if="alert.show" :type="alert.type" :message="alert.message" :auto-close="true" :duration="4000"
                 @close="alert.show = false" />
@@ -179,6 +180,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue';
 import CoachSidebar from '@/Components/CoachSidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import { Head, router } from '@inertiajs/vue3';
 import Alert from '@/Components/Shared/Alert.vue'
 

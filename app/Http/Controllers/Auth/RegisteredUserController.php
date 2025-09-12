@@ -33,13 +33,19 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'phone_number' => 'required|unique:users,phone_number',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
+            // Three-month free trial on signup
+            'subscription_status' => 'trial',
+            'subscription_expires_at' => now()->addMonths(3),
+            'subscription_package' => 'trial',
         ]);
 
         event(new Registered($user));

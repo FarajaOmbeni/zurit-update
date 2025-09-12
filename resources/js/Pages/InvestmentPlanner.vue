@@ -2,6 +2,9 @@
 
     <Head title="Investment Planner" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-[7rem]">
 
         <ToolCardBig title="What is an Investment Planner?"
@@ -29,7 +32,9 @@
         </div>
 
         <div class="flex justify-center mb-12">
-            <ToolFoot title="Investment Planning Made Simple" description="At Zurit, we aim to simplify investment planning. Our tool provides:Personalized investment strategies,  Streamlined portfolio management, Clear insights into market trends, User-friendly interfaces for a seamless experience" buttonText="Go to Investment Planner" buttonLink="/user/invest" />
+            <ToolFoot title="Investment Planning Made Simple"
+                description="At Zurit, we aim to simplify investment planning. Our tool provides:Personalized investment strategies,  Streamlined portfolio management, Clear insights into market trends, User-friendly interfaces for a seamless experience"
+                buttonText="Go to Investment Planner" buttonLink="/user/invest" />
         </div>
 
     </div>
@@ -43,5 +48,6 @@ import ToolCardBig from '@/Components/Shared/ToolCardBig.vue';
 import WhyUseTool from '@/Components/Shared/WhyUseTool.vue';
 import HowItWorksCard from '@/Components/Shared/HowItWorksCard.vue';
 import ToolFoot from '@/Components/Shared/ToolFoot.vue';
+import BackButton from '@/Components/Shared/BackButton.vue';
 import { Head } from '@inertiajs/vue3';
 </script>

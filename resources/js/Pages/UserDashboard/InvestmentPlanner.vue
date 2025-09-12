@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed, watch, onMounted } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 import InvestmentsTable from '@/Components/Shared/InvestmentsTable.vue';
 import InvestmentChart from '@/Components/Shared/InvestmentChart.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
@@ -14,7 +15,7 @@ import InsurancesTable from '@/Components/Shared/InsurancesTable.vue';
 
 const { alertState, openAlert, clearAlert } = useAlert();
 
-const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other']; 
+const FIXED_INCOME_TYPES = ['mmf', 'bills', 'bonds', 'other'];
 const REAL_ESTATE_TYPES = ['residential', 'commercial', 'land'];
 const STOCKS_TYPES = ['NSE', 'reits'];
 const POLICY_TYPES = [
@@ -145,7 +146,7 @@ const openInsuranceModal = () => {
     isInsuranceModalOpen.value = true;
 };
 const closeInsuranceModal = () => {
-    isStockModalOpen.value = false;
+    isInsuranceModalOpen.value = false;
     newInvestment.reset();
 
 };
@@ -617,7 +618,7 @@ const editInsuranceForm = useForm({
 
 /* 3 ▸ open / close helpers */
 function openEditInsuranceModal(investment) {
-    editingInsurance.value = { ...investment };    
+    editingInsurance.value = { ...investment };
     isEditInsuranceModalOpen.value = true;
 }
 
@@ -658,7 +659,7 @@ watch(
                 : '';
         editInsuranceForm.description = inv.description ?? '';
     },
-    { immediate: true } 
+    { immediate: true }
 );
 
 /* 5 ▸ submit handler */
@@ -691,6 +692,7 @@ const selectedProviderEditPolicies = computed(() => {
     <AuthenticatedLayout>
         <div class="w-full text-gray-900">
             <Sidebar>
+                <DashboardBackButton />
                 <Alert v-if="alertState" :type="alertState.type" :message="alertState.message"
                     :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
                 <div class="flex justify-between items-center mb-6">
@@ -1176,9 +1178,11 @@ const selectedProviderEditPolicies = computed(() => {
                             <label for="term_years" class="block text-gray-700 text-xs font-medium mb-1">
                                 Term Length (Years)
                             </label>
-                            <input id="term_years" v-model.number="newInvestment.duration_years" type="number" min="1"
-                                class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
-               focus:outline-none focus:ring-1 focus:ring-purple-500" required />
+                            <select id="term_years" v-model="newInvestment.duration_years" class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md
+               focus:outline-none focus:ring-1 focus:ring-purple-500" required>
+                                <option value="" disabled selected>Select Years</option>
+                                <option v-for="year in 31" :key="year" :value="year">{{ year }}</option>
+                            </select>
                         </div>
 
                         <input type="hidden" value="insurance" v-model="newInvestment.insurance">
@@ -1347,16 +1351,20 @@ const selectedProviderEditPolicies = computed(() => {
                             <div class="flex gap-2">
                                 <!-- Years -->
                                 <div class="flex-1">
-                                    <input type="number" min="0" v-model="newInvestment.duration_years"
-                                        placeholder="Years"
+                                    <select v-model="newInvestment.duration_years"
                                         class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
+                                        <option value="" disabled selected>Years</option>
+                                        <option v-for="year in 31" :key="year - 1" :value="year - 1">{{ year - 1 }}</option>
+                                    </select>
                                 </div>
 
-                                <!-- Months -->
                                 <div class="flex-1">
-                                    <input type="number" min="0" max="11" v-model="newInvestment.duration_months"
-                                        placeholder="Months"
+                                    <select v-model="newInvestment.duration_months"
                                         class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500">
+                                        <option value="" disabled selected>Months</option>
+                                        <option v-for="month in 12" :key="month - 1" :value="month - 1">{{ month - 1 }}
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

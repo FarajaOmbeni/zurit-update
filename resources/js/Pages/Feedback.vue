@@ -2,6 +2,9 @@
 
     <Head title="Feedback" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="flex justify-center">
         <div
             class="max-w-3xl mx-4 mb-24 text-sm md:text-lg mt-32 mx-auto p-8 bg-white shadow-xl rounded-lg border-t-4 border-purple-700">
@@ -92,7 +95,8 @@
                     </label>
                     <select v-model="form.recommendationLikelihood"
                         class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-purple-500">
-                        <option value="Select Recommendation Likelihood" hidden>Select Recommendation Likelihood</option>
+                        <option value="Select Recommendation Likelihood" hidden>Select Recommendation Likelihood
+                        </option>
                         <option value="Unlikely - 1">1. Unlikely</option>
                         <option value="Less Likely - 2">2. Less Likely</option>
                         <option value="Neutral - 3">3. Neutral</option>
@@ -168,8 +172,7 @@
                 <div class="mt-6 text-center">
                     <button :disabled="form.processing" type="submit" class="w-full bg-gradient-to-r from-purple-700 to-yellow-500 text-white px-6 py-3 font-bold rounded-lg 
                      transition-transform transform hover:scale-105"
-                     :class="{ 'opacity-50 cursor-not-allowed': form.processing }"
-                     >
+                        :class="{ 'opacity-50 cursor-not-allowed': form.processing }">
                         {{ form.processing ? 'Submitting...' : 'Submit' }}
                     </button>
                     <!-- Success Message -->
@@ -187,6 +190,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
+import BackButton from '@/Components/Shared/BackButton.vue';
 import { ref, nextTick } from 'vue'
 
 // Save scroll position before submitting

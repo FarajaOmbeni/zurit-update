@@ -1,6 +1,8 @@
 <template>
     <Sidebar title="Coach Dashboard">
-        <Head title="Coach"/>
+
+        <Head title="Coach" />
+        <DashboardBackButton />
         <div class="space-y-6">
             <!-- Current Coach Section -->
             <div v-if="coach" class="bg-white rounded-lg shadow-md p-6">
@@ -10,7 +12,8 @@
                     <!-- Coach Photo -->
                     <div class="flex-shrink-0">
                         <div v-if="coach.photo" class="w-24 h-24 rounded-full overflow-hidden">
-                            <img :src="`/storage/coaches/${coach.photo}`" :alt="coach.name" class="w-full h-full object-cover">
+                            <img :src="`/storage/coaches/${coach.photo}`" :alt="coach.name"
+                                class="w-full h-full object-cover">
                         </div>
                         <div v-else class="w-24 h-24 rounded-full bg-purple-200 flex items-center justify-center">
                             <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor"
@@ -55,10 +58,10 @@
                                 class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
                                 Contact Coach
                             </button>
-                            <button @click="removeCoach"
+                            <!-- <button @click="removeCoach"
                                 class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
                                 Remove Coach
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                 </div>
@@ -174,6 +177,15 @@
                                 and goals.
                             </p>
                         </div>
+                        <div class="flex justify-center mt-8">
+                            <button @click="sendCoachRequest"
+                                class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded shadow transition duration-200">
+                                Send Request for a Coach
+                            </button>
+                        </div>
+                        <div v-if="requestSent" class="mt-4 text-green-600 text-center font-medium">
+                            Your request has been sent! Our admin will contact you soon.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,6 +197,7 @@
 import { ref } from 'vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 
 const props = defineProps({
     user: Object,
@@ -195,13 +208,28 @@ console.log(props.coach);
 
 const showContactInfo = ref(false);
 
-const removeCoach = () => {
-    const form = useForm({});
+// const removeCoach = () => {
+//     const form = useForm({});
 
-    form.delete(route('coach.remove'), {
+//     form.delete(route('coach.remove'), {
+//         onSuccess: () => {
+//             // Coach will be removed from the page
+//         }
+//     });
+// };
+const requestSent = ref(false);
+
+const sendCoachRequest = () => {
+    const form = useForm({});
+    form.post(route('coach.request'), {
         onSuccess: () => {
-            // Coach will be removed from the page
+            requestSent.value = true;
+        },
+        onError: () => {
+            // Optionally handle error, e.g. show a message
+            requestSent.value = false;
         }
     });
 };
+
 </script>

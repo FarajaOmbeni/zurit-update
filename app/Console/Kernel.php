@@ -14,7 +14,9 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('remove:past-event')->dailyAt('23:50');
         $schedule->command('app:send-email-reminder')->dailyAt('9:00');
-        $schedule->command('app:send-goal-reminder')->dailyAt('9:00');
+        $schedule->command('app:send-goal-reminder')->everyTenDays()->at('9:00');
+        $schedule->command('app:send-budget-reminder')->everyThreeDays()->at('9:00');
+        $schedule->command('app:send-investment-reminder')->weekly()->mondays()->at('9:00');
         $schedule->command('create:recurrent-transactions')->daily();
         $schedule->command('run:recurring')->dailyAt('00:05');
     }
@@ -24,7 +26,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

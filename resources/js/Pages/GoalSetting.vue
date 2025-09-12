@@ -1,6 +1,10 @@
 <template>
+
     <Head title="Goal Setting" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-[7rem]">
 
         <ToolCardBig title="What is Goal Setting?
@@ -28,7 +32,9 @@
         </div>
 
         <div class="flex justify-center mb-12">
-            <ToolFoot title="Goal Setting Made Simple" description="At Zurit, we believe in goal setting. Our tool is designed for easy navigation and user-friendly interfaces." buttonText="Go to Goal Setting" buttonLink="/user/goal"/>
+            <ToolFoot title="Goal Setting Made Simple"
+                description="At Zurit, we believe in goal setting. Our tool is designed for easy navigation and user-friendly interfaces."
+                buttonText="Go to Goal Setting" buttonLink="/user/goal" />
         </div>
 
     </div>
@@ -42,6 +48,7 @@ import ToolCardBig from '@/Components/Shared/ToolCardBig.vue';
 import WhyUseTool from '@/Components/Shared/WhyUseTool.vue';
 import HowItWorksCard from '@/Components/Shared/HowItWorksCard.vue';
 import ToolFoot from '@/Components/Shared/ToolFoot.vue';
+import BackButton from '@/Components/Shared/BackButton.vue';
 import { Head } from '@inertiajs/vue3';
 
 </script>

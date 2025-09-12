@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
 
 const scores = ref({
     goalSetting1: 0,
@@ -67,6 +69,7 @@ function contactUs() {
 
     <Head title="Money Quiz" />
     <AuthenticatedLayout>
+        <DashboardBackButton />
         <div class="flex justify-center">
             <div
                 class="max-w-3xl mx-4 mb-24 text-sm md:text-lg mt-32 mx-auto p-8 bg-white shadow-xl rounded-lg border-t-4 border-purple-700">

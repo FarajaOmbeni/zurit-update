@@ -2,11 +2,16 @@
 
     <Head title="Blogs" />
     <Navbar />
+    <div class="mx-6 md:mx-12">
+        <BackButton class="mt-6" />
+    </div>
     <div class="mt-32 mb-24 mx-4">
-        <h1
-            class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-start font-bold text-purple-500 mb-4 text-center">
-            Our <span class="text-yellow-500">Blogs</span>
-        </h1>
+        <div class="flex justify-center">
+            <h1
+                class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl md:text-start font-bold text-purple-500 mb-4">
+                Our <span class="text-yellow-500">Blogs</span>
+            </h1>
+        </div>
         <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-12">
             <!-- Blog Cards Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 w-[70%] gap-8">
@@ -80,6 +85,7 @@ import { defineProps } from 'vue';
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
 import BlogCard from '@/Components/Shared/BlogCard.vue';
+import BackButton from '@/Components/Shared/BackButton.vue';
 import { formatDate } from '@/Components/Composables/useDateFormat';
 
 const props = defineProps({

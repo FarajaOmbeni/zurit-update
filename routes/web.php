@@ -1,7 +1,6 @@
 <?php
 
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BookController;
@@ -17,13 +16,13 @@ use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NetworthController;
 use App\Http\Controllers\MarketingController;
+use App\Http\Controllers\QuestionnaireController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ZuriScoreController;
 use App\Http\Controllers\CoachAdminController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\CreateMeetingController;
-use App\Http\Controllers\PaymentStatusController;
-use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ElearningController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\CourseController;
@@ -53,7 +52,7 @@ Route::get('/blog/{id}', [IndexController::class, 'blog'])->name('blog');
 Route::post('/submit-quiz', [QuestionnaireController::class, 'submitQuestionnaire'])->name('submit.quiz');
 Route::get('/money-quiz', function () {
     return Inertia::render('MoneyQuiz');
-})->name('money-quiz');
+})->name('money.quiz');
 Route::get('/advisory', function () {
     return Inertia::render('Advisory');
 })->name('advisory');
@@ -64,9 +63,16 @@ Route::post('/sendMessage', [IndexController::class, 'sendMessage'])->name('send
 Route::post('/sendFeedback', [EventsController::class, 'eventFeedback'])->name('send.feedback');
 Route::post('/sendEmail', [IndexController::class, 'sendEmail'])->name('send.email');
 Route::get('/calendar', [IndexController::class, 'calendar'])->name('calendar');
+Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscription.plans');
+Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->name('subscribe');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+// Pesapal callback and IPN routes
+Route::get('/subscription/callback', [SubscriptionController::class, 'handleCallback'])->name('subscription.callback');
+Route::get('/pesapal/ipn', [SubscriptionController::class, 'handleIpn'])->name('pesapal.ipn');
+Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])->middleware(['auth'])->name('subscription.cancel');
+Route::post('/subscription/reactivate', [SubscriptionController::class, 'reactivate'])->middleware(['auth'])->name('subscription.reactivate');
+
+Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     /////////////////////////////////////////////////////////
@@ -129,6 +135,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/user/calculators', function () {
         return Inertia::render('UserDashboard/Calculators');
     })->name('calculator.index');
+
+    Route::post('/user/coach/request', [CoachController::class, 'requestCoach'])->name('coach.request');
 
     /////////////////////////////////////////////////////////
     //////////////////  E-LEARNING ROUTES ///////////////////////
@@ -260,6 +268,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
 
+Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['auth', 'verified'])->name('profile.edit');
+
+
 Route::get('/terms-and-conditions', function () {
     return Inertia::render('TermsAndConditions');
 });
@@ -289,6 +300,10 @@ Route::post('/zuri-callback', [ZuriScoreController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('zuriscore.callback');
 
+Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('mpesa-callback');
+Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.push');
 
 Route::post('/mpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])

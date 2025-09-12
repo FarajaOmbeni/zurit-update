@@ -289,12 +289,6 @@ const menuItems = [
     link: 'calculator.index'
   },
   {
-    title: 'E-Learning',
-    icon: 'AcademicCapIcon',
-    active: currentRoute.startsWith('/elearning'),
-    link: 'elearning.landing'
-  },
-  {
     title: 'Zuri Score',
     icon: 'DocumentIcon',
     active: currentRoute.startsWith('/user/zuriscore'),
