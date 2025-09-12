@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
 import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
+import LegacyProgress from '@/Components/Legacy/LegacyProgress.vue';
 import Input from '@/Components/Shared/Input.vue';
 import Select from '@/Components/Shared/Select.vue';
 import Alert from '@/Components/Shared/Alert.vue';
@@ -285,59 +286,7 @@ function formatCurrency(value) {
                         </div>
                     </div>
 
-                    <!-- Progress Indicator -->
-                    <div class="mb-8">
-                        <div class="flex items-center space-x-4">
-                            <!-- Step 1: Assets -->
-                            <Link :href="route('legacy.assets')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                1</div>
-                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Assets</span>
-                            </Link>
-                            <div class="w-12 h-px bg-gray-300"></div>
-
-                            <!-- Step 2: Beneficiaries (Current) -->
-                            <Link :href="route('legacy.beneficiaries')"
-                                class="flex items-center space-x-2 cursor-pointer">
-                            <div
-                                class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                2</div>
-                            <span class="text-purple-600 font-medium">Beneficiaries</span>
-                            </Link>
-                            <div class="w-12 h-px bg-gray-300"></div>
-
-                            <!-- Step 3: Fiduciaries -->
-                            <Link :href="route('legacy.fiduciaries')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                3</div>
-                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Fiduciaries</span>
-                            </Link>
-                            <div class="w-12 h-px bg-gray-300"></div>
-
-                            <!-- Step 4: Insurance -->
-                            <Link :href="route('legacy.insurance')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                4</div>
-                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Insurance</span>
-                            </Link>
-                            <div class="w-12 h-px bg-gray-300"></div>
-
-                            <!-- Step 5: Review -->
-                            <Link :href="route('legacy.review')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm hover:bg-purple-400 hover:text-white transition-colors">
-                                5</div>
-                            <span class="text-gray-500 hover:text-purple-600 transition-colors">Review</span>
-                            </Link>
-                        </div>
-                    </div>
+                    <LegacyProgress :current="2" />
 
                     <!-- Add Beneficiary Button -->
                     <div class="mb-6">
