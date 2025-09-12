@@ -8,17 +8,12 @@ class LegacyFiduciary extends Model
 {
     protected $fillable = [
         'user_id',
-        'executors',
-        'trustees',
-        'guardians',
-        'witness_placeholders',
-    ];
-
-    protected $casts = [
-        'executors' => 'array',
-        'trustees' => 'array',
-        'guardians' => 'array',
-        'witness_placeholders' => 'array',
+        'role',
+        'institution_type',
+        'institution_name',
+        'contact_name',
+        'email',
+        'phone',
     ];
 
     public function user()

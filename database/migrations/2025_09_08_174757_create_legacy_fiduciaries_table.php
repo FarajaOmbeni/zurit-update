@@ -14,10 +14,14 @@ return new class extends Migration
         Schema::create('legacy_fiduciaries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->json('executors')->nullable();
-            $table->json('trustees')->nullable();
-            $table->json('guardians')->nullable();
-            $table->json('witness_placeholders')->nullable();
+            // role: executor | trustee | guardian
+            $table->string('role');
+            // institution details
+            $table->string('institution_type')->nullable();
+            $table->string('institution_name');
+            $table->string('contact_name')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
             $table->timestamps();
         });
     }
