@@ -7,7 +7,7 @@ import Input from '@/Components/Shared/Input.vue';
 import Select from '@/Components/Shared/Select.vue';
 import Alert from '@/Components/Shared/Alert.vue';
 import { useAlert } from '@/Components/Composables/useAlert';
-import { PlusIcon, BuildingOfficeIcon, BanknotesIcon, CalendarIcon } from '@heroicons/vue/24/outline';
+import { PlusIcon, BuildingOfficeIcon, BanknotesIcon, CalendarIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -19,6 +19,9 @@ const props = defineProps({
 
 const { openAlert, clearAlert, alertState } = useAlert();
 const showForm = ref(false);
+const showDeleteModal = ref(false);
+const editingAsset = ref(null);
+const assetToDelete = ref(null);
 
 const form = useForm({
     name: '',
@@ -42,19 +45,36 @@ const assetTypes = [
 ];
 
 function submitForm() {
-    form.post(route('legacy.assets.store'), {
-        onSuccess: () => {
-            form.reset();
-            showForm.value = false;
-            openAlert('success', 'Asset added successfully!', 5000);
-        },
-        onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
-        }
-    });
+    if (editingAsset.value) {
+        form.put(route('legacy.assets.update', editingAsset.value.id), {
+            onSuccess: () => {
+                form.reset();
+                showForm.value = false;
+                editingAsset.value = null;
+                openAlert('success', 'Asset updated successfully!', 5000);
+            },
+            onError: (errors) => {
+                const errorMessages = Object.values(errors)
+                    .flat()
+                    .join(' ');
+                openAlert('danger', errorMessages, 10000);
+            }
+        });
+    } else {
+        form.post(route('legacy.assets.store'), {
+            onSuccess: () => {
+                form.reset();
+                showForm.value = false;
+                openAlert('success', 'Asset added successfully!', 5000);
+            },
+            onError: (errors) => {
+                const errorMessages = Object.values(errors)
+                    .flat()
+                    .join(' ');
+                openAlert('danger', errorMessages, 10000);
+            }
+        });
+    }
 }
 
 function formatCurrency(value) {
@@ -89,6 +109,50 @@ function continueToBeneficiaries() {
         return;
     }
     window.location.href = route('legacy.beneficiaries');
+}
+
+function editAsset(asset) {
+    editingAsset.value = asset;
+    form.name = asset.name;
+    form.type = asset.type;
+    form.description = asset.description || '';
+    form.value = asset.value;
+    form.acquisition_date = asset.acquisition_date || '';
+    showForm.value = true;
+}
+
+function cancelEdit() {
+    editingAsset.value = null;
+    form.reset();
+    showForm.value = false;
+}
+
+function confirmDelete(asset) {
+    assetToDelete.value = asset;
+    showDeleteModal.value = true;
+}
+
+function deleteAsset() {
+    if (!assetToDelete.value) return;
+
+    form.delete(route('legacy.assets.destroy', assetToDelete.value.id), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            assetToDelete.value = null;
+            openAlert('success', 'Asset deleted successfully!', 5000);
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+            openAlert('danger', errorMessages, 10000);
+        }
+    });
+}
+
+function cancelDelete() {
+    showDeleteModal.value = false;
+    assetToDelete.value = null;
 }
 
 </script>
@@ -179,16 +243,18 @@ function continueToBeneficiaries() {
 
                     <!-- Add Asset Button -->
                     <div class="mb-6">
-                        <button @click="showForm = !showForm"
+                        <button @click="showForm ? (editingAsset ? cancelEdit() : showForm = false) : showForm = true"
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                             <PlusIcon class="w-5 h-5 mr-2" />
                             {{ showForm ? 'Cancel' : 'Add Asset' }}
                         </button>
                     </div>
 
-                    <!-- Add Asset Form -->
+                    <!-- Add/Edit Asset Form -->
                     <div v-if="showForm" class="bg-white rounded-lg shadow-sm border p-6 mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Asset</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            {{ editingAsset ? 'Edit Asset' : 'Add New Asset' }}
+                        </h3>
 
                         <form @submit.prevent="submitForm" class="space-y-4">
                             <div class="grid md:grid-cols-2 gap-4">
@@ -214,11 +280,12 @@ function continueToBeneficiaries() {
                             <div class="flex space-x-4">
                                 <button type="submit" :disabled="form.processing"
                                     class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
-                                    {{ form.processing ? 'Adding...' : 'Add Asset' }}
+                                    {{ form.processing ? (editingAsset ? 'Updating...' : 'Adding...') : (editingAsset ?
+                                        'Update Asset' : 'Add Asset') }}
                                 </button>
 
-                                <button type="button" @click="showForm = false"
-                                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                                <button type="button" @click="editingAsset ? cancelEdit() : showForm = false"
+                                    class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                                     Cancel
                                 </button>
                             </div>
@@ -261,6 +328,20 @@ function continueToBeneficiaries() {
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex items-center space-x-2 ml-4">
+                                        <button @click="editAsset(asset)"
+                                            class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                                            title="Edit Asset">
+                                            <PencilIcon class="w-5 h-5" />
+                                        </button>
+                                        <button @click="confirmDelete(asset)"
+                                            class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                            title="Delete Asset">
+                                            <TrashIcon class="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -273,7 +354,7 @@ function continueToBeneficiaries() {
                         <p class="text-gray-600 mb-6">
                             Start by adding your first asset to begin your estate plan.
                         </p>
-                        <button @click="showForm = true"
+                        <button @click="editingAsset = null; showForm = true"
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                             <PlusIcon class="w-5 h-5 mr-2" />
                             Add Your First Asset
@@ -289,6 +370,42 @@ function continueToBeneficiaries() {
                     </div>
                 </div>
             </Sidebar>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0">
+                            <TrashIcon class="w-6 h-6 text-red-600" />
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Delete Asset
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <p class="text-gray-600">
+                            Are you sure you want to delete <strong>{{ assetToDelete?.name }}</strong>?
+                            This action cannot be undone.
+                        </p>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button @click="deleteAsset" :disabled="form.processing"
+                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                            {{ form.processing ? 'Deleting...' : 'Delete' }}
+                        </button>
+                        <button @click="cancelDelete"
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </AuthenticatedLayout>
 </template>

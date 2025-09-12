@@ -64,6 +64,12 @@ const editingAsset = ref(null);
 const editingAssetIndex = ref(null);
 const modalAllocations = ref([]);
 
+// Delete confirmation modal state
+const deleteModalOpen = ref(false);
+const deletingAllocation = ref(null);
+const deletingAssetIndex = ref(null);
+const deletingAllocationIndex = ref(null);
+
 // Form for editing allocations in modal
 const editAllocationForm = useForm({
     asset_id: '',
@@ -77,11 +83,6 @@ function addBeneficiary() {
 
 // Submit beneficiary form
 function submitBeneficiaryForm() {
-    if (!beneficiaryForm.full_name) {
-        openAlert('danger', 'Full name is required for the beneficiary.', 5000);
-        return;
-    }
-
     beneficiaryForm.post(route('legacy.beneficiaries.store'), {
         onSuccess: () => {
             openAlert('success', 'Beneficiary added successfully!', 5000);
@@ -91,10 +92,8 @@ function submitBeneficiaryForm() {
             window.location.reload();
         },
         onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
+            const errorMessage = Object.values(errors || {}).flat().join(' ') || 'Failed to add beneficiary';
+            openAlert('danger', errorMessage, 5000);
         }
     });
 }
@@ -143,9 +142,75 @@ function addAllocation(assetIndex) {
     });
 }
 
-// Remove allocation
+// Open delete confirmation modal
+function openDeleteConfirmation(assetIndex, allocationIndex) {
+    const asset = props.assets[assetIndex];
+    const allocation = allocations.value[assetIndex].beneficiary_allocations[allocationIndex];
+
+    deletingAllocation.value = allocation;
+    deletingAssetIndex.value = assetIndex;
+    deletingAllocationIndex.value = allocationIndex;
+    deleteModalOpen.value = true;
+}
+
+// Close delete confirmation modal
+function closeDeleteConfirmation() {
+    deleteModalOpen.value = false;
+    deletingAllocation.value = null;
+    deletingAssetIndex.value = null;
+    deletingAllocationIndex.value = null;
+}
+
+// Confirm and delete allocation
+function confirmDeleteAllocation() {
+    if (deletingAssetIndex.value !== null && deletingAllocationIndex.value !== null) {
+        const allocation = deletingAllocation.value;
+
+        // If this allocation has an ID, it's saved in the database - delete it
+        if (allocation.id) {
+            // Make API call to delete from database
+            fetch(route('legacy.asset-allocation.delete', allocation.id), {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Remove from local state
+                        allocations.value[deletingAssetIndex.value].beneficiary_allocations.splice(deletingAllocationIndex.value, 1);
+                        openAlert('success', data.message, 3000);
+                    } else {
+                        openAlert('danger', 'Failed to delete allocation. Please try again.', 5000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting allocation:', error);
+                    openAlert('danger', 'Failed to delete allocation. Please try again.', 5000);
+                })
+                .finally(() => {
+                    closeDeleteConfirmation();
+                });
+        } else {
+            // This is a local-only allocation, just remove from state
+            allocations.value[deletingAssetIndex.value].beneficiary_allocations.splice(deletingAllocationIndex.value, 1);
+            openAlert('success', 'Allocation removed successfully!', 3000);
+            closeDeleteConfirmation();
+        }
+    }
+}
+
+// Remove allocation (legacy function - now calls confirmation)
 function removeAllocation(assetIndex, allocationIndex) {
-    allocations.value[assetIndex].beneficiary_allocations.splice(allocationIndex, 1);
+    openDeleteConfirmation(assetIndex, allocationIndex);
 }
 
 // Calculate total percentage for an asset
@@ -342,10 +407,8 @@ function saveEditedAllocations() {
             window.location.reload();
         },
         onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
+            const errorMessage = Object.values(errors || {}).flat().join(' ') || 'Failed to update allocation';
+            openAlert('danger', errorMessage, 5000);
         }
     });
 }
@@ -398,10 +461,8 @@ function saveAssetAllocation(assetIndex) {
             window.location.reload();
         },
         onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
+            const errorMessage = Object.values(errors || {}).flat().join(' ') || 'Failed to save allocation';
+            openAlert('danger', errorMessage, 5000);
         }
     });
 }
@@ -432,10 +493,8 @@ function submitForm() {
             openAlert('success', 'Beneficiaries and allocations saved successfully!', 5000);
         },
         onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
+            const errorMessage = Object.values(errors || {}).flat().join(' ') || 'Failed to save beneficiaries and allocations';
+            openAlert('danger', errorMessage, 5000);
         }
     });
 }
@@ -940,6 +999,56 @@ function continueToFiduciaries() {
                             :disabled="!isModalAllocationValid() || editAllocationForm.processing"
                             class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed">
                             {{ editAllocationForm.processing ? 'Saving...' : 'Save Changes' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div v-if="deleteModalOpen" @click="closeDeleteConfirmation"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-overlay">
+            <div @click.stop class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+                <div class="bg-red-600 text-white px-6 py-4 flex justify-between items-center rounded-t-lg">
+                    <h3 class="text-lg font-medium">Confirm Deletion</h3>
+                    <button @click="closeDeleteConfirmation" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex items-start space-x-3 mb-4">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-medium text-gray-900 mb-2">Are you sure?</h4>
+                            <p class="text-sm text-gray-600 mb-4">
+                                You are about to delete the allocation for
+                                <span class="font-medium">{{ getBeneficiaryName(deletingAllocation?.beneficiary_id)
+                                }}</span>
+                                from
+                                <span class="font-medium">{{ props.assets[deletingAssetIndex]?.name }}</span>.
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button @click="closeDeleteConfirmation"
+                            class="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-red-500">
+                            Cancel
+                        </button>
+                        <button @click="confirmDeleteAllocation"
+                            class="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500">
+                            Delete Allocation
                         </button>
                     </div>
                 </div>

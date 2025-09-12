@@ -9,6 +9,7 @@ use App\Models\AssetBeneficiaryAllocation;
 use App\Models\LegacyFiduciary;
 use App\Models\Investment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -56,6 +57,47 @@ class LegacyController extends Controller
         ]);
 
         return back()->with('success', 'Asset added successfully');
+    }
+
+    public function updateAsset(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:100',
+            'description' => 'nullable|string|max:500',
+            'value' => 'required|numeric|min:0',
+            'acquisition_date' => 'nullable|date',
+        ]);
+
+        $asset = Asset::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->where('is_legacy', true)
+            ->firstOrFail();
+
+        $asset->update([
+            'name' => $request->name,
+            'type' => $request->type,
+            'description' => $request->description,
+            'value' => $request->value,
+            'acquisition_date' => $request->acquisition_date,
+        ]);
+
+        return back()->with('success', 'Asset updated successfully');
+    }
+
+    public function destroyAsset($id)
+    {
+        $asset = Asset::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->where('is_legacy', true)
+            ->firstOrFail();
+
+        // Delete related allocations first
+        AssetBeneficiaryAllocation::where('asset_id', $id)->delete();
+
+        $asset->delete();
+
+        return back()->with('success', 'Asset deleted successfully');
     }
 
     /**
@@ -168,7 +210,7 @@ class LegacyController extends Controller
             }
 
             // Log the operation for audit purposes
-            \Log::info('Asset allocation ' . ($isUpdate ? 'updated' : 'created'), [
+            Log::info('Asset allocation ' . ($isUpdate ? 'updated' : 'created'), [
                 'user_id' => auth()->id(),
                 'asset_id' => $assetId,
                 'is_update' => $isUpdate,
@@ -182,6 +224,39 @@ class LegacyController extends Controller
             : 'Asset allocation saved successfully';
 
         return back()->with('success', $message);
+    }
+
+    public function deleteAssetAllocation(Request $request, $allocation)
+    {
+        $user = auth()->user();
+
+        // Find the allocation and verify ownership
+        $allocationRecord = AssetBeneficiaryAllocation::where('id', $allocation)
+            ->whereHas('asset', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->where('is_legacy', true);
+            })
+            ->firstOrFail();
+
+        // Get asset and beneficiary names for logging
+        $assetName = $allocationRecord->asset->name;
+        $beneficiaryName = $allocationRecord->beneficiary->full_name;
+
+        // Delete the allocation
+        $allocationRecord->delete();
+
+        // Log the operation
+        Log::info('Asset allocation deleted', [
+            'user_id' => $user->id,
+            'allocation_id' => $allocation,
+            'asset_name' => $assetName,
+            'beneficiary_name' => $beneficiaryName
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Allocation for {$beneficiaryName} removed from {$assetName} successfully"
+        ]);
     }
 
     public function getAssetAllocationStatus(Request $request)
