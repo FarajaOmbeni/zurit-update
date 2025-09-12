@@ -21,6 +21,7 @@ const props = defineProps({
 });
 
 const { openAlert, clearAlert, alertState } = useAlert();
+const showBeneficiaryForm = ref(false);
 
 // Initialize beneficiaries and allocations
 const beneficiaries = ref([...props.beneficiaries]);
@@ -69,15 +70,32 @@ const editAllocationForm = useForm({
     beneficiary_allocations: []
 });
 
-// Add new beneficiary
+// Add new beneficiary (toggle form)
 function addBeneficiary() {
-    beneficiaries.value.push({
-        temp_id: `temp_${Date.now()}`,
-        full_name: '',
-        national_id: '',
-        relationship: '',
-        is_minor: false,
-        contact: ''
+    showBeneficiaryForm.value = !showBeneficiaryForm.value;
+}
+
+// Submit beneficiary form
+function submitBeneficiaryForm() {
+    if (!beneficiaryForm.full_name) {
+        openAlert('danger', 'Full name is required for the beneficiary.', 5000);
+        return;
+    }
+
+    beneficiaryForm.post(route('legacy.beneficiaries.store'), {
+        onSuccess: () => {
+            openAlert('success', 'Beneficiary added successfully!', 5000);
+            beneficiaryForm.reset();
+            showBeneficiaryForm.value = false;
+            // Refresh the page to get the updated beneficiary with ID
+            window.location.reload();
+        },
+        onError: (errors) => {
+            const errorMessages = Object.values(errors)
+                .flat()
+                .join(' ');
+            openAlert('danger', errorMessages, 10000);
+        }
     });
 }
 
@@ -192,6 +210,18 @@ const isFormValid = computed(() => {
         validationErrors.value.length === 0;
 });
 
+// Check if step is completed (all assets allocated and valid)
+const isStepCompleted = computed(() => {
+    if (beneficiaries.value.length === 0) return false;
+    if (props.assets.length === 0) return false;
+
+    return allocations.value.every((assetAllocation, index) => {
+        const total = getTotalPercentage(index);
+        return assetAllocation.beneficiary_allocations.length > 0 &&
+            Math.abs(total - 100) < 0.01;
+    });
+});
+
 // Get beneficiary options for select
 function getBeneficiaryOptions() {
     return beneficiaries.value
@@ -210,39 +240,6 @@ function getBeneficiaryName(beneficiaryId) {
     return beneficiary ? beneficiary.full_name : 'Unknown';
 }
 
-// Save individual beneficiary
-function saveBeneficiary(beneficiary) {
-    if (!beneficiary.full_name) {
-        openAlert('danger', 'Full name is required for the beneficiary.', 5000);
-        return;
-    }
-
-    // If beneficiary already has an ID, it's already saved
-    if (beneficiary.id) {
-        openAlert('info', 'This beneficiary is already saved.', 3000);
-        return;
-    }
-
-    beneficiaryForm.full_name = beneficiary.full_name;
-    beneficiaryForm.national_id = beneficiary.national_id;
-    beneficiaryForm.relationship = beneficiary.relationship;
-    beneficiaryForm.is_minor = beneficiary.is_minor;
-    beneficiaryForm.contact = beneficiary.contact;
-
-    beneficiaryForm.post(route('legacy.beneficiaries.store'), {
-        onSuccess: () => {
-            openAlert('success', 'Beneficiary saved successfully!', 5000);
-            // Refresh the page to get the updated beneficiary with ID
-            window.location.reload();
-        },
-        onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-            openAlert('danger', errorMessages, 10000);
-        }
-    });
-}
 
 // Open edit allocation modal
 function openEditAllocationModal(assetIndex) {
@@ -445,18 +442,36 @@ function submitForm() {
 
 // Continue to next step
 function continueToFiduciaries() {
-    if (!isFormValid.value) {
-        openAlert('warning', 'Please complete and save beneficiary allocations before proceeding.', 5000);
+    if (beneficiaries.value.length === 0) {
+        openAlert('warning', 'Please add at least one beneficiary before proceeding to fiduciaries.', 5000);
+        return;
+    }
+
+    // Check if all assets have valid allocations
+    const hasUnallocatedAssets = allocations.value.some((assetAllocation, index) => {
+        const asset = props.assets[index];
+        return assetAllocation.beneficiary_allocations.length === 0;
+    });
+
+    if (hasUnallocatedAssets) {
+        openAlert('warning', 'Please allocate all assets to beneficiaries before proceeding.', 5000);
+        return;
+    }
+
+    // Check if all allocations are valid (total 100%)
+    const hasInvalidAllocations = allocations.value.some((assetAllocation, index) => {
+        const total = getTotalPercentage(index);
+        return Math.abs(total - 100) > 0.01;
+    });
+
+    if (hasInvalidAllocations) {
+        openAlert('warning', 'Please ensure all asset allocations total 100% before proceeding.', 5000);
         return;
     }
 
     window.location.href = route('legacy.fiduciaries');
 }
 
-// Initialize with at least one beneficiary if none exist
-if (beneficiaries.value.length === 0) {
-    addBeneficiary();
-}
 
 </script>
 
@@ -473,13 +488,27 @@ if (beneficiaries.value.length === 0) {
                         :duration="alertState.duration" :auto-close="alertState.autoClose" @close="clearAlert" />
 
                     <!-- Header -->
-                    <div class="mb-8">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                            Step 2: Beneficiaries & Allocations
-                        </h1>
-                        <p class="text-gray-600">
-                            Add your beneficiaries and specify how your assets will be distributed.
-                        </p>
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                                Step 2: Beneficiaries & Allocations
+                            </h1>
+                            <p class="text-gray-600">
+                                Add your beneficiaries and specify how your assets will be distributed.
+                            </p>
+                        </div>
+
+                        <div v-if="isStepCompleted" class="text-right">
+                            <div class="text-sm text-gray-500 mb-1">Step Status</div>
+                            <div class="text-2xl font-bold text-green-600 flex items-center">
+                                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Complete
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Progress Indicator -->
@@ -499,12 +528,21 @@ if (beneficiaries.value.length === 0) {
                             <!-- Step 2: Beneficiaries (Current) -->
                             <Link :href="route('legacy.beneficiaries')"
                                 class="flex items-center space-x-2 cursor-pointer">
-                            <div
-                                class="bg-purple-500 w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                2</div>
-                            <span class="text-purple-600 font-medium">Beneficiaries</span>
+                            <div :class="[
+                                'w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium',
+                                isStepCompleted ? 'bg-green-600' : 'bg-purple-500'
+                            ]">
+                                {{ isStepCompleted ? '✓' : '2' }}
+                            </div>
+                            <span :class="[
+                                'font-medium',
+                                isStepCompleted ? 'text-green-600' : 'text-purple-600'
+                            ]">Beneficiaries</span>
                             </Link>
-                            <div class="w-12 h-px bg-gray-300"></div>
+                            <div :class="[
+                                'w-12 h-px',
+                                isStepCompleted ? 'bg-green-600' : 'bg-gray-300'
+                            ]"></div>
 
                             <!-- Step 3: Fiduciaries -->
                             <Link :href="route('legacy.fiduciaries')"
@@ -550,68 +588,139 @@ if (beneficiaries.value.length === 0) {
                         </div>
                     </div>
 
-                    <!-- Beneficiaries Section -->
-                    <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-semibold text-gray-900">Beneficiaries</h2>
-                            <button @click="addBeneficiary"
-                                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
-                                <PlusIcon class="w-5 h-5 mr-2" />
-                                Add Beneficiary
-                            </button>
-                        </div>
+                    <!-- Add Beneficiary Button -->
+                    <div class="mb-6">
+                        <button @click="addBeneficiary"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                            <PlusIcon class="w-5 h-5 mr-2" />
+                            {{ showBeneficiaryForm ? 'Cancel' : 'Add Beneficiary' }}
+                        </button>
+                    </div>
 
-                        <div class="space-y-6">
+                    <!-- Add Beneficiary Form -->
+                    <div v-if="showBeneficiaryForm" class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Beneficiary</h3>
+
+                        <form @submit.prevent="submitBeneficiaryForm" class="space-y-4">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <Input v-model="beneficiaryForm.full_name" label="Full Name" placeholder="John Doe"
+                                    :error="beneficiaryForm.errors.full_name" required />
+
+                                <Input v-model="beneficiaryForm.national_id" label="National ID (Optional)"
+                                    placeholder="12345678" :error="beneficiaryForm.errors.national_id" />
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <Input v-model="beneficiaryForm.relationship" label="Relationship (Optional)"
+                                    placeholder="Son, Daughter, Spouse, etc."
+                                    :error="beneficiaryForm.errors.relationship" />
+
+                                <Input v-model="beneficiaryForm.contact" label="Contact (Optional)"
+                                    placeholder="Phone or email" :error="beneficiaryForm.errors.contact" />
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <input v-model="beneficiaryForm.is_minor" type="checkbox"
+                                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                <label class="text-sm text-gray-700">Is Minor</label>
+                            </div>
+
+                            <div class="flex space-x-4">
+                                <button type="submit" :disabled="beneficiaryForm.processing"
+                                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                                    {{ beneficiaryForm.processing ? 'Adding...' : 'Add Beneficiary' }}
+                                </button>
+
+                                <button type="button" @click="showBeneficiaryForm = false"
+                                    class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Beneficiaries List -->
+                    <div v-if="beneficiaries.length > 0" class="space-y-4 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900">Your Beneficiaries</h3>
+
+                        <div class="grid gap-4">
                             <div v-for="(beneficiary, index) in beneficiaries"
-                                :key="beneficiary.id || beneficiary.temp_id" class="border rounded-lg p-4 bg-gray-50">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-lg font-medium text-gray-900">
-                                        Beneficiary {{ index + 1 }}
-                                        <span v-if="beneficiary.id"
-                                            class="text-sm text-green-600 font-normal">(Saved)</span>
-                                    </h3>
+                                :key="beneficiary.id || beneficiary.temp_id"
+                                class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <UserGroupIcon class="w-6 h-6 text-green-600 flex-shrink-0" />
+                                            <div>
+                                                <h4 class="text-lg font-semibold text-gray-900">
+                                                    {{ beneficiary.full_name }}
+                                                </h4>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ beneficiary.relationship || 'No relationship specified' }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="beneficiary.contact" class="text-gray-600 mb-3">
+                                            Contact: {{ beneficiary.contact }}
+                                        </div>
+
+                                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                            <div v-if="beneficiary.national_id" class="flex items-center space-x-1">
+                                                <span class="font-medium">ID:</span>
+                                                <span>{{ beneficiary.national_id }}</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <span class="font-medium">Status:</span>
+                                                <span
+                                                    :class="beneficiary.is_minor ? 'text-orange-600' : 'text-green-600'">
+                                                    {{ beneficiary.is_minor ? 'Minor' : 'Adult' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="flex space-x-2">
-                                        <button v-if="!beneficiary.id" @click="saveBeneficiary(beneficiary)"
-                                            :disabled="!beneficiary.full_name || beneficiaryForm.processing"
-                                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                                            {{ beneficiaryForm.processing ? 'Saving...' : 'Save Beneficiary' }}
-                                        </button>
                                         <button v-if="beneficiaries.length > 1" @click="removeBeneficiary(index)"
-                                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                                             <TrashIcon class="w-4 h-4" />
                                         </button>
-                                    </div>
-                                </div>
-
-                                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <Input v-model="beneficiary.full_name" label="Full Name *" placeholder="John Doe"
-                                        required />
-
-                                    <Input v-model="beneficiary.national_id" label="National ID (Optional)"
-                                        placeholder="12345678" />
-
-                                    <Input v-model="beneficiary.relationship" label="Relationship (Optional)"
-                                        placeholder="Son, Daughter, Spouse, etc." />
-
-                                    <Input v-model="beneficiary.contact" label="Contact (Optional)"
-                                        placeholder="Phone or email" />
-
-                                    <div class="flex items-center space-x-3 pt-6">
-                                        <input v-model="beneficiary.is_minor" type="checkbox"
-                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                                        <label class="text-sm text-gray-700">Is Minor</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Empty State for Beneficiaries -->
+                    <div v-else class="text-center py-12">
+                        <UserGroupIcon class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No beneficiaries added yet</h3>
+                        <p class="text-gray-600 mb-6">
+                            Start by adding your first beneficiary to begin your estate plan.
+                        </p>
+                        <button @click="showBeneficiaryForm = true"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
+                            <PlusIcon class="w-5 h-5 mr-2" />
+                            Add Your First Beneficiary
+                        </button>
+                    </div>
+
                     <!-- Asset Allocations Section -->
                     <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-6">Asset Allocations</h2>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900">Asset Allocations</h2>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-500 mb-1">Allocation Status</div>
+                                <div class="text-lg font-semibold text-blue-600">
+                                    {{allocations.filter(a => a.beneficiary_allocations.length > 0).length}} of {{
+                                        props.assets.length }} Assets Allocated
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="space-y-8">
-                            <div v-for="(asset, assetIndex) in assets" :key="asset.id" class="border rounded-lg p-6">
+                            <div v-for="(asset, assetIndex) in props.assets" :key="asset.id"
+                                class="border rounded-lg p-6">
                                 <div class="flex justify-between items-start mb-4">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">
@@ -704,7 +813,7 @@ if (beneficiaries.value.length === 0) {
                     </div>
 
                     <!-- Empty State -->
-                    <div v-if="assets.length === 0" class="text-center py-12">
+                    <div v-if="props.assets.length === 0" class="text-center py-12">
                         <UserGroupIcon class="w-16 h-16 text-gray-300 mx-auto mb-4" />
                         <h3 class="text-lg font-medium text-gray-900 mb-2">No assets to allocate</h3>
                         <p class="text-gray-600 mb-6">
@@ -714,6 +823,15 @@ if (beneficiaries.value.length === 0) {
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                         Go to Assets
                         </Link>
+                    </div>
+
+                    <!-- Continue Button -->
+                    <div v-if="props.assets.length > 0 && beneficiaries.length > 0"
+                        class="flex justify-end pt-8 border-t">
+                        <button @click="continueToFiduciaries" :disabled="!isFormValid"
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Continue to Fiduciaries →
+                        </button>
                     </div>
                 </div>
             </Sidebar>
