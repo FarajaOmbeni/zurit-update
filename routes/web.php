@@ -337,7 +337,10 @@ Route::prefix('user/legacy')->name('legacy.')->middleware(['auth', 'verified', '
     Route::put('/fiduciaries/{id}', [LegacyController::class, 'updateFiduciary'])->name('fiduciaries.update');
     Route::delete('/fiduciaries/{id}', [LegacyController::class, 'destroyFiduciary'])->name('fiduciaries.destroy');
     Route::get('/insurance-audit', [LegacyController::class, 'insurance'])->name('insurance');
-    Route::post('/insurance-audit', [LegacyController::class, 'saveInsurance'])->name('insurance.save');
+    Route::post('/insurance', [LegacyController::class, 'storeInsurance'])->name('insurance.store');
+    Route::put('/insurance/{id}', [LegacyController::class, 'updateInsurance'])->name('insurance.update');
+    Route::delete('/insurance/{id}', [LegacyController::class, 'destroyInsurance'])->name('insurance.destroy');
+
     Route::get('/review', [LegacyController::class, 'review'])->name('review');
     Route::post('/generate', [LegacyController::class, 'generate'])->name('generate');
 });

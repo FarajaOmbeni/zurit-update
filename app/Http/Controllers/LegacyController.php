@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Inertia\Inertia;
 use App\Models\Asset;
-use App\Models\Beneficiary;
-use App\Models\AssetBeneficiaryAllocation;
 use App\Models\Fiduciary;
+use App\Models\Insurance;
 use App\Models\Investment;
+use App\Models\Beneficiary;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-use Inertia\Inertia;
+use App\Models\AssetBeneficiaryAllocation;
 
 class LegacyController extends Controller
 {
@@ -497,21 +498,64 @@ class LegacyController extends Controller
     public function insurance()
     {
         $user = auth()->user();
-        $insuranceInvestments = Investment::where('user_id', $user->id)
+        $insuranceInvestments = Insurance::where('user_id', $user->id)
             ->whereIn('type', ['insurance', 'pension'])
             ->get();
 
         return Inertia::render('UserDashboard/Legacy/Insurance', [
-            'insuranceInvestments' => $insuranceInvestments
+            'insurances' => $insuranceInvestments
         ]);
     }
 
-    public function saveInsurance(Request $request)
+    public function storeInsurance(Request $request)
     {
-        // This could be used to update insurance beneficiaries or add reminders
-        // For now, we'll just acknowledge the audit
-        return back()->with('success', 'Insurance audit completed');
+        $data = $request->validate([
+            'type'            => 'required',
+            'provider_name'   => 'required|string|max:255',
+            'policy_number'   => 'required|string|max:255',
+            'coverage_amount' => 'required|numeric|min:0',
+            'premium_amount'  => 'required|numeric|min:0',
+            'renewal_date'    => 'nullable|date',
+            'notes'           => 'nullable|string|max:500',
+        ]);
+
+        Insurance::create($data + ['user_id' => auth()->id()]);
+
+        return back()->with('success', 'Insurance added successfully');
     }
+
+    public function updateInsurance(Request $request, $id)
+    {
+        $data = $request->validate([
+            'type'            => 'required',
+            'provider_name'   => 'required|string|max:255',
+            'policy_number'   => 'required|string|max:255',
+            'coverage_amount' => 'required|numeric|min:0',
+            'premium_amount'  => 'required|numeric|min:0',
+            'renewal_date'    => 'nullable|date',
+            'notes'           => 'nullable|string|max:500',
+        ]);
+
+        $row = Insurance::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $row->update($data);
+
+        return back()->with('success', 'Insurance updated successfully');
+    }
+
+    public function destroyInsurance($id)
+    {
+        $row = Insurance::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $row->delete();
+
+        return back()->with('success', 'Insurance deleted successfully');
+    }
+
 
     /**
      * Step 5: Review and generate
@@ -526,16 +570,14 @@ class LegacyController extends Controller
             ->get();
 
         $beneficiaries = Beneficiary::where('user_id', $user->id)->get();
-        $fiduciaries = Fiduciary::where('user_id', $user->id)->first();
-        $insuranceInvestments = Investment::where('user_id', $user->id)
-            ->whereIn('type', ['insurance', 'pension'])
-            ->get();
+        $fiduciaries = Fiduciary::where('user_id', $user->id)->get();
+        $insuranceInvestments = Insurance::where('user_id', $user->id)->get();
 
         return Inertia::render('UserDashboard/Legacy/Review', [
             'assets' => $legacyAssets,
             'beneficiaries' => $beneficiaries,
             'fiduciaries' => $fiduciaries,
-            'insuranceInvestments' => $insuranceInvestments
+            'insurances' => $insuranceInvestments
         ]);
     }
 

@@ -13,9 +13,14 @@ return new class extends Migration
     {
         Schema::create('insurances', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('value')->unique();
-            $table->json('policies');
+            $table->foreignId('user_id')->constrained('users');
+            $table->string('type');
+            $table->string('provider_name');
+            $table->string('policy_number');
+            $table->decimal('coverage_amount');
+            $table->decimal('premium_amount');
+            $table->date('renewal_date')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
