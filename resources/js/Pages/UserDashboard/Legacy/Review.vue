@@ -1,43 +1,55 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import Sidebar from '@/Components/Sidebar.vue';
-import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
-import { DocumentCheckIcon } from '@heroicons/vue/24/outline';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { Head, Link } from '@inertiajs/vue3'
+import Sidebar from '@/Components/Sidebar.vue'
+import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue'
+import { BuildingOfficeIcon, UserGroupIcon, ShieldCheckIcon, DocumentCheckIcon, BanknotesIcon, CalendarIcon } from '@heroicons/vue/24/outline'
+import { computed } from 'vue'
 
 const props = defineProps({
-    assets: {
-        type: Array,
-        default: () => []
-    },
-    beneficiaries: {
-        type: Array,
-        default: () => []
-    },
-    fiduciaries: {
-        type: Object,
-        default: () => null
-    },
-    insuranceInvestments: {
-        type: Array,
-        default: () => []
-    }
-});
+    assets: { type: Array, default: () => [] },
+    beneficiaries: { type: Array, default: () => [] },
+    // Controller currently sends a single (first) fiduciary record; handle object or array gracefully
+    fiduciaries: { type: [Object, Array, null], default: () => null },
+    // IMPORTANT: controller sends 'insurances' (not insuranceInvestments)
+    insurances: { type: Array, default: () => [] },
+})
 
-// Navigation function for progress indicator
-function navigateToStep(step) {
-    const routes = {
-        'assets': route('legacy.assets'),
-        'beneficiaries': route('legacy.beneficiaries'),
-        'fiduciaries': route('legacy.fiduciaries'),
-        'insurance': route('legacy.insurance'),
-        'review': route('legacy.review')
-    };
-
-    if (routes[step]) {
-        window.location.href = routes[step];
-    }
+// ---------- helpers ----------
+function formatCurrencyKES(value) {
+    if (value == null || value === '') return '—'
+    const n = Number(value) || 0
+    return new Intl.NumberFormat('en-KE', {
+        style: 'currency',
+        currency: 'KES',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(n)
 }
+function formatDateNice(date) {
+    if (!date) return 'Not specified'
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        const [y, m, d] = date.split('-').map(Number)
+        return new Date(y, m - 1, d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    }
+    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+function assetAllocations(asset) {
+    const rel = asset.beneficiary_allocations || asset.beneficiaryAllocations || []
+    return rel.map(a => ({
+        id: a.id,
+        beneficiary_name: a.beneficiary?.full_name,
+        percentage: a.percentage,
+    })).filter(a => a.beneficiary_name)
+}
+const totalAssetValue = computed(() =>
+    props.assets.reduce((sum, a) => sum + (parseFloat(a.value) || 0), 0)
+)
+const fiduciaryList = computed(() => {
+    // normalize to array for rendering
+    if (Array.isArray(props.fiduciaries)) return props.fiduciaries
+    return props.fiduciaries ? [props.fiduciaries] : []
+})
 </script>
 
 <template>
@@ -51,88 +63,205 @@ function navigateToStep(step) {
                 <div class="max-w-6xl mx-auto p-6">
                     <!-- Header -->
                     <div class="mb-8">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                            Step 5: Review & Generate
-                        </h1>
-                        <p class="text-gray-600">
-                            This page is for reviewing your complete estate plan and generating your legacy pack.
-                        </p>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">Step 5: Review & Generate</h1>
+                        <p class="text-gray-600">Review your entries before generating your legacy pack.</p>
                     </div>
 
-                    <!-- Progress Indicator -->
-                    <div class="mb-8">
-                        <div class="flex items-center space-x-4">
-                            <!-- Step 1: Assets (Completed) -->
-                            <Link :href="route('legacy.assets')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-green-700 transition-colors">
-                                ✓</div>
-                            <span
-                                class="text-green-600 font-medium hover:text-green-700 transition-colors">Assets</span>
-                            </Link>
-                            <div class="w-12 h-px bg-green-600"></div>
-
-                            <!-- Step 2: Beneficiaries (Completed) -->
-                            <Link :href="route('legacy.beneficiaries')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-green-700 transition-colors">
-                                ✓</div>
-                            <span
-                                class="text-green-600 font-medium hover:text-green-700 transition-colors">Beneficiaries</span>
-                            </Link>
-                            <div class="w-12 h-px bg-green-600"></div>
-
-                            <!-- Step 3: Fiduciaries (Completed) -->
-                            <Link :href="route('legacy.fiduciaries')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-green-700 transition-colors">
-                                ✓</div>
-                            <span
-                                class="text-green-600 font-medium hover:text-green-700 transition-colors">Fiduciaries</span>
-                            </Link>
-                            <div class="w-12 h-px bg-green-600"></div>
-
-                            <!-- Step 4: Insurance (Completed) -->
-                            <Link :href="route('legacy.insurance')"
-                                class="flex items-center space-x-2 cursor-pointer hover:opacity-75 transition-opacity">
-                            <div
-                                class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium hover:bg-green-700 transition-colors">
-                                ✓</div>
-                            <span
-                                class="text-green-600 font-medium hover:text-green-700 transition-colors">Insurance</span>
-                            </Link>
-                            <div class="w-12 h-px bg-green-600"></div>
-
-                            <!-- Step 5: Review (Current) -->
-                            <Link :href="route('legacy.review')" class="flex items-center space-x-2 cursor-pointer">
+                    <!-- Progress (compact) -->
+                    <div class="hidden md:flex items-center space-x-4 mb-8">
+                        <Link :href="route('legacy.assets')" class="flex items-center space-x-2">
+                        <div
+                            class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                            ✓</div>
+                        <span class="text-green-600 font-medium">Assets</span>
+                        </Link>
+                        <div class="w-12 h-px bg-green-600"></div>
+                        <Link :href="route('legacy.beneficiaries')" class="flex items-center space-x-2">
+                        <div
+                            class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                            ✓</div>
+                        <span class="text-green-600 font-medium">Beneficiaries</span>
+                        </Link>
+                        <div class="w-12 h-px bg-green-600"></div>
+                        <Link :href="route('legacy.fiduciaries')" class="flex items-center space-x-2">
+                        <div
+                            class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                            ✓</div>
+                        <span class="text-green-600 font-medium">Fiduciaries</span>
+                        </Link>
+                        <div class="w-12 h-px bg-green-600"></div>
+                        <Link :href="route('legacy.insurance')" class="flex items-center space-x-2">
+                        <div
+                            class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                            ✓</div>
+                        <span class="text-green-600 font-medium">Insurance</span>
+                        </Link>
+                        <div class="w-12 h-px bg-green-600"></div>
+                        <div class="flex items-center space-x-2">
                             <div
                                 class="bg-purple-500 w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium">
                                 5</div>
                             <span class="text-purple-600 font-medium">Review</span>
-                            </Link>
                         </div>
                     </div>
 
-                    <!-- Main Content -->
-                    <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
-                        <div class="text-center py-12">
-                            <DocumentCheckIcon class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">Estate Plan Review</h3>
-                            <p class="text-gray-600 mb-6">
-                                This page is for reviewing your complete estate plan and generating your legacy pack.
-                            </p>
-                            <p class="text-sm text-gray-500">
-                                Coming soon - You'll be able to review all your estate planning information and generate
-                                a comprehensive legacy pack with all your documents.
-                            </p>
-                        </div>
+                    <!-- Snapshot grid -->
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <!-- Assets -->
+                        <section class="bg-white rounded-lg shadow-sm border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <BuildingOfficeIcon class="w-6 h-6 text-blue-600" />
+                                    <h2 class="text-lg font-semibold text-gray-900">Assets</h2>
+                                </div>
+                                <Link :href="route('legacy.assets')" class="text-sm text-purple-700 hover:underline">
+                                Edit</Link>
+                            </div>
+
+                            <div class="text-sm text-gray-600 mb-3">
+                                <div>Total Asset Value: <span class="font-semibold text-gray-900">{{
+                                        formatCurrencyKES(totalAssetValue) }}</span></div>
+                                <div>Assets Count: <span class="font-semibold text-gray-900">{{ assets.length }}</span>
+                                </div>
+                            </div>
+
+                            <div v-if="assets.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                <div v-for="a in assets" :key="a.id" class="border rounded p-3">
+                                    <div class="font-medium text-gray-900">{{ a.name }}</div>
+                                    <div class="text-xs text-gray-500 mb-1">
+                                        Value: {{ formatCurrencyKES(a.value) }} • Acquired: {{
+                                        formatDateNice(a.acquisition_date) }}
+                                    </div>
+                                    <div class="text-xs text-gray-600" v-if="(assetAllocations(a)).length">
+                                        <div class="font-semibold mb-1">Beneficiary Allocations</div>
+                                        <div class="space-y-0.5">
+                                            <div v-for="al in assetAllocations(a)" :key="al.id"
+                                                class="flex justify-between">
+                                                <span>{{ al.beneficiary_name }}</span>
+                                                <span class="font-medium">{{ al.percentage }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">No assets added.</div>
+                        </section>
+
+                        <!-- Beneficiaries -->
+                        <section class="bg-white rounded-lg shadow-sm border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <UserGroupIcon class="w-6 h-6 text-emerald-600" />
+                                    <h2 class="text-lg font-semibold text-gray-900">Beneficiaries</h2>
+                                </div>
+                                <Link :href="route('legacy.beneficiaries')"
+                                    class="text-sm text-purple-700 hover:underline">Edit</Link>
+                            </div>
+
+                            <div class="text-sm text-gray-600 mb-3">
+                                <div>Total Beneficiaries: <span class="font-semibold text-gray-900">{{
+                                        beneficiaries.length }}</span></div>
+                            </div>
+
+                            <div v-if="beneficiaries.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                <div v-for="b in beneficiaries" :key="b.id" class="border rounded p-3">
+                                    <div class="font-medium text-gray-900">{{ b.full_name }}</div>
+                                    <div class="text-xs text-gray-500">
+                                        <span v-if="b.relationship">Relationship: {{ b.relationship }} • </span>
+                                        <span v-if="b.is_minor">Minor</span>
+                                        <span v-else>Adult</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500" v-if="b.email || b.phone_number">
+                                        <span v-if="b.email">Email: {{ b.email }} • </span>
+                                        <span v-if="b.phone_number">Phone: {{ b.phone_number }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">No beneficiaries added.</div>
+                        </section>
+
+                        <!-- Fiduciaries -->
+                        <section class="bg-white rounded-lg shadow-sm border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
+                                    <h2 class="text-lg font-semibold text-gray-900">Fiduciaries (Companies)</h2>
+                                </div>
+                                <Link :href="route('legacy.fiduciaries')"
+                                    class="text-sm text-purple-700 hover:underline">Edit</Link>
+                            </div>
+
+                            <div class="text-sm text-gray-600 mb-3">
+                                <div>Total Companies: <span class="font-semibold text-gray-900">{{ fiduciaryList.length
+                                        }}</span></div>
+                            </div>
+
+                            <div v-if="fiduciaryList.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                <div v-for="f in fiduciaryList" :key="f.id || f.institution_name"
+                                    class="border rounded p-3">
+                                    <div class="font-medium text-gray-900">{{ f.institution_name }}</div>
+                                    <div class="text-xs text-gray-500">
+                                        <span v-if="f.institution_type">Type: {{ f.institution_type }} • </span>
+                                        <span v-if="f.contact_name">Contact: {{ f.contact_name }}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500" v-if="f.email || f.phone">
+                                        <span v-if="f.email">Email: {{ f.email }} • </span>
+                                        <span v-if="f.phone">Phone: {{ f.phone }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">No fiduciary companies added.</div>
+                        </section>
+
+                        <!-- Insurances -->
+                        <section class="bg-white rounded-lg shadow-sm border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <DocumentCheckIcon class="w-6 h-6 text-indigo-600" />
+                                    <h2 class="text-lg font-semibold text-gray-900">Insurance & Pensions</h2>
+                                </div>
+                                <Link :href="route('legacy.insurance')" class="text-sm text-purple-700 hover:underline">
+                                Edit</Link>
+                            </div>
+
+                            <div class="text-sm text-gray-600 mb-3">
+                                <div>Total Policies: <span class="font-semibold text-gray-900">{{ insurances.length
+                                        }}</span></div>
+                            </div>
+
+                            <div v-if="insurances.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                <div v-for="p in insurances" :key="p.id" class="border rounded p-3">
+                                    <div class="font-medium text-gray-900">
+                                        {{ p.provider_name }}
+                                        <span class="text-xs text-gray-500">({{ p.type }})</span>
+                                    </div>
+                                    <div class="text-xs text-gray-600 mt-1 space-y-1">
+                                        <div v-if="p.policy_number"><span class="font-medium">Policy #:</span> {{
+                                            p.policy_number }}</div>
+                                        <div class="flex items-center space-x-4">
+                                            <div class="flex items-center space-x-1" v-if="p.coverage_amount">
+                                                <BanknotesIcon class="w-4 h-4" />
+                                                <span>Coverage: {{ formatCurrencyKES(p.coverage_amount) }}</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1" v-if="p.premium_amount">
+                                                <BanknotesIcon class="w-4 h-4" />
+                                                <span>Premium: {{ formatCurrencyKES(p.premium_amount) }}</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1" v-if="p.renewal_date">
+                                                <CalendarIcon class="w-4 h-4" />
+                                                <span>Renews: {{ formatDateNice(p.renewal_date) }}</span>
+                                            </div>
+                                        </div>
+                                        <div v-if="p.notes"><span class="font-medium">Notes:</span> {{ p.notes }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">No policies added.</div>
+                        </section>
                     </div>
 
-                    <!-- Generate Pack Button -->
-                    <div class="flex justify-center pt-8 border-t">
+                    <!-- Generate -->
+                    <div class="flex justify-center pt-8 border-t mt-8">
                         <button
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg flex items-center transition-colors duration-200 text-lg">
                             <DocumentCheckIcon class="w-6 h-6 mr-3" />
