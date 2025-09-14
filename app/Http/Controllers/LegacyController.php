@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Asset;
 use App\Models\Beneficiary;
 use App\Models\AssetBeneficiaryAllocation;
-use App\Models\LegacyFiduciary;
+use App\Models\Fiduciary;
 use App\Models\Investment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -431,7 +431,7 @@ class LegacyController extends Controller
     public function fiduciaries()
     {
         $user = auth()->user();
-        $fiduciaries = LegacyFiduciary::where('user_id', $user->id)->first();
+        $fiduciaries = Fiduciary::where('user_id', $user->id)->get();
 
         return Inertia::render('UserDashboard/Legacy/Fiduciaries', [
             'fiduciaries' => $fiduciaries
@@ -441,19 +441,55 @@ class LegacyController extends Controller
     public function saveFiduciaries(Request $request)
     {
         $request->validate([
-            'executors' => 'nullable|array',
-            'trustees' => 'nullable|array',
-            'guardians' => 'nullable|array',
-            'witness_placeholders' => 'nullable|array',
+            'institution_type' => 'nullable|string|max:255',
+            'institution_name' => 'required|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:50',
         ]);
 
-        LegacyFiduciary::updateOrCreate(
-            ['user_id' => auth()->id()],
-            $request->only(['executors', 'trustees', 'guardians', 'witness_placeholders'])
-        );
+        Fiduciary::create([
+            'user_id' => auth()->id(),
+            'institution_type' => $request->institution_type,
+            'institution_name' => $request->institution_name,
+            'contact_name' => $request->contact_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
 
-        return back()->with('success', 'Fiduciaries saved successfully');
+        return back()->with('success', 'Fiduciary added successfully');
     }
+
+    public function updateFiduciary(Request $request, $id)
+    {
+        $request->validate([
+            'institution_type' => 'nullable|string|max:255',
+            'institution_name' => 'required|string|max:255',
+            'contact_name'     => 'nullable|string|max:255',
+            'email'            => 'nullable|string|max:255',
+            'phone'            => 'nullable|string|max:50',
+        ]);
+
+        $fid = \App\Models\Fiduciary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $fid->update($request->only('institution_type', 'institution_name', 'contact_name', 'email', 'phone'));
+
+        return back()->with('success', 'Fiduciary updated successfully');
+    }
+
+    public function destroyFiduciary($id)
+    {
+        $fid = \App\Models\Fiduciary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $fid->delete();
+
+        return back()->with('success', 'Fiduciary deleted successfully');
+    }
+
 
     /**
      * Step 4: Insurance audit
@@ -490,7 +526,7 @@ class LegacyController extends Controller
             ->get();
 
         $beneficiaries = Beneficiary::where('user_id', $user->id)->get();
-        $fiduciaries = LegacyFiduciary::where('user_id', $user->id)->first();
+        $fiduciaries = Fiduciary::where('user_id', $user->id)->first();
         $insuranceInvestments = Investment::where('user_id', $user->id)
             ->whereIn('type', ['insurance', 'pension'])
             ->get();
