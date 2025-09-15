@@ -13,6 +13,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\AssetBeneficiaryAllocation;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LegacyController extends Controller
 {
@@ -583,7 +584,49 @@ class LegacyController extends Controller
 
     public function generate(Request $request)
     {
-        // TODO: Implement PDF generation
-        return back()->with('success', 'Legacy documents generation will be implemented in the next phase');
+        $user = auth()->user();
+
+        // Pull everything needed for the will
+        $assets = Asset::where('user_id', $user->id)
+            ->where('is_legacy', true)
+            ->with('beneficiaryAllocations.beneficiary')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $beneficiaries = Beneficiary::where('user_id', $user->id)
+            ->orderBy('full_name', 'asc')
+            ->get();
+
+        // If you store multiple fiduciaries, use ->get(); if single, use ->first()
+        $fiduciaries = Fiduciary::where('user_id', $user->id)
+            ->orderBy('institution_name', 'asc')
+            ->get();
+
+        $insurances = Insurance::where('user_id', $user->id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Compute total asset value for quick summary
+        $totalAssetValue = $assets->sum(function ($a) {
+            return (float)($a->value ?? 0);
+        });
+
+        $data = [
+            'user'             => $user,
+            'assets'           => $assets,
+            'beneficiaries'    => $beneficiaries,
+            'fiduciaries'      => $fiduciaries,
+            'insurances'       => $insurances,
+            'totalAssetValue'  => $totalAssetValue,
+            'today'            => now()->timezone(config('app.timezone'))->toFormattedDateString(),
+        ];
+
+        $html = view('pdf.will', $data)->render();
+
+        // Generate PDF
+        $pdf = Pdf::loadHTML($html)->setPaper('a4');
+
+        $file = 'Will_' . $user->id . '_' . now()->format('Ymd_His') . '.pdf';
+        return $pdf->download($file);
     }
 }

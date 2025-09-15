@@ -50,6 +50,9 @@ const fiduciaryList = computed(() => {
     if (Array.isArray(props.fiduciaries)) return props.fiduciaries
     return props.fiduciaries ? [props.fiduciaries] : []
 })
+
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
 </script>
 
 <template>
@@ -260,13 +263,15 @@ const fiduciaryList = computed(() => {
                         </section>
                     </div>
 
-                    <!-- Generate -->
                     <div class="flex justify-center pt-8 border-t mt-8">
-                        <button
-                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg flex items-center transition-colors duration-200 text-lg">
-                            <DocumentCheckIcon class="w-6 h-6 mr-3" />
-                            Generate Legacy Pack
-                        </button>
+                        <form :action="route('legacy.generate')" method="POST" target="_blank">
+                            <input type="hidden" name="_token" :value="csrf" />
+                            <button type="submit"
+                                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg flex items-center transition-colors duration-200 text-lg">
+                                <DocumentCheckIcon class="w-6 h-6 mr-3" />
+                                Generate Legacy Pack
+                            </button>
+                        </form>
                     </div>
                 </div>
             </Sidebar>
