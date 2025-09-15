@@ -1,6 +1,6 @@
 <template>
     <Head title="Cashflow Management" />
-    <AuthenticatedLayout>
+    <MSMESidebar title="Cashflow Management">
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Header -->
@@ -273,12 +273,12 @@
             @close="closeModal"
             @saved="onTransactionSaved"
         />
-    </AuthenticatedLayout>
+    </MSMESidebar>
 </template>
 
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import MSMESidebar from '@/Components/MSMESidebar.vue';
 import TransactionModal from '@/Components/MSME/TransactionModal.vue';
 import { useFormatCurrency } from '@/Components/Composables/useFormatCurrency';
 import { formatDate } from '@/Components/Composables/useDateFormat';

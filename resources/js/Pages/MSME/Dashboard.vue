@@ -1,6 +1,6 @@
 <template>
     <Head title="MSME Dashboard" />
-    <AuthenticatedLayout>
+    <MSMESidebar :title="businessProfile ? `${businessProfile.business_name} Dashboard` : 'MSME Dashboard'">
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Welcome Header -->
@@ -154,83 +154,33 @@
                     </div>
                 </div>
 
-                <!-- Main Content Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Quick Actions -->
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
-                            <div class="space-y-3">
-                                <Link :href="route('cashflow.index')" 
-                                      class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Record Transaction</p>
-                                        <p class="text-sm text-gray-600">Add income or expense</p>
-                                    </div>
-                                </Link>
-
-                                <Link :href="route('pricing.create')" 
-                                      class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Price Product/Service</p>
-                                        <p class="text-sm text-gray-600">Calculate optimal pricing</p>
-                                    </div>
-                                </Link>
-
-                                <Link :href="route('msme.reports')" 
-                                      class="flex items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Generate Report</p>
-                                        <p class="text-sm text-gray-600">P&L, Balance Sheet, Cashflow</p>
-                                    </div>
-                                </Link>
+                <!-- Recent Activities -->
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-4">Recent Activities</h3>
+                        <div class="space-y-4">
+                            <div v-if="recentActivities.length === 0" class="text-center py-8 text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                </svg>
+                                <p>No recent activities</p>
+                                <p class="text-sm">Start by recording your first transaction</p>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activities -->
-                    <div class="lg:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <h3 class="text-lg font-semibold mb-4">Recent Activities</h3>
-                            <div class="space-y-4">
-                                <div v-if="recentActivities.length === 0" class="text-center py-8 text-gray-500">
-                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012-2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                                    </svg>
-                                    <p>No recent activities</p>
-                                    <p class="text-sm">Start by recording your first transaction</p>
+                            <div v-for="activity in recentActivities" :key="activity.date" 
+                                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div :class="[
+                                        'w-2 h-2 rounded-full mr-3',
+                                        activity.type === 'cashflow' ? 'bg-green-500' : 'bg-purple-500'
+                                    ]"></div>
+                                    <div>
+                                        <p class="font-medium">{{ activity.description }}</p>
+                                        <p class="text-sm text-gray-600">{{ formatDate(activity.date) }}</p>
+                                    </div>
                                 </div>
-                                <div v-for="activity in recentActivities" :key="activity.date" 
-                                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div class="flex items-center">
-                                        <div :class="[
-                                            'w-2 h-2 rounded-full mr-3',
-                                            activity.type === 'cashflow' ? 'bg-green-500' : 'bg-purple-500'
-                                        ]"></div>
-                                        <div>
-                                            <p class="font-medium">{{ activity.description }}</p>
-                                            <p class="text-sm text-gray-600">{{ formatDate(activity.date) }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-semibold">{{ formatCurrency(activity.amount) }}</p>
-                                        <p v-if="activity.category" class="text-sm text-gray-600">{{ activity.category }}</p>
-                                    </div>
+                                <div class="text-right">
+                                    <p class="font-semibold">{{ formatCurrency(activity.amount) }}</p>
+                                    <p v-if="activity.category" class="text-sm text-gray-600">{{ activity.category }}</p>
                                 </div>
                             </div>
                         </div>
@@ -238,12 +188,12 @@
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </MSMESidebar>
 </template>
 
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import MSMESidebar from '@/Components/MSMESidebar.vue';
 import HealthIndicator from '@/Components/MSME/HealthIndicator.vue';
 import { useFormatCurrency } from '@/Components/Composables/useFormatCurrency';
 import { formatDate } from '@/Components/Composables/useDateFormat';
