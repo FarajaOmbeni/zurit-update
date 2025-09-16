@@ -204,6 +204,7 @@ import {
   QuestionMarkCircleIcon,
   AcademicCapIcon,
   EllipsisHorizontalIcon,
+  ShieldCheckIcon,
 } from '@heroicons/vue/24/outline';
 
 const iconMap = {
@@ -218,6 +219,7 @@ const iconMap = {
   QuestionMarkCircleIcon,
   AcademicCapIcon,
   EllipsisHorizontalIcon,
+  ShieldCheckIcon,
 };
 
 defineProps({
@@ -281,6 +283,12 @@ const menuItems = [
     icon: 'ChartBarIcon',
     active: currentRoute.startsWith('/user/networth'),
     link: 'networth.index'
+  },
+  {
+    title: 'Legacy Planning',
+    icon: 'ShieldCheckIcon',
+    active: currentRoute.startsWith('/user/legacy'),
+    link: 'legacy.landing'
   },
   {
     title: 'Calculators',

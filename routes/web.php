@@ -312,6 +312,33 @@ Route::post('/stk-push', [MpesaController::class, 'sendStkPush'])->name('stk.pus
 Route::post('/chatpesa-callback', [MpesaController::class, 'handleCallback'])
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('chatpesa-callback');
+
+/////////////////////////////////////////////////////////
+//////////////////  LEGACY & ESTATE PLANNING ROUTES ///
+/////////////////////////////////////////////////////////
+Route::prefix('user/legacy')->name('legacy.')->middleware(['auth', 'verified', 'subscribed'])->group(function () {
+    // Legacy Module Routes
+    Route::get('/', [App\Http\Controllers\LegacyController::class, 'assets'])->name('landing');
+    Route::get('/assets', [App\Http\Controllers\LegacyController::class, 'assets'])->name('assets');
+    Route::post('/assets', [App\Http\Controllers\LegacyController::class, 'storeAsset'])->name('assets.store');
+    Route::put('/assets/{id}', [App\Http\Controllers\LegacyController::class, 'updateAsset'])->name('assets.update');
+    Route::delete('/assets/{id}', [App\Http\Controllers\LegacyController::class, 'destroyAsset'])->name('assets.destroy');
+    Route::get('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'beneficiaries'])->name('beneficiaries');
+    Route::post('/beneficiaries', [App\Http\Controllers\LegacyController::class, 'storeBeneficiary'])->name('beneficiaries.store');
+    Route::put('/beneficiaries/{id}', [App\Http\Controllers\LegacyController::class, 'updateBeneficiary'])->name('beneficiaries.update');
+    Route::delete('/beneficiaries/{id}', [App\Http\Controllers\LegacyController::class, 'destroyBeneficiary'])->name('beneficiaries.destroy');
+    Route::post('/allocations', [App\Http\Controllers\LegacyController::class, 'saveAllocations'])->name('allocations.save');
+    Route::post('/asset-allocation', [App\Http\Controllers\LegacyController::class, 'storeAssetAllocation'])->name('asset-allocation.store');
+    Route::delete('/asset-allocation/{allocation}', [App\Http\Controllers\LegacyController::class, 'deleteAssetAllocation'])->name('asset-allocation.delete');
+    Route::get('/asset-allocation-status', [App\Http\Controllers\LegacyController::class, 'getAssetAllocationStatus'])->name('asset-allocation.status');
+    Route::get('/fiduciaries', [App\Http\Controllers\LegacyController::class, 'fiduciaries'])->name('fiduciaries');
+    Route::post('/fiduciaries', [App\Http\Controllers\LegacyController::class, 'saveFiduciaries'])->name('fiduciaries.save');
+    Route::get('/insurance-audit', [App\Http\Controllers\LegacyController::class, 'insurance'])->name('insurance');
+    Route::post('/insurance-audit', [App\Http\Controllers\LegacyController::class, 'saveInsurance'])->name('insurance.save');
+    Route::get('/review', [App\Http\Controllers\LegacyController::class, 'review'])->name('review');
+    Route::post('/generate', [App\Http\Controllers\LegacyController::class, 'generate'])->name('generate');
+});
+
 require __DIR__ . '/auth.php';
 
 // MSME Financial Management Routes

@@ -16,16 +16,30 @@ class Asset extends Model
         'description',
         'value',
         'acquisition_date',
+        'is_legacy',
     ];
 
     protected $casts = [
         'acquisition_date' => 'date',
         'value' => 'decimal:2',
+        'is_legacy' => 'boolean',
     ];
 
     // An asset belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Legacy asset allocations to beneficiaries
+    public function beneficiaryAllocations()
+    {
+        return $this->hasMany(AssetBeneficiaryAllocation::class);
+    }
+
+    // Scope for legacy assets only
+    public function scopeLegacy($query)
+    {
+        return $query->where('is_legacy', true);
     }
 }
