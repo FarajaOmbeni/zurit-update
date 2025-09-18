@@ -27,6 +27,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'password',
         'coach_id',
+        'subscription_status',
+        'subscription_expires_at',
+        'last_payment_date',
+        'subscription_package',
     ];
 
     /**
@@ -46,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'subscription_expires_at' => 'datetime',
+        'last_payment_date' => 'datetime',
         'password' => 'hashed',
         'role' => 'integer',
     ];
@@ -131,5 +137,55 @@ class User extends Authenticatable implements MustVerifyEmail
     public function coachProfile()
     {
         return $this->hasOne(Coach::class, 'email', 'email');
+    }
+    public function mpesaPayments()
+    {
+        return $this->hasMany(MpesaPayment::class);
+    }
+
+    // User subscription relationships
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->latest();
+    }
+
+    public function latestSubscription()
+    {
+        return $this->hasOne(Subscription::class)->latest();
+    }
+
+    // Subscription helper methods
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription()->exists();
+    }
+
+    public function getSubscriptionStatus(): string
+    {
+        $subscription = $this->activeSubscription;
+
+        if (!$subscription) {
+            return 'inactive';
+        }
+
+        if ($subscription->is_expired) {
+            return 'expired';
+        }
+
+        return $subscription->status;
+    }
+
+    public function isSubscriptionExpiring(int $days = 3): bool
+    {
+        $subscription = $this->activeSubscription;
+        return $subscription && $subscription->days_until_expiry <= $days;
     }
 }
