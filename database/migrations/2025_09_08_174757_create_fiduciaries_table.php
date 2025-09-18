@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('legacy_fiduciaries', function (Blueprint $table) {
+        Schema::create('fiduciaries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            // role: executor | trustee | guardian
-            $table->string('role');
             // institution details
             $table->string('institution_type')->nullable();
             $table->string('institution_name');
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('legacy_fiduciaries');
+        Schema::dropIfExists('fiduciaries');
     }
 };

@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Inertia\Inertia;
 use App\Models\Asset;
-use App\Models\Beneficiary;
-use App\Models\AssetBeneficiaryAllocation;
-use App\Models\LegacyFiduciary;
+use App\Models\Fiduciary;
+use App\Models\Insurance;
 use App\Models\Investment;
+use App\Models\Beneficiary;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-use Inertia\Inertia;
+use App\Models\AssetBeneficiaryAllocation;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LegacyController extends Controller
 {
@@ -431,7 +433,7 @@ class LegacyController extends Controller
     public function fiduciaries()
     {
         $user = auth()->user();
-        $fiduciaries = LegacyFiduciary::where('user_id', $user->id)->first();
+        $fiduciaries = Fiduciary::where('user_id', $user->id)->get();
 
         return Inertia::render('UserDashboard/Legacy/Fiduciaries', [
             'fiduciaries' => $fiduciaries
@@ -441,19 +443,55 @@ class LegacyController extends Controller
     public function saveFiduciaries(Request $request)
     {
         $request->validate([
-            'executors' => 'nullable|array',
-            'trustees' => 'nullable|array',
-            'guardians' => 'nullable|array',
-            'witness_placeholders' => 'nullable|array',
+            'institution_type' => 'nullable|string|max:255',
+            'institution_name' => 'required|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:50',
         ]);
 
-        LegacyFiduciary::updateOrCreate(
-            ['user_id' => auth()->id()],
-            $request->only(['executors', 'trustees', 'guardians', 'witness_placeholders'])
-        );
+        Fiduciary::create([
+            'user_id' => auth()->id(),
+            'institution_type' => $request->institution_type,
+            'institution_name' => $request->institution_name,
+            'contact_name' => $request->contact_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
 
-        return back()->with('success', 'Fiduciaries saved successfully');
+        return back()->with('success', 'Fiduciary added successfully');
     }
+
+    public function updateFiduciary(Request $request, $id)
+    {
+        $request->validate([
+            'institution_type' => 'nullable|string|max:255',
+            'institution_name' => 'required|string|max:255',
+            'contact_name'     => 'nullable|string|max:255',
+            'email'            => 'nullable|string|max:255',
+            'phone'            => 'nullable|string|max:50',
+        ]);
+
+        $fid = \App\Models\Fiduciary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $fid->update($request->only('institution_type', 'institution_name', 'contact_name', 'email', 'phone'));
+
+        return back()->with('success', 'Fiduciary updated successfully');
+    }
+
+    public function destroyFiduciary($id)
+    {
+        $fid = \App\Models\Fiduciary::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $fid->delete();
+
+        return back()->with('success', 'Fiduciary deleted successfully');
+    }
+
 
     /**
      * Step 4: Insurance audit
@@ -461,21 +499,64 @@ class LegacyController extends Controller
     public function insurance()
     {
         $user = auth()->user();
-        $insuranceInvestments = Investment::where('user_id', $user->id)
+        $insuranceInvestments = Insurance::where('user_id', $user->id)
             ->whereIn('type', ['insurance', 'pension'])
             ->get();
 
         return Inertia::render('UserDashboard/Legacy/Insurance', [
-            'insuranceInvestments' => $insuranceInvestments
+            'insurances' => $insuranceInvestments
         ]);
     }
 
-    public function saveInsurance(Request $request)
+    public function storeInsurance(Request $request)
     {
-        // This could be used to update insurance beneficiaries or add reminders
-        // For now, we'll just acknowledge the audit
-        return back()->with('success', 'Insurance audit completed');
+        $data = $request->validate([
+            'type'            => 'required',
+            'provider_name'   => 'required|string|max:255',
+            'policy_number'   => 'required|string|max:255',
+            'coverage_amount' => 'required|numeric|min:0',
+            'premium_amount'  => 'required|numeric|min:0',
+            'renewal_date'    => 'nullable|date',
+            'notes'           => 'nullable|string|max:500',
+        ]);
+
+        Insurance::create($data + ['user_id' => auth()->id()]);
+
+        return back()->with('success', 'Insurance added successfully');
     }
+
+    public function updateInsurance(Request $request, $id)
+    {
+        $data = $request->validate([
+            'type'            => 'required',
+            'provider_name'   => 'required|string|max:255',
+            'policy_number'   => 'required|string|max:255',
+            'coverage_amount' => 'required|numeric|min:0',
+            'premium_amount'  => 'required|numeric|min:0',
+            'renewal_date'    => 'nullable|date',
+            'notes'           => 'nullable|string|max:500',
+        ]);
+
+        $row = Insurance::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $row->update($data);
+
+        return back()->with('success', 'Insurance updated successfully');
+    }
+
+    public function destroyInsurance($id)
+    {
+        $row = Insurance::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $row->delete();
+
+        return back()->with('success', 'Insurance deleted successfully');
+    }
+
 
     /**
      * Step 5: Review and generate
@@ -490,22 +571,62 @@ class LegacyController extends Controller
             ->get();
 
         $beneficiaries = Beneficiary::where('user_id', $user->id)->get();
-        $fiduciaries = LegacyFiduciary::where('user_id', $user->id)->first();
-        $insuranceInvestments = Investment::where('user_id', $user->id)
-            ->whereIn('type', ['insurance', 'pension'])
-            ->get();
+        $fiduciaries = Fiduciary::where('user_id', $user->id)->get();
+        $insuranceInvestments = Insurance::where('user_id', $user->id)->get();
 
         return Inertia::render('UserDashboard/Legacy/Review', [
             'assets' => $legacyAssets,
             'beneficiaries' => $beneficiaries,
             'fiduciaries' => $fiduciaries,
-            'insuranceInvestments' => $insuranceInvestments
+            'insurances' => $insuranceInvestments
         ]);
     }
 
     public function generate(Request $request)
     {
-        // TODO: Implement PDF generation
-        return back()->with('success', 'Legacy documents generation will be implemented in the next phase');
+        $user = auth()->user();
+
+        // Pull everything needed for the will
+        $assets = Asset::where('user_id', $user->id)
+            ->where('is_legacy', true)
+            ->with('beneficiaryAllocations.beneficiary')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $beneficiaries = Beneficiary::where('user_id', $user->id)
+            ->orderBy('full_name', 'asc')
+            ->get();
+
+        // If you store multiple fiduciaries, use ->get(); if single, use ->first()
+        $fiduciaries = Fiduciary::where('user_id', $user->id)
+            ->orderBy('institution_name', 'asc')
+            ->get();
+
+        $insurances = Insurance::where('user_id', $user->id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Compute total asset value for quick summary
+        $totalAssetValue = $assets->sum(function ($a) {
+            return (float)($a->value ?? 0);
+        });
+
+        $data = [
+            'user'             => $user,
+            'assets'           => $assets,
+            'beneficiaries'    => $beneficiaries,
+            'fiduciaries'      => $fiduciaries,
+            'insurances'       => $insurances,
+            'totalAssetValue'  => $totalAssetValue,
+            'today'            => now()->timezone(config('app.timezone'))->toFormattedDateString(),
+        ];
+
+        $html = view('pdf.will', $data)->render();
+
+        // Generate PDF
+        $pdf = Pdf::loadHTML($html)->setPaper('a4');
+
+        $file = 'Will_' . $user->id . '_' . now()->format('Ymd_His') . '.pdf';
+        return $pdf->download($file);
     }
 }
