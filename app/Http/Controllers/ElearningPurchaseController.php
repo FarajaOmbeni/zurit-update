@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
+use App\Exceptions\InvalidPhoneNumberException;
 
 class ElearningPurchaseController extends Controller
 {
@@ -27,12 +28,16 @@ class ElearningPurchaseController extends Controller
             return back()->withErrors(['course' => 'This course is not available for purchase yet.']);
         }
 
-        $payment = $stk->sendStkPush(
-            amount: $amount,
-            phone: $phone,
-            purpose: 'elearning',
-            userId: Auth::id()
-        );
+        try {
+            $payment = $stk->sendStkPush(
+                amount: $amount,
+                phone: $phone,
+                purpose: 'elearning',
+                userId: Auth::id()
+            );
+        } catch (InvalidPhoneNumberException $e) {
+            return back()->withErrors(['phone' => $e->getMessage()]);
+        }
 
         Cache::put("payment_data_{$payment->id}", [
             'type' => 'elearning',
@@ -57,4 +62,3 @@ class ElearningPurchaseController extends Controller
         ]);
     }
 }
-

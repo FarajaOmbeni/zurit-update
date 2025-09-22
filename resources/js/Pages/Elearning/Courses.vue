@@ -341,32 +341,22 @@
         </div>
 </ElearningSidebar>
 
-    <!-- Buy Confirmation Modal -->
-    <div v-if="showBuyModal" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/40" @click="showBuyModal = false"></div>
-      <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Purchase</h3>
-        <p class="text-sm text-gray-600 mb-4">You are about to buy:</p>
-        <ul class="text-sm text-gray-800 mb-4">
-          <li><span class="font-medium">Course:</span> {{ selectedCourse?.title }}</li>
-          <li><span class="font-medium">Price:</span> KES {{ ((selectedCourse?.price)||0).toLocaleString() }}</li>
-        </ul>
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-1">M-Pesa Phone Number</label>
-          <input v-model="phoneInput" type="tel" inputmode="tel" placeholder="07XXXXXXXX" class="w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500" />
-          <p class="text-xs text-gray-500 mt-1">Edit if you want to use a different number.</p>
-        </div>
-        <div class="flex justify-end gap-2">
-          <button @click="showBuyModal = false" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">Cancel</button>
-          <button @click="confirmBuy" :disabled="isSubmitting" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">Confirm</button>
-        </div>
-      </div>
-    </div>
+    <!-- Reusable Buy Confirmation Modal Component -->
+    <BuyConfirmationModal
+      v-model:show="showBuyModal"
+      v-model:phone="phoneInput"
+      :course-title="selectedCourse?.title || ''"
+      :price="(selectedCourse?.price) || 0"
+      :error="phoneError"
+      :is-submitting="isSubmitting"
+      @confirm="confirmBuy"
+    />
 </template>
 
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import ElearningSidebar from "@/Components/ElearningSidebar.vue";
+import BuyConfirmationModal from '@/Components/Shared/BuyConfirmationModal.vue';
 import { ref, onMounted } from 'vue';
 
 const props = defineProps({
@@ -430,11 +420,13 @@ function downloadCertificate(mainCourse) {
 const showBuyModal = ref(false);
 const selectedCourse = ref(null);
 const phoneInput = ref("");
+const phoneError = ref("");
 const isSubmitting = ref(false);
 
 function openBuyModal(course) {
   selectedCourse.value = course;
   phoneInput.value = props.userPhone || "";
+  phoneError.value = "";
   showBuyModal.value = true;
 }
 
@@ -443,8 +435,11 @@ function confirmBuy() {
   isSubmitting.value = true;
   router.post(route('elearning.buy', { course: selectedCourse.value.id }), { phone: phoneInput.value }, {
     onError: (errors) => {
-      const msg = errors?.phone || errors?.course || 'Unable to start payment. Ensure your profile phone is set.';
-      alert(msg);
+      phoneError.value = errors?.phone || '';
+      if (!phoneError.value) {
+        const msg = errors?.course || 'Unable to start payment. Ensure your profile phone is set.';
+        alert(msg);
+      }
       isSubmitting.value = false;
     },
   });
