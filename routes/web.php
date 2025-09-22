@@ -30,6 +30,8 @@ use App\Http\Controllers\CourseMaterialController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ElearningQuizController;
 use App\Http\Controllers\CertificateController;
+// use App\Http\Controllers\ElearningPaywallController;
+use App\Http\Controllers\PaymentStatusController;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
@@ -138,20 +140,7 @@ Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
 
     Route::post('/user/coach/request', [CoachController::class, 'requestCoach'])->name('coach.request');
 
-    /////////////////////////////////////////////////////////
-    //////////////////  E-LEARNING ROUTES ///////////////////////
-    ////////////////////////////////////////////////////////
-    Route::prefix('elearning')->group(
-        function () {
-            Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
-            Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
-            Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
-            Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
-            Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
-            Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
-            Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
-        }
-    );
+    // (moved below) E-Learning routes are defined outside this subscribed group
 
     Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])->name('course-materials.show');
     Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])->name('course-materials.viewer');
@@ -266,8 +255,30 @@ Route::middleware(['auth', 'admin'])->group(function () {
 //////////////////  Elearning    ///////////////////////
 ////////////////////////////////////////////////////////
 
+// Elearning routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Open to authenticated users to allow discovering and buying
+    Route::prefix('elearning')->group(function () {
+        Route::get('/landing', [ElearningController::class, 'landing'])->name('elearning.landing');
+        Route::get('/courses', [ElearningController::class, 'index'])->name('elearning.courses');
 
+        // Buy course and processing/status
+        Route::post('/courses/{course}/buy', [\App\Http\Controllers\ElearningPurchaseController::class, 'buy'])->name('elearning.buy');
+        Route::get('/processing/{payment}', [\App\Http\Controllers\ElearningPurchaseController::class, 'processing'])->name('elearning.processing');
+    });
 
+    // Payment status polling
+    Route::get('/payments/{payment}/status', [PaymentStatusController::class, 'status'])->name('payments.status');
+});
+
+// Content gated by per-course access
+Route::middleware(['auth', 'verified', 'course.access'])->prefix('elearning')->group(function () {
+    Route::get('/courses/{course}', [ElearningController::class, 'show'])->name('elearning.course');
+    Route::get('/quiz/{course}', [ElearningQuizController::class, 'show'])->name('elearning.quiz');
+    Route::post('/quiz/{course}/submit', [ElearningQuizController::class, 'submit'])->name('elearning.quiz.submit');
+    Route::get('/quiz/{course}/results', [ElearningQuizController::class, 'results'])->name('elearning.quiz.results');
+    Route::get('/certificate/{course}', [CertificateController::class, 'generate'])->name('elearning.certificate');
+});
 Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['auth', 'verified'])->name('profile.edit');
 
 
