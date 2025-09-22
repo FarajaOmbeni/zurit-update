@@ -30,6 +30,7 @@ class ElearningController extends Controller
 
         return Inertia::render('Elearning/Landing', [
             'featuredCourses' => $courses,
+            'userPhone' => auth()->user()->phone_number ?? '',
         ]);
     }
 
@@ -94,7 +95,8 @@ class ElearningController extends Controller
         }
 
         return Inertia::render('Elearning/Courses', [
-            'courses' => $courses
+            'courses' => $courses,
+            'userPhone' => auth()->user()->phone_number ?? '',
         ]);
     }
 

@@ -71,7 +71,7 @@ const getFailureMessage = (reason) => {
 };
 
 const goBack = () => {
-  window.location.href = '/elearning/paywall';
+  window.location.href = '/elearning/courses';
 };
 
 onMounted(() => {
@@ -146,4 +146,3 @@ onUnmounted(() => {
   </div>
   <Footer />
 </template>
-
