@@ -52,7 +52,7 @@ import ListItem from './Shared/ListItem.vue';
             <div class="relative flex justify-center">
                 <iframe
                     class="hidden md:block w-[300px] h-[170px] sm:w-[350px] sm:h-[200px] md:w-[450px] md:h-[250px] xl:w-[650px] xl:h-[350px] max-w-full max-h-full rounded-lg shadow-lg"
-                    src="https://www.youtube.com/embed/x_g-M07DjNg" frameborder="0" allowfullscreen>
+                    src="https://youtu.be/jUvOg6jb0W4" frameborder="0" allowfullscreen>
                 </iframe>
             </div>
         </div>
