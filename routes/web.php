@@ -32,6 +32,7 @@ use App\Http\Controllers\ElearningQuizController;
 use App\Http\Controllers\CertificateController;
 // use App\Http\Controllers\ElearningPaywallController;
 use App\Http\Controllers\PaymentStatusController;
+use App\Http\Controllers\AdminCourseAccessController;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
@@ -242,6 +243,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/quizzes/create', [QuizController::class, 'create'])->name('admin.quizzes.create');
         Route::post('/quizzes', [QuizController::class, 'store'])->name('admin.quizzes.store');
         Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy'])->name('admin.quizzes.destroy');
+
+        // Course access management
+        Route::get('/courses/access', [AdminCourseAccessController::class, 'index'])->name('admin.courses.access');
+        Route::post('/courses/access/grant', [AdminCourseAccessController::class, 'grant'])->name('admin.courses.access.grant');
+        Route::delete('/courses/access/{id}', [AdminCourseAccessController::class, 'revoke'])->name('admin.courses.access.revoke');
     });
 
     // PDF viewing route with custom headers
