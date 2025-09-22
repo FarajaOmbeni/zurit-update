@@ -30,6 +30,7 @@ use App\Http\Controllers\CourseMaterialController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ElearningQuizController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\UploadThingController;
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
@@ -155,6 +156,7 @@ Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
 
     Route::get('/course-materials/{material}', [CourseMaterialController::class, 'show'])->name('course-materials.show');
     Route::get('/course-materials/{material}/viewer', [CourseMaterialController::class, 'viewer'])->name('course-materials.viewer');
+    Route::get('/course-materials/{material}/video', [CourseController::class, 'serveVideo'])->name('course-materials.video');
     Route::get('/user/zuriscore', [ZuriScoreController::class, 'index'])->name('zuriscore.index');
     Route::post('/user/zuriscore', [ZuriScoreController::class, 'get_report'])->name('zuriscore.post');
     Route::get('/user/zuriscore/processing/{payment_id}', [ZuriScoreController::class, 'processing'])->name('zuriscore.processing');
@@ -393,3 +395,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'destroy'])->name('destroy');
     });
 });
+

@@ -42,16 +42,18 @@ class CourseController extends Controller
 
 	public function store(Request $request)
 	{
-		// If parent_id is present, create a Subcourse under the given Course
-		if ($request->filled('parent_id')) {
-			$validated = $request->validate([
-				'title' => 'required|string|max:255',
-				'description' => 'required|string',
-				'parent_id' => 'required|exists:courses,id',
-				'materials' => 'sometimes|array',
-				'materials.*.title' => 'required_with:materials|string|max:255',
-				'materials.*.file' => 'required_with:materials|file|mimes:pdf|max:10240',
-			]);
+		try {
+			// If parent_id is present, create a Subcourse under the given Course
+			if ($request->filled('parent_id')) {
+				$validated = $request->validate([
+					'title' => 'required|string|max:255',
+					'description' => 'required|string',
+					'parent_id' => 'required|exists:courses,id',
+					'materials' => 'sometimes|array',
+					'materials.*.title' => 'required_with:materials|string|max:255',
+					'materials.*.file' => 'sometimes|file|mimes:pdf|max:10240',
+					'materials.*.video_file' => 'sometimes|file|mimes:mp4,webm,ogg,avi,mov|max:204800', // 200MB
+				]);
 
 			$subcourse = Subcourse::create([
 				'course_id' => $validated['parent_id'],
@@ -61,16 +63,42 @@ class CourseController extends Controller
 
 			if ($request->has('materials')) {
 				foreach ($request->materials as $material) {
-					$file = $material['file'];
-					$path = $file->store('', 'course_materials');
-
-					CourseMaterial::create([
+					$baseMaterialData = [
 						'subcourse_id' => $subcourse->id,
 						'title' => $material['title'],
-						'file_path' => $path,
-						'file_name' => $file->getClientOriginalName(),
-						'file_size' => $this->formatFileSize($file->getSize())
-					]);
+					];
+
+					// Create PDF material if file is uploaded
+					if (isset($material['file']) && $material['file']) {
+						$file = $material['file'];
+						$path = $file->store('', 'course_materials');
+						
+						$pdfMaterialData = array_merge($baseMaterialData, [
+							'type' => 'pdf',
+							'file_path' => $path,
+							'file_name' => $file->getClientOriginalName(),
+							'file_size' => $this->formatFileSize($file->getSize()),
+							'title' => $material['title'] . ' (PDF)'
+						]);
+
+						CourseMaterial::create($pdfMaterialData);
+					}
+
+					// Create video material if video is uploaded
+					if (isset($material['video_file']) && $material['video_file']) {
+						$video = $material['video_file'];
+						$videoPath = $video->store('videos', 'course_materials');
+						
+						$videoMaterialData = array_merge($baseMaterialData, [
+							'type' => 'video',
+							'file_path' => $videoPath,
+							'file_name' => $video->getClientOriginalName(),
+							'file_size' => $this->formatFileSize($video->getSize()),
+							'title' => $material['title'] . ' (Video)'
+						]);
+
+						CourseMaterial::create($videoMaterialData);
+					}
 				}
 			}
 		} else {
@@ -86,6 +114,14 @@ class CourseController extends Controller
 
 		return redirect()->route('admin.courses.index')
 			->with('success', 'Course created successfully!');
+		
+		} catch (\Illuminate\Http\Exceptions\PostTooLargeException $e) {
+			return back()->withErrors(['error' => 'The uploaded file is too large. Please reduce the file size or contact your administrator to increase upload limits.']);
+		} catch (\Illuminate\Validation\ValidationException $e) {
+			return back()->withErrors($e->errors())->withInput();
+		} catch (\Exception $e) {
+			return back()->withErrors(['error' => 'An error occurred while creating the course. Please try again.'])->withInput();
+		}
 	}
 
 	public function edit($course)
@@ -123,16 +159,18 @@ class CourseController extends Controller
 
 	public function updateSubcourse(Request $request, $subcourse)
 	{
-		$sub = Subcourse::with('materials')->findOrFail($subcourse);
-		$validated = $request->validate([
-			'title' => 'required|string|max:255',
-			'description' => 'required|string',
-			'parent_id' => 'nullable|exists:courses,id',
-			'materials' => 'sometimes|array',
-			'materials.*.title' => 'required_with:materials|string|max:255',
-			'materials.*.file' => 'nullable|file|mimes:pdf|max:10240',
-			'materials.*.existing_file' => 'sometimes|string',
-		]);
+		try {
+			$sub = Subcourse::with('materials')->findOrFail($subcourse);
+			$validated = $request->validate([
+				'title' => 'required|string|max:255',
+				'description' => 'required|string',
+				'parent_id' => 'nullable|exists:courses,id',
+				'materials' => 'sometimes|array',
+				'materials.*.title' => 'required_with:materials|string|max:255',
+				'materials.*.file' => 'nullable|file|mimes:pdf|max:10240',
+				'materials.*.video_file' => 'sometimes|file|mimes:mp4,webm,ogg,avi,mov|max:204800', // 200MB
+				'materials.*.existing_file' => 'sometimes|string',
+			]);
 
 		$sub->update([
 			'title' => $validated['title'],
@@ -144,27 +182,110 @@ class CourseController extends Controller
 			$existingMaterialIds = [];
 
 			foreach ($request->materials as $material) {
-				$fileData = [
+				$baseMaterialData = [
 					'title' => $material['title'],
 				];
 
-				if (isset($material['file'])) {
-					$file = $material['file'];
-					$path = $file->store('', 'course_materials');
-					$fileData['file_path'] = $path;
-					$fileData['file_name'] = $file->getClientOriginalName();
-					$fileData['file_size'] = $this->formatFileSize($file->getSize());
-				}
-
+				// Handle existing material updates - but we need to check the type
 				if (isset($material['id'])) {
 					$existingMaterial = CourseMaterial::find($material['id']);
 					if ($existingMaterial) {
-						$existingMaterial->update($fileData);
+						// Update existing material (keep same type)
+						$updateData = $baseMaterialData;
+						
+						if ($existingMaterial->type === 'pdf' && isset($material['file'])) {
+							// Update PDF
+							$file = $material['file'];
+							$path = $file->store('', 'course_materials');
+							$updateData['file_path'] = $path;
+							$updateData['file_name'] = $file->getClientOriginalName();
+							$updateData['file_size'] = $this->formatFileSize($file->getSize());
+							$updateData['type'] = 'pdf';
+						} elseif ($existingMaterial->type === 'video' && isset($material['video_file'])) {
+							// Update Video
+							$video = $material['video_file'];
+							$videoPath = $video->store('videos', 'course_materials');
+							$updateData['file_path'] = $videoPath;
+							$updateData['file_name'] = $video->getClientOriginalName();
+							$updateData['file_size'] = $this->formatFileSize($video->getSize());
+							$updateData['type'] = 'video';
+						}
+						
+						$existingMaterial->update($updateData);
 						$existingMaterialIds[] = $existingMaterial->id;
+						
+						// Handle adding new file types to existing material base title
+						$baseTitle = str_replace([' (PDF)', ' (Video)'], '', $material['title']);
+						
+						// If this is a PDF material and user uploads video, create new video material
+						if ($existingMaterial->type === 'pdf' && isset($material['video_file']) && $material['video_file']) {
+							$video = $material['video_file'];
+							$videoPath = $video->store('videos', 'course_materials');
+							
+							$videoMaterialData = [
+								'subcourse_id' => $sub->id,
+								'title' => $baseTitle . ' (Video)',
+								'type' => 'video',
+								'file_path' => $videoPath,
+								'file_name' => $video->getClientOriginalName(),
+								'file_size' => $this->formatFileSize($video->getSize()),
+							];
+
+							$newVideoMaterial = $sub->materials()->create($videoMaterialData);
+							$existingMaterialIds[] = $newVideoMaterial->id;
+						}
+						
+						// If this is a Video material and user uploads PDF, create new PDF material
+						if ($existingMaterial->type === 'video' && isset($material['file']) && $material['file']) {
+							$file = $material['file'];
+							$path = $file->store('', 'course_materials');
+							
+							$pdfMaterialData = [
+								'subcourse_id' => $sub->id,
+								'title' => $baseTitle . ' (PDF)',
+								'type' => 'pdf',
+								'file_path' => $path,
+								'file_name' => $file->getClientOriginalName(),
+								'file_size' => $this->formatFileSize($file->getSize()),
+							];
+
+							$newPdfMaterial = $sub->materials()->create($pdfMaterialData);
+							$existingMaterialIds[] = $newPdfMaterial->id;
+						}
 					}
 				} else {
-					$newMaterial = $sub->materials()->create($fileData);
-					$existingMaterialIds[] = $newMaterial->id;
+					// Create new materials (PDF and/or Video)
+					if (isset($material['file']) && $material['file']) {
+						$file = $material['file'];
+						$path = $file->store('', 'course_materials');
+						
+						$pdfMaterialData = array_merge($baseMaterialData, [
+							'type' => 'pdf',
+							'file_path' => $path,
+							'file_name' => $file->getClientOriginalName(),
+							'file_size' => $this->formatFileSize($file->getSize()),
+							'title' => $material['title'] . ' (PDF)'
+						]);
+
+						$newMaterial = $sub->materials()->create($pdfMaterialData);
+						$existingMaterialIds[] = $newMaterial->id;
+					}
+
+					if (isset($material['video_file']) && $material['video_file']) {
+						$video = $material['video_file'];
+						$videoPath = $video->store('videos', 'course_materials');
+						
+						$videoMaterialData = array_merge($baseMaterialData, [
+							'type' => 'video',
+							'file_path' => $videoPath,
+							'file_name' => $video->getClientOriginalName(),
+							'file_size' => $this->formatFileSize($video->getSize()),
+							'title' => $material['title'] . ' (Video)'
+						]);
+
+						$newMaterial = $sub->materials()->create($videoMaterialData);
+						$existingMaterialIds[] = $newMaterial->id;
+					}
 				}
 			}
 
@@ -177,6 +298,14 @@ class CourseController extends Controller
 
 		return redirect()->route('admin.courses.index')
 			->with('success', 'Course updated successfully!');
+		
+		} catch (\Illuminate\Http\Exceptions\PostTooLargeException $e) {
+			return back()->withErrors(['error' => 'The uploaded file is too large. Please reduce the file size or contact your administrator to increase upload limits.']);
+		} catch (\Illuminate\Validation\ValidationException $e) {
+			return back()->withErrors($e->errors())->withInput();
+		} catch (\Exception $e) {
+			return back()->withErrors(['error' => 'An error occurred while updating the course. Please try again.'])->withInput();
+		}
 	}
 
 	public function destroy($course)
@@ -200,6 +329,27 @@ class CourseController extends Controller
 
 		return redirect()->route('admin.courses.index')
 			->with('success', 'Course deleted successfully!');
+	}
+
+	public function serveVideo($materialId)
+	{
+		$material = CourseMaterial::findOrFail($materialId);
+		
+		// Ensure this is a video material
+		if ($material->type !== 'video' || !$material->file_path) {
+			abort(404);
+		}
+
+		$filePath = storage_path('app/course_materials/' . $material->file_path);
+		
+		if (!file_exists($filePath)) {
+			abort(404);
+		}
+
+		return response()->file($filePath, [
+			'Content-Type' => 'video/mp4',
+			'Content-Disposition' => 'inline; filename="' . $material->file_name . '"'
+		]);
 	}
 
 	private function formatFileSize($bytes)

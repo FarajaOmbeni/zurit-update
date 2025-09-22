@@ -15,7 +15,8 @@ class CourseMaterial extends Model
         'title',
         'file_path',
         'file_name',
-        'file_size'
+        'file_size',
+        'type'
     ];
 
     public function subcourse(): BelongsTo
@@ -23,9 +24,24 @@ class CourseMaterial extends Model
         return $this->belongsTo(Subcourse::class);
     }
 
-protected $hidden = [
-    'file_path',
-    'created_at',
-    'updated_at'
-];
+    protected $hidden = [
+        'file_path',
+        'created_at',
+        'updated_at'
+    ];
+
+    protected $appends = ['is_video', 'display_url'];
+
+    public function getIsVideoAttribute()
+    {
+        return $this->type === 'video';
+    }
+
+    public function getDisplayUrlAttribute()
+    {
+        if ($this->type === 'video' && $this->file_path) {
+            return route('course-materials.video', $this->id);
+        }
+        return route('course-materials.show', $this->id);
+    }
 }
