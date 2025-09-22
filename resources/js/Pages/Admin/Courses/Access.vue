@@ -9,10 +9,8 @@ const props = defineProps({
   access: { type: Array, default: () => [] },
 })
 
-const form = useForm({
-  user_id: '',
-  course_id: '',
-})
+const form = useForm({ user_id: '', course_id: '' })
+const revokeForm = useForm({})
 
 // User typeahead state
 const userQuery = ref('')
@@ -47,14 +45,50 @@ function grantAccess() {
     onError: () => {
       showUserList.value = true
     },
+    onSuccess: () => {
+      showGrantModal.value = false
+    }
   })
 }
 
 function revokeAccess(id) {
-  if (!confirm('Revoke access?')) return
-  useForm({}).delete(route('admin.courses.access.revoke', { id }), {
+  revokeForm.delete(route('admin.courses.access.revoke', { id }), {
     preserveScroll: true,
+    onSuccess: () => {
+      showRevokeModal.value = false
+      pendingRevokeId.value = null
+      pendingRevokeName.value = ''
+    }
   })
+}
+
+// Confirmation modal state
+const showGrantModal = ref(false)
+const showRevokeModal = ref(false)
+const pendingRevokeId = ref(null)
+const pendingRevokeName = ref('')
+
+const selectedUser = computed(() => props.users.find(u => String(u.id) === String(form.user_id)) || null)
+const selectedCourse = computed(() => props.courses.find(c => String(c.id) === String(form.course_id)) || null)
+
+// Check if the selected user already has access to the selected course
+const hasExistingAccess = computed(() => {
+  if (!form.user_id || !form.course_id) return false
+  return props.access.some(
+    (row) => String(row.user_id) === String(form.user_id) && String(row.course_id) === String(form.course_id),
+  )
+})
+
+function openGrantConfirm() {
+  if (!form.user_id || !form.course_id) return
+  if (hasExistingAccess.value) return
+  showGrantModal.value = true
+}
+
+function openRevokeConfirm(row) {
+  pendingRevokeId.value = row.id
+  pendingRevokeName.value = `${row.user_name} - ${row.course_title}`
+  showRevokeModal.value = true
 }
 </script>
 
@@ -107,11 +141,14 @@ function revokeAccess(id) {
           </div>
 
           <div>
-            <button @click="grantAccess" :disabled="form.processing || !form.user_id || !form.course_id"
-              class="w-full md:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md disabled:opacity-50">
+            <button @click="openGrantConfirm" :disabled="form.processing || !form.user_id || !form.course_id || hasExistingAccess"
+              class="w-full md:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600">
               Grant Access
             </button>
           </div>
+        </div>
+        <div v-if="hasExistingAccess" class="mt-3 text-sm text-red-600">
+          User already has access to this course.
         </div>
       </div>
 
@@ -139,7 +176,7 @@ function revokeAccess(id) {
                 <td class="px-4 py-2 text-sm text-gray-500">{{ row.user_email }}</td>
                 <td class="px-4 py-2 text-sm text-gray-900">{{ row.course_title }}</td>
                 <td class="px-4 py-2 text-right">
-                  <button @click="revokeAccess(row.id)"
+                  <button @click="openRevokeConfirm(row)"
                     class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm">
                     Revoke
                   </button>
@@ -156,4 +193,38 @@ function revokeAccess(id) {
       </div>
     </div>
   </AdminSidebar>
+
+  <!-- Grant Confirmation Modal -->
+  <div v-if="showGrantModal" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Grant Access</h3>
+      <p class="text-sm text-gray-600 mb-4">Grant lifetime access to:</p>
+      <ul class="text-sm text-gray-800 mb-6">
+        <li><span class="font-medium">User:</span> {{ selectedUser ? (selectedUser.name + ' - ' + selectedUser.email) : 'N/A' }}</li>
+        <li><span class="font-medium">Course:</span> {{ selectedCourse ? selectedCourse.title : 'N/A' }}</li>
+      </ul>
+      <div class="flex justify-end gap-2">
+        <button @click="showGrantModal = false" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">Cancel</button>
+        <button @click="grantAccess" :disabled="form.processing" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revoke Confirmation Modal -->
+  <div v-if="showRevokeModal" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirm Revoke Access</h3>
+      <p class="text-sm text-gray-600 mb-6">Are you sure you want to revoke access for <span class="font-medium">{{ pendingRevokeName }}</span>?</p>
+      <div class="flex justify-end gap-2">
+        <button @click="showRevokeModal = false" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700">Cancel</button>
+        <button @click="revokeAccess(pendingRevokeId)" :disabled="revokeForm.processing" class="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50">Confirm</button>
+      </div>
+    </div>
+  </div>
 </template>
+
+
+
+

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Throwable;
+use App\Mail\ElearningPurchaseMail;
 use App\Mail\BuyBookMail;
 use App\Models\MpesaPayment;
 use App\Mail\UserBuyBookMail;
@@ -155,6 +156,13 @@ class ChatpesaStk
                                     ['course_id' => $courseId, 'user_id' => $userId],
                                     ['updated_at' => now(), 'created_at' => now()]
                                 );
+
+                                // Send purchase confirmation to user
+                                $user = \App\Models\User::find($userId);
+                                $course = \App\Models\Course::find($courseId);
+                                if ($user && $user->email && $course) {
+                                    Mail::to($user->email)->send(new ElearningPurchaseMail($user->name, $course->title));
+                                }
                             } catch (\Throwable $e) {
                                 Log::error('Granting course access failed', ['error' => $e->getMessage()]);
                             }
