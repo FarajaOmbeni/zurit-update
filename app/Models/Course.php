@@ -13,7 +13,8 @@ class Course extends Model
     protected $fillable = [
         'title',
         'slug',
-        'description'
+        'description',
+        'price',
     ];
 
     protected static function booted()

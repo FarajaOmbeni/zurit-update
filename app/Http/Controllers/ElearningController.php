@@ -5,14 +5,32 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Subcourse;
 use App\Models\QuizAttempt;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ElearningController extends Controller
 {
     public function landing()
     {
+        $courses = Course::with(['subCourses'])->limit(3)->get();
+
+        if (auth()->check()) {
+            $userId = auth()->id();
+            foreach ($courses as $course) {
+                $course->has_access = DB::table('course_user')
+                    ->where('course_id', $course->id)
+                    ->where('user_id', $userId)
+                    ->exists();
+            }
+        } else {
+            foreach ($courses as $course) {
+                $course->has_access = false;
+            }
+        }
+
         return Inertia::render('Elearning/Landing', [
-            'featuredCourses' => Course::with(['subCourses'])->limit(3)->get()
+            'featuredCourses' => $courses,
+            'userPhone' => auth()->user()->phone_number ?? '',
         ]);
     }
 
@@ -22,6 +40,21 @@ class ElearningController extends Controller
                 $query->orderBy('id', 'asc');
             }, 'subCourses.materials'])
             ->get();
+
+        // Attach access flags for each main course
+        if (auth()->check()) {
+            $userId = auth()->id();
+            foreach ($courses as $mainCourse) {
+                $mainCourse->has_access = DB::table('course_user')
+                    ->where('course_id', $mainCourse->id)
+                    ->where('user_id', $userId)
+                    ->exists();
+            }
+        } else {
+            foreach ($courses as $mainCourse) {
+                $mainCourse->has_access = false;
+            }
+        }
         
         // Add quiz completion status for each sub-course
         foreach ($courses as $mainCourse) {
@@ -62,7 +95,8 @@ class ElearningController extends Controller
         }
 
         return Inertia::render('Elearning/Courses', [
-            'courses' => $courses
+            'courses' => $courses,
+            'userPhone' => auth()->user()->phone_number ?? '',
         ]);
     }
 

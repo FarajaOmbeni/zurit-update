@@ -309,6 +309,10 @@ const courseMoreItems = [
         title: 'Manage Quizzes',
         link: 'admin.quizzes.index',
     },
+    {
+        title: 'Course Access',
+        link: 'admin.courses.access',
+    },
 ]
 
 // Sidebar state - set to false by default

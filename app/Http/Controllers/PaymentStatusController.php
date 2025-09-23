@@ -19,6 +19,10 @@ class PaymentStatusController extends Controller
 
     public function status(MpesaPayment $payment)
     {
+        if (auth()->id() !== $payment->user_id) {
+            abort(403);
+        }
+
         return response()->json([
             'status' => $payment->status,
             'reason' => $payment->reason,

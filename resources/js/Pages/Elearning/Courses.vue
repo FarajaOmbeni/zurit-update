@@ -1,6 +1,6 @@
 <template>
     <Head title="Courses" />
-    <Sidebar title="All Courses">
+    <ElearningSidebar title="All Courses">
         <div class="bg-gray-50 min-h-screen">
             <!-- Page Header -->
             <div
@@ -159,6 +159,12 @@
                                                     </svg>
                                                     <span>{{ mainCourse.completion_progress }}% Progress</span>
                                                 </span>
+                                                <span class="flex items-center space-x-1">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <path d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm0 2c4.963 0 9 4.037 9 9s-4.037 9-9 9-9-4.037-9-9 4.037-9 9-9zm-1 4v2.05c-1.71.208-3 .996-3 2.45 0 1.359 1.02 2.142 2.67 2.55l.33.08v3.32c-.92-.13-1.78-.49-2.5-1.03l-.83 1.54c1.03.77 2.33 1.22 3.83 1.34V21h2v-2.05c1.78-.2 3.2-1.09 3.2-2.64 0-1.39-1.02-2.18-2.8-2.63l-.4-.09V10.3c.69.1 1.37.36 1.9.78l.84-1.52c-.8-.6-1.92-1-3.24-1.14V7h-2z"/>
+                                                    </svg>
+                                                    <span>KES {{ (mainCourse.price || 0).toLocaleString() }}</span>
+                                                </span>
                                             </div>
                                             <!-- Certificate Button -->
                                             <div v-if="mainCourse.is_completed">
@@ -178,7 +184,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button
+                                    <button v-if="mainCourse.has_access"
                                         @click="toggleCourse(mainCourse.id)"
                                         class="text-white hover:text-yellow-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white focus-visible:ring-offset-indigo-600 rounded-md"
                                     >
@@ -195,8 +201,21 @@
                                 </div>
                             </div>
 
+                            <!-- Purchase Row (shown when no access) -->
+                            <div v-if="!mainCourse.has_access" class="bg-white/10 rounded-lg p-4 border border-white/10 mb-2">
+                                <div class="flex flex-col sm:flex-row items-center gap-3">
+                                    <div class="text-white font-semibold">Price: KES {{ (mainCourse.price || 0).toLocaleString() }}</div>
+                                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                                        <button @click="openBuyModal(mainCourse)"
+                                            class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 px-4 py-2 rounded-md font-semibold transition">
+                                            Buy Course
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Sub-courses Section -->
-                            <div v-if="expandedCourses.includes(mainCourse.id)" class="border-t border-gray-100">
+                            <div v-if="mainCourse.has_access && expandedCourses.includes(mainCourse.id)" class="border-t border-gray-100">
                                 <div class="p-4 sm:p-6">
                                     <div v-if="mainCourse.sub_courses && mainCourse.sub_courses.length > 0" class="space-y-4">
                                         <div 
@@ -320,85 +339,113 @@
                 </div>
             </div>
         </div>
-    </Sidebar>
+</ElearningSidebar>
+
+    <!-- Reusable Buy Confirmation Modal Component -->
+    <BuyConfirmationModal
+      v-model:show="showBuyModal"
+      v-model:phone="phoneInput"
+      :course-title="selectedCourse?.title || ''"
+      :price="(selectedCourse?.price) || 0"
+      :error="phoneError"
+      :is-submitting="isSubmitting"
+      @confirm="confirmBuy"
+    />
 </template>
 
-<script>
-import Sidebar from "@/Components/Sidebar.vue";
+<script setup>
+import { Head, router } from '@inertiajs/vue3';
+import ElearningSidebar from "@/Components/ElearningSidebar.vue";
+import BuyConfirmationModal from '@/Components/Shared/BuyConfirmationModal.vue';
 import { ref, onMounted } from 'vue';
-import { router } from '@inertiajs/vue3';
 
-export default {
-    components: { Sidebar },
-    props: {
-        courses: Array,
-    },
-    setup() {
-        const expandedCourses = ref([]);
-        const STORAGE_EXPANDED_KEY = 'elearning.courses.expanded.local';
+const props = defineProps({
+  courses: { type: Array, default: () => [] },
+  userPhone: { type: String, default: '' },
+});
 
-        const saveExpanded = () => {
-            try {
-                localStorage.setItem(STORAGE_EXPANDED_KEY, JSON.stringify(expandedCourses.value || []));
-            } catch (e) {}
-        };
+const expandedCourses = ref([]);
+const STORAGE_EXPANDED_KEY = 'elearning.courses.expanded.local';
 
-        const restoreExpanded = () => {
-            try {
-                const raw = localStorage.getItem(STORAGE_EXPANDED_KEY);
-                if (!raw) return;
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) expandedCourses.value = parsed;
-            } catch (e) {}
-        };
-
-        const toggleCourse = (courseId) => {
-            const index = expandedCourses.value.indexOf(courseId);
-            if (index > -1) {
-                expandedCourses.value.splice(index, 1);
-            } else {
-                expandedCourses.value.push(courseId);
-            }
-            saveExpanded();
-        };
-
-        const getQuizButtonText = (subCourse) => {
-            if (!subCourse.quiz_status?.completed) {
-                return 'Attempt Quiz';
-            } else if (subCourse.quiz_status?.passed) {
-                return `Completed (${subCourse.quiz_status.percentage}%)`;
-            } else {
-                return `Failed (${subCourse.quiz_status.percentage}%)`;
-            }
-        };
-
-        const handleLearningClick = (subCourse) => {
-            saveExpanded();
-            router.visit(route('elearning.course', { course: subCourse.id }));
-        };
-
-        const handleQuizClick = (subCourse) => {
-            saveExpanded();
-            router.visit(route('elearning.quiz', { course: subCourse.id }));
-        };
-
-        const downloadCertificate = (mainCourse) => {
-            const url = route('elearning.certificate', { course: mainCourse.id });
-            window.open(url, '_blank');
-        };
-
-        onMounted(() => {
-            restoreExpanded();
-        });
-
-        return {
-            expandedCourses,
-            toggleCourse,
-            getQuizButtonText,
-            handleLearningClick,
-            handleQuizClick,
-            downloadCertificate
-        };
-    }
+const saveExpanded = () => {
+  try {
+    localStorage.setItem(STORAGE_EXPANDED_KEY, JSON.stringify(expandedCourses.value || []));
+  } catch (e) {}
 };
+
+const restoreExpanded = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_EXPANDED_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) expandedCourses.value = parsed;
+  } catch (e) {}
+};
+
+function toggleCourse(courseId) {
+  const index = expandedCourses.value.indexOf(courseId);
+  if (index > -1) {
+    expandedCourses.value.splice(index, 1);
+  } else {
+    expandedCourses.value.push(courseId);
+  }
+  saveExpanded();
+}
+
+function getQuizButtonText(subCourse) {
+  if (!subCourse.quiz_status?.completed) {
+    return 'Attempt Quiz';
+  } else if (subCourse.quiz_status?.passed) {
+    return `Completed (${subCourse.quiz_status.percentage}%)`;
+  } else {
+    return `Failed (${subCourse.quiz_status.percentage}%)`;
+  }
+}
+
+function handleLearningClick(subCourse) {
+  saveExpanded();
+  router.visit(route('elearning.course', { course: subCourse.id }));
+}
+
+function handleQuizClick(subCourse) {
+  saveExpanded();
+  router.visit(route('elearning.quiz', { course: subCourse.id }));
+}
+
+function downloadCertificate(mainCourse) {
+  const url = route('elearning.certificate', { course: mainCourse.id });
+  window.open(url, '_blank');
+}
+
+const showBuyModal = ref(false);
+const selectedCourse = ref(null);
+const phoneInput = ref("");
+const phoneError = ref("");
+const isSubmitting = ref(false);
+
+function openBuyModal(course) {
+  selectedCourse.value = course;
+  phoneInput.value = props.userPhone || "";
+  phoneError.value = "";
+  showBuyModal.value = true;
+}
+
+function confirmBuy() {
+  if (!selectedCourse.value) return;
+  isSubmitting.value = true;
+  router.post(route('elearning.buy', { course: selectedCourse.value.id }), { phone: phoneInput.value }, {
+    onError: (errors) => {
+      phoneError.value = errors?.phone || '';
+      if (!phoneError.value) {
+        const msg = errors?.course || 'Unable to start payment. Ensure your profile phone is set.';
+        alert(msg);
+      }
+      isSubmitting.value = false;
+    },
+  });
+}
+
+onMounted(() => {
+  restoreExpanded();
+});
 </script>
