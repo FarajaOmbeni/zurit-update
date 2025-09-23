@@ -11,7 +11,7 @@ trait AdminRedirectTrait
      * Redirect user based on their role
      */
     protected function redirectBasedOnRole(
-        string $userRoute = 'budget.index',
+        string $userRoute = 'home',
         string $adminRoute = 'users.index',
         string $coachRoute = 'coach.dashboard',
         array $parameters = []
