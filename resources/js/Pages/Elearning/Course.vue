@@ -387,88 +387,6 @@
     </Sidebar>
 </template>
 
-<<<<<<< HEAD
-<script>
-import Sidebar from "@/Components/Sidebar.vue";
-
-export default {
-    components: { Sidebar },
-    props: {
-        course: Object,
-        materials: Array,
-    },
-    data() {
-        return {
-            loadingMaterials: new Set(), // Track which materials are loading
-        };
-    },
-    computed: {
-        groupedMaterials() {
-            const groups = {};
-
-            this.course.materials.forEach((material) => {
-                // Remove (PDF) or (Video) suffix to get base title
-                let baseTitle = material.title.replace(
-                    /\s*\((PDF|Video)\)$/,
-                    "",
-                );
-
-                if (!groups[baseTitle]) {
-                    groups[baseTitle] = [];
-                }
-                groups[baseTitle].push(material);
-            });
-
-            return groups;
-        },
-    },
-    methods: {
-        goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                this.$inertia.visit(route("elearning.courses"), {
-                    preserveScroll: true,
-                });
-            }
-        },
-        openPdfInNewTab(material, event) {
-            // Prevent default behavior
-            event.preventDefault();
-
-            // Set loading state
-            this.loadingMaterials.add(material.id);
-
-            // Create the viewer URL
-            const viewerUrl = route("course-materials.viewer", {
-                material: material.id,
-                t: Date.now(), // Cache buster
-            });
-
-            // Open in new tab
-            const newWindow = window.open(viewerUrl, "_blank");
-
-            // Remove loading state after a short delay (window opening)
-            setTimeout(() => {
-                this.loadingMaterials.delete(material.id);
-            }, 1000);
-
-            // Also remove loading state if window couldn't open
-            if (!newWindow) {
-                this.loadingMaterials.delete(material.id);
-            }
-        },
-        isLoading(materialId) {
-            return this.loadingMaterials.has(materialId);
-        },
-        openVideoModal(material) {
-            // For now, just redirect to the video URL
-            // You could implement a modal here if needed
-            window.open(material.display_url, "_blank");
-        },
-    },
-};
-=======
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Sidebar.vue';
@@ -494,5 +412,4 @@ function openPdfInNewTab(material, event) {
   });
   window.open(viewerUrl, '_blank');
 }
->>>>>>> master
 </script>
