@@ -28,16 +28,12 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TestimonialsController;
 use App\Http\Controllers\CreateMeetingController;
 use App\Http\Controllers\ElearningQuizController;
-<<<<<<< HEAD
 use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\CourseMaterialController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-=======
-use App\Http\Controllers\CertificateController;
 // use App\Http\Controllers\ElearningPaywallController;
 use App\Http\Controllers\PaymentStatusController;
 use App\Http\Controllers\AdminCourseAccessController;
->>>>>>> master
 
 Route::get('/', [IndexController::class, 'index'])->name('home');
 
