@@ -65,6 +65,7 @@
 
                     <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
                     <Link href="/blogs" class="text-gray-300 hover:text-gray-100">Blogs</Link>
+                    <Link href="/elearning/landing" class="text-gray-300 hover:text-gray-100">E-Learning</Link>
                     <Link href="/feedback" class="text-gray-300 hover:text-gray-100">Feedback</Link>
 
                     <!-- User Menu -->
@@ -203,6 +204,12 @@
                             @click="isMobileMenuOpen = false">
                         Blogs
                         </Link>
+                        <Link href="/elearning/landing"
+                            class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
+                            @click="isMobileMenuOpen = false">
+                        E-Learning
+                        </Link>
+                        
                         <Link href="/feedback"
                             class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
                             @click="isMobileMenuOpen = false">
@@ -301,7 +308,6 @@ const services = [
 const userMenuItems = [
     { name: 'MSME Dashboard', href: '/msme/dashboard' },
     { name: 'Prosperity Dashboard', href: '/user/budget' },
-    { name: 'E-Learning', href: '/elearning/landing' },
     { name: 'Profile', href: '/profile' },
     { name: 'Log Out', href: '/logout' }
 ]

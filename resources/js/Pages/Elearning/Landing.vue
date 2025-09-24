@@ -62,6 +62,12 @@
                                         </svg>
                                         <span>{{ course.sub_courses?.length || 0 }} Sub-courses</span>
                                     </span>
+                                    <span class="flex items-center space-x-1 text-sm">
+                                        <svg class="w-4 h-4 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 1C5.9 1 1 5.9 1 12s4.9 11 11 11 11-4.9 11-11S18.1 1 12 1zm-1 6v2.05c-1.71.21-3 .99-3 2.45 0 1.36 1.02 2.14 2.67 2.55l.33.08v3.32c-.92-.13-1.78-.49-2.5-1.03l-.83 1.54c1.03.77 2.33 1.22 3.83 1.34V21h2v-2.05c1.78-.2 3.2-1.09 3.2-2.64 0-1.39-1.02-2.18-2.8-2.63l-.4-.09V10.3c.69.1 1.37.36 1.9.78l.84-1.52c-.8-.6-1.92-1-3.24-1.14V7h-2z" />
+                                        </svg>
+                                        <span>KES {{ (course.price || 0).toLocaleString() }}</span>
+                                    </span>
                                 </div>
 
                                 <!-- Sub-courses preview -->
@@ -84,11 +90,22 @@
                                 </div>
                             </div>
 
-                            <div class="p-6 pt-0 mt-auto">
-                                <button @click="$inertia.visit(route('elearning.courses'))"
+                            <div class="p-6 pt-0 mt-auto space-y-2">
+                                <button v-if="course.has_access"
+                                    @click="$inertia.visit(route('elearning.courses'))"
                                     class="w-full px-4 py-2 border-2 font-medium rounded-lg transition-colors hover:text-white hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 hover:bg-gradient-to-br hover:from-indigo-500 hover:to-purple-600"
                                     style="border-color: #667eea; color: #667eea;">
                                     Explore Courses
+                                </button>
+                                <button v-else disabled
+                                    class="w-full px-4 py-2 border-2 font-medium rounded-lg opacity-60 cursor-not-allowed"
+                                    style="border-color: #667eea; color: #667eea;">
+                                    Explore Courses (Locked)
+                                </button>
+                                <button v-if="!course.has_access"
+                                    @click="openBuyModal(course)"
+                                    class="w-full px-4 py-2 bg-yellow-400 text-yellow-900 font-semibold rounded-lg hover:bg-yellow-300 transition">
+                                    Buy Course
                                 </button>
                             </div>
                         </div>
@@ -143,16 +160,56 @@
             </section>
         </div>
     </ElearningSidebar>
+
+    <!-- Reusable Buy Confirmation Modal Component -->
+    <BuyConfirmationModal
+      v-model:show="showBuyModal"
+      v-model:phone="phoneInput"
+      :course-title="selectedCourse?.title || ''"
+      :price="(selectedCourse?.price) || 0"
+      :error="phoneError"
+      :is-submitting="isSubmitting"
+      @confirm="confirmBuy"
+    />
 </template>
 
-<script>
+<script setup>
+import { Head, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import ElearningSidebar from '@/Components/ElearningSidebar.vue';
 import DashboardBackButton from '@/Components/Shared/DashboardBackButton.vue';
+import BuyConfirmationModal from '@/Components/Shared/BuyConfirmationModal.vue';
 
-export default {
-    components: { ElearningSidebar, DashboardBackButton },
-    props: {
-        featuredCourses: Array,
+const props = defineProps({
+  featuredCourses: { type: Array, default: () => [] },
+  userPhone: { type: String, default: '' },
+});
+
+const showBuyModal = ref(false);
+const selectedCourse = ref(null);
+const phoneInput = ref('');
+const phoneError = ref('');
+const isSubmitting = ref(false);
+
+function openBuyModal(course) {
+  selectedCourse.value = course;
+  phoneInput.value = props.userPhone || '';
+  phoneError.value = '';
+  showBuyModal.value = true;
+}
+
+function confirmBuy() {
+  if (!selectedCourse.value) return;
+  isSubmitting.value = true;
+  router.post(route('elearning.buy', { course: selectedCourse.value.id }), { phone: phoneInput.value }, {
+    onError: (errors) => {
+      phoneError.value = errors?.phone || '';
+      if (!phoneError.value) {
+        const msg = errors?.course || 'Unable to start payment. Ensure your profile phone is set.';
+        alert(msg);
+      }
+      isSubmitting.value = false;
     },
-};
+  });
+}
 </script>

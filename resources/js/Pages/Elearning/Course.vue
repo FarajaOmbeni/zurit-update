@@ -387,6 +387,7 @@
     </Sidebar>
 </template>
 
+<<<<<<< HEAD
 <script>
 import Sidebar from "@/Components/Sidebar.vue";
 
@@ -467,4 +468,31 @@ export default {
         },
     },
 };
+=======
+<script setup>
+import { Head, router } from '@inertiajs/vue3';
+import Sidebar from '@/Components/Sidebar.vue';
+
+const props = defineProps({
+  course: { type: Object, required: true },
+  materials: { type: Array, default: () => [] },
+});
+
+function goBack() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    router.visit(route('elearning.courses'), { preserveScroll: true });
+  }
+}
+
+function openPdfInNewTab(material, event) {
+  event.preventDefault();
+  const viewerUrl = route('course-materials.viewer', {
+    material: material.id,
+    t: Date.now(),
+  });
+  window.open(viewerUrl, '_blank');
+}
+>>>>>>> master
 </script>

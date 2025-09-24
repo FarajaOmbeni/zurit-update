@@ -18,11 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Register the admin and coach middleware
+        // Register middleware aliases
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminRoleMiddleware::class,
             'coach' => \App\Http\Middleware\CoachRoleMiddleware::class,
             'subscribed' => EnsureUserIsSubscribed::class,
+            'elearning.access' => \App\Http\Middleware\EnsureElearningAccess::class,
+            'course.access' => \App\Http\Middleware\EnsureCourseAccess::class,
         ]);
 
         // Exempt UploadThing API from CSRF verification

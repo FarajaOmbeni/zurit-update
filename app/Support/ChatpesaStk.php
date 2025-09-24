@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Throwable;
+use App\Mail\ElearningPurchaseMail;
 use App\Mail\BuyBookMail;
 use App\Models\MpesaPayment;
 use App\Mail\UserBuyBookMail;
@@ -140,11 +141,44 @@ class ChatpesaStk
                         Mail::to($email)->send(new ZuriScoreReportMail($name, $reportUrl));
                         Mail::to(config('services.email.admin_email'))->send(new ZuriScoreAdminMail($name, $reportDate, $reportMonths));
                         break;
+
+                    case 'elearning':
+                        Log::info("Granting per-course e-learning access:", [
+                            'user_id' => $payment->user_id,
+                            'payment_id' => $payment->id,
+                            'course_id' => $paymentData['course_id'] ?? null,
+                        ]);
+                        if ($payment->user_id && !empty($paymentData['course_id'])) {
+                            $userId = $payment->user_id;
+                            $courseId = (int) $paymentData['course_id'];
+                            try {
+                                \Illuminate\Support\Facades\DB::table('course_user')->updateOrInsert(
+                                    ['course_id' => $courseId, 'user_id' => $userId],
+                                    ['updated_at' => now(), 'created_at' => now()]
+                                );
+
+                                // Send purchase confirmation to user
+                                $user = \App\Models\User::find($userId);
+                                $course = \App\Models\Course::find($courseId);
+                                if ($user && $user->email && $course) {
+                                    Mail::to($user->email)->send(new ElearningPurchaseMail($user->name, $course->title));
+                                }
+                            } catch (\Throwable $e) {
+                                Log::error('Granting course access failed', ['error' => $e->getMessage()]);
+                            }
+                        }
+                        break;
                 }
 
                 Cache::forget($cacheKey);
                 Log::info("Payment data after session: ", ['session' => Cache::get($cacheKey)]);
-                Log::info("Emails sent for payment: ", ['payment_id' => $payment->id, 'admin_mail' => config('services.email.admin_email'), 'user_mail' => $email]);
+                $logUserEmail = $paymentData['email'] ?? ($email ?? null);
+                Log::info("Payment processed: ", [
+                    'payment_id' => $payment->id,
+                    'purpose' => $payment->purpose,
+                    'admin_mail' => config('services.email.admin_email'),
+                    'user_mail' => $logUserEmail,
+                ]);
             } catch (\Exception $e) {
                 Log::error('Email sending failed: ', ['error' => $e->getMessage()]);
             }
