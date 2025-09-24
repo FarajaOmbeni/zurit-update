@@ -1,6 +1,6 @@
 <template>
     <Head title="Quiz Results" />
-    <Sidebar title="Quiz Results">
+    <ElearningSidebar title="Quiz Results">
         <div class="bg-gray-50 min-h-screen">
             <!-- Result Header -->
             <div class="bg-white shadow-sm border-b border-gray-200">
@@ -115,15 +115,15 @@
                                 </svg>
                                 Retake Quiz
                             </button>
-                            <Link
-                                :href="route('elearning.courses')"
+                            <button
+                                @click="$inertia.visit(route('elearning.courses'))"
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             >
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                                 </svg>
-                                Back to Courses
-                            </Link>
+                                Back to Course
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -173,11 +173,11 @@
                 </div>
             </div>
         </div>
-    </Sidebar>
+    </ElearningSidebar>
 </template>
 
 <script setup>
-import Sidebar from "@/Components/Sidebar.vue";
+import ElearningSidebar from "@/Components/ElearningSidebar.vue";
 
 const props = defineProps({
     score: Number,

@@ -1,6 +1,6 @@
 <template>
     <Head title="Course" />
-    <Sidebar title="Course Details">
+    <ElearningSidebar title="Course Details">
         <div class="bg-gray-50 min-h-screen">
             <!-- Navigation -->
             <div class="bg-white pt-6 pb-6 border-b border-gray-200">
@@ -384,12 +384,12 @@
                 </div>
             </div>
         </div>
-    </Sidebar>
+    </ElearningSidebar>
 </template>
 
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import Sidebar from '@/Components/Sidebar.vue';
+import ElearningSidebar from '@/Components/ElearningSidebar.vue';
 
 const props = defineProps({
   course: { type: Object, required: true },

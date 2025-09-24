@@ -1,6 +1,6 @@
 <template>
     <Head title="Quiz" />
-    <Sidebar title="Course Quiz">
+    <ElearningSidebar title="Course Quiz">
         <div class="bg-gray-50 min-h-screen">
             <!-- Quiz Header -->
             <div class="bg-white shadow-sm border-b border-gray-200">
@@ -218,11 +218,11 @@
                 </div>
             </div>
         </div>
-    </Sidebar>
+    </ElearningSidebar>
 </template>
 
 <script setup>
-import Sidebar from "@/Components/Sidebar.vue";
+import ElearningSidebar from "@/Components/ElearningSidebar.vue";
 import { useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
