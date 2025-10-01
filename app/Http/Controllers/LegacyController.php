@@ -34,12 +34,30 @@ class LegacyController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Get investments for legacy planning
+        $investments = Investment::where('user_id', $user->id)
+            ->select(
+                'id',
+                'type',
+                'details_of_investment as name',
+                'description',
+                'initial_amount',
+                'current_amount',
+                'start_date',
+                'expected_return_rate',
+                'status',
+                DB::raw('current_amount as value')
+            )
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $beneficiaries = Beneficiary::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('UserDashboard/Legacy/Assets', [
             'assets' => $legacyAssets,
+            'investments' => $investments,
             'beneficiaries' => $beneficiaries,
         ]);
     }
@@ -570,12 +588,29 @@ class LegacyController extends Controller
             ->with('beneficiaryAllocations.beneficiary')
             ->get();
 
+        // Get investments for legacy planning
+        $investments = Investment::where('user_id', $user->id)
+            ->select(
+                'id',
+                'type',
+                'details_of_investment as name',
+                'description',
+                'initial_amount',
+                'current_amount',
+                'start_date',
+                'expected_return_rate',
+                'status',
+                DB::raw('current_amount as value')
+            )
+            ->get();
+
         $beneficiaries = Beneficiary::where('user_id', $user->id)->get();
         $fiduciaries = Fiduciary::where('user_id', $user->id)->get();
         $insuranceInvestments = Insurance::where('user_id', $user->id)->get();
 
         return Inertia::render('UserDashboard/Legacy/Review', [
             'assets' => $legacyAssets,
+            'investments' => $investments,
             'beneficiaries' => $beneficiaries,
             'fiduciaries' => $fiduciaries,
             'insurances' => $insuranceInvestments
@@ -593,6 +628,23 @@ class LegacyController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
+        // Get investments for legacy planning
+        $investments = Investment::where('user_id', $user->id)
+            ->select(
+                'id',
+                'type',
+                'details_of_investment as name',
+                'description',
+                'initial_amount',
+                'current_amount',
+                'start_date',
+                'expected_return_rate',
+                'status',
+                DB::raw('current_amount as value')
+            )
+            ->orderBy('created_at', 'asc')
+            ->get();
+
         $beneficiaries = Beneficiary::where('user_id', $user->id)
             ->orderBy('full_name', 'asc')
             ->get();
@@ -606,14 +658,17 @@ class LegacyController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        // Compute total asset value for quick summary
+        // Compute total asset value for quick summary (including investments)
         $totalAssetValue = $assets->sum(function ($a) {
             return (float)($a->value ?? 0);
+        }) + $investments->sum(function ($i) {
+            return (float)($i->value ?? 0);
         });
 
         $data = [
             'user'             => $user,
             'assets'           => $assets,
+            'investments'      => $investments,
             'beneficiaries'    => $beneficiaries,
             'fiduciaries'      => $fiduciaries,
             'insurances'       => $insurances,

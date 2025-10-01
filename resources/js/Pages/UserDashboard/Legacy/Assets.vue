@@ -16,6 +16,10 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
+    investments: {
+        type: Array,
+        default: () => []
+    },
     beneficiaries: {
         type: Array,
         default: () => []
@@ -54,6 +58,19 @@ const assetTypes = [
     { value: 'artwork', label: 'Artwork' },
     { value: 'electronics', label: 'Electronics' },
     { value: 'furniture', label: 'Furniture' },
+    { value: 'other', label: 'Other' }
+];
+
+const investmentTypes = [
+    { value: 'stocks', label: 'Stocks' },
+    { value: 'bonds', label: 'Bonds' },
+    { value: 'mmf', label: 'Money Market Fund' },
+    { value: 'bills', label: 'Treasury Bills' },
+    { value: 'real_estate', label: 'Real Estate Investment' },
+    { value: 'mutual_funds', label: 'Mutual Funds' },
+    { value: 'etf', label: 'Exchange Traded Fund' },
+    { value: 'retirement', label: 'Retirement Fund' },
+    { value: 'crypto', label: 'Cryptocurrency' },
     { value: 'other', label: 'Other' }
 ];
 
@@ -122,8 +139,15 @@ function getAssetTypeLabel(type) {
     return assetType ? assetType.label : type;
 }
 
+function getInvestmentTypeLabel(type) {
+    const investmentType = investmentTypes.find(t => t.value === type);
+    return investmentType ? investmentType.label : type;
+}
+
 function getTotalValue() {
-    return props.assets.reduce((total, asset) => total + parseFloat(asset.value || 0), 0);
+    const assetsValue = props.assets.reduce((total, asset) => total + parseFloat(asset.value || 0), 0);
+    const investmentsValue = props.investments.reduce((total, investment) => total + parseFloat(investment.value || 0), 0);
+    return assetsValue + investmentsValue;
 }
 
 function getAssetAllocations(asset) {
@@ -140,9 +164,18 @@ function getAllocatedAssetsCount() {
     return props.assets.filter(a => getAssetAllocations(a).length > 0).length;
 }
 
+function getInvestmentAllocations(investment) {
+    // Investments don't have beneficiary allocations yet, but we'll prepare for future implementation
+    return [];
+}
+
+function getAllocatedInvestmentsCount() {
+    return props.investments.filter(i => getInvestmentAllocations(i).length > 0).length;
+}
+
 function continueToBeneficiaries() {
-    if (props.assets.length === 0) {
-        openAlert('warning', 'Please add at least one asset before proceeding to beneficiaries.', 5000);
+    if (props.assets.length === 0 && props.investments.length === 0) {
+        openAlert('warning', 'Please add at least one asset or investment before proceeding to beneficiaries.', 5000);
         return;
     }
     window.location.href = route('legacy.beneficiaries');
@@ -294,12 +327,14 @@ function saveAllocations() {
                         </div>
 
                         <div class="text-right">
-                            <div class="text-sm text-gray-500 mb-1">Total Asset Value</div>
+                            <div class="text-sm text-gray-500 mb-1">Total Value</div>
                             <div class="text-2xl font-bold text-green-600">
                                 {{ formatCurrency(getTotalValue()) }}
                             </div>
                             <div class="text-sm text-gray-500 mt-1">
                                 {{ getAllocatedAssetsCount() }}/{{ assets.length }} assets allocated
+                                <span v-if="investments.length > 0"> • {{ getAllocatedInvestmentsCount() }}/{{
+                                    investments.length }} investments allocated</span>
                             </div>
                         </div>
                     </div>
@@ -440,12 +475,91 @@ function saveAllocations() {
                         </div>
                     </div>
 
+                    <!-- Investments List -->
+                    <div v-if="investments.length > 0" class="space-y-4 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900">Your Investments</h3>
+
+                        <div class="grid gap-4">
+                            <div v-for="investment in investments" :key="investment.id"
+                                class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <BanknotesIcon class="w-6 h-6 text-green-600 flex-shrink-0" />
+                                            <div>
+                                                <h4 class="text-lg font-semibold text-gray-900">
+                                                    {{ investment.name }}
+                                                </h4>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ getInvestmentTypeLabel(investment.type) }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="investment.description" class="text-gray-600 mb-3">
+                                            {{ investment.description }}
+                                        </div>
+
+                                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                            <div class="flex items-center space-x-1">
+                                                <BanknotesIcon class="w-4 h-4" />
+                                                <span>{{ formatCurrency(investment.value) }}</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <CalendarIcon class="w-4 h-4" />
+                                                <span>{{ formatDate(investment.start_date) }}</span>
+                                            </div>
+                                            <div v-if="investment.expected_return_rate"
+                                                class="flex items-center space-x-1">
+                                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                                    {{ investment.expected_return_rate }}% expected return
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Investment Details -->
+                                        <div class="mt-3 text-xs text-gray-500 space-y-1">
+                                            <div v-if="investment.status">
+                                                <span class="font-medium">Status:</span> {{ investment.status }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Allocations list (placeholder for future implementation) -->
+                                        <div class="mt-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <div class="text-sm text-gray-600">
+                                                    <span class="font-medium">Allocations:</span>
+                                                    <span>Not yet available for investments</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons (read-only for now) -->
+                                    <div class="flex items-center space-x-2 ml-4">
+                                        <button disabled
+                                            class="p-2 text-gray-300 cursor-not-allowed rounded-lg transition-colors duration-200"
+                                            title="Investment management not available in legacy planning">
+                                            <PencilIcon class="w-5 h-5" />
+                                        </button>
+                                        <button disabled
+                                            class="p-2 text-gray-300 cursor-not-allowed rounded-lg transition-colors duration-200"
+                                            title="Investment management not available in legacy planning">
+                                            <TrashIcon class="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Empty State -->
-                    <div v-else class="text-center py-12">
+                    <div v-if="assets.length === 0 && investments.length === 0" class="text-center py-12">
                         <BuildingOfficeIcon class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">No assets added yet</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No assets or investments added yet</h3>
                         <p class="text-gray-600 mb-6">
-                            Start by adding your first asset to begin your estate plan.
+                            Start by adding your first asset to begin your estate plan. Your existing investments will
+                            be automatically included.
                         </p>
                         <button @click="editingAsset = null; showForm = true"
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
@@ -455,7 +569,7 @@ function saveAllocations() {
                     </div>
 
                     <!-- Continue Button -->
-                    <div v-if="assets.length > 0" class="flex justify-end pt-8 border-t">
+                    <div v-if="assets.length > 0 || investments.length > 0" class="flex justify-end pt-8 border-t">
                         <Link :href="route('legacy.beneficiaries')"
                             class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition-colors duration-200">
                         Continue to Beneficiaries →

@@ -8,6 +8,7 @@ import { computed } from 'vue'
 
 const props = defineProps({
     assets: { type: Array, default: () => [] },
+    investments: { type: Array, default: () => [] },
     beneficiaries: { type: Array, default: () => [] },
     // Controller currently sends a single (first) fiduciary record; handle object or array gracefully
     fiduciaries: { type: [Object, Array, null], default: () => null },
@@ -42,9 +43,11 @@ function assetAllocations(asset) {
         percentage: a.percentage,
     })).filter(a => a.beneficiary_name)
 }
-const totalAssetValue = computed(() =>
-    props.assets.reduce((sum, a) => sum + (parseFloat(a.value) || 0), 0)
-)
+const totalAssetValue = computed(() => {
+    const assetsValue = props.assets.reduce((sum, a) => sum + (parseFloat(a.value) || 0), 0);
+    const investmentsValue = props.investments.reduce((sum, i) => sum + (parseFloat(i.value) || 0), 0);
+    return assetsValue + investmentsValue;
+})
 const fiduciaryList = computed(() => {
     // normalize to array for rendering
     if (Array.isArray(props.fiduciaries)) return props.fiduciaries
@@ -123,7 +126,7 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('co
 
                             <div class="text-sm text-gray-600 mb-3">
                                 <div>Total Asset Value: <span class="font-semibold text-gray-900">{{
-                                        formatCurrencyKES(totalAssetValue) }}</span></div>
+                                    formatCurrencyKES(totalAssetValue) }}</span></div>
                                 <div>Assets Count: <span class="font-semibold text-gray-900">{{ assets.length }}</span>
                                 </div>
                             </div>
@@ -133,7 +136,7 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('co
                                     <div class="font-medium text-gray-900">{{ a.name }}</div>
                                     <div class="text-xs text-gray-500 mb-1">
                                         Value: {{ formatCurrencyKES(a.value) }} • Acquired: {{
-                                        formatDateNice(a.acquisition_date) }}
+                                            formatDateNice(a.acquisition_date) }}
                                     </div>
                                     <div class="text-xs text-gray-600" v-if="(assetAllocations(a)).length">
                                         <div class="font-semibold mb-1">Beneficiary Allocations</div>
@@ -150,6 +153,44 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('co
                             <div v-else class="text-sm text-gray-500">No assets added.</div>
                         </section>
 
+                        <!-- Investments -->
+                        <section class="bg-white rounded-lg shadow-sm border p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <BanknotesIcon class="w-6 h-6 text-green-600" />
+                                    <h2 class="text-lg font-semibold text-gray-900">Investments</h2>
+                                </div>
+                                <Link :href="route('legacy.assets')" class="text-sm text-purple-700 hover:underline">
+                                Edit</Link>
+                            </div>
+
+                            <div class="text-sm text-gray-600 mb-3">
+                                <div>Total Investment Value: <span class="font-semibold text-gray-900">{{
+                                    formatCurrencyKES(investments.reduce((sum, i) => sum + (parseFloat(i.value) ||
+                                        0), 0)) }}</span></div>
+                                <div>Investments Count: <span class="font-semibold text-gray-900">{{ investments.length
+                                        }}</span>
+                                </div>
+                            </div>
+
+                            <div v-if="investments.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                                <div v-for="i in investments" :key="i.id" class="border rounded p-3">
+                                    <div class="font-medium text-gray-900">{{ i.name }}</div>
+                                    <div class="text-xs text-gray-500 mb-1">
+                                        Value: {{ formatCurrencyKES(i.value) }} • Type: {{ i.type }} • Started: {{
+                                            formatDateNice(i.start_date) }}
+                                    </div>
+                                    <div class="text-xs text-gray-500" v-if="i.expected_return_rate">
+                                        Expected Return: {{ i.expected_return_rate }}%
+                                    </div>
+                                    <div class="text-xs text-gray-500" v-if="i.status">
+                                        Status: {{ i.status }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-sm text-gray-500">No investments found.</div>
+                        </section>
+
                         <!-- Beneficiaries -->
                         <section class="bg-white rounded-lg shadow-sm border p-6">
                             <div class="flex items-center justify-between mb-4">
@@ -163,7 +204,7 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('co
 
                             <div class="text-sm text-gray-600 mb-3">
                                 <div>Total Beneficiaries: <span class="font-semibold text-gray-900">{{
-                                        beneficiaries.length }}</span></div>
+                                    beneficiaries.length }}</span></div>
                             </div>
 
                             <div v-if="beneficiaries.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
@@ -196,7 +237,7 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('co
 
                             <div class="text-sm text-gray-600 mb-3">
                                 <div>Total Companies: <span class="font-semibold text-gray-900">{{ fiduciaryList.length
-                                        }}</span></div>
+                                }}</span></div>
                             </div>
 
                             <div v-if="fiduciaryList.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
@@ -229,7 +270,7 @@ const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('co
 
                             <div class="text-sm text-gray-600 mb-3">
                                 <div>Total Policies: <span class="font-semibold text-gray-900">{{ insurances.length
-                                        }}</span></div>
+                                }}</span></div>
                             </div>
 
                             <div v-if="insurances.length" class="space-y-3 max-h-64 overflow-y-auto pr-1">
