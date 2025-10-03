@@ -31,7 +31,7 @@ class DebtController extends Controller
         $expenseRequest = new Request([
             'category'        => 'Loan Repayment',
             'amount'          => round($payment, 2),
-            'description'     => "Debt Repayment for {$debt->name}",
+            'description'     => "Debt Repayment for {$debt->name} [DEBT_ID:{$debt->id}]",
             'expense_date'    => today(),
             'is_recurring'    => $isRecurring,
             'recurrence_pattern' => 'monthly',
@@ -81,7 +81,18 @@ class DebtController extends Controller
 
     public function index()
     {
-        $debts = Debt::where('user_id', Auth::id())->get();
+        $debts = Debt::where('user_id', Auth::id())->get()->map(function ($debt) {
+            // Check if this debt has an active recurrence rule by looking for the debt ID in description
+            $hasRecurringRule = \App\Models\RecurrenceRule::where('user_id', Auth::id())
+                ->where('type', 'expense')
+                ->where('category', 'Loan Repayment')
+                ->where('description', 'LIKE', "%[DEBT_ID:{$debt->id}]%")
+                ->where('is_active', true)
+                ->exists();
+
+            $debt->is_recurring = $hasRecurringRule;
+            return $debt;
+        });
 
         return Inertia::render('UserDashboard/DebtManager', [
             'debts' => $debts,
@@ -153,6 +164,7 @@ class DebtController extends Controller
             'interest_rate'  => 'required|numeric',
             'start_date'     => 'required|date',
             'due_date'       => 'required|date',
+            'is_recurring'   => 'boolean',
         ]);
 
         $start_date = Carbon::createFromDate($request->start_date);
@@ -180,7 +192,36 @@ class DebtController extends Controller
             return $debt;
         });
 
-        $this->storeRecurrentExpense($debt, $debt->minimum_payment, $request->boolean('is_recurring', true));
+        // Handle recurrence rule changes
+        $isRecurring = $request->boolean('is_recurring', false);
+
+        // Find existing recurrence rule for this debt by looking for the debt ID in description
+        $existingRule = \App\Models\RecurrenceRule::where('user_id', Auth::id())
+            ->where('type', 'expense')
+            ->where('category', 'Loan Repayment')
+            ->where('description', 'LIKE', "%[DEBT_ID:{$debt->id}]%")
+            ->first();
+
+        if ($isRecurring) {
+            // User wants recurring payments
+            if ($existingRule) {
+                // Update existing rule
+                $existingRule->update([
+                    'amount' => $debt->minimum_payment,
+                    'description' => "Debt Repayment for {$debt->name} [DEBT_ID:{$debt->id}]",
+                    'is_active' => true,
+                ]);
+            } else {
+                // Create new recurrence rule
+                $this->storeRecurrentExpense($debt, $debt->minimum_payment, true);
+            }
+        } else {
+            // User doesn't want recurring payments
+            if ($existingRule) {
+                // Deactivate existing rule
+                $existingRule->update(['is_active' => false]);
+            }
+        }
 
         return to_route('debt.index');
     }

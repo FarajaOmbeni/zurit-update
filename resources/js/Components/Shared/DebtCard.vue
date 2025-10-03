@@ -6,9 +6,26 @@
         'text-green-500': debtData.status === 'paid_off'
     }">
         <div class="flex justify-between items-center border-b pb-2 mb-2">
-            <h3 class="text-lg font-semibold text-purple-700" :class="{
-                'text-green-500': debtData.status === 'paid_off'
-            }">{{ debtData.name }}</h3>
+            <div class="flex items-center space-x-2">
+                <h3 class="text-lg font-semibold text-purple-700" :class="{
+                    'text-green-500': debtData.status === 'paid_off'
+                }">{{ debtData.name }}</h3>
+                <!-- Recurring Indicator -->
+                <div v-if="debtData.is_recurring" title="Automatic monthly payments">
+                    <svg class="h-4 w-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div v-else title="Manual payments only">
+                    <svg class="h-4 w-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </div>
             <div class="flex items-center space-x-2">
                 <span class="px-2 py-1 text-xs font-bold uppercase rounded-full" :class="{
                     'bg-yellow-400 text-black': debtData.status === 'active',
@@ -42,7 +59,7 @@
             </p>
             <p v-show="debtData.status === 'in_progress'" class="mt-1"><strong>Balance:</strong> {{
                 formatCurrency(debtData.initial_amount -
-                debtData.current_amount) }}
+                    debtData.current_amount) }}
             </p>
             <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
                 <div :class="debtData.status === 'active' ? 'bg-yellow-400' : 'bg-green-500'" class="h-2.5 rounded-full"
@@ -117,7 +134,7 @@
                         </div>
                     </div>
 
-                    <!-- Description Field + Commitment Radios -->
+                    <!-- Description Field -->
                     <div class="mt-2">
                         <label for="description" class="block text-gray-700 text-xs font-medium mb-1">
                             Description
@@ -125,6 +142,20 @@
                         <textarea id="description" v-model="editDebt.description"
                             class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                             rows="2"></textarea>
+                    </div>
+
+                    <!-- Recurring Payment Option -->
+                    <div class="mt-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" v-model="editDebt.is_recurring"
+                                class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <span class="ml-2 text-xs text-gray-700">
+                                Set up automatic monthly payments
+                            </span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ editDebt.is_recurring ? 'Payments will be automatically created monthly' : 'No automatic payments will be created - you will add payments manually when needed' }}
+                        </p>
                     </div>
 
                     <div class="mt-3 flex justify-end space-x-2">
@@ -222,6 +253,7 @@ const editDebt = useForm({
     interest_rate: '',
     start_date: '',
     due_date: '',
+    is_recurring: true, // Default to true for existing behavior
 });
 
 // Populate form when modal is opened
@@ -233,7 +265,7 @@ const populateForm = () => {
     editDebt.interest_rate = debtData.value.interest_rate || '';
     editDebt.start_date = debtData.value.start_date || '';
     editDebt.due_date = debtData.value.due_date;
-    editDebt.commitment = debtData.value.commitment;
+    editDebt.is_recurring = debtData.value.is_recurring || false;
 };
 
 // Close modal when clicking outside
