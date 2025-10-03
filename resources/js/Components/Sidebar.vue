@@ -316,8 +316,8 @@ const menuItems = [
   },
 ]
 
-// Sidebar state - set to false by default
-const sidebarOpen = ref(false);
+// Sidebar state - set to true by default
+const sidebarOpen = ref(true);
 
 // Toggle sidebar function
 const toggleSidebar = () => {
