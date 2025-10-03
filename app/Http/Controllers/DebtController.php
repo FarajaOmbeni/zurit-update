@@ -18,8 +18,13 @@ class DebtController extends Controller
 {
     use NetIncomeCalculator;
 
-    private function storeRecurrentExpense(Debt $debt, float $payment)
+    private function storeRecurrentExpense(Debt $debt, float $payment, bool $isRecurring = true)
     {
+        // Only create expense and payment records if recurring is enabled
+        if (!$isRecurring) {
+            return; // Don't create any expense or payment records for non-recurring debts
+        }
+
         $budgetController = new BudgetController();
 
         // build a pseudo-request for storeExpense
@@ -28,7 +33,7 @@ class DebtController extends Controller
             'amount'          => round($payment, 2),
             'description'     => "Debt Repayment for {$debt->name}",
             'expense_date'    => today(),
-            'is_recurring'    => true,
+            'is_recurring'    => $isRecurring,
             'recurrence_pattern' => 'monthly',
         ]);
 
@@ -94,6 +99,7 @@ class DebtController extends Controller
             'start_date'     => 'required|date',
             'duration_months' => 'required|numeric',
             'duration_years' => 'required|numeric',
+            'is_recurring'   => 'boolean',
         ]);
 
         $start_date = Carbon::createFromDate($request->start_date);
@@ -128,7 +134,7 @@ class DebtController extends Controller
         $debt->minimum_payment = round($payment, 2);       // currency-friendly rounding
         $debt->save();
 
-        $this->storeRecurrentExpense($debt, $payment);
+        $this->storeRecurrentExpense($debt, $payment, $request->boolean('is_recurring'));
 
         return to_route('debt.index', [
             'newDebt' => $debt,
@@ -174,7 +180,7 @@ class DebtController extends Controller
             return $debt;
         });
 
-        $this->storeRecurrentExpense($debt, $debt->minimum_payment);
+        $this->storeRecurrentExpense($debt, $debt->minimum_payment, $request->boolean('is_recurring', true));
 
         return to_route('debt.index');
     }

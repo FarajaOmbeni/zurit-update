@@ -40,6 +40,7 @@ const newDebt = useForm({
     start_date: '',
     duration_months: '',
     duration_years: '',
+    is_recurring: true, // Default to true for existing behavior
 });
 
 // Open modal
@@ -241,7 +242,7 @@ const closeModalOnOutsideClick = (event) => {
 
                     </div>
 
-                    <!-- Description Field + Commitment Radios -->
+                    <!-- Description Field -->
                     <div class="mt-2">
                         <label for="description" class="block text-gray-700 text-xs font-medium mb-1">
                             Description
@@ -249,6 +250,20 @@ const closeModalOnOutsideClick = (event) => {
                         <textarea id="description" v-model="newDebt.description"
                             class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500"
                             rows="2"></textarea>
+                    </div>
+
+                    <!-- Recurring Payment Option -->
+                    <div class="mt-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" v-model="newDebt.is_recurring"
+                                class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <span class="ml-2 text-xs text-gray-700">
+                                Set up automatic monthly payments
+                            </span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ newDebt.is_recurring ? 'Payments will be automatically created monthly' : 'No automatic payments will be created - you will add payments manually when needed' }}
+                        </p>
                     </div>
 
                     <!-- Form Buttons -->
