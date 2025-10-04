@@ -99,7 +99,7 @@ const chartOptions = ref({
                                 </div>
                                 <div class="text-3xl font-bold text-green-600 mb-2">KES {{ (props.totalPaymentRevenue ||
                                     0).toLocaleString() }}</div>
-                                <div class="text-sm text-gray-500">Books + ZuriScore + Subscriptions + Elearning</div>
+                                <div class="text-sm text-gray-500">Books + ZuriScore + Elearning</div>
                                 <div class="mt-2 text-sm text-gray-600">
                                     <div>Books: KES {{ (props.bookRevenue || 0).toLocaleString() }} | ZuriScore: KES {{
                                         (props.zuriscoreRevenue || 0).toLocaleString() }}</div>
