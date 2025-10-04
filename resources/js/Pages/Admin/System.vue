@@ -238,13 +238,12 @@ const chartOptions = ref({
 
                             <div class="border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-2">
-                                    <h3 class="text-lg font-medium text-gray-900">Subscriptions</h3>
-                                    <span class="text-sm text-gray-500">{{ props.subscriptionPaymentCount || 0 }}
-                                        payments</span>
+                                    <h3 class="text-lg font-medium text-gray-900">Elearning Courses</h3>
+                                    <span class="text-sm text-gray-500">{{ props.elearningPaymentCount || 0 }} payments</span>
                                 </div>
-                                <div class="text-3xl font-bold text-green-600 mb-2">KES {{ (props.subscriptionRevenue ||
-                                    0).toLocaleString() }}</div>
-                                <div class="text-sm text-gray-500">Revenue from subscriptions</div>
+                                <div class="text-3xl font-bold text-indigo-600 mb-2">KES {{ (props.elearningRevenue || 0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Revenue from elearning course sales</div>
+
                             </div>
                         </div>
 
@@ -258,63 +257,6 @@ const chartOptions = ref({
                             <p class="text-sm text-gray-600 mt-1">Combined revenue from all Mpesa transactions</p>
                         </div>
                     </div>
-                </div>
-
-
-                <!-- Elearning Revenue -->
-                <div class="mt-8">
-                    <div class="bg-white rounded-lg shadow p-5">
-                        <h2 class="text-lg font-semibold mb-4">Elearning Revenue</h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Elearning Revenue Overview -->
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h3 class="text-lg font-medium text-gray-900">Elearning Revenue</h3>
-                                    <span class="text-sm text-gray-500">{{ props.elearningPaymentCount || 0 }}
-                                        payments</span>
-                                </div>
-                                <div class="text-3xl font-bold text-indigo-600 mb-2">KES {{ (props.elearningRevenue ||
-                                    0).toLocaleString() }}</div>
-                                <div class="text-sm text-gray-500">Revenue from elearning courses</div>
-                                <div class="mt-2 text-sm text-gray-600">
-                                    <div>Course Price: KES 8,000 per course</div>
-                                    <div>Payment Method: Mpesa</div>
-                                </div>
-                            </div>
-
-                            <!-- Elearning Statistics -->
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h3 class="text-lg font-medium text-gray-900">Elearning Statistics</h3>
-                                    <span class="text-sm text-gray-500">Performance</span>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">Total Courses Sold</span>
-                                        <span class="text-lg font-semibold text-gray-900">{{ props.elearningPaymentCount
-                                            || 0 }}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">Average Revenue per Course</span>
-                                        <span class="text-lg font-semibold text-gray-900">KES {{
-                                            props.elearningPaymentCount > 0 ? Math.round((props.elearningRevenue || 0) /
-                                                props.elearningPaymentCount).toLocaleString() : '0' }}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm text-gray-600">Success Rate</span>
-                                        <span class="text-lg font-semibold text-green-600">{{ props.totalPayments > 0 ?
-                                            Math.round(((props.elearningPaymentCount || 0) / props.totalPayments) * 100)
-                                            : 0 }}%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mx-auto max-w-[90%] mt-14">
-                    <BarChart :chartData="chartData" :chartOptions="chartOptions" />
                 </div>
             </AdminSidebar>
         </div>
