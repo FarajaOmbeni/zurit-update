@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\Contact;
 use App\Models\Testimonial;
 use App\Models\Subscription;
+use App\Models\MpesaPayment;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -57,6 +58,27 @@ class AdminController extends Controller
 		// Calculate total annual revenue
 		$totalAnnualRevenue = ($monthlyRevenue * 12) + $yearlyRevenue;
 
+		// Mpesa Payment statistics
+		$totalPayments = MpesaPayment::count();
+		$successfulPayments = MpesaPayment::where('status', 'succeeded')->count();
+		$pendingPayments = MpesaPayment::where('status', 'pending')->count();
+		$failedPayments = MpesaPayment::where('status', 'failed')->count();
+
+		// Payment revenue by purpose
+		$bookPayments = MpesaPayment::where('purpose', 'like', '%book%')->where('status', 'succeeded');
+		$zuriscorePayments = MpesaPayment::where('purpose', 'report')->where('status', 'succeeded');
+		$subscriptionPayments = MpesaPayment::where('purpose', 'subscription')->where('status', 'succeeded');
+
+		$bookRevenue = $bookPayments->sum('amount');
+		$zuriscoreRevenue = $zuriscorePayments->sum('amount');
+		$subscriptionRevenue = $subscriptionPayments->sum('amount');
+		$totalPaymentRevenue = $bookRevenue + $zuriscoreRevenue + $subscriptionRevenue;
+
+		// Payment counts by purpose
+		$bookPaymentCount = $bookPayments->count();
+		$zuriscorePaymentCount = $zuriscorePayments->count();
+		$subscriptionPaymentCount = $subscriptionPayments->count();
+
 		// Subscription overall statistics (from Subscription model for reference)
 		$totalSubscriptions = Subscription::count();
 		$activeSubscriptions = Subscription::active()->count();
@@ -75,6 +97,18 @@ class AdminController extends Controller
 			'yearlyRevenue' => (float) $yearlyRevenue,
 			'totalAnnualRevenue' => (float) $totalAnnualRevenue,
 			'mrrEquivalent' => (float) $mrrEquivalent,
+			// Mpesa Payment statistics
+			'totalPayments' => $totalPayments,
+			'successfulPayments' => $successfulPayments,
+			'pendingPayments' => $pendingPayments,
+			'failedPayments' => $failedPayments,
+			'bookRevenue' => (float) $bookRevenue,
+			'zuriscoreRevenue' => (float) $zuriscoreRevenue,
+			'subscriptionRevenue' => (float) $subscriptionRevenue,
+			'totalPaymentRevenue' => (float) $totalPaymentRevenue,
+			'bookPaymentCount' => $bookPaymentCount,
+			'zuriscorePaymentCount' => $zuriscorePaymentCount,
+			'subscriptionPaymentCount' => $subscriptionPaymentCount,
 			// Subscription model stats (for reference)
 			'totalSubscriptions' => $totalSubscriptions,
 			'activeSubscriptions' => $activeSubscriptions,
