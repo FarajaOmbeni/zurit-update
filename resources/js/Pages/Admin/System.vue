@@ -30,6 +30,8 @@ const props = defineProps({
     bookPaymentCount: Number,
     zuriscorePaymentCount: Number,
     subscriptionPaymentCount: Number,
+    elearningRevenue: Number,
+    elearningPaymentCount: Number,
 })
 
 const dataCount = [props.users, props.blogs, props.subscribed]
@@ -67,6 +69,60 @@ const chartOptions = ref({
                     <AdminCard title="Blogs" :number="props.blogs" />
                     <AdminCard title="Subscribed" :number="props.subscribed" />
                     <AdminCard title="Free Trial" :number="props.trialUsers" />
+                </div>
+
+                <!-- Revenue Snapshot -->
+                <div class="mt-8">
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h2 class="text-lg font-semibold mb-4">Revenue Snapshot</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Subscription Revenue -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Subscription Revenue</h3>
+                                    <span class="text-sm text-gray-500">Recurring</span>
+                                </div>
+                                <div class="text-3xl font-bold text-blue-600 mb-2">KES {{ ((props.monthlyRevenue || 0) +
+                                    (props.yearlyRevenue || 0)).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Monthly + Yearly subscriptions</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>MRR: KES {{ (props.mrrEquivalent || 0).toLocaleString() }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Revenue -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Mpesa Revenue</h3>
+                                    <span class="text-sm text-gray-500">One-time</span>
+                                </div>
+                                <div class="text-3xl font-bold text-green-600 mb-2">KES {{ (props.totalPaymentRevenue ||
+                                    0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Books + ZuriScore + Subscriptions + Elearning</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>Books: KES {{ (props.bookRevenue || 0).toLocaleString() }} | ZuriScore: KES {{
+                                        (props.zuriscoreRevenue || 0).toLocaleString() }}</div>
+                                    <div>Elearning: KES {{ (props.elearningRevenue || 0).toLocaleString() }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Total Revenue -->
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Total Revenue</h3>
+                                    <span class="text-sm text-gray-500">All Sources</span>
+                                </div>
+                                <div class="text-3xl font-bold text-purple-600 mb-2">KES {{ (((props.monthlyRevenue ||
+                                    0) + (props.yearlyRevenue || 0)) + (props.totalPaymentRevenue ||
+                                        0)).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Combined revenue from all sources</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>Subscription + Payment Revenue</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Package Breakdown -->
@@ -111,6 +167,21 @@ const chartOptions = ref({
                                 <div class="mt-2 text-sm text-gray-600">
                                     No revenue generated
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Subscription Revenue -->
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Total Subscription Revenue</h3>
+                                <div class="text-2xl font-bold text-gray-900">KES {{ ((props.monthlyRevenue || 0) +
+                                    (props.yearlyRevenue || 0)).toLocaleString() }}</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Combined revenue from monthly and yearly subscriptions
+                            </p>
+                            <div class="mt-2 text-sm text-gray-600">
+                                <div>Monthly: KES {{ (props.monthlyRevenue || 0).toLocaleString() }} | Yearly: KES {{
+                                    (props.yearlyRevenue || 0).toLocaleString() }}</div>
                             </div>
                         </div>
                     </div>
@@ -180,11 +251,64 @@ const chartOptions = ref({
                         <!-- Total Payment Revenue -->
                         <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">Total Payment Revenue</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">Total Mpesa Revenue</h3>
                                 <div class="text-2xl font-bold text-gray-900">KES {{ (props.totalPaymentRevenue ||
                                     0).toLocaleString() }}</div>
                             </div>
-                            <p class="text-sm text-gray-600 mt-1">Combined revenue from all Mpesa payments</p>
+                            <p class="text-sm text-gray-600 mt-1">Combined revenue from all Mpesa transactions</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Elearning Revenue -->
+                <div class="mt-8">
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h2 class="text-lg font-semibold mb-4">Elearning Revenue</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Elearning Revenue Overview -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Elearning Revenue</h3>
+                                    <span class="text-sm text-gray-500">{{ props.elearningPaymentCount || 0 }}
+                                        payments</span>
+                                </div>
+                                <div class="text-3xl font-bold text-indigo-600 mb-2">KES {{ (props.elearningRevenue ||
+                                    0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Revenue from elearning courses</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>Course Price: KES 8,000 per course</div>
+                                    <div>Payment Method: Mpesa</div>
+                                </div>
+                            </div>
+
+                            <!-- Elearning Statistics -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Elearning Statistics</h3>
+                                    <span class="text-sm text-gray-500">Performance</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Total Courses Sold</span>
+                                        <span class="text-lg font-semibold text-gray-900">{{ props.elearningPaymentCount
+                                            || 0 }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Average Revenue per Course</span>
+                                        <span class="text-lg font-semibold text-gray-900">KES {{
+                                            props.elearningPaymentCount > 0 ? Math.round((props.elearningRevenue || 0) /
+                                                props.elearningPaymentCount).toLocaleString() : '0' }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Success Rate</span>
+                                        <span class="text-lg font-semibold text-green-600">{{ props.totalPayments > 0 ?
+                                            Math.round(((props.elearningPaymentCount || 0) / props.totalPayments) * 100)
+                                            : 0 }}%</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

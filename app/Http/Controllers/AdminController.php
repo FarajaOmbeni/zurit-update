@@ -68,16 +68,19 @@ class AdminController extends Controller
 		$bookPayments = MpesaPayment::where('purpose', 'like', '%book%')->where('status', 'succeeded');
 		$zuriscorePayments = MpesaPayment::where('purpose', 'report')->where('status', 'succeeded');
 		$subscriptionPayments = MpesaPayment::where('purpose', 'subscription')->where('status', 'succeeded');
+		$elearningPayments = MpesaPayment::where('purpose', 'elearning')->where('status', 'succeeded');
 
 		$bookRevenue = $bookPayments->sum('amount');
 		$zuriscoreRevenue = $zuriscorePayments->sum('amount');
 		$subscriptionRevenue = $subscriptionPayments->sum('amount');
-		$totalPaymentRevenue = $bookRevenue + $zuriscoreRevenue + $subscriptionRevenue;
+		$elearningRevenue = $elearningPayments->sum('amount');
+		$totalPaymentRevenue = $bookRevenue + $zuriscoreRevenue + $subscriptionRevenue + $elearningRevenue;
 
 		// Payment counts by purpose
 		$bookPaymentCount = $bookPayments->count();
 		$zuriscorePaymentCount = $zuriscorePayments->count();
 		$subscriptionPaymentCount = $subscriptionPayments->count();
+		$elearningPaymentCount = $elearningPayments->count();
 
 		// Subscription overall statistics (from Subscription model for reference)
 		$totalSubscriptions = Subscription::count();
@@ -105,10 +108,12 @@ class AdminController extends Controller
 			'bookRevenue' => (float) $bookRevenue,
 			'zuriscoreRevenue' => (float) $zuriscoreRevenue,
 			'subscriptionRevenue' => (float) $subscriptionRevenue,
+			'elearningRevenue' => (float) $elearningRevenue,
 			'totalPaymentRevenue' => (float) $totalPaymentRevenue,
 			'bookPaymentCount' => $bookPaymentCount,
 			'zuriscorePaymentCount' => $zuriscorePaymentCount,
 			'subscriptionPaymentCount' => $subscriptionPaymentCount,
+			'elearningPaymentCount' => $elearningPaymentCount,
 			// Subscription model stats (for reference)
 			'totalSubscriptions' => $totalSubscriptions,
 			'activeSubscriptions' => $activeSubscriptions,
