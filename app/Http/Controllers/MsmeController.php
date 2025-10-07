@@ -198,7 +198,7 @@ class MsmeController extends Controller
 
     private function getRecentActivities($userId)
     {
-        // Get recent cashflow entries
+        // Get recent cashflow entries (sort and display by creation time so newly added items always surface)
         $recentCashflow = CashflowEntry::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->take(5)
@@ -206,9 +206,10 @@ class MsmeController extends Controller
             ->map(function ($entry) {
                 return [
                     'type' => 'cashflow',
-                    'description' => ucfirst($entry->type) . ': ' . $entry->description,
+                    'description' => trim(ucfirst($entry->type) . ': ' . ($entry->description ?: $entry->category)),
                     'amount' => $entry->amount,
-                    'date' => $entry->entry_date,
+                    // Use created_at for recency so backdated entries still appear in recent activity
+                    'date' => $entry->created_at,
                     'category' => $entry->category,
                 ];
             });
@@ -227,6 +228,7 @@ class MsmeController extends Controller
                 ];
             });
 
+        // Combine and sort by date (creation time)
         return $recentCashflow->concat($recentPricing)
             ->sortByDesc('date')
             ->take(8)
@@ -309,63 +311,42 @@ class MsmeController extends Controller
         }
     }
 
-    private function generateProfitLossReport($userId, $startDate, $endDate, $format)
+    public function generateProfitLossReport($userId, $startDate, $endDate, $format)
     {
         // Generate or get existing P&L record
         $plRecord = ProfitLossRecord::generateFromCashflow($userId, $startDate, $endDate);
         
-        // For now, return the data structure
-        // In production, this would generate actual PDF/Excel files
-        return response()->json([
-            'type' => 'profit_loss',
-            'format' => $format,
-            'data' => $plRecord,
-            'period' => [
-                'start' => $startDate->format('Y-m-d'),
-                'end' => $endDate->format('Y-m-d'),
-            ],
-        ]);
+        // Navigate to the P&L show page (let the page handle any downloads)
+        return Inertia::location(route('profit-loss.show', $plRecord->id));
     }
 
-    private function generateBalanceSheetReport($userId, $asOfDate, $format)
+    public function generateBalanceSheetReport($userId, $asOfDate, $format)
     {
         $bsRecord = BalanceSheetRecord::where('user_id', $userId)
             ->where('as_of_date', '<=', $asOfDate)
             ->orderBy('as_of_date', 'desc')
             ->first();
 
-        return response()->json([
-            'type' => 'balance_sheet',
-            'format' => $format,
-            'data' => $bsRecord,
-            'as_of_date' => $asOfDate->format('Y-m-d'),
-        ]);
+        if (!$bsRecord) {
+            // Generate a new balance sheet if none exists
+            $bsRecord = BalanceSheetRecord::generateFromAssetsAndLiabilities($userId, $asOfDate);
+        }
+
+        // Navigate to the Balance Sheet show page
+        return Inertia::location(route('balance-sheet.show', $bsRecord->id));
     }
 
-    private function generateCashflowReport($userId, $startDate, $endDate, $format)
+    public function generateCashflowReport($userId, $startDate, $endDate, $format)
     {
-        $cashflowEntries = CashflowEntry::where('user_id', $userId)
-            ->whereBetween('entry_date', [$startDate, $endDate])
-            ->orderBy('entry_date', 'desc')
-            ->get();
-
-        $summary = [
-            'total_income' => $cashflowEntries->where('type', 'income')->sum('amount'),
-            'total_expenses' => $cashflowEntries->where('type', 'expense')->sum('amount'),
-            'net_cashflow' => $cashflowEntries->where('type', 'income')->sum('amount') - 
-                             $cashflowEntries->where('type', 'expense')->sum('amount'),
-            'entries_count' => $cashflowEntries->count(),
+        // Redirect to cashflow analytics with date filters for report viewing
+        $queryParams = [
+            'start_date' => $startDate->format('Y-m-d'),
+            'end_date' => $endDate->format('Y-m-d'),
         ];
 
-        return response()->json([
-            'type' => 'cashflow',
-            'format' => $format,
-            'data' => $cashflowEntries,
-            'summary' => $summary,
-            'period' => [
-                'start' => $startDate->format('Y-m-d'),
-                'end' => $endDate->format('Y-m-d'),
-            ],
-        ]);
+        $queryParams['format'] = $format === 'pdf' ? 'pdf' : 'excel';
+
+        // Navigate to cashflow analytics with the selected window
+        return Inertia::location(route('cashflow.analytics', $queryParams));
     }
 }

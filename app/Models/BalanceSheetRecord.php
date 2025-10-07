@@ -137,4 +137,82 @@ class BalanceSheetRecord extends Model
     {
         return $this->total_equity > 0 ? $this->total_liabilities / $this->total_equity : 0;
     }
+
+    // Auto-generate from assets and liabilities
+    public static function generateFromAssetsAndLiabilities($userId, $asOfDate)
+    {
+        // Get all assets for the user
+        $assets = Asset::where('user_id', $userId)
+            ->where('date_acquired', '<=', $asOfDate)
+            ->get();
+
+        // Get all liabilities for the user
+        $liabilities = Liability::where('user_id', $userId)
+            ->where('date_acquired', '<=', $asOfDate)
+            ->get();
+
+        // Calculate current assets
+        $cashAndEquivalents = $assets->where('asset_type', 'cash')->sum('current_value');
+        $accountsReceivable = $assets->where('asset_type', 'accounts_receivable')->sum('current_value');
+        $inventory = $assets->where('asset_type', 'inventory')->sum('current_value');
+        $prepaidExpenses = $assets->where('asset_type', 'prepaid_expenses')->sum('current_value');
+        $otherCurrentAssets = $assets->where('asset_type', 'other_current')->sum('current_value');
+
+        // Calculate non-current assets
+        $propertyPlantEquipment = $assets->where('asset_type', 'property_plant_equipment')->sum('current_value');
+        $accumulatedDepreciation = $assets->where('asset_type', 'property_plant_equipment')->sum('depreciation');
+        $intangibleAssets = $assets->where('asset_type', 'intangible')->sum('current_value');
+        $investments = $assets->where('asset_type', 'investment')->sum('current_value');
+        $otherNonCurrentAssets = $assets->where('asset_type', 'other_non_current')->sum('current_value');
+
+        // Calculate current liabilities
+        $accountsPayable = $liabilities->where('liability_type', 'accounts_payable')->sum('current_balance');
+        $shortTermDebt = $liabilities->where('liability_type', 'short_term_debt')->sum('current_balance');
+        $accruedLiabilities = $liabilities->where('liability_type', 'accrued_liabilities')->sum('current_balance');
+        $taxesPayable = $liabilities->where('liability_type', 'taxes_payable')->sum('current_balance');
+        $otherCurrentLiabilities = $liabilities->where('liability_type', 'other_current')->sum('current_balance');
+
+        // Calculate non-current liabilities
+        $longTermDebt = $liabilities->where('liability_type', 'long_term_debt')->sum('current_balance');
+        $deferredTaxLiabilities = $liabilities->where('liability_type', 'deferred_tax')->sum('current_balance');
+        $otherNonCurrentLiabilities = $liabilities->where('liability_type', 'other_non_current')->sum('current_balance');
+
+        // Calculate equity (simplified - would need more sophisticated calculation)
+        $totalAssets = $cashAndEquivalents + $accountsReceivable + $inventory + $prepaidExpenses + 
+                      $otherCurrentAssets + $propertyPlantEquipment - $accumulatedDepreciation + 
+                      $intangibleAssets + $investments + $otherNonCurrentAssets;
+
+        $totalLiabilities = $accountsPayable + $shortTermDebt + $accruedLiabilities + 
+                           $taxesPayable + $otherCurrentLiabilities + $longTermDebt + 
+                           $deferredTaxLiabilities + $otherNonCurrentLiabilities;
+
+        $retainedEarnings = $totalAssets - $totalLiabilities; // Simplified calculation
+
+        return self::create([
+            'user_id' => $userId,
+            'as_of_date' => $asOfDate,
+            'cash_and_equivalents' => $cashAndEquivalents,
+            'accounts_receivable' => $accountsReceivable,
+            'inventory' => $inventory,
+            'prepaid_expenses' => $prepaidExpenses,
+            'other_current_assets' => $otherCurrentAssets,
+            'property_plant_equipment' => $propertyPlantEquipment,
+            'accumulated_depreciation' => $accumulatedDepreciation,
+            'intangible_assets' => $intangibleAssets,
+            'investments' => $investments,
+            'other_non_current_assets' => $otherNonCurrentAssets,
+            'accounts_payable' => $accountsPayable,
+            'short_term_debt' => $shortTermDebt,
+            'accrued_liabilities' => $accruedLiabilities,
+            'taxes_payable' => $taxesPayable,
+            'other_current_liabilities' => $otherCurrentLiabilities,
+            'long_term_debt' => $longTermDebt,
+            'deferred_tax_liabilities' => $deferredTaxLiabilities,
+            'other_non_current_liabilities' => $otherNonCurrentLiabilities,
+            'share_capital' => 0, // Would need to be set manually or calculated differently
+            'retained_earnings' => $retainedEarnings,
+            'other_equity' => 0,
+            'is_automated' => true,
+        ]);
+    }
 } 
