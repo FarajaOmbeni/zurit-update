@@ -387,6 +387,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [App\Http\Controllers\ProfitLossController::class, 'index'])->name('index');
         Route::post('/generate', [App\Http\Controllers\ProfitLossController::class, 'generate'])->name('generate');
         Route::get('/{profitLossRecord}', [App\Http\Controllers\ProfitLossController::class, 'show'])->name('show');
+        Route::get('/{profitLossRecord}/download/{format}', [App\Http\Controllers\ProfitLossController::class, 'download'])->name('download');
         Route::put('/{profitLossRecord}', [App\Http\Controllers\ProfitLossController::class, 'update'])->name('update');
         Route::delete('/{profitLossRecord}', [App\Http\Controllers\ProfitLossController::class, 'destroy'])->name('destroy');
     });
@@ -396,6 +397,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [App\Http\Controllers\BalanceSheetController::class, 'index'])->name('index');
         Route::post('/', [App\Http\Controllers\BalanceSheetController::class, 'store'])->name('store');
         Route::get('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'show'])->name('show');
+        Route::get('/{balanceSheetRecord}/download/{format}', [App\Http\Controllers\BalanceSheetController::class, 'download'])->name('download');
         Route::put('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'update'])->name('update');
         Route::delete('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'destroy'])->name('destroy');
     });

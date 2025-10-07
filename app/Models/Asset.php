@@ -13,15 +13,22 @@ class Asset extends Model
         'user_id',
         'name',
         'type',
+        'asset_type', // For balance sheet categorization
         'description',
         'value',
+        'current_value', // Current market value
         'acquisition_date',
+        'date_acquired', // Alias for acquisition_date
+        'depreciation', // Accumulated depreciation
         'is_legacy',
     ];
 
     protected $casts = [
         'acquisition_date' => 'date',
+        'date_acquired' => 'date',
         'value' => 'decimal:2',
+        'current_value' => 'decimal:2',
+        'depreciation' => 'decimal:2',
         'is_legacy' => 'boolean',
     ];
 

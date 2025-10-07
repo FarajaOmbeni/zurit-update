@@ -78,6 +78,16 @@ class ProfitLossRecord extends Model
     // Auto-calculate from cashflow entries
     public static function generateFromCashflow($userId, $startDate, $endDate)
     {
+        // Check if a P&L record already exists for this period
+        $existingRecord = self::where('user_id', $userId)
+            ->where('period_start', $startDate)
+            ->where('period_end', $endDate)
+            ->first();
+
+        if ($existingRecord) {
+            return $existingRecord;
+        }
+
         $incomeEntries = CashflowEntry::where('user_id', $userId)
             ->where('type', 'income')
             ->dateRange($startDate, $endDate)

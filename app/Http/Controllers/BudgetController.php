@@ -74,9 +74,9 @@ class BudgetController extends Controller
         ]);
 
         $data = [
-            'incomes'     => $user->incomes()->whereMonth('income_date', now()->month)->get(),
-            'expenses'    => $user->expenses()->whereMonth('expense_date', now()->month)->get(),
-            'transactions' => $user->transactions()->whereMonth('transaction_date', now()->month)->get(),
+            'incomes'     => $user->incomes,
+            'expenses'    => $user->expenses,
+            'transactions' => $user->transactions,
             'goals'       => $user->goals,
             'debts'       => $user->debts,
             'investments' => $user->investments,
