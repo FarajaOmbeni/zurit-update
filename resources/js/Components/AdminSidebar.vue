@@ -245,7 +245,7 @@ const menuItems = [
         link: 'coaching.index',
     },
     {
-        title: 'System Insights',
+        title: 'Revenue Streams',
         icon: 'ChartBarIcon',
         icon: 'ChartBarIcon',
         active: currentRoute.startsWith('/admin/system'),
