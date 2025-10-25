@@ -245,7 +245,7 @@ const menuItems = [
         link: 'coaching.index',
     },
     {
-        title: 'System Insights',
+        title: 'Revenue Streams',
         icon: 'ChartBarIcon',
         icon: 'ChartBarIcon',
         active: currentRoute.startsWith('/admin/system'),
@@ -315,8 +315,8 @@ const courseMoreItems = [
     },
 ]
 
-// Sidebar state - set to false by default
-const sidebarOpen = ref(false);
+// Sidebar state - set to true by default
+const sidebarOpen = ref(true);
 
 // Toggle sidebar function
 const toggleSidebar = () => {

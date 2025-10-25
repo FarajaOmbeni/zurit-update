@@ -15,6 +15,23 @@ const props = defineProps({
     monthlyRevenue: Number,
     yearlyRevenue: Number,
     mrrEquivalent: Number,
+    monthlySubscribers: Number,
+    yearlySubscribers: Number,
+    trialUsers: Number,
+    // Mpesa Payment statistics
+    totalPayments: Number,
+    successfulPayments: Number,
+    pendingPayments: Number,
+    failedPayments: Number,
+    bookRevenue: Number,
+    zuriscoreRevenue: Number,
+    subscriptionRevenue: Number,
+    totalPaymentRevenue: Number,
+    bookPaymentCount: Number,
+    zuriscorePaymentCount: Number,
+    subscriptionPaymentCount: Number,
+    elearningRevenue: Number,
+    elearningPaymentCount: Number,
 })
 
 const dataCount = [props.users, props.blogs, props.subscribed]
@@ -51,45 +68,195 @@ const chartOptions = ref({
                     <AdminCard title="Users" :number="props.users" />
                     <AdminCard title="Blogs" :number="props.blogs" />
                     <AdminCard title="Subscribed" :number="props.subscribed" />
+                    <AdminCard title="Free Trial" :number="props.trialUsers" />
                 </div>
 
-                <!-- Subscription Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
+                <!-- Revenue Snapshot -->
+                <div class="mt-8">
                     <div class="bg-white rounded-lg shadow p-5">
-                        <h2 class="text-lg font-semibold mb-4">Subscription Overview</h2>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <div class="text-sm text-gray-500">Total Subscriptions</div>
-                                <div class="text-2xl font-bold">{{ props.totalSubscriptions?.toLocaleString?.() ?? props.totalSubscriptions }}</div>
+                        <h2 class="text-lg font-semibold mb-4">Revenue Snapshot</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Subscription Revenue -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Subscription Revenue</h3>
+                                    <span class="text-sm text-gray-500">Recurring</span>
+                                </div>
+                                <div class="text-3xl font-bold text-blue-600 mb-2">KES {{ ((props.monthlyRevenue || 0) +
+                                    (props.yearlyRevenue || 0)).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Monthly + Yearly subscriptions</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>MRR: KES {{ (props.mrrEquivalent || 0).toLocaleString() }}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-sm text-gray-500">Active Subscriptions</div>
-                                <div class="text-2xl font-bold">{{ props.activeSubscriptions?.toLocaleString?.() ?? props.activeSubscriptions }}</div>
+
+                            <!-- Payment Revenue -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Mpesa Revenue</h3>
+                                    <span class="text-sm text-gray-500">One-time</span>
+                                </div>
+                                <div class="text-3xl font-bold text-green-600 mb-2">KES {{ (props.totalPaymentRevenue ||
+                                    0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Books + ZuriScore + Elearning</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>Books: KES {{ (props.bookRevenue || 0).toLocaleString() }} | ZuriScore: KES {{
+                                        (props.zuriscoreRevenue || 0).toLocaleString() }}</div>
+                                    <div>Elearning: KES {{ (props.elearningRevenue || 0).toLocaleString() }}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-sm text-gray-500">Monthly Revenue (KES)</div>
-                                <div class="text-2xl font-bold">KES {{ (props.monthlyRevenue ?? 0).toLocaleString() }}</div>
-                            </div>
-                            <div>
-                                <div class="text-sm text-gray-500">Yearly Revenue (KES)</div>
-                                <div class="text-2xl font-bold">KES {{ (props.yearlyRevenue ?? 0).toLocaleString() }}</div>
-                            </div>
-                            <div class="col-span-2">
-                                <div class="text-sm text-gray-500">MRR Equivalent (KES)</div>
-                                <div class="text-2xl font-bold">KES {{ (props.mrrEquivalent ?? 0).toLocaleString() }}</div>
+
+                            <!-- Total Revenue -->
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Total Revenue</h3>
+                                    <span class="text-sm text-gray-500">All Sources</span>
+                                </div>
+                                <div class="text-3xl font-bold text-purple-600 mb-2">KES {{ (((props.monthlyRevenue ||
+                                    0) + (props.yearlyRevenue || 0)) + (props.totalPaymentRevenue ||
+                                        0)).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Combined revenue from all sources</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <div>Subscription + Payment Revenue</div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Package Breakdown -->
+                <div class="mt-8">
                     <div class="bg-white rounded-lg shadow p-5">
-                        <h2 class="text-lg font-semibold mb-4">Quick Chart</h2>
-                        <div class="h-64">
-                            <BarChart :chartData="chartData" :chartOptions="chartOptions" />
+                        <h2 class="text-lg font-semibold mb-4">Subscription Packages</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Monthly Package</h3>
+                                    <span class="text-sm text-gray-500">KES 500/month</span>
+                                </div>
+                                <div class="text-3xl font-bold text-blue-600 mb-2">{{ props.monthlySubscribers || 0 }}
+                                </div>
+                                <div class="text-sm text-gray-500">Active subscribers</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Revenue: KES {{ (props.monthlyRevenue ?? 0).toLocaleString() }}
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Yearly Package</h3>
+                                    <span class="text-sm text-gray-500">KES 4,500/year</span>
+                                </div>
+                                <div class="text-3xl font-bold text-green-600 mb-2">{{ props.yearlySubscribers || 0 }}
+                                </div>
+                                <div class="text-sm text-gray-500">Active subscribers</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Revenue: KES {{ (props.yearlyRevenue ?? 0).toLocaleString() }}
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Free Trial</h3>
+                                    <span class="text-sm text-gray-500">3 months free</span>
+                                </div>
+                                <div class="text-3xl font-bold text-orange-600 mb-2">{{ props.trialUsers || 0 }}
+                                </div>
+                                <div class="text-sm text-gray-500">Trial users</div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    No revenue generated
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Subscription Revenue -->
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Total Subscription Revenue</h3>
+                                <div class="text-2xl font-bold text-gray-900">KES {{ ((props.monthlyRevenue || 0) +
+                                    (props.yearlyRevenue || 0)).toLocaleString() }}</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Combined revenue from monthly and yearly subscriptions
+                            </p>
+                            <div class="mt-2 text-sm text-gray-600">
+                                <div>Monthly: KES {{ (props.monthlyRevenue || 0).toLocaleString() }} | Yearly: KES {{
+                                    (props.yearlyRevenue || 0).toLocaleString() }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mx-auto max-w-[90%] mt-14">
-                    <BarChart :chartData="chartData" :chartOptions="chartOptions" />
+                <!-- Mpesa Payments Overview -->
+                <div class="mt-8">
+                    <div class="bg-white rounded-lg shadow p-5">
+                        <h2 class="text-lg font-semibold mb-4">Mpesa Payments Overview</h2>
+
+                        <!-- Payment Status Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="text-sm text-gray-500">Total Payments</div>
+                                <div class="text-2xl font-bold text-blue-600">{{ props.totalPayments || 0 }}</div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="text-sm text-gray-500">Successful</div>
+                                <div class="text-2xl font-bold text-green-600">{{ props.successfulPayments || 0 }}</div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="text-sm text-gray-500">Pending</div>
+                                <div class="text-2xl font-bold text-yellow-600">{{ props.pendingPayments || 0 }}</div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="text-sm text-gray-500">Failed</div>
+                                <div class="text-2xl font-bold text-red-600">{{ props.failedPayments || 0 }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Revenue by Purpose -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Book Sales</h3>
+                                    <span class="text-sm text-gray-500">{{ props.bookPaymentCount || 0 }}
+                                        payments</span>
+                                </div>
+                                <div class="text-3xl font-bold text-purple-600 mb-2">KES {{ (props.bookRevenue ||
+                                    0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Revenue from book purchases</div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">ZuriScore Reports</h3>
+                                    <span class="text-sm text-gray-500">{{ props.zuriscorePaymentCount || 0 }}
+                                        payments</span>
+                                </div>
+                                <div class="text-3xl font-bold text-indigo-600 mb-2">KES {{ (props.zuriscoreRevenue ||
+                                    0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Revenue from ZuriScore reports</div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-medium text-gray-900">Elearning Courses</h3>
+                                    <span class="text-sm text-gray-500">{{ props.elearningPaymentCount || 0 }} payments</span>
+                                </div>
+                                <div class="text-3xl font-bold text-indigo-600 mb-2">KES {{ (props.elearningRevenue || 0).toLocaleString() }}</div>
+                                <div class="text-sm text-gray-500">Revenue from elearning course sales</div>
+
+                            </div>
+                        </div>
+
+                        <!-- Total Payment Revenue -->
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Total Mpesa Revenue</h3>
+                                <div class="text-2xl font-bold text-gray-900">KES {{ (props.totalPaymentRevenue ||
+                                    0).toLocaleString() }}</div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Combined revenue from all Mpesa transactions</p>
+                        </div>
+                    </div>
                 </div>
             </AdminSidebar>
         </div>
