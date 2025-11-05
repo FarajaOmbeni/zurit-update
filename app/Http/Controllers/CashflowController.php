@@ -74,6 +74,7 @@ class CashflowController extends Controller
             'subcategory' => 'nullable|string',
             'amount' => 'required|numeric|min:0.01',
             'payment_method' => 'required|string',
+            'payment_type' => 'nullable|in:cash,bank,credit',
             'description' => 'nullable|string|max:500',
             'reference_number' => 'nullable|string|max:100',
             'entry_date' => 'required|date',
@@ -83,6 +84,15 @@ class CashflowController extends Controller
             'customer_supplier' => 'nullable|string|max:255',
             'vat_amount' => 'nullable|numeric|min:0',
             'tax_amount' => 'nullable|numeric|min:0',
+            // Fixed asset options
+            'is_fixed_asset' => 'nullable|boolean',
+            'fixed_asset_name' => 'nullable|string|max:255',
+            'useful_life_months' => 'nullable|integer|min:1',
+            'residual_value' => 'nullable|numeric|min:0',
+            // Loan helpers
+            'loan_action' => 'nullable|in:drawdown,repayment',
+            'principal_amount' => 'nullable|numeric|min:0',
+            'interest_amount' => 'nullable|numeric|min:0',
         ]);
 
         $validated['user_id'] = Auth::id();
@@ -90,6 +100,117 @@ class CashflowController extends Controller
         $validated['tax_amount'] = $validated['tax_amount'] ?? 0;
 
         $entry = CashflowEntry::create($validated);
+
+        // Infer payment_type from payment_method if not provided
+        $paymentType = $validated['payment_type'] ?? null;
+        if (!$paymentType) {
+            $method = $validated['payment_method'] ?? '';
+            $bankMethods = ['bank_transfer', 'cheque', 'online_banking', 'mobile_banking'];
+            $creditMethods = ['credit_sale', 'credit_card'];
+            if (in_array($method, $creditMethods, true)) {
+                $paymentType = 'credit';
+            } elseif (in_array($method, $bankMethods, true)) {
+                $paymentType = 'bank';
+            } else {
+                $paymentType = 'cash';
+            }
+        }
+
+        // Handle credit sales/purchases -> create AR/AP
+        if ($paymentType === 'credit') {
+            if ($validated['type'] === 'income') {
+                // Accounts Receivable asset
+                \App\Models\Asset::create([
+                    'user_id' => $validated['user_id'],
+                    'name' => 'Accounts Receivable' . ($validated['customer_supplier'] ? ' - ' . $validated['customer_supplier'] : ''),
+                    'type' => 'accounts_receivable',
+                    'asset_type' => 'accounts_receivable',
+                    'description' => $validated['description'] ?? null,
+                    'value' => $validated['amount'],
+                    'current_value' => $validated['amount'],
+                    'acquisition_date' => $validated['entry_date'],
+                    'date_acquired' => $validated['entry_date'],
+                ]);
+            } elseif ($validated['type'] === 'expense') {
+                // Accounts Payable liability
+                \App\Models\Liability::create([
+                    'user_id' => $validated['user_id'],
+                    'name' => 'Accounts Payable' . ($validated['customer_supplier'] ? ' - ' . $validated['customer_supplier'] : ''),
+                    'category' => 'trade_payable',
+                    'liability_type' => 'accounts_payable',
+                    'description' => $validated['description'] ?? null,
+                    'amount' => $validated['amount'],
+                    'current_balance' => $validated['amount'],
+                    'due_date' => $validated['entry_date'],
+                    'date_acquired' => $validated['entry_date'],
+                ]);
+            }
+        }
+
+        // Handle fixed asset purchase toggle (do not hit P&L immediately)
+        if (($validated['is_fixed_asset'] ?? false) && $validated['type'] === 'expense') {
+            $assetName = $validated['fixed_asset_name'] ?: 'Fixed Asset';
+            \App\Models\Asset::create([
+                'user_id' => $validated['user_id'],
+                'name' => $assetName,
+                'type' => 'fixed_asset',
+                'asset_type' => 'property_plant_equipment',
+                'description' => $validated['description'] ?? null,
+                'value' => $validated['amount'],
+                'current_value' => $validated['amount'],
+                'acquisition_date' => $validated['entry_date'],
+                'date_acquired' => $validated['entry_date'],
+                'is_depreciable' => true,
+                'useful_life_months' => $validated['useful_life_months'] ?? null,
+                'residual_value' => $validated['residual_value'] ?? 0,
+                'depreciation_start' => $validated['entry_date'],
+            ]);
+
+            // Mark this cashflow category so it is excluded from P&L
+            $entry->category = 'asset_purchase';
+            $entry->save();
+        }
+
+        // Handle loan drawdown/repayment adjustments to liabilities
+        if (!empty($validated['loan_action'])) {
+            $loanType = ($validated['loan_action'] === 'drawdown') ? 'long_term_debt' : 'long_term_debt'; // basic default
+            $principal = (float)($validated['principal_amount'] ?? 0);
+            $interest = (float)($validated['interest_amount'] ?? 0);
+
+            // Find or create a generic loan liability
+            $loan = \App\Models\Liability::firstOrCreate(
+                [
+                    'user_id' => $validated['user_id'],
+                    'name' => 'Loan Facility',
+                ],
+                [
+                    'category' => 'loan',
+                    'liability_type' => $loanType,
+                    'amount' => 0,
+                    'current_balance' => 0,
+                    'date_acquired' => $validated['entry_date'],
+                ]
+            );
+
+            if ($validated['loan_action'] === 'drawdown') {
+                $loan->current_balance = (float)$loan->current_balance + (float)$validated['amount'];
+                $loan->amount = max((float)$loan->amount, (float)$loan->current_balance);
+                $loan->save();
+            } elseif ($validated['loan_action'] === 'repayment') {
+                // Reduce principal by provided principal_amount; interest posts to P&L via category 'interest'
+                if ($principal > 0) {
+                    $loan->current_balance = max(0, (float)$loan->current_balance - $principal);
+                    $loan->save();
+                }
+                if ($interest > 0) {
+                    // Ensure we tag interest category for P&L if not already
+                    if ($entry->type === 'expense' && $entry->category !== 'interest') {
+                        $entry->category = 'interest';
+                        $entry->save();
+                    }
+                }
+            }
+        }
 
         return back()->with('success', 'Cashflow entry created successfully.');
     }
@@ -156,8 +277,14 @@ class CashflowController extends Controller
         $user = Auth::user();
         $period = $request->get('period', '12m'); // 1m, 3m, 6m, 12m
         
-        $startDate = $this->getStartDateFromPeriod($period);
-        $endDate = Carbon::now();
+        // If explicit date window is provided, use it; otherwise derive from period
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = Carbon::parse($request->get('start_date'))->startOfDay();
+            $endDate = Carbon::parse($request->get('end_date'))->endOfDay();
+        } else {
+            $startDate = $this->getStartDateFromPeriod($period);
+            $endDate = Carbon::now();
+        }
         
         // Monthly trend data
         $monthlyTrends = $this->getMonthlyTrends($user->id, $startDate, $endDate);
@@ -177,6 +304,8 @@ class CashflowController extends Controller
             'paymentMethodAnalysis' => $paymentMethodAnalysis,
             'forecast' => $forecast,
             'period' => $period,
+            'start_date' => $request->get('start_date'),
+            'end_date' => $request->get('end_date'),
         ]);
     }
 

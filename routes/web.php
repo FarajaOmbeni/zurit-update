@@ -356,6 +356,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/msme/business-profile', [App\Http\Controllers\MsmeController::class, 'updateBusinessProfile'])->name('msme.business-profile.update');
     Route::get('/msme/reports', [App\Http\Controllers\MsmeController::class, 'reports'])->name('msme.reports');
     Route::post('/msme/generate-report', [App\Http\Controllers\MsmeController::class, 'generateReport'])->name('msme.generate-report');
+    Route::get('/msme/download-profit-loss', [App\Http\Controllers\MsmeController::class, 'downloadProfitLossSummary'])->name('msme.download-profit-loss');
 
     // Cashflow Management
     Route::prefix('msme/cashflow')->name('cashflow.')->group(function () {
@@ -400,5 +401,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{balanceSheetRecord}/download/{format}', [App\Http\Controllers\BalanceSheetController::class, 'download'])->name('download');
         Route::put('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'update'])->name('update');
         Route::delete('/{balanceSheetRecord}', [App\Http\Controllers\BalanceSheetController::class, 'destroy'])->name('destroy');
+    });
+
+    // Month-End Closing
+    Route::prefix('msme/month-end')->name('month-end.')->group(function () {
+        Route::get('/', [App\Http\Controllers\MonthEndController::class, 'index'])->name('index');
+        Route::post('/close', [App\Http\Controllers\MonthEndController::class, 'close'])->name('close');
     });
 });

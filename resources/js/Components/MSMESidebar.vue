@@ -266,7 +266,13 @@
                             v-for="(item, index) in extendedMenuItems"
                             :key="index"
                             :href="route(item.link)"
-                            class="flex items-center space-x-2 hover:text-yellow-400"
+                            @click="toggleMobileMenu"
+                            :class="[
+                                'flex items-center space-x-2',
+                                item.active
+                                    ? 'text-yellow-400 font-semibold'
+                                    : 'text-white hover:text-yellow-400',
+                            ]"
                         >
                             <component
                                 :is="iconMap[item.icon]"
@@ -301,6 +307,9 @@ import {
     DocumentTextIcon,
     CurrencyDollarIcon,
     BuildingStorefrontIcon,
+    CalculatorIcon,
+    ClipboardDocumentListIcon,
+    CalendarDaysIcon,
 } from "@heroicons/vue/24/outline";
 
 const iconMap = {
@@ -309,6 +318,9 @@ const iconMap = {
     DocumentTextIcon,
     CurrencyDollarIcon,
     BuildingStorefrontIcon,
+    CalculatorIcon,
+    ClipboardDocumentListIcon,
+    CalendarDaysIcon,
 };
 
 defineProps({
@@ -357,23 +369,31 @@ const menuItems = [
     },
     {
         title: "Price Product/Service",
-        icon: "CurrencyDollarIcon",
-        active: currentRoute.startsWith("/msme/pricing"),
+        icon: "CalculatorIcon",
+        // Active only on the create page
+        active: currentRoute.startsWith("/msme/pricing/create"),
         link: "pricing.create",
     },
     {
         title: "Pricing Models",
-        icon: "DocumentTextIcon",
+        icon: "CurrencyDollarIcon",
+        // Active on pricing index and any non-create pricing routes (show/edit/etc)
         active:
             currentRoute.startsWith("/msme/pricing") &&
-            currentRoute.includes("index"),
+            !currentRoute.startsWith("/msme/pricing/create"),
         link: "pricing.index",
     },
     {
         title: "Generate Report",
-        icon: "DocumentTextIcon",
+        icon: "ClipboardDocumentListIcon",
         active: currentRoute.startsWith("/msme/reports"),
         link: "msme.reports",
+    },
+    {
+        title: "Month-End Closing",
+        icon: "CalendarDaysIcon",
+        active: currentRoute.startsWith("/msme/month-end"),
+        link: "month-end.index",
     },
 ];
 

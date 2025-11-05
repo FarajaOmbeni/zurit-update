@@ -99,16 +99,50 @@ class ProfitLossRecord extends Model
             ->get();
 
         $revenue = $incomeEntries->sum('amount');
-        $totalExpenses = $expenseEntries->sum('amount');
-        
-        // Categorize expenses (this would be more sophisticated in practice)
-        $costOfGoodsSold = $expenseEntries->whereIn('category', ['inventory', 'raw_materials', 'direct_labor'])->sum('amount');
-        $operatingExpenses = $expenseEntries->whereIn('category', ['rent', 'utilities', 'salaries', 'marketing', 'administrative'])->sum('amount');
-        $taxExpense = $expenseEntries->where('category', 'taxes')->sum('amount');
-        $interestExpense = $expenseEntries->where('category', 'interest')->sum('amount');
+
+        // Expense categorization
+        // Exclude fixed asset purchases from P&L (category 'asset_purchase')
+        $expenseEntriesForPL = $expenseEntries->reject(function ($e) {
+            return $e->category === 'asset_purchase';
+        });
+
+        $totalExpenses = $expenseEntriesForPL->sum('amount');
+
+        // Default COGS from expense categories (fallback)
+        $costOfGoodsSold = $expenseEntriesForPL
+            ->whereIn('category', ['inventory', 'raw_materials', 'direct_labor'])
+            ->sum('amount');
+
+        $operatingExpenses = $expenseEntriesForPL
+            ->whereIn('category', ['rent', 'utilities', 'salaries', 'marketing', 'administrative', 'other_expenses', 'insurance', 'fuel_transport', 'office_supplies', 'equipment', 'maintenance', 'professional_services'])
+            ->sum('amount');
+        $taxExpense = $expenseEntriesForPL->where('category', 'taxes')->sum('amount');
+        $interestExpense = $expenseEntriesForPL->where('category', 'interest')->sum('amount');
+
+        // If a month-end closure exists for this period, override COGS and add monthly depreciation
+        $closure = MonthEndClosure::where('user_id', $userId)
+            ->where('period_start', $startDate)
+            ->where('period_end', $endDate)
+            ->first();
+
+        if ($closure) {
+            $costOfGoodsSold = $closure->calculated_cogs;
+        }
 
         $grossProfit = $revenue - $costOfGoodsSold;
-        $netProfit = $revenue - $totalExpenses;
+        // Depreciation to be posted separately in month-end; include if closure exists and we can compute it
+        $depreciation = 0;
+        if ($closure) {
+            $assets = Asset::where('user_id', $userId)->get();
+            foreach ($assets as $asset) {
+                $monthly = $asset->getMonthlyDepreciationAmount();
+                if ($monthly > 0) {
+                    $depreciation += $monthly;
+                }
+            }
+        }
+
+        $netProfit = $revenue - ($costOfGoodsSold + $operatingExpenses + $taxExpense + $interestExpense + $depreciation);
 
         return self::create([
             'user_id' => $userId,
@@ -120,8 +154,9 @@ class ProfitLossRecord extends Model
             'operating_expenses' => $operatingExpenses,
             'tax_expense' => $taxExpense,
             'interest_expense' => $interestExpense,
+            'depreciation' => $depreciation,
             'net_profit' => $netProfit,
             'is_automated' => true,
         ]);
     }
-} 
+}

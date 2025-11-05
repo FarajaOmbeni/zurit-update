@@ -24,16 +24,69 @@
                 <form @submit.prevent="submitForm">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="mb-4">
-                            <h3
-                                class="text-lg leading-6 font-medium text-gray-900"
-                                id="modal-title"
+                            <div class="flex items-center justify-between">
+                                <h3
+                                    class="text-lg leading-6 font-medium text-gray-900"
+                                    id="modal-title"
+                                >
+                                    {{
+                                        entry
+                                            ? "Edit Transaction"
+                                            : "Add Transaction"
+                                    }}
+                                </h3>
+                                <button
+                                    @click="showHelp = !showHelp"
+                                    class="text-gray-400 hover:text-gray-600 transition-colors"
+                                    title="Show help"
+                                >
+                                    <svg
+                                        class="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Help Section -->
+                            <div
+                                v-if="showHelp"
+                                class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg"
                             >
-                                {{
-                                    entry
-                                        ? "Edit Transaction"
-                                        : "Add Transaction"
-                                }}
-                            </h3>
+                                <h4
+                                    class="text-sm font-medium text-blue-900 mb-2"
+                                >
+                                    Quick Guide:
+                                </h4>
+                                <ul class="text-sm text-blue-700 space-y-1">
+                                    <li>
+                                        • <strong>Income:</strong> Money coming
+                                        into your business (sales, services)
+                                    </li>
+                                    <li>
+                                        • <strong>Expense:</strong> Money going
+                                        out (purchases, bills, salaries)
+                                    </li>
+                                    <li>
+                                        • <strong>Payment Type:</strong> How the
+                                        transaction was paid (Cash/Bank/Credit)
+                                    </li>
+                                    <li>
+                                        •
+                                        <strong>Credit transactions</strong>
+                                        create Accounts Receivable/Payable
+                                        automatically
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4">
@@ -143,6 +196,25 @@
                                 </p>
                             </div>
 
+                            <!-- Payment Type (Cash / Bank / Credit) -->
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 mb-1"
+                                    >Payment Type</label
+                                >
+                                <select
+                                    v-model="form.payment_type"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                >
+                                    <option value="">
+                                        Auto (based on method)
+                                    </option>
+                                    <option value="cash">Cash</option>
+                                    <option value="bank">Bank</option>
+                                    <option value="credit">Credit</option>
+                                </select>
+                            </div>
+
                             <!-- Description -->
                             <div>
                                 <label
@@ -214,6 +286,69 @@
                                 v-if="showAdvanced"
                                 class="space-y-4 pt-4 border-t border-gray-200"
                             >
+                                <!-- Fixed Asset Purchase (only for expenses) -->
+                                <div v-if="form.type === 'expense'">
+                                    <label class="flex items-center mb-2">
+                                        <input
+                                            v-model="form.is_fixed_asset"
+                                            type="checkbox"
+                                            class="rounded border-gray-300 text-purple-600 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                        />
+                                        <span class="ml-2 text-sm text-gray-700"
+                                            >This is a Fixed Asset
+                                            purchase</span
+                                        >
+                                    </label>
+                                    <div
+                                        v-if="form.is_fixed_asset"
+                                        class="grid grid-cols-1 md:grid-cols-3 gap-3"
+                                    >
+                                        <div class="md:col-span-3">
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-1"
+                                                >Asset Name</label
+                                            >
+                                            <input
+                                                v-model="form.fixed_asset_name"
+                                                type="text"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                                placeholder="e.g., Furniture, Equipment"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-1"
+                                                >Useful Life (months)</label
+                                            >
+                                            <input
+                                                v-model.number="
+                                                    form.useful_life_months
+                                                "
+                                                type="number"
+                                                min="1"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                                placeholder="e.g., 36"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 mb-1"
+                                                >Residual Value</label
+                                            >
+                                            <input
+                                                v-model.number="
+                                                    form.residual_value
+                                                "
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Reference Number -->
                                 <div>
                                     <label
@@ -226,6 +361,56 @@
                                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                                         placeholder="Invoice #, Receipt #, etc."
                                     />
+                                </div>
+
+                                <!-- Loans / Financing -->
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-1"
+                                        >Loan / Financing</label
+                                    >
+                                    <div
+                                        class="grid grid-cols-1 md:grid-cols-3 gap-3"
+                                    >
+                                        <div>
+                                            <select
+                                                v-model="form.loan_action"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                            >
+                                                <option value="">None</option>
+                                                <option value="drawdown">
+                                                    Loan Drawdown
+                                                </option>
+                                                <option value="repayment">
+                                                    Loan Repayment
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <input
+                                                v-model.number="
+                                                    form.principal_amount
+                                                "
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                                placeholder="Principal Amount"
+                                            />
+                                        </div>
+                                        <div>
+                                            <input
+                                                v-model.number="
+                                                    form.interest_amount
+                                                "
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                                                placeholder="Interest Amount"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Customer/Supplier -->
@@ -362,12 +547,14 @@ const props = defineProps({
 const emit = defineEmits(["close", "saved"]);
 
 const showAdvanced = ref(false);
+const showHelp = ref(false);
 
 const form = useForm({
     type: "",
     category: "",
     amount: "",
     payment_method: "",
+    payment_type: "",
     description: "",
     entry_date: new Date().toISOString().split("T")[0],
     reference_number: "",
@@ -375,6 +562,15 @@ const form = useForm({
     vat_amount: 0,
     tax_amount: 0,
     is_recurring: false,
+    // Fixed asset fields
+    is_fixed_asset: false,
+    fixed_asset_name: "",
+    useful_life_months: null,
+    residual_value: 0,
+    // Loan fields
+    loan_action: "",
+    principal_amount: 0,
+    interest_amount: 0,
 });
 
 const availableCategories = computed(() => {
@@ -395,6 +591,7 @@ watch(
             form.category = entry.category;
             form.amount = entry.amount;
             form.payment_method = entry.payment_method;
+            form.payment_type = entry.payment_type || "";
             form.description = entry.description || "";
             form.entry_date = entry.entry_date;
             form.reference_number = entry.reference_number || "";
@@ -402,6 +599,13 @@ watch(
             form.vat_amount = entry.vat_amount || 0;
             form.tax_amount = entry.tax_amount || 0;
             form.is_recurring = entry.is_recurring || false;
+            form.is_fixed_asset = entry.is_fixed_asset || false;
+            form.fixed_asset_name = entry.fixed_asset_name || "";
+            form.useful_life_months = entry.useful_life_months || null;
+            form.residual_value = entry.residual_value || 0;
+            form.loan_action = entry.loan_action || "";
+            form.principal_amount = entry.principal_amount || 0;
+            form.interest_amount = entry.interest_amount || 0;
 
             // Show advanced options if any advanced fields have values
             showAdvanced.value = !!(
@@ -409,7 +613,9 @@ watch(
                 entry.customer_supplier ||
                 entry.vat_amount ||
                 entry.tax_amount ||
-                entry.is_recurring
+                entry.is_recurring ||
+                entry.is_fixed_asset ||
+                entry.loan_action
             );
         } else {
             // Reset form for new entry
