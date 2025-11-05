@@ -378,6 +378,16 @@
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600"
+                                            >Depreciation</span
+                                        >
+                                        <span class="font-semibold">{{
+                                            formatCurrency(
+                                                profitLossRecord.depreciation || 0,
+                                            )
+                                        }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600"
                                             >Interest Expense</span
                                         >
                                         <span class="font-semibold">{{

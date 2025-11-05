@@ -22,7 +22,7 @@
                                     {{
                                         businessProfile
                                             ? `${businessProfile.business_name} Dashboard`
-                                            : "Business Dashboard"
+                                            : "MSME Dashboard"
                                     }}
                                 </h1>
                                 <p class="text-gray-600 mt-2">
@@ -32,6 +32,67 @@
                                             : "Manage your business finances and operations"
                                     }}
                                 </p>
+
+                                <!-- Quick Start Guide for New Users -->
+                                <div
+                                    v-if="!businessProfile"
+                                    class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
+                                >
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <svg
+                                                class="h-5 w-5 text-yellow-600"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3
+                                                class="text-sm font-medium text-yellow-800"
+                                            >
+                                                Getting Started
+                                            </h3>
+                                            <div
+                                                class="mt-2 text-sm text-yellow-700"
+                                            >
+                                                <p>
+                                                    Welcome! To get the most out
+                                                    of your MSME dashboard:
+                                                </p>
+                                                <ol
+                                                    class="list-decimal list-inside mt-2 space-y-1"
+                                                >
+                                                    <li>
+                                                        Start by recording your
+                                                        daily transactions
+                                                    </li>
+                                                    <li>
+                                                        Set up your business
+                                                        profile for better
+                                                        insights
+                                                    </li>
+                                                    <li>
+                                                        Generate your first
+                                                        financial reports
+                                                    </li>
+                                                    <li>
+                                                        Close your month-end to
+                                                        see complete financial
+                                                        statements
+                                                    </li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mt-4 md:mt-0">
                                 <Link
@@ -78,9 +139,13 @@
                                 title="Liquidity"
                                 :status="healthIndicators.liquidity"
                                 :value="
-                                    financialOverview.latest_balance_sheet
-                                        ? financialOverview.latest_balance_sheet
-                                              .current_ratio
+                                    financialOverview.latest_balance_sheet &&
+                                    typeof financialOverview
+                                        .latest_balance_sheet.current_ratio ===
+                                        'number'
+                                        ? financialOverview.latest_balance_sheet.current_ratio.toFixed(
+                                              2,
+                                          )
                                         : 'N/A'
                                 "
                             />
@@ -88,9 +153,13 @@
                                 title="Solvency"
                                 :status="healthIndicators.solvency"
                                 :value="
-                                    financialOverview.latest_balance_sheet
-                                        ? financialOverview.latest_balance_sheet
-                                              .debt_to_equity_ratio
+                                    financialOverview.latest_balance_sheet &&
+                                    typeof financialOverview
+                                        .latest_balance_sheet
+                                        .debt_to_equity_ratio === 'number'
+                                        ? financialOverview.latest_balance_sheet.debt_to_equity_ratio.toFixed(
+                                              2,
+                                          )
                                         : 'N/A'
                                 "
                             />
@@ -382,6 +451,36 @@
                                     </p>
                                 </div>
                             </Link>
+                            <Link
+                                :href="route('month-end.index')"
+                                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                <div
+                                    class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3"
+                                >
+                                    <svg
+                                        class="w-5 h-5 text-yellow-600"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M8 7V3m8 4V3M5 11h14M5 19h14m-7-8v8"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">
+                                        Month-End Closing
+                                    </p>
+                                    <p class="text-sm text-gray-600">
+                                        Post Closing Stock & Depreciation
+                                    </p>
+                                </div>
+                            </Link>
 
                             <Link
                                 :href="route('pricing.index')"
@@ -548,6 +647,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Financial Glossary -->
+                <FinancialGlossary />
             </div>
         </div>
     </MSMESidebar>
@@ -557,6 +659,7 @@
 import { Head, Link } from "@inertiajs/vue3";
 import MSMESidebar from "@/Components/MSMESidebar.vue";
 import HealthIndicator from "@/Components/MSME/HealthIndicator.vue";
+import FinancialGlossary from "@/Components/Shared/FinancialGlossary.vue";
 import { useFormatCurrency } from "@/Components/Composables/useFormatCurrency";
 import { formatDate } from "@/Components/Composables/useDateFormat";
 

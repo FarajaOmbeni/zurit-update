@@ -8,6 +8,7 @@ use App\Models\BusinessProfile;
 use App\Models\CashflowEntry;
 use App\Models\ProfitLossRecord;
 use App\Models\BalanceSheetRecord;
+use App\Models\MonthEndClosure;
 use App\Models\PricingModel;
 use App\Models\BusinessPlan;
 use App\Models\FinancialProjection;
@@ -269,23 +270,8 @@ class MsmeController extends Controller
 
     public function reports()
     {
-        $user = Auth::user();
-        
-        // Get available reports
-        $profitLossReports = ProfitLossRecord::where('user_id', $user->id)
-            ->orderBy('period_end', 'desc')
-            ->take(12)
-            ->get();
-
-        $balanceSheetReports = BalanceSheetRecord::where('user_id', $user->id)
-            ->orderBy('as_of_date', 'desc')
-            ->take(12)
-            ->get();
-
-        return Inertia::render('MSME/Reports', [
-            'profitLossReports' => $profitLossReports,
-            'balanceSheetReports' => $balanceSheetReports,
-        ]);
+        // Render a simple page with only the parameter selection form
+        return Inertia::render('MSME/Reports');
     }
 
     public function generateReport(Request $request)
@@ -294,7 +280,8 @@ class MsmeController extends Controller
             'type' => 'required|in:profit_loss,balance_sheet,cashflow',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'format' => 'required|in:pdf,excel',
+            // For on-page viewing, format can be omitted; when provided, allow pdf/excel
+            'format' => 'nullable|in:pdf,excel',
         ]);
 
         $user = Auth::user();
@@ -303,11 +290,86 @@ class MsmeController extends Controller
 
         switch ($request->type) {
             case 'profit_loss':
-                return $this->generateProfitLossReport($user->id, $startDate, $endDate, $request->format);
+                if ($request->filled('format')) {
+                    return $this->generateProfitLossReport($user->id, $startDate, $endDate, $request->format);
+                }
+                $plRecord = ProfitLossRecord::generateFromCashflow($user->id, $startDate, $endDate);
+
+                // If a month-end closure exists for this period, use its COGS to reflect inventory adjustments
+                $periodStart = $startDate->copy()->startOfMonth();
+                $periodEnd = $endDate->copy()->endOfMonth();
+                $closure = MonthEndClosure::where('user_id', $user->id)
+                    ->where('period_start', $periodStart->toDateString())
+                    ->where('period_end', $periodEnd->toDateString())
+                    ->first();
+                if ($closure) {
+                    $plRecord->cost_of_goods_sold = (float) ($closure->calculated_cogs ?? 0);
+                    // Recompute derived fields for display (do not persist here)
+                    $plRecord->gross_profit = (float) $plRecord->revenue - (float) $plRecord->cost_of_goods_sold;
+                    $plRecord->net_profit = (float) $plRecord->revenue - (
+                        (float) $plRecord->cost_of_goods_sold +
+                        (float) ($plRecord->operating_expenses ?? 0) +
+                        (float) ($plRecord->tax_expense ?? 0) +
+                        (float) ($plRecord->interest_expense ?? 0) +
+                        (float) ($plRecord->depreciation ?? 0)
+                    );
+                }
+                return Inertia::render('MSME/Reports', [
+                    'inlineResult' => [
+                        'type' => 'profit_loss',
+                        'period' => [
+                            'start_date' => $startDate->toDateString(),
+                            'end_date' => $endDate->toDateString(),
+                        ],
+                        'profitLossRecord' => $plRecord,
+                    ],
+                ]);
             case 'balance_sheet':
-                return $this->generateBalanceSheetReport($user->id, $endDate, $request->format);
+                if ($request->filled('format')) {
+                    return $this->generateBalanceSheetReport($user->id, $endDate, $request->format);
+                }
+                $bsRecord = BalanceSheetRecord::where('user_id', $user->id)
+                    ->where('as_of_date', '<=', $endDate)
+                    ->orderBy('as_of_date', 'desc')
+                    ->first();
+                if (!$bsRecord) {
+                    $bsRecord = BalanceSheetRecord::generateFromAssetsAndLiabilities($user->id, $endDate);
+                }
+                return Inertia::render('MSME/Reports', [
+                    'inlineResult' => [
+                        'type' => 'balance_sheet',
+                        'period' => [
+                            'as_of_date' => $endDate->toDateString(),
+                        ],
+                        'balanceSheetRecord' => $bsRecord,
+                    ],
+                ]);
             case 'cashflow':
-                return $this->generateCashflowReport($user->id, $startDate, $endDate, $request->format);
+                if ($request->filled('format')) {
+                    return $this->generateCashflowReport($user->id, $startDate, $endDate, $request->format);
+                }
+                $totalIncome = CashflowEntry::where('user_id', $user->id)
+                    ->where('type', 'income')
+                    ->whereBetween('entry_date', [$startDate, $endDate])
+                    ->sum('amount');
+                $totalExpenses = CashflowEntry::where('user_id', $user->id)
+                    ->where('type', 'expense')
+                    ->whereBetween('entry_date', [$startDate, $endDate])
+                    ->sum('amount');
+                return Inertia::render('MSME/Reports', [
+                    'inlineResult' => [
+                        'type' => 'cashflow',
+                        'period' => [
+                            'start_date' => $startDate->toDateString(),
+                            'end_date' => $endDate->toDateString(),
+                        ],
+                        'cashflowSummary' => [
+                            'total_income' => $totalIncome,
+                            'total_expenses' => $totalExpenses,
+                            'net' => $totalIncome - $totalExpenses,
+                        ],
+                    ],
+                ]);
         }
     }
 
@@ -316,8 +378,16 @@ class MsmeController extends Controller
         // Generate or get existing P&L record
         $plRecord = ProfitLossRecord::generateFromCashflow($userId, $startDate, $endDate);
         
-        // Navigate to the P&L show page (let the page handle any downloads)
-        return Inertia::location(route('profit-loss.show', $plRecord->id));
+        // If a format was requested, trigger a download; otherwise show the record
+        if (in_array($format, ['pdf', 'excel'])) {
+            // Use Inertia::location to force a full-page visit for file downloads
+            return Inertia::location(route('profit-loss.download', [
+                'profitLossRecord' => $plRecord->id,
+                'format' => $format,
+            ]));
+        }
+
+        return redirect()->route('profit-loss.show', $plRecord->id);
     }
 
     public function generateBalanceSheetReport($userId, $asOfDate, $format)
@@ -332,8 +402,16 @@ class MsmeController extends Controller
             $bsRecord = BalanceSheetRecord::generateFromAssetsAndLiabilities($userId, $asOfDate);
         }
 
-        // Navigate to the Balance Sheet show page
-        return Inertia::location(route('balance-sheet.show', $bsRecord->id));
+        // If a format was requested, trigger a download; otherwise show the record
+        if (in_array($format, ['pdf', 'excel'])) {
+            // Use Inertia::location to force a full-page visit for file downloads
+            return Inertia::location(route('balance-sheet.download', [
+                'balanceSheetRecord' => $bsRecord->id,
+                'format' => $format,
+            ]));
+        }
+
+        return redirect()->route('balance-sheet.show', $bsRecord->id);
     }
 
     public function generateCashflowReport($userId, $startDate, $endDate, $format)
@@ -346,7 +424,173 @@ class MsmeController extends Controller
 
         $queryParams['format'] = $format === 'pdf' ? 'pdf' : 'excel';
 
-        // Navigate to cashflow analytics with the selected window
-        return Inertia::location(route('cashflow.analytics', $queryParams));
+        // Redirect to cashflow analytics with the selected window
+        return redirect()->route('cashflow.analytics', $queryParams);
+    }
+
+    // New: Stream a CSV summary for Profit & Loss (totals only) without persisting records
+    public function downloadProfitLossSummary(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $user = Auth::user();
+        $startDate = Carbon::parse($request->start_date)->startOfDay();
+        $endDate = Carbon::parse($request->end_date)->endOfDay();
+
+        // Totals
+        $totalIncome = CashflowEntry::where('user_id', $user->id)
+            ->where('type', 'income')
+            ->whereBetween('entry_date', [$startDate, $endDate])
+            ->sum('amount');
+
+        $totalExpenses = CashflowEntry::where('user_id', $user->id)
+            ->where('type', 'expense')
+            ->whereBetween('entry_date', [$startDate, $endDate])
+            ->sum('amount');
+
+        // Category breakdowns
+        $incomeByCategory = CashflowEntry::where('user_id', $user->id)
+            ->where('type', 'income')
+            ->whereBetween('entry_date', [$startDate, $endDate])
+            ->groupBy('category')
+            ->selectRaw('category, SUM(amount) as total')
+            ->pluck('total', 'category');
+
+        $expensesByCategory = CashflowEntry::where('user_id', $user->id)
+            ->where('type', 'expense')
+            ->whereBetween('entry_date', [$startDate, $endDate])
+            ->groupBy('category')
+            ->selectRaw('category, SUM(amount) as total')
+            ->pluck('total', 'category');
+
+        // Friendly category names (mirrors CashflowController::getCategories())
+        $friendlyCategoryNames = [
+            'income' => [
+                'sales_revenue' => 'Sales Revenue',
+                'service_income' => 'Service Income',
+                'consulting_fees' => 'Consulting Fees',
+                'commission_income' => 'Commission Income',
+                'rental_income' => 'Rental Income',
+                'interest_income' => 'Interest Income',
+                'other_income' => 'Other Income',
+            ],
+            'expense' => [
+                'raw_materials' => 'Raw Materials',
+                'inventory' => 'Inventory',
+                'direct_labor' => 'Direct Labor',
+                'rent' => 'Rent',
+                'utilities' => 'Utilities',
+                'salaries' => 'Salaries & Wages',
+                'marketing' => 'Marketing & Advertising',
+                'administrative' => 'Administrative',
+                'insurance' => 'Insurance',
+                'fuel_transport' => 'Fuel & Transport',
+                'office_supplies' => 'Office Supplies',
+                'equipment' => 'Equipment',
+                'maintenance' => 'Maintenance & Repairs',
+                'professional_services' => 'Professional Services',
+                'taxes' => 'Taxes',
+                'interest' => 'Interest Payments',
+                'other_expenses' => 'Other Expenses',
+            ],
+        ];
+
+        $fmtMoney = function ($v) {
+            return number_format((float)$v, 2, '.', '');
+        };
+
+        // Define groupings for P&L-style presentation
+        $cogsCategories = ['raw_materials', 'inventory', 'direct_labor'];
+        $taxCategory = 'taxes';
+        $interestCategory = 'interest';
+
+        // Compute subgroup totals
+        $totalCogs = 0.0;
+        foreach ($cogsCategories as $cat) {
+            $totalCogs += (float)($expensesByCategory[$cat] ?? 0);
+        }
+        $operatingExpensesTotal = 0.0;
+        foreach ($expensesByCategory as $cat => $val) {
+            if (!in_array($cat, $cogsCategories, true) && $cat !== $taxCategory && $cat !== $interestCategory) {
+                $operatingExpensesTotal += (float)$val;
+            }
+        }
+        $taxTotal = (float)($expensesByCategory[$taxCategory] ?? 0);
+        $interestTotal = (float)($expensesByCategory[$interestCategory] ?? 0);
+
+        $grossProfit = (float)$totalIncome - (float)$totalCogs;
+        $operatingProfit = $grossProfit - $operatingExpensesTotal;
+        $netProfit = $operatingProfit - $taxTotal - $interestTotal;
+
+        // Build detailed CSV with sections
+        $csv = [];
+        $csv[] = ['Profit & Loss Statement'];
+        $csv[] = ['Period', $startDate->format('Y-m-d') . ' to ' . $endDate->format('Y-m-d')];
+        $csv[] = [''];
+
+        // Revenue section
+        $csv[] = ['Revenue'];
+        foreach ($incomeByCategory as $cat => $total) {
+            $name = $friendlyCategoryNames['income'][$cat] ?? (is_null($cat) || $cat === '' ? 'Uncategorized' : (string)$cat);
+            $csv[] = [$name, $fmtMoney($total)];
+        }
+        $csv[] = ['Total Revenue', $fmtMoney($totalIncome)];
+        $csv[] = [''];
+
+        // COGS section
+        $csv[] = ['Cost of Goods Sold'];
+        foreach ($cogsCategories as $cat) {
+            $amount = (float)($expensesByCategory[$cat] ?? 0);
+            if ($amount !== 0.0) {
+                $name = $friendlyCategoryNames['expense'][$cat] ?? $cat;
+                $csv[] = [$name, $fmtMoney($amount)];
+            }
+        }
+        $csv[] = ['Total COGS', $fmtMoney($totalCogs)];
+        $csv[] = ['Gross Profit', $fmtMoney($grossProfit)];
+        $csv[] = ['Gross Margin (%)', $totalIncome > 0 ? number_format(($grossProfit / $totalIncome) * 100, 2, '.', '') : '0.00'];
+        $csv[] = [''];
+
+        // Operating expenses section (exclude COGS, taxes, interest)
+        $csv[] = ['Operating Expenses'];
+        foreach ($expensesByCategory as $cat => $total) {
+            if (!in_array($cat, $cogsCategories, true) && $cat !== $taxCategory && $cat !== $interestCategory) {
+                $name = $friendlyCategoryNames['expense'][$cat] ?? (is_null($cat) || $cat === '' ? 'Uncategorized' : (string)$cat);
+                $csv[] = [$name, $fmtMoney($total)];
+            }
+        }
+        $csv[] = ['Total Operating Expenses', $fmtMoney($operatingExpensesTotal)];
+        $csv[] = ['Operating Profit', $fmtMoney($operatingProfit)];
+        $csv[] = [''];
+
+        // Other expenses
+        $csv[] = ['Tax Expense', $fmtMoney($taxTotal)];
+        $csv[] = ['Interest Expense', $fmtMoney($interestTotal)];
+        $csv[] = [''];
+
+        // Bottom line
+        $csv[] = ['Net Profit', $fmtMoney($netProfit)];
+        $csv[] = ['Net Profit Margin (%)', $totalIncome > 0 ? number_format(($netProfit / $totalIncome) * 100, 2, '.', '') : '0.00'];
+
+        $output = '';
+        foreach ($csv as $row) {
+            // Basic CSV escaping for commas/quotes
+            $escaped = array_map(function ($field) {
+                $s = (string)$field;
+                $needsQuotes = preg_match('/[",\n\r]/', $s);
+                $s = str_replace('"', '""', $s);
+                return $needsQuotes ? '"' . $s . '"' : $s;
+            }, $row);
+            $output .= implode(',', $escaped) . "\n";
+        }
+
+        $filename = 'profit_loss_detailed_' . $startDate->format('Ymd') . '_to_' . $endDate->format('Ymd') . '.csv';
+
+        return response($output)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }
