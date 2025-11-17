@@ -1,5 +1,6 @@
 export const moneyMarketFunds = [
     { value: "cytonn_mmf", label: "Cytonn Money Market Fund", return: "12.05" },
+
     {
         value: "gulfcap_mmf",
         label: "Gulfcap Money Market Fund",
@@ -112,29 +113,17 @@ export const bonds = [
 ];
 
 export const realEstate = [
-    {
-        value: "residential",
-        label: "Residential",
-    },
-    {
-        value: "commercial",
-        label: "Commercial",
-    },
-    {
-        value: "land",
-        label: "Land",
-    },
-    {
-        value: "reits",
-        label: "Reits",
-    },
+    { value: "residential", label: "Residential" },
+    { value: "commercial", label: "Commercial" },
+    { value: "land", label: "Land" },
+    { value: "reits", label: "Reits" },
 ];
 
 export const treasuryBills = [
     {
         value: "t_bill_91",
         label: "91-Day Treasury Bill",
-        return: "8.2816", // Previous Avg. Interest Rate
+        return: "8.2816",
         issue_number: "2634/091",
         auction_date: "12/06/2025",
         value_dated: "16/06/2025",
@@ -142,7 +131,7 @@ export const treasuryBills = [
     {
         value: "t_bill_182",
         label: "182-Day Treasury Bill",
-        return: "8.5433", // Previous Avg. Interest Rate
+        return: "8.5433",
         issue_number: "2608/182",
         auction_date: "12/06/2025",
         value_dated: "16/06/2025",
@@ -150,7 +139,7 @@ export const treasuryBills = [
     {
         value: "t_bill_364",
         label: "364-Day Treasury Bill",
-        return: "9.9985", // Previous Avg. Interest Rate
+        return: "9.9985",
         issue_number: "2562/364",
         auction_date: "12/06/2025",
         value_dated: "16/06/2025",
@@ -158,28 +147,16 @@ export const treasuryBills = [
 ];
 
 export const reits = [
-    {
-        name: "ACORN D-REIT",
-        price: 26.7,
-    },
-    {
-        name: "i-REIT",
-        price: 22.9,
-    },
-    {
-        name: "ILAM FAHARI",
-        price: 11,
-    },
-    {
-        name: "LAPTRUST IMARA IREIT",
-        price: 20,
-    },
+    { name: "ACORN D-REIT", price: 26.7 },
+    { name: "i-REIT", price: 22.9 },
+    { name: "ILAM FAHARI", price: 11 },
+    { name: "LAPTRUST IMARA IREIT", price: 20 },
 ];
 
 export const shares = [
     { ticker: "SCOM - Safaricom PLC", price: 29.00 },
     { ticker: "EQTY - Equity Group Holdings Plc", price: 64.0 },
-    { ticker: "EABL - East African Breweries PLC", price: 235.00},
+    { ticker: "EABL - East African Breweries PLC", price: 235.00 },
     { ticker: "KCB - KCB Group PLC", price: 65.0 },
     { ticker: "SCBK - Standard Chartered Bank Kenya Ltd", price: 302.50 },
     { ticker: "ABSA - Absa Bank Kenya PLC", price: 4765.0 },
@@ -197,7 +174,7 @@ export const shares = [
     { ticker: "BRIT - Britam Holdings Plc", price: 8.76 },
     { ticker: "KPLC - Kenya Power & Lighting Co Ltd", price: 14.05 },
     { ticker: "JUB - Jubilee Holdings Ltd", price: 328.0 },
-    { ticker: "TOTL - TotalEnergies Marketing Kenya PLC", price: 39.40},
+    { ticker: "TOTL - TotalEnergies Marketing Kenya PLC", price: 39.40 },
     { ticker: "HFCK - HF Group PLC", price: 10.45 },
     { ticker: "KNRE - Kenya Reinsurance Corp. Ltd", price: 3.17 },
     { ticker: "KUKZ - Kakuzi PLC", price: 400.25 },
@@ -208,7 +185,7 @@ export const shares = [
     { ticker: "LBTY - Liberty Kenya Holdings Plc", price: 10.45 },
     { ticker: "TPSE - TPS Eastern Africa Plc", price: 16.00 },
     { ticker: "WTK - Williamson Tea Kenya Plc", price: 165.75 },
-    { ticker: "SASN - Sasini PLC", price: 18.75},
+    { ticker: "SASN - Sasini PLC", price: 18.75 },
     { ticker: "PORT - East African Portland Cement PLC", price: 58.25 },
     { ticker: "NBV - Nairobi Business Ventures PLC", price: 1.51 },
     { ticker: "KAPC - Kapchorua Tea Kenya PLC", price: 201.50 },
