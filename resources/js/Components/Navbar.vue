@@ -10,7 +10,7 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0 py-2">
                     <Link href="/" class="block">
-                    <img src="/images/home/zurit.png" class="w-36" alt="Zurit Logo" />
+                    <img src="/images/home/zurit.svg" class="w-36" alt="Zurit Logo" />
                     </Link>
                 </div>
 

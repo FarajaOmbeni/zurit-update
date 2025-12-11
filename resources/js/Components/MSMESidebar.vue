@@ -48,8 +48,8 @@
                 >
                     <Link :href="route('home')"
                         ><img
-                            class="object-cover w-40 h-14"
-                            src="/images/home/zurit.png"
+                            class="object-cover w-30 h-8"
+                            src="/images/home/zurit.svg"
                             alt=""
                     /></Link>
                 </div>

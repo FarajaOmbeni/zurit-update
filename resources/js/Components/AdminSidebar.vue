@@ -26,7 +26,7 @@
             <!-- Logo -->
             <div class="flex items-center justify-center h-16 border-b border-purple-700">
                 <div v-if="sidebarOpen" class="text-xl font-bold text-yellow-400">
-                    <Link :href="route('home')"><img class="object-cover w-40 h-14" src="/images/home/zurit.png" alt="">
+                    <Link :href="route('home')"><img class="object-cover w-30 h-8" src="/images/home/zurit.svg" alt="">
                     </Link>
                 </div>
                 <div v-else class="text-xs font-bold text-yellow-400 hidden md:block">
