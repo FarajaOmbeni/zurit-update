@@ -1,120 +1,194 @@
 <template>
-    <nav :class="[
-        'fixed w-full top-0 z-50 transition-all duration-300',
-        isHomePage()
-            ? (isScrolled ? 'bg-purple-900 shadow-lg' : 'bg-transparent')
-            : 'bg-purple-900'
-    ]">
-        <div class="max-w-8xl mx-auto px-4 md:px-6">
-            <div class="flex items-center justify-between h-24">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-inner">
                 <!-- Logo -->
-                <div class="flex-shrink-0 py-2">
-                    <Link href="/" class="block">
-                    <img src="/images/home/zurit.png" class="w-36" alt="Zurit Logo" />
+                <div class="nav-left">
+                    <Link href="/" class="logo-link">
+                        <div class="logo-mark">
+                            <span class="logo-text">Zurit</span>
+                            <div class="logo-icon"></div>
+                        </div>
                     </Link>
                 </div>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <Link href="/" class="text-yellow-500 hover:text-yellow-400">Home</Link>
-                    <Link href="/about" class="text-gray-300 hover:text-gray-100">About us</Link>
+                <nav class="nav-center">
+                    <Link
+                        href="/"
+                        :class="[
+                            'nav-link',
+                            { 'nav-link-active': isCurrentRoute('/') },
+                        ]"
+                    >
+                        Home
+                    </Link>
+                    <Link
+                        href="/about"
+                        :class="[
+                            'nav-link',
+                            { 'nav-link-active': isCurrentRoute('/about') },
+                        ]"
+                    >
+                        About Us
+                    </Link>
 
-                    <!-- Prosperity Tools Dropdown -->
-                    <div class="relative">
-                        <button @click="toggleDropdown('prosperityTools')"
-                            class="inline-flex items-center text-gray-300 hover:text-gray-100 focus:outline-none">
-                            Prosperity Dashboard
-                            <svg class="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
+                    <!-- Solutions Dropdown -->
+                    <div class="nav-dropdown">
+                        <button
+                            @click="toggleDropdown('solutions')"
+                            class="nav-link dropdown-trigger"
+                        >
+                            Solutions
+                            <svg
+                                class="dropdown-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
+                                    clip-rule="evenodd"
+                                />
                             </svg>
                         </button>
-                        <div v-if="activeDropdown === 'prosperityTools'"
-                            class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
-                            @click.outside="closeDropdowns">
-                            <Link v-for="item in prosperityTools" :key="item.href" :href="item.href"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            {{ item.name }}
+                        <div
+                            v-if="activeDropdown === 'solutions'"
+                            class="dropdown-menu"
+                            @click.outside="closeDropdowns"
+                        >
+                            <Link
+                                v-for="item in solutionsMenu"
+                                :key="item.href"
+                                :href="item.href"
+                                class="dropdown-item"
+                            >
+                                {{ item.name }}
                             </Link>
                         </div>
                     </div>
 
-                    <!-- Services Dropdown -->
-                    <div class="relative">
-                        <button @click="toggleDropdown('services')"
-                            class="inline-flex items-center text-gray-300 hover:text-gray-100 focus:outline-none">
-                            Services
-                            <svg class="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                        <div v-if="activeDropdown === 'services'"
-                            class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
-                            @click.outside="closeDropdowns">
-                            <Link v-for="item in services" :key="item.href" :href="item.href"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            {{ item.name }}
-                            </Link>
-                        </div>
-                    </div>
+                    <Link
+                        href="/blogs"
+                        :class="[
+                            'nav-link',
+                            { 'nav-link-active': isCurrentRoute('/blogs') },
+                        ]"
+                    >
+                        Learn
+                    </Link>
+                    <Link
+                        href="/books"
+                        :class="[
+                            'nav-link',
+                            { 'nav-link-active': isCurrentRoute('/books') },
+                        ]"
+                    >
+                        Books
+                    </Link>
+                </nav>
 
-                    <Link href="/books" class="text-gray-300 hover:text-gray-100">Buy Book</Link>
-                    <Link href="/blogs" class="text-gray-300 hover:text-gray-100">Blogs</Link>
-                    <Link href="/feedback" class="text-gray-300 hover:text-gray-100">Feedback</Link>
-
-                    <!-- User Menu -->
-                    <div v-if="user" class="relative">
-                        <button @click="toggleDropdown('user')"
-                            class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition hover:text-gray-700 focus:outline-none">
+                <!-- Right Side -->
+                <div class="nav-right">
+                    <!-- User Menu if logged in -->
+                    <div v-if="user" class="nav-dropdown">
+                        <button
+                            @click="toggleDropdown('user')"
+                            class="btn-user"
+                        >
                             {{ user.name }}
-                            <svg class="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
+                            <svg
+                                class="dropdown-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
+                                    clip-rule="evenodd"
+                                />
                             </svg>
                         </button>
-                        <div v-if="activeDropdown === 'user'"
-                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
-                            @click.outside="closeDropdowns">
-                            <!-- Show Coach Dashboard if user is coach -->
-                            <template v-if="user.role === 2">
-                                <Link href="/coach" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Coach Dashboard
-                                </Link>
-                            </template>
-                            <!-- Show Admin Dashboard if user is admin -->
+                        <div
+                            v-if="activeDropdown === 'user'"
+                            class="dropdown-menu dropdown-menu-right"
+                            @click.outside="closeDropdowns"
+                        >
+                            <!-- Admin Dashboard -->
                             <template v-if="user.role === 1">
-                                <Link href="/admin" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                Admin Dashboard
+                                <Link href="/admin" class="dropdown-item">
+                                    Admin Dashboard
                                 </Link>
                             </template>
-                            <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
-                                :method="item.href === '/logout' ? 'post' : 'get'"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            {{ item.name }}
-                            </Link>
+                            <!-- Coach Dashboard -->
+                            <template v-if="user.role === 2">
+                                <Link href="/coach" class="dropdown-item">
+                                    Coach Dashboard
+                                </Link>
+                            </template>
+                            <Link href="/msme/dashboard" class="dropdown-item"
+                                >MSME Dashboard</Link
+                            >
+                            <Link href="/user/budget" class="dropdown-item"
+                                >Prosperity Dashboard</Link
+                            >
+                            <Link
+                                href="/elearning/landing"
+                                class="dropdown-item"
+                                >E-Learning</Link
+                            >
+                            <Link href="/profile" class="dropdown-item"
+                                >Profile</Link
+                            >
+                            <Link
+                                href="/logout"
+                                method="post"
+                                class="dropdown-item"
+                                >Log Out</Link
+                            >
                         </div>
                     </div>
-                    <Link v-else :href="route('login')"
-                        class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-900 hover:bg-gray-100">
-                    Log in
+
+                    <!-- Prosperity Dashboard Button / Login -->
+                    <Link
+                        v-if="user"
+                        href="/msme/dashboard"
+                        class="btn btn-primary"
+                    >
+                        Prosperity Dashboard
+                    </Link>
+                    <Link v-else href="/login" class="btn btn-primary">
+                        Prosperity Dashboard
                     </Link>
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button @click="isMobileMenuOpen = !isMobileMenuOpen"
-                    class="md:hidden text-gray-300 hover:text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path v-if="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
+                <button
+                    @click="isMobileMenuOpen = !isMobileMenuOpen"
+                    class="mobile-menu-button"
+                >
+                    <svg
+                        class="menu-icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            v-if="!isMobileMenuOpen"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"
+                        />
+                        <path
+                            v-else
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     </svg>
                 </button>
             </div>
@@ -122,136 +196,193 @@
 
         <!-- Mobile Menu Slide-in Panel -->
         <transition name="slide">
-            <div v-if="isMobileMenuOpen"
-                class="fixed inset-y-0 right-0 w-[300px] bg-purple-900 shadow-xl z-50 md:hidden overflow-y-auto">
-                <div class="flex justify-between items-center p-4 border-b border-purple-800">
+            <div v-if="isMobileMenuOpen" class="mobile-menu">
+                <div class="mobile-menu-header">
                     <Link href="/" @click="isMobileMenuOpen = false">
-                    <img src="/images/home/zurit.png" class="w-28" alt="Zurit Logo" />
+                        <div class="logo-mark">
+                            <span class="logo-text">Zurit</span>
+                            <div class="logo-icon"></div>
+                        </div>
                     </Link>
-                    <button @click="isMobileMenuOpen = false" class="text-gray-300 hover:text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
+                    <button
+                        @click="isMobileMenuOpen = false"
+                        class="mobile-close-button"
+                    >
+                        <svg
+                            class="menu-icon"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
                         </svg>
                     </button>
                 </div>
 
-                <div class="py-4">
-                    <div class="space-y-1 px-2">
-                        <Link href="/" class="block py-3 px-4 text-yellow-500 hover:bg-purple-800 rounded-md"
-                            @click="isMobileMenuOpen = false">
-                        Home
-                        </Link>
-                        <Link href="/about"
-                            class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                            @click="isMobileMenuOpen = false">
-                        About us
-                        </Link>
+                <div class="mobile-menu-content">
+                    <Link
+                        href="/"
+                        class="mobile-link"
+                        @click="isMobileMenuOpen = false"
+                        >Home</Link
+                    >
+                    <Link
+                        href="/about"
+                        class="mobile-link"
+                        @click="isMobileMenuOpen = false"
+                        >About Us</Link
+                    >
 
-                        <!-- Mobile Accordions for Dropdowns -->
-                        <div class="border-none">
-                            <button @click="toggleMobileAccordion('prosperityTools')"
-                                class="flex w-full justify-between py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
-                                Prosperity tools
-                                <svg :class="[
-                                    'h-4 w-4 transition-transform',
-                                    activeMobileAccordion === 'prosperityTools' ? 'rotate-180' : ''
-                                ]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                            <div v-if="activeMobileAccordion === 'prosperityTools'" class="pl-4 space-y-1 mt-1">
-                                <Link v-for="item in prosperityTools" :key="item.href" :href="item.href"
-                                    class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                                    @click="isMobileMenuOpen = false">
+                    <!-- Solutions Accordion -->
+                    <div class="mobile-accordion">
+                        <button
+                            @click="toggleMobileAccordion('solutions')"
+                            class="mobile-accordion-trigger"
+                        >
+                            Solutions
+                            <svg
+                                :class="[
+                                    'dropdown-icon',
+                                    {
+                                        'rotate-180':
+                                            activeMobileAccordion ===
+                                            'solutions',
+                                    },
+                                ]"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        </button>
+                        <div
+                            v-if="activeMobileAccordion === 'solutions'"
+                            class="mobile-accordion-content"
+                        >
+                            <Link
+                                v-for="item in solutionsMenu"
+                                :key="item.href"
+                                :href="item.href"
+                                class="mobile-accordion-link"
+                                @click="isMobileMenuOpen = false"
+                            >
                                 {{ item.name }}
-                                </Link>
-                            </div>
+                            </Link>
                         </div>
-
-                        <div class="border-none">
-                            <button @click="toggleMobileAccordion('services')"
-                                class="flex w-full justify-between py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
-                                Services
-                                <svg :class="[
-                                    'h-4 w-4 transition-transform',
-                                    activeMobileAccordion === 'services' ? 'rotate-180' : ''
-                                ]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                            <div v-if="activeMobileAccordion === 'services'" class="pl-4 space-y-1 mt-1">
-                                <Link v-for="item in services" :key="item.href" :href="item.href"
-                                    class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                                    @click="isMobileMenuOpen = false">
-                                {{ item.name }}
-                                </Link>
-                            </div>
-                        </div>
-
-                        <Link href="/books"
-                            class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                            @click="isMobileMenuOpen = false">
-                        Buy Book
-                        </Link>
-                        <Link href="/blogs"
-                            class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                            @click="isMobileMenuOpen = false">
-                        Blogs
-                        </Link>
-                        <Link href="/feedback"
-                            class="block py-3 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                            @click="isMobileMenuOpen = false">
-                        Feedback
-                        </Link>
-
-                        <!-- User Menu for Mobile -->
-                        <div v-if="user" class="border-none mt-2">
-                            <button @click="toggleMobileAccordion('user')"
-                                class="flex w-full justify-between py-3 px-4 text-white bg-white/10 hover:bg-white/20 rounded-md">
-                                {{ user.name }}
-                                <svg :class="[
-                                    'h-4 w-4 transition-transform',
-                                    activeMobileAccordion === 'user' ? 'rotate-180' : ''
-                                ]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                            <div v-if="activeMobileAccordion === 'user'" class="pl-4 space-y-1 mt-1">
-                                <!-- Show Coach Dashboard if user is coach -->
-                                <template v-if="user.role === 2">
-                                    <Link href="/coach"
-                                        class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
-                                    Coach Dashboard
-                                    </Link>
-                                </template>
-                                <!-- Show Admin Dashboard if user is admin -->
-                                <template v-if="user.role === 1">
-                                    <Link href="/admin"
-                                        class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md">
-                                    Admin Dashboard
-                                    </Link>
-                                </template>
-                                <Link v-for="item in userMenuItems" :key="item.href" :href="item.href"
-                                    :method="item.href === '/logout' ? 'post' : 'get'"
-                                    class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-purple-800 rounded-md"
-                                    @click="isMobileMenuOpen = false">
-                                {{ item.name }}
-                                </Link>
-                            </div>
-                        </div>
-                        <Link v-else href="/login"
-                            class="block py-3 px-4 mt-4 text-center bg-white text-purple-900 hover:bg-gray-100 rounded-md"
-                            @click="isMobileMenuOpen = false">
-                        Log in
-                        </Link>
                     </div>
+
+                    <Link
+                        href="/blogs"
+                        class="mobile-link"
+                        @click="isMobileMenuOpen = false"
+                        >Learn</Link
+                    >
+                    <Link
+                        href="/books"
+                        class="mobile-link"
+                        @click="isMobileMenuOpen = false"
+                        >Books</Link
+                    >
+
+                    <!-- User Menu for Mobile -->
+                    <div v-if="user" class="mobile-accordion">
+                        <button
+                            @click="toggleMobileAccordion('user')"
+                            class="mobile-accordion-trigger mobile-user-button"
+                        >
+                            {{ user.name }}
+                            <svg
+                                :class="[
+                                    'dropdown-icon',
+                                    {
+                                        'rotate-180':
+                                            activeMobileAccordion === 'user',
+                                    },
+                                ]"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        </button>
+                        <div
+                            v-if="activeMobileAccordion === 'user'"
+                            class="mobile-accordion-content"
+                        >
+                            <template v-if="user.role === 1">
+                                <Link
+                                    href="/admin"
+                                    class="mobile-accordion-link"
+                                    @click="isMobileMenuOpen = false"
+                                >
+                                    Admin Dashboard
+                                </Link>
+                            </template>
+                            <template v-if="user.role === 2">
+                                <Link
+                                    href="/coach"
+                                    class="mobile-accordion-link"
+                                    @click="isMobileMenuOpen = false"
+                                >
+                                    Coach Dashboard
+                                </Link>
+                            </template>
+                            <Link
+                                href="/msme/dashboard"
+                                class="mobile-accordion-link"
+                                @click="isMobileMenuOpen = false"
+                                >MSME Dashboard</Link
+                            >
+                            <Link
+                                href="/user/budget"
+                                class="mobile-accordion-link"
+                                @click="isMobileMenuOpen = false"
+                                >Prosperity Dashboard</Link
+                            >
+                            <Link
+                                href="/elearning/landing"
+                                class="mobile-accordion-link"
+                                @click="isMobileMenuOpen = false"
+                                >E-Learning</Link
+                            >
+                            <Link
+                                href="/profile"
+                                class="mobile-accordion-link"
+                                @click="isMobileMenuOpen = false"
+                                >Profile</Link
+                            >
+                            <Link
+                                href="/logout"
+                                method="post"
+                                class="mobile-accordion-link"
+                                @click="isMobileMenuOpen = false"
+                                >Log Out</Link
+                            >
+                        </div>
+                    </div>
+                    <Link
+                        v-else
+                        href="/login"
+                        class="btn btn-primary mobile-login-button"
+                        @click="isMobileMenuOpen = false"
+                    >
+                        Log in
+                    </Link>
                 </div>
             </div>
         </transition>
@@ -259,83 +390,372 @@
 </template>
 
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { Link, usePage } from "@inertiajs/vue3";
+import { ref, computed } from "vue";
 
-/* -------------------------------------------------
-   1.  Get the global Inertia page object
-   2.  Derive the current user from $page.props.auth.user
--------------------------------------------------- */
-const page = usePage()
-const user = computed(() => page.props.auth?.user ?? null)
+const page = usePage();
+const user = computed(() => page.props.auth?.user ?? null);
 
-/* -------------------------------------------------
-   Local state
--------------------------------------------------- */
-const isScrolled = ref(false)
-const isMobileMenuOpen = ref(false)
-const activeDropdown = ref(null)
-const activeMobileAccordion = ref(null)
+const isMobileMenuOpen = ref(false);
+const activeDropdown = ref(null);
+const activeMobileAccordion = ref(null);
 
-/* -------------------------------------------------
-   Static nav data
--------------------------------------------------- */
-const prosperityTools = [
-    { name: 'MSME Dashboard', href: '/msme/dashboard' },
-    { name: 'Goal Setting', href: '/goal-setting' },
-    { name: 'Budget Planner', href: '/budget-planner' },
-    { name: 'Networth calculator', href: '/networth-calculator' },
-    { name: 'Debt Manager', href: '/debt-manager' },
-    { name: 'Investment Planner', href: '/investment-planner' },
-    { name: 'Zuriscore', href: '/zuriscore' },
-    { name: 'Calculators', href: '/calculators' },
-    { name: 'Questionnaires', href: '/questionnaires' },
-]
+const solutionsMenu = [
+    { name: "MSME Dashboard", href: "/msme/dashboard" },
+    { name: "Goal Setting", href: "/goal-setting" },
+    { name: "Budget Planner", href: "/budget-planner" },
+    { name: "Networth Calculator", href: "/networth-calculator" },
+    { name: "Debt Manager", href: "/debt-manager" },
+    { name: "Investment Planner", href: "/investment-planner" },
+    { name: "Zuriscore", href: "/zuriscore" },
+    { name: "Calculators", href: "/calculators" },
+    { name: "Questionnaires", href: "/questionnaires" },
+    { name: "Training", href: "/training" },
+    { name: "Advisory", href: "/advisory" },
+    { name: "Business Support", href: "/business-support" },
+];
 
-const services = [
-    { name: 'Training', href: '/training' },
-    { name: 'Advisory', href: '/advisory' },
-    { name: 'Business Support', href: '/business-support' },
-]
+const toggleDropdown = (name) => {
+    activeDropdown.value = activeDropdown.value === name ? null : name;
+};
 
-const userMenuItems = [
-    { name: 'MSME Dashboard', href: '/msme/dashboard' },
-    { name: 'Prosperity Dashboard', href: '/user/budget' },
-    { name: 'E-Learning', href: '/elearning/landing' },
-    { name: 'Profile', href: '/profile' },
-    { name: 'Log Out', href: '/logout' }
-]
+const closeDropdowns = () => {
+    activeDropdown.value = null;
+};
 
-/* -------------------------------------------------
-   Helpers
--------------------------------------------------- */
-const handleScroll = () => { isScrolled.value = window.scrollY > 10 }
+const toggleMobileAccordion = (name) => {
+    activeMobileAccordion.value =
+        activeMobileAccordion.value === name ? null : name;
+};
 
-const toggleDropdown = name => { activeDropdown.value = activeDropdown.value === name ? null : name }
-const closeDropdowns = () => { activeDropdown.value = null }
-const toggleMobileAccordion = name => { activeMobileAccordion.value = activeMobileAccordion.value === name ? null : name }
-
-const isHomePage = () => window.location.pathname === '/'
-
-/* -------------------------------------------------
-   Lifecycle
--------------------------------------------------- */
-onMounted(() => {
-    handleScroll()
-    window.addEventListener('scroll', handleScroll)
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 768) isMobileMenuOpen.value = false
-    })
-})
-
-onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll)
-})
+const isCurrentRoute = (path) => {
+    return window.location.pathname === path;
+};
 </script>
 
-
 <style scoped>
-/* Slide animation for mobile menu */
+/* NAVBAR */
+.navbar {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 50;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+}
+
+/* Logo */
+.logo-link {
+    text-decoration: none;
+}
+
+.logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #000000;
+}
+
+.logo-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #6b27ff, #ff5c5c);
+}
+
+/* Desktop Navigation */
+.nav-center {
+    display: none;
+    gap: 2.5rem;
+    font-size: 1rem;
+}
+
+@media (min-width: 1024px) {
+    .nav-center {
+        display: flex;
+    }
+}
+
+.nav-link {
+    position: relative;
+    padding: 0.5rem 0;
+    color: #333333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.nav-link:hover {
+    color: #6b27ff;
+}
+
+.nav-link-active {
+    color: #000000;
+}
+
+.nav-link-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: #ff5c5c;
+}
+
+/* Dropdown */
+.nav-dropdown {
+    position: relative;
+}
+
+.dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.dropdown-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    min-width: 220px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 100;
+}
+
+.dropdown-menu-right {
+    left: auto;
+    right: 0;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #333333;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+/* Buttons */
+.btn {
+    border: none;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 0.7rem 1.6rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6b27ff, #c02dfc);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(107, 39, 255, 0.4);
+}
+
+.btn-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    background: #f5f5f5;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background 0.3s ease;
+}
+
+.btn-user:hover {
+    background: #e5e5e5;
+}
+
+.nav-right {
+    display: none;
+    gap: 1rem;
+    align-items: center;
+}
+
+@media (min-width: 1024px) {
+    .nav-right {
+        display: flex;
+    }
+}
+
+/* Mobile Menu Button */
+.mobile-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333333;
+}
+
+@media (min-width: 1024px) {
+    .mobile-menu-button {
+        display: none;
+    }
+}
+
+.menu-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 320px;
+    max-width: 85vw;
+    background: #ffffff;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.mobile-close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333333;
+}
+
+.mobile-menu-content {
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mobile-link {
+    padding: 1rem 1rem;
+    color: #333333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    font-weight: 500;
+}
+
+.mobile-link:hover {
+    background: #f5f5f5;
+}
+
+.mobile-accordion {
+    border-radius: 8px;
+}
+
+.mobile-accordion-trigger {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333333;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.mobile-accordion-trigger:hover {
+    background: #f5f5f5;
+}
+
+.mobile-user-button {
+    background: #f5f5f5;
+    margin-top: 1rem;
+}
+
+.mobile-accordion-content {
+    padding: 0.5rem 0 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-accordion-link {
+    padding: 0.75rem 1rem;
+    color: #666666;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.mobile-accordion-link:hover {
+    background: #f5f5f5;
+}
+
+.mobile-login-button {
+    margin-top: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+/* Slide animation */
 .slide-enter-active,
 .slide-leave-active {
     transition: transform 0.3s ease;

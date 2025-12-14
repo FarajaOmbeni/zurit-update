@@ -1,123 +1,100 @@
 <template>
-    <footer class="bg-purple-900 text-center md:text-left text-gray-300 py-10">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <!-- Address Section -->
-                <div class="space-y-3">
-                    <h2 class="text-lg font-semibold text-yellow-500">Contact Us</h2>
-                    <p>Zuidier Complex</p>
-                    <p>Ngumo, Off Mbagathi Road</p>
-                    <p>Nairobi, KE</p>
-                    <p>Phone: <a href="tel:+254759092412" class="hover:text-yellow-400">+254 759 092 412</a></p>
-                    <p>Email: <a href="mailto:info@zuritconsulting.com"
-                            class="hover:text-yellow-400">info@zuritconsulting.com</a></p>
-                </div>
-
-                <!-- Prosperity Dashboard -->
-                <div class="space-y-3">
-                    <h2 class="text-lg font-semibold text-yellow-500">Prosperity Dashboard</h2>
-                    <Link :href="route('budget')" class="block hover:text-yellow-400">Budget Planner</Link>
-                    <Link :href="route('networth')" class="block hover:text-yellow-400">Networth
-                    Calculator</Link>
-                    <Link :href="route('debt')" class="block hover:text-yellow-400">Debt Manager</Link>
-                    <Link :href="route('investment')" class="block hover:text-yellow-400">Investment Planner
-                    </Link>
-                    <Link :href="route('goal')" class="block hover:text-yellow-400">Goal Setting</Link>
-                </div>
-
-                <!-- Quick Links -->
-                <div class="space-y-3">
-                    <h2 class="text-lg font-semibold text-yellow-500">Quick Links</h2>
-                    <Link :href="route('home')" class="block hover:text-yellow-400">Home</Link>
-                    <Link :href="route('training')" class="block hover:text-yellow-400">Training</Link>
-                    <Link :href="route('about')" class="block hover:text-yellow-400">About Us</Link>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="space-y-3">
-                    <h2 class="text-lg font-semibold text-yellow-500">Get In Touch</h2>
-                    <form @submit.prevent="handleSubmit" class="space-y-3">
-                        <!-- Honeypot Field -->
-                        <input type="text" name="website" v-model="form.website" style="display:none" tabindex="-1"
-                            autocomplete="off" />
-
-                        <input type="email" name="email" v-model="form.email" placeholder="Your Email"
-                            class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
-                            required>
-                        <!-- Success Message -->
-                        <p v-if="showSuccess" class="text-green-300">
-                            Email sent successfully! We will get back to you soon!
-                        </p>
-                        <button type="submit"
-                            class="w-full bg-yellow-500 text-purple-900 font-semibold py-2 rounded-md hover:bg-yellow-400 transition"
-                            :class="form.processing ? 'opacity-50 cursor-not-allowed' : 'block'"
-                            :disabled="form.processing">
-                            {{ form.processing ? 'Submitting...' : 'Subscribe' }}
-                        </button>
-                    </form>
-                </div>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <p class="footer-copyright">
+                    © Zurit Consulting. All Rights Reserved.
+                </p>
+                <a href="#" class="footer-design-link">Design Information</a>
             </div>
 
-            <!-- Copyright -->
-            <div class="text-center text-gray-400 mt-10">
-                <p>&copy; 2025 ZURIT CONSULTING. All Rights Reserved.</p>
-                <p><Link class="text-blue-500 underline" href="/terms-and-conditions" target="_blank">Terms and conditions</Link> apply.</p>
+            <div class="footer-disclaimer">
+                <p>
+                    <strong>No Investment Advice:</strong> All Content on this
+                    site is for informational purposes only, you should not
+                    construe any such information or other material as legal,
+                    tax, investment, financial, or other advice. Nothing
+                    contained on our Site constitutes a solicitation,
+                    recommendation, endorsement, or offer by Zurit Consulting or
+                    any third party service provider to buy or sell any
+                    securities or other financial instruments in this or in any
+                    other jurisdiction in which such solicitation or offer would
+                    be unlawful under the securities laws of such jurisdiction.
+                </p>
             </div>
         </div>
     </footer>
-
 </template>
- 
-<script setup>
-import { Link } from '@inertiajs/vue3';
-import { useForm } from '@inertiajs/vue3'
-import { ref, nextTick } from 'vue'
 
-// Save scroll position before submitting
-const saveScrollPosition = () => {
-    sessionStorage.setItem('scrollPosition', window.scrollY);
+<script setup>
+// No script needed for this simplified footer
+</script>
+
+<style scoped>
+.footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 2rem 0 3rem;
+    background: linear-gradient(135deg, #3b245d, #12041a);
+    color: #ffffff;
 }
 
-// Restore scroll position after the form is submitted or page reloads
-const restoreScrollPosition = () => {
-    const savedPosition = sessionStorage.getItem('scrollPosition');
-    if (savedPosition) {
-        window.scrollTo(0, savedPosition);
-        sessionStorage.removeItem('scrollPosition'); // Clear the saved position after restoring
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-copyright {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #e3dcff;
+}
+
+.footer-design-link {
+    font-size: 0.9rem;
+    color: #e3dcff;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.footer-design-link:hover {
+    color: #ffffff;
+}
+
+.footer-disclaimer {
+    margin: 0;
+}
+
+.footer-disclaimer p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: #d0c9e6;
+}
+
+.footer-disclaimer strong {
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .footer-disclaimer p {
+        font-size: 0.75rem;
     }
 }
-
-const showSuccess = ref(false);
-
-
-const form = useForm({
-    email: '',
-    website: ''
-})
-
-const handleSubmit = () => {
-    saveScrollPosition();  
-
-    form.post(route('send.email'), {
-        onSuccess: () => {
-            form.reset();
-            showSuccess.value = true;
-            nextTick(() => {
-                setTimeout(() => {
-                    showSuccess.value = false;
-                }, 5000);
-            });
-
-            restoreScrollPosition();
-        },
-        onError: (errors) => {
-            const errorMessages = Object.values(errors)
-                .flat()
-                .join(' ');
-
-            openAlert('danger', errorMessages, 5000);
-        }
-    })
-}
-restoreScrollPosition();
-</script>
+</style>
