@@ -6,7 +6,7 @@
         <BackButton class="mt-6" />
     </div>
 
-    <div class="mx-6 md:mx-12 flex flex-col lg:flex-row gap-8">
+    <div class="mx-6 md:mx-12 flex flex-col lg:flex-row gap-8 mt-[6rem]">
         <!-- Left Section (Story & Team) -->
         <div class="lg:w-2/3 space-y-6 py-8">
             <div>
