@@ -6,12 +6,12 @@
         <BackButton class="mt-6" />
     </div>
 
-    <div class="mx-6 md:mx-12 flex flex-col lg:flex-row gap-16">
+    <div class="mx-6 md:mx-12 flex flex-col lg:flex-row gap-8">
         <!-- Left Section (Story & Team) -->
-        <div class="lg:w-2/3 space-y-8 py-36">
+        <div class="lg:w-2/3 space-y-6 py-8">
             <div>
-                <h3 class="font-bold text-3xl mb-4 text-center">Our Story</h3>
-                <p class="text-gray-700 leading-relaxed text-2xl text-center mb-16">
+                <h3 class="font-bold text-xl mb-2 text-center">Our Story</h3>
+                <p class="text-gray-700 leading-relaxed text-base text-center mb-8">
                     At <b>Zurit Consulting</b>, we exist to make financial literacy practical and prosperity achievable.
                     From humble beginnings, we’ve grown into a trusted partner to <b>individuals, SACCOs, trustees,
                         MSMEs, and corporates</b>—
@@ -20,30 +20,30 @@
                     build simple systems,
                     and follow through with confidence.
                 </p>
-                <h4 class="font-semibold text-3xl mt-4 mb-6 text-center">What Sets Us Apart</h4>
-                <ul class="list-disc pl-6 text-gray-700 text-2xl space-y-2">
+                <h4 class="font-semibold text-xl mt-2 mb-3 text-center">What Sets Us Apart</h4>
+                <ul class="list-disc pl-6 text-gray-700 text-base space-y-1">
                     <li><b>Seasoned experts:</b> real-world experience across personal finance, governance, and
                         investments.</li>
                     <li><b>Tailored strategies:</b> we start with your context—not a template.</li>
                     <li><b>Action you can keep:</b> clear plans, practical tools, and support that make progress stick.
                     </li>
                 </ul>
-                <p class="text-gray-700 leading-relaxed mt-2 text-2xl mb-16">
+                <p class="text-gray-700 leading-relaxed mt-2 text-base mb-8">
                     Work with a partner who meets you where you are—and moves you forward.
                 </p>
             </div>
 
             <!-- Meet Our Team -->
             <div class="flex flex-col items-center">
-                <h2 class="font-bold text-3xl mb-6">Meet Our Team</h2>
+                <h2 class="font-bold text-xl mb-4">Meet Our Team</h2>
                 <Profile name="Elizabeth Nkukuu" position="Founder & Team Lead" image="/images/team/liz.jpg"
                     linkedin_link="https://www.linkedin.com/in/elizabethnkukuu/" />
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-16 justify-items-center">
                     <Profile name="Brian Salau" position="Manager" image="/images/team/brian.webp"
                         linkedin_link="https://www.linkedin.com/in/brian-salau-500255233/" />
                     <Profile name="Bryan Gitia" position="Investment Specialist" image="/images/team/gitia.webp"
                         linkedin_link="https://www.linkedin.com/in/bgitia/" />
-                    <Profile name="Joel Mugonyi" position="Investment Analyst" image="/images/team/joel.png"
+                    <Profile name="Joel Mugonyi" position="Investment Analyst" image="/images/team/joel_mugonyi.jpg"
                         linkedin_link="https://www.linkedin.com/in/joel-mugonyi-79427323a/" />
                     <Profile name="Joseph Mukoko" position="Business Growth Coach" image="/images/team/joseph.jpg"
                         linkedin_link="https://www.linkedin.com/in/josephcmukoko/" />
@@ -60,7 +60,7 @@
 
             <!-- Coaches -->
             <div class="flex flex-col items-center">
-                <h2 class="font-bold text-3xl mb-6">Independent Financial Coaches</h2>
+                <h2 class="font-bold text-xl mb-4">Independent Financial Coaches</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                     <Profile name="Kyesubire Talitwala-Greigg" position="Coach" image="/images/team/kyesubire.jpg"
                         linkedin_link="https://www.linkedin.com/in/kyesubire/" />
@@ -73,10 +73,10 @@
         </div>
 
         <!-- Right Section (Who We Are & Tools) -->
-        <div class="lg:w-1/3 space-y-10 p-5 xl:py-36 bg-yellow-100 mb-20">
+        <div class="lg:w-1/3 space-y-6 p-4 xl:py-8 bg-yellow-100 mb-12">
             <div>
-                <h2 class="text-2xl font-bold mb-2">Who We Are</h2>
-                <p class="text-gray-700 leading-relaxed text-xl">
+                <h2 class="text-lg font-bold mb-1">Who We Are</h2>
+                <p class="text-gray-700 leading-relaxed text-sm">
                     We’re a financial empowerment and wealth management partner. We translate complex finance into
                     everyday decisions—
                     from literacy to investment advisory—designing custom solutions that bridge the gap between income
@@ -85,20 +85,20 @@
                 </p>
             </div>
             <div>
-                <h2 class="text-2xl font-bold mb-2">Our Vision</h2>
-                <p class="text-gray-700 leading-relaxed text-xl">To make financial prosperity the norm—not the
+                <h2 class="text-lg font-bold mb-1">Our Vision</h2>
+                <p class="text-gray-700 leading-relaxed text-sm">To make financial prosperity the norm—not the
                     exception.</p>
             </div>
             <div>
-                <h2 class="text-2xl font-bold mb-2">Our Mission</h2>
-                <p class="text-gray-700 leading-relaxed text-xl">
+                <h2 class="text-lg font-bold mb-1">Our Mission</h2>
+                <p class="text-gray-700 leading-relaxed text-sm">
                     To deliver simple, efficient, and impactful training and advisory that become the foundation for
                     thriving investments and confident, strategic decisions.
                 </p>
             </div>
             <div>
-                <h2 class="text-2xl font-bold mb-2">Our Values</h2>
-                <ul class="list-disc pl-6 text-gray-700 text-xl space-y-1">
+                <h2 class="text-lg font-bold mb-1">Our Values</h2>
+                <ul class="list-disc pl-6 text-gray-700 text-sm space-y-0.5">
                     <li><b>Excellence</b> — We pursue the highest standards in everything we do.</li>
                     <li><b>Innovation</b> — We design solutions that are fresh, practical, and future‑focused.</li>
                     <li><b>Collaboration</b> — We believe real transformation happens in partnership.</li>
@@ -108,11 +108,11 @@
             </div>
 
             <!-- Tools Section -->
-            <div class="space-y-6">
-                <h2 class="text-3xl font-bold text-center">Tools that Turn Plans into Progress</h2>
+            <div class="space-y-4">
+                <h2 class="text-xl font-bold text-center">Tools that Turn Plans into Progress</h2>
                 <div class="flex justify-center">
                     <div
-                        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-12 sm:gap-24 xl:gap-24 items-center justify-center">
+                        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-6 sm:gap-8 xl:gap-6 items-center justify-center">
                         <ToolCardSmall image="/images/tools/debt.webp" title="Debt Manager"
                             description="Track every facility, optimize repayments, and pay off faster—with clarity and control." />
                         <ToolCardSmall image="/images/tools/budget.webp" title="Budget Planner"

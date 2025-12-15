@@ -49,10 +49,10 @@
             <Link :href="route(item.link)"
               class="flex items-center py-2 px-2 rounded hover:bg-purple-700 transition-colors"
               :class="item.active ? 'bg-purple-700' : ''">
-            <span class="text-yellow-400">
-              <component :is="iconMap[item.icon]" class="h-5 w-5" />
-            </span>
-            <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
+              <span class="text-yellow-400">
+                <component :is="iconMap[item.icon]" class="h-5 w-5" />
+              </span>
+              <span v-if="sidebarOpen" class="ml-3 whitespace-nowrap">{{ item.title }}</span>
             </Link>
 
             <!-- Tooltip -->
@@ -85,7 +85,7 @@
             ]">
               <Link v-for="(item, index) in hiddenMenuItems" :key="index" :href="route(item.link)"
                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-200" @click="moreMenuOpen = false">
-              {{ item.title }}
+                {{ item.title }}
               </Link>
             </div>
           </div>
@@ -99,19 +99,19 @@
             class="flex-shrink-0 h-8 w-8 rounded-full bg-white border-2 border-yellow-400"></div>
           <div v-if="sidebarOpen" class="ml-3 relative">
             <div @click.stop="toggleDropdown" class="cursor-pointer group">
-              <p class="text-sm font-medium group-hover:text-yellow-500">{{ $page.props.auth.user.name }}</p>
-              <p class="text-xs text-purple-300 group-hover:text-yellow-500">{{ $page.props.auth.user.email }}</p>
+              <p class="text-sm font-medium group-hover:text-yellow-500">{{ $page.props.auth.user?.name }}</p>
+              <p class="text-xs text-purple-300 group-hover:text-yellow-500">{{ $page.props.auth.user?.email }}</p>
             </div>
 
             <!-- Dropdown menu opening upwards -->
             <div v-if="dropdownOpen"
               class="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
               <Link :href="route('profile.edit')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-200">
-              Profile
+                Profile
               </Link>
               <Link :href="route('logout')" method="post" as="button"
                 class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-200">
-              Logout
+                Logout
               </Link>
             </div>
           </div>
@@ -135,8 +135,8 @@
           class="flex-1 flex flex-col items-center justify-center py-2">
           <Link :href="route(item.link)" class="flex flex-col items-center text-xs"
             :class="item.active ? 'text-yellow-400' : 'text-white'">
-          <component :is="iconMap[item.icon]" class="w-5 h-5 mb-1" />
-          <span>{{ item.title.split(' ')[0] }}</span>
+            <component :is="iconMap[item.icon]" class="w-5 h-5 mb-1" />
+            <span>{{ item.title.split(' ')[0] }}</span>
           </Link>
         </div>
 
@@ -172,8 +172,8 @@
           <div class="p-4 space-y-4 text-sm">
             <Link v-for="(item, index) in extendedMenuItems" :key="index" :href="route(item.link)"
               class="flex items-center space-x-2 hover:text-yellow-400">
-            <component :is="iconMap[item.icon]" class="w-4 h-4" />
-            <span>{{ item.title }}</span>
+              <component :is="iconMap[item.icon]" class="w-4 h-4" />
+              <span>{{ item.title }}</span>
             </Link>
           </div>
         </div>
