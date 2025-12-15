@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'subscription_expires_at',
         'last_payment_date',
         'subscription_package',
+        'last_login',
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'subscription_expires_at' => 'datetime',
         'last_payment_date' => 'datetime',
+        'last_login' => 'datetime',
         'password' => 'hashed',
         'role' => 'integer',
     ];

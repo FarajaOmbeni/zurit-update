@@ -15,7 +15,16 @@ class AdminController extends Controller
 {
 	public function users()
 	{
-		$users = User::all();
+		$users = User::all()->map(function ($user) {
+			return [
+				'id' => $user->id,
+				'name' => $user->name,
+				'email' => $user->email,
+				'phone_number' => $user->phone_number,
+				'last_login' => $user->last_login ? $user->last_login->format('d-m-Y') : 'Never',
+				'subscription' => $user->subscription_expires_at ? $user->subscription_expires_at->format('d-m-Y') : 'Not Subscribed',
+			];
+		});
 
 		return Inertia::render('Admin/Users', [
 			'users' => $users,

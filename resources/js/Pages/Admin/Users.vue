@@ -17,7 +17,9 @@ usersData.value = props.users
 const tableHeaders = ref([
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
-    { key: 'phone_number', label: 'Phone Number' }
+    { key: 'phone_number', label: 'Phone Number' },
+    { key: 'last_login', label: 'Last Login' },
+    { key: 'subscription', label: 'Subscription' }
 ]);
 </script>
 
