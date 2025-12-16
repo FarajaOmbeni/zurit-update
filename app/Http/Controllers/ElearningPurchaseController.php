@@ -12,8 +12,11 @@ use App\Exceptions\InvalidPhoneNumberException;
 
 class ElearningPurchaseController extends Controller
 {
-    public function buy(Request $request, Course $course, ChatpesaStk $stk)
+    public function buy(Request $request, $courseId, ChatpesaStk $stk)
     {
+        // Manually resolve the course to avoid route model binding authorization issues
+        $course = Course::findOrFail($courseId);
+
         $request->validate([
             'phone' => ['nullable', 'string'],
         ]);

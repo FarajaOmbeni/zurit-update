@@ -307,7 +307,7 @@ const services = [
 
 const userMenuItems = [
     { name: 'MSME Dashboard', href: '/msme/dashboard' },
-    { name: 'Prosperity Dashboard', href: '/user/budget' },
+    { name: 'Prosperity Dashboard', href: '/dashboard' },
     { name: 'Profile', href: '/profile' },
     { name: 'Log Out', href: '/logout' }
 ]

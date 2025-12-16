@@ -68,7 +68,7 @@
   "shortcuts": [
     {
       "name": "Budget",
-      "url": "https://zuritconsulting.com/user/budget",
+      "url": "https://zuritconsulting.com/dashboard",
       "description": "Budget Planner Tool"
     },
     {
@@ -140,7 +140,6 @@
       "form_factor": "narrow",
       "label": "Budget Planner"
     },
-
     {
       "src": "pwa_images/screenshots/calculators/android-launchericon-48-48.png",
       "sizes": "48x48",
@@ -183,7 +182,6 @@
       "form_factor": "narrow",
       "label": "Calculators"
     },
-
     {
       "src": "pwa_images/screenshots/debt/android-launchericon-48-48.png",
       "sizes": "48x48",
@@ -226,7 +224,6 @@
       "form_factor": "narrow",
       "label": "Debt Manager"
     },
-
     {
       "src": "pwa_images/screenshots/goal/android-launchericon-48-48.png",
       "sizes": "48x48",

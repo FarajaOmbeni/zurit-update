@@ -83,7 +83,7 @@ Route::middleware(['auth', 'verified', 'subscribed'])->group(function () {
     //////////////////  BUDGET ROUTES ///////////////////////
     ////////////////////////////////////////////////////////
     Route::get('/dashboard', [BudgetController::class, 'index'])->name('budget.index');
-    Route::get('/user/budget/budgets', [BudgetController::class, 'budgets'])->name('budget.budgets');
+    Route::get('/dashboard/budgets', [BudgetController::class, 'budgets'])->name('budget.budgets');
     Route::post('addIncome', [BudgetController::class, 'storeIncome'])->name('income.store');
     Route::put('/income/{id}', [BudgetController::class, 'updateIncome'])->name('income.edit');
     // Edit past-month income without touching recurrence rule

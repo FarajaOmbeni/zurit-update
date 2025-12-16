@@ -85,7 +85,7 @@
             Update your budget now to keep your financial plan current and effective!
         </p>
 
-        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/user/budget">Update Budget</a>
+        <a target="_blank" class="cta-button" href="https://zuritconsulting.com/dashboard">Update Budget</a>
 
         <div class="footer">
             <p>© {{ date('Y') }} Zurit Consulting. All rights reserved.</p>

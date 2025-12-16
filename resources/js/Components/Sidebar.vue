@@ -257,7 +257,7 @@ const menuItems = [
   {
     title: 'Budget Planner',
     icon: 'CalculatorIcon',
-    active: currentRoute.startsWith('/user/budget'),
+    active: currentRoute.startsWith('/dashboard'),
     link: 'budget.index',
   },
   {
