@@ -216,7 +216,9 @@ class CoachController extends Controller
 
     public function requestCoach(Request $request)
     {
-        Mail::to(config('services.email.admin_email'))->send(new CoachRequestMail($request));
+        $user = Auth::user();
+        
+        Mail::to(config('services.email.admin_email'))->send(new CoachRequestMail($user));
 
         return redirect()->back()->with('success', 'Coach request sent successfully!');
     }

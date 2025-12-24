@@ -79,13 +79,25 @@ class PricingModel extends Model
                                    $this->fixed_overhead_cost;
 
         // Calculate suggested selling price based on desired margin
-        if ($this->desired_profit_margin > 0) {
-            $this->suggested_selling_price = $this->total_cost_per_unit / (1 - ($this->desired_profit_margin / 100));
+        if ($this->desired_profit_margin > 0 && $this->desired_profit_margin < 100) {
+            $denominator = 1 - ($this->desired_profit_margin / 100);
+            if ($denominator > 0) {
+                $this->suggested_selling_price = $this->total_cost_per_unit / $denominator;
+            } else {
+                $this->suggested_selling_price = 0;
+            }
+        } elseif ($this->desired_profit_margin >= 100) {
+            // If profit margin is 100% or more, set a default or handle appropriately
+            $this->suggested_selling_price = $this->total_cost_per_unit * 2; // Double the cost as fallback
+        } else {
+            $this->suggested_selling_price = $this->total_cost_per_unit;
         }
 
         // Calculate markup percentage
-        if ($this->total_cost_per_unit > 0) {
+        if ($this->total_cost_per_unit > 0 && $this->suggested_selling_price > 0) {
             $this->markup_percentage = (($this->suggested_selling_price - $this->total_cost_per_unit) / $this->total_cost_per_unit) * 100;
+        } else {
+            $this->markup_percentage = 0;
         }
 
         // Calculate break-even metrics
@@ -95,10 +107,19 @@ class PricingModel extends Model
     // Calculate break-even analysis
     public function calculateBreakEven()
     {
+        // Initialize to 0 to avoid null values
+        $this->break_even_quantity = 0;
+        $this->break_even_revenue = 0;
+
+        // Only calculate if we have a valid suggested selling price
+        if ($this->suggested_selling_price <= 0) {
+            return;
+        }
+
         $variableCostPerUnit = $this->raw_material_cost + $this->direct_labor_cost + $this->variable_overhead_cost;
         $contributionMargin = $this->suggested_selling_price - $variableCostPerUnit;
 
-        if ($contributionMargin > 0) {
+        if ($contributionMargin > 0 && $this->fixed_overhead_cost > 0) {
             $this->break_even_quantity = $this->fixed_overhead_cost / $contributionMargin;
             $this->break_even_revenue = $this->break_even_quantity * $this->suggested_selling_price;
         }

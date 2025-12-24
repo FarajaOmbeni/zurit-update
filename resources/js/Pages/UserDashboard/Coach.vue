@@ -127,9 +127,9 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Email</p>
-                                    <a href="mailto:jmugonyi@zurticonsulting.com"
+                                    <a href="mailto:clients@zuritconsulting.com"
                                         class="text-purple-600 hover:text-purple-700 font-medium">
-                                        jmugonyi@zurticonsulting.com
+                                        clients@zuritconsulting.com
                                     </a>
                                 </div>
                             </div>

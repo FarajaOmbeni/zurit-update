@@ -11,7 +11,7 @@
             <BookCard :book="{
                 title: 'Thrive',
                 description: 'Your ultimate guide to financial freedom. Clear, concise steps to wealth creation.',
-                price: 1500,
+                price: 1800,
                 image: '/images/books/thrive.webp',
             }" :user="user" />
             <BookCard :book="{

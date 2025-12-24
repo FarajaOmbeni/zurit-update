@@ -54,6 +54,14 @@ class PricingModelController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
+        // Convert empty strings to null for nullable fields
+        $validated['industry_template'] = $validated['industry_template'] === '' ? null : $validated['industry_template'];
+        $validated['market_positioning'] = $validated['market_positioning'] === '' ? null : $validated['market_positioning'];
+        $validated['competitor_price_low'] = $validated['competitor_price_low'] === '' || $validated['competitor_price_low'] === null ? null : $validated['competitor_price_low'];
+        $validated['competitor_price_high'] = $validated['competitor_price_high'] === '' || $validated['competitor_price_high'] === null ? null : $validated['competitor_price_high'];
+        $validated['notes'] = $validated['notes'] === '' ? null : $validated['notes'];
+        $validated['seasonal_adjustment'] = $validated['seasonal_adjustment'] === '' || $validated['seasonal_adjustment'] === null ? 0 : $validated['seasonal_adjustment'];
+
         $validated['user_id'] = Auth::id();
 
         $pricingModel = PricingModel::create($validated);
@@ -122,6 +130,14 @@ class PricingModelController extends Controller
             'notes' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
         ]);
+
+        // Convert empty strings to null for nullable fields
+        $validated['industry_template'] = $validated['industry_template'] === '' ? null : $validated['industry_template'];
+        $validated['market_positioning'] = $validated['market_positioning'] === '' ? null : $validated['market_positioning'];
+        $validated['competitor_price_low'] = $validated['competitor_price_low'] === '' || $validated['competitor_price_low'] === null ? null : $validated['competitor_price_low'];
+        $validated['competitor_price_high'] = $validated['competitor_price_high'] === '' || $validated['competitor_price_high'] === null ? null : $validated['competitor_price_high'];
+        $validated['notes'] = $validated['notes'] === '' ? null : $validated['notes'];
+        $validated['seasonal_adjustment'] = $validated['seasonal_adjustment'] === '' || $validated['seasonal_adjustment'] === null ? 0 : $validated['seasonal_adjustment'];
 
         $pricingModel->update($validated);
 

@@ -127,7 +127,7 @@
                 class="fixed inset-y-0 right-0 w-[300px] bg-purple-900 shadow-xl z-50 md:hidden overflow-y-auto">
                 <div class="flex justify-between items-center p-4 border-b border-purple-800">
                     <Link href="/" @click="isMobileMenuOpen = false">
-                    <img src="/images/home/zurit.png" class="w-28" alt="Zurit Logo" />
+                    <img src="/images/home/zurit.svg" class="w-28" alt="Zurit Logo" />
                     </Link>
                     <button @click="isMobileMenuOpen = false" class="text-gray-300 hover:text-white">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
